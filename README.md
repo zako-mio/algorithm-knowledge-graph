@@ -17,7 +17,8 @@
 ├── 03-groups/                  # 60 个知识组页 + index.html 组总索引
 ├── 04-interactive/             # 交互 DAG 总览（cytoscape，本地渲染）
 │   └── vendor/                 # cytoscape.min.js + cytoscape-dagre.min.js
-├── 06-md/                      # AI 友好 Markdown 镜像
+├── 05-views/                   # 人类入口视图（index.html 总入口 + 优先级 + 学习路径）
+├── 06-md/                      # AI 友好 Markdown 镜像（非人类浏览入口）
 │   ├── 00-index.md / 01-groups.md / 02-priority.md / 03-learning-path.md
 │   └── nodes/                  # 372 个知识点 MD
 ├── 07-checkpoint/              # 构建脚本 gen-*.py（可重新生成各交付物）
@@ -30,7 +31,7 @@
 2. 进入 **交互 DAG 总览**（`04-interactive/index.html`），组级视图下点击组节点下钻组内 DAG。
 3. 从 **分组目录**（`03-groups/index.html`）或交互图进入组页，浏览组内知识点。
 4. 点入知识点页读 what（是什么）→ why（为什么）→ how（怎么做）→ 例题 → 易错点。
-5. 按优先级视图（`06-md/02-priority.md`）或学习路径（`06-md/03-learning-path.md`）安排学习顺序。
+5. 按优先级视图（`05-views/02-priority.html`）或学习路径（`05-views/03-learning-path.html`）安排学习顺序（`06-md/` 为 AI 镜像，md 保留作 AI 检索用途，人类浏览请走 HTML）。
 
 ## 数据说明
 
@@ -68,6 +69,7 @@
 | gen-node-pages.py | 从 algorithm-dag.json 生成 372 个知识点详情页（02-node-pages/） |
 | gen-group-pages.py | 生成 60 个知识组页（03-groups/） |
 | gen-md.py | 生成 Markdown 镜像（06-md/ 视图 + nodes/） |
+| gen-views.py | 从 algorithm-dag.json 生成人类入口 HTML 视图（05-views/ 优先级 + 学习路径 + 总入口） |
 | gen-report-html.py | 生成项目报告（report.html） |
 
 数据主源为 `01-dag-data/algorithm-dag.json`；修改数据后重跑对应脚本即可再生交付物。
