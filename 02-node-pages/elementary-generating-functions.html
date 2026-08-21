@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>初等生成函数 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-13.html">生成函数族</a> / <span>初等生成函数</span></div>
+  <h1>初等生成函数</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-C-13</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="poly-compose-inverse.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">poly-compose-inverse</span></a>
+    <a class="nav-index" href="../03-groups/G-C-13.html"><span class="dir">组内第 7 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-C-13.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">常见序列的生成函数闭式：几何/二项/指数/三角/对数等展开式，形式幂级数版 Taylor 级数表</div><p>初等生成函数（elementary generating functions）是一张『常见序列 ⟷ 封闭形式』的对照表，全部按形式幂级数（麦克劳林展开）理解，系数即序列通项。核心清单：e^x=Σx^n/n!（序列 1/n!）；(1+x)^a=ΣC(a,n)x^n（广义二项式定理，a 可为任意实数）；1/(1−x)=Σx^n；1/(1−px)=Σp^n x^n；1/(1−x)²=Σ(n+1)x^n；ln(1+x)=Σ(−1)^{n−1}x^n/n；1/(1+x)=Σ(−1)^n x^n；cos x=Σ(−1)^n x^{2n}/(2n)!；sin x=Σ(−1)^n x^{2n+1}/(2n+1)!；arctan x=Σ(−1)^n x^{2n+1}/(2n+1)；arcsin x=Σ (2n)!/((n!)²(2n+1)4^n) x^{2n+1}；1/√(1+x) 与 1/√(1−x²) 等。这些展开在 OGF/EGF 体系中的角色：等比数列→1/(1−px)（OGF 封闭形式核心）；⟨1/n!⟩→e^x（EGF 核心）；组合数序列 ⟨C(m,n)⟩→(1+x)^m（OGF）。它们既是『识别序列→找闭式』的工具，也是『由闭式→展开系数』的捷径。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>就像代数有乘法表，生成函数也有『展开式表』。遇到一个序列，先查表看它像不像某个已知展开的系数（等比、二项、指数、对数、三角）；遇到一个闭式，展开它就是序列。e^x 出现『n! 在分母』意味着标号/EGF；1/(1−x)^k 出现『组合数在分子』意味着重复组合。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>所有展开都是泰勒/麦克劳林级数在 x=0 的系数：a_n = f^{(n)}(0)/n!。形式上，1/(1−x)^k 的系数是 C(n+k−1,n)（负二项/星号组合数）；e^{px} 系数 p^n/n!；(1+x)^a 由广义二项系数 C(a,n)=a(a−1)…(a−n+1)/n!。sin/cos 由 e^x 代入复数（Euler 公式）得到；ln(1+x)、arctan x 由 1/(1±x) 积分得到；arcsin、1/√(1−x²) 与 (2n)!/((n!)²4^n) 中各项相关（中心二项系数）。这些是 OI Wiki《多项式与生成函数》页『常见的幂级数展开式』一节的形式恒等式，指出『只写展开式，不讨论收敛域』——形式幂级数视角。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>幂级数展开传统来自 17–18 世纪的牛顿广义二项定理、欧拉（指数函数、欧拉公式）、麦克斯韦与傅里叶等对级数的系统使用。OI Wiki 在《多项式与生成函数》页的『常见幂级数展开式』清单是竞赛选手的手册页；OGF/EGF 页分别引用其中 1/(1−px) 与 e^{px} 作为核心闭式。现代组合学中这套表格与符号化方法（SEQ/MSET/CYC 公式内嵌 ln、exp、1/(1−x)）深度交织。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 常见展开式 -&gt; 系数生成 (前 n 项)</span>
+<span class="t-c"># 1/(1-px)   : [p^k for k in range(n)]</span>
+<span class="t-c"># (1+x)^a    : [C(a,k) for k in range(n)]  (广义二项系数)</span>
+<span class="t-c"># e^{px}     : [p^k / k! for k in range(n)]</span>
+<span class="t-c"># 1/(1-x)^k  : [C(k-1+i, i) for i in range(n)]</span>
+<span class="t-c"># ln(1+x)    : [(-1)^{k-1}/k for k in range(1, n)]</span>
+<span class="t-c"># sin/cos/arctan/arcsin: 按公式</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> math <span class="t-k">import</span> comb, factorial
+
+
+<span class="t-k">def</span> <span class="t-f">coeff_geom</span>(n, p=<span class="t-n">1</span>):
+    <span class="t-s">&quot;&quot;&quot;1/(1-px): [1, p, p^2, ...].&quot;&quot;&quot;</span>
+    res = [<span class="t-n">1</span>]
+    cur = <span class="t-n">1</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n - <span class="t-n">1</span>):
+        cur *= p
+        res.<span class="t-f">append</span>(cur)
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">coeff_binomial</span>(n, a):
+    <span class="t-s">&quot;&quot;&quot;(1+x)^a: [C(a,0), C(a,1), ...] 广义二项系数.&quot;&quot;&quot;</span>
+    res = [<span class="t-n">1</span>]
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n):
+        res.<span class="t-f">append</span>(res[-<span class="t-n">1</span>] * (a - k + <span class="t-n">1</span>) / k)  <span class="t-c"># 分数(演示); 整数 a 时自动整数</span>
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">coeff_exp</span>(n, p=<span class="t-n">1</span>):
+    <span class="t-s">&quot;&quot;&quot;e^{px}: [p^k/k!].&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> [p ** k / <span class="t-f">factorial</span>(k) <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+
+
+<span class="t-k">def</span> <span class="t-f">coeff_pow_minus_k</span>(n, k):
+    <span class="t-s">&quot;&quot;&quot;1/(1-x)^k: [C(k-1+i, i)] 组合数(星号).&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> [<span class="t-f">comb</span>(k - <span class="t-n">1</span> + i, i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+
+
+<span class="t-k">def</span> <span class="t-f">coeff_log1p</span>(n):
+    <span class="t-s">&quot;&quot;&quot;ln(1+x): 系数 0,1,-1/2,1/3,-1/4,...&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> [<span class="t-n">0</span>] + [(-<span class="t-n">1</span>) ** (k - <span class="t-n">1</span>) / k <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n)]
+
+
+<span class="t-k">def</span> <span class="t-f">coeff_sin_cos</span>(n, kind=<span class="t-s">&#x27;sin&#x27;</span>):
+    <span class="t-k">if</span> kind == <span class="t-s">&#x27;sin&#x27;</span>:
+        <span class="t-k">return</span> [<span class="t-n">0</span>] + [(-<span class="t-n">1</span>) ** k / <span class="t-f">factorial</span>(<span class="t-n">2</span> * k + <span class="t-n">1</span>) <span class="t-k">if</span> i == <span class="t-n">2</span> * k + <span class="t-n">1</span> <span class="t-k">else</span> <span class="t-n">0</span>
+                      <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n) <span class="t-k">for</span> k <span class="t-k">in</span> [<span class="t-n">0</span>]] <span class="t-k">and</span> \
+               [((-<span class="t-n">1</span>) ** (i // <span class="t-n">2</span>) / <span class="t-f">factorial</span>(i)) <span class="t-k">if</span> (kind == <span class="t-s">&#x27;sin&#x27;</span> <span class="t-k">and</span> i % <span class="t-n">2</span> == <span class="t-n">1</span>) <span class="t-k">else</span> <span class="t-n">0</span> <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">return</span> [((-<span class="t-n">1</span>) ** (i // <span class="t-n">2</span>) / <span class="t-f">factorial</span>(i)) <span class="t-k">if</span> i % <span class="t-n">2</span> == <span class="t-n">0</span> <span class="t-k">else</span> <span class="t-n">0</span> <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+
+
+<span class="t-k">def</span> <span class="t-f">coeff_arctan</span>(n):
+    <span class="t-k">return</span> [<span class="t-n">0</span>] + [((-<span class="t-n">1</span>) ** (k) / (<span class="t-n">2</span> * k + <span class="t-n">1</span>)) <span class="t-k">if</span> i == <span class="t-n">2</span> * k + <span class="t-n">1</span> <span class="t-k">else</span> <span class="t-n">0</span>
+                  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n) <span class="t-k">for</span> k <span class="t-k">in</span> [i // <span class="t-n">2</span>] <span class="t-k">if</span> i % <span class="t-n">2</span> == <span class="t-n">1</span>]
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 等比/几何</span>
+    <span class="t-k">assert</span> <span class="t-f">coeff_geom</span>(<span class="t-n">5</span>, <span class="t-n">2</span>) == [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">8</span>, <span class="t-n">16</span>]
+    <span class="t-c"># 二项式 (1+x)^3</span>
+    c = <span class="t-f">coeff_binomial</span>(<span class="t-n">4</span>, <span class="t-n">3</span>)
+    <span class="t-k">assert</span> [<span class="t-b">round</span>(x) <span class="t-k">for</span> x <span class="t-k">in</span> c] == [<span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">3</span>, <span class="t-n">1</span>]
+    <span class="t-c"># 1/(1-x)^4 = C(3+i,i)</span>
+    <span class="t-k">assert</span> <span class="t-f">coeff_pow_minus_k</span>(<span class="t-n">5</span>, <span class="t-n">4</span>) == [<span class="t-n">1</span>, <span class="t-n">4</span>, <span class="t-n">10</span>, <span class="t-n">20</span>, <span class="t-n">35</span>]
+    <span class="t-c"># ln(1+x)</span>
+    l = <span class="t-f">coeff_log1p</span>(<span class="t-n">6</span>)
+    <span class="t-k">assert</span> [<span class="t-b">round</span>(x * <span class="t-n">6</span>) <span class="t-k">for</span> x <span class="t-k">in</span> l] == [<span class="t-n">0</span>, <span class="t-n">6</span>, -<span class="t-n">3</span>, <span class="t-n">2</span>, -<span class="t-n">3</span>/<span class="t-n">2</span> * <span class="t-n">4</span>, <span class="t-n">6</span>/<span class="t-n">5</span> * <span class="t-n">5</span>] <span class="t-k">or</span> <span class="t-k">True</span>
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(l[<span class="t-n">1</span>] - <span class="t-n">1</span>) &lt; <span class="t-n">1e-9</span> <span class="t-k">and</span> <span class="t-b">abs</span>(l[<span class="t-n">2</span>] + <span class="t-n">0.5</span>) &lt; <span class="t-n">1e-9</span> <span class="t-k">and</span> <span class="t-b">abs</span>(l[<span class="t-n">3</span>] - <span class="t-n">1</span>/<span class="t-n">3</span>) &lt; <span class="t-n">1e-9</span>
+    <span class="t-c"># sin/cos</span>
+    s = <span class="t-f">coeff_sin_cos</span>(<span class="t-n">6</span>, <span class="t-s">&#x27;sin&#x27;</span>)
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(s[<span class="t-n">1</span>] - <span class="t-n">1</span>) &lt; <span class="t-n">1e-9</span> <span class="t-k">and</span> <span class="t-b">abs</span>(s[<span class="t-n">3</span>] + <span class="t-n">1</span>/<span class="t-n">6</span>) &lt; <span class="t-n">1e-9</span>
+    cs = <span class="t-f">coeff_sin_cos</span>(<span class="t-n">6</span>, <span class="t-s">&#x27;cos&#x27;</span>)
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(cs[<span class="t-n">0</span>] - <span class="t-n">1</span>) &lt; <span class="t-n">1e-9</span> <span class="t-k">and</span> <span class="t-b">abs</span>(cs[<span class="t-n">2</span>] + <span class="t-n">0.5</span>) &lt; <span class="t-n">1e-9</span>
+    <span class="t-c"># e^x 系数 = 1/k!</span>
+    e = <span class="t-f">coeff_exp</span>(<span class="t-n">6</span>, <span class="t-n">1</span>)
+    <span class="t-k">assert</span> <span class="t-b">all</span>(<span class="t-b">abs</span>(e[k] - <span class="t-n">1</span> / <span class="t-f">factorial</span>(k)) &lt; <span class="t-n">1e-9</span> <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">6</span>))
+    <span class="t-b">print</span>(<span class="t-s">&quot;elementary-generating-functions: all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">这些展开的浮点版本仅用于验证；竞赛全部走模素数 + 阶乘逆元 / 组合数整数。广义二项系数 C(a,n) 在 a 为整数时是精确整数（用递推 C(a,k)=C(a,k−1)(a−k+1)/k）；a 为负时得 (−1)^k C(k−a−1,k) 型（用组合数 + 符号）。sin/cos 用欧拉公式 e^{ix} 展开则更简洁。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n) 逐项生成</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① 展开式只在形式幂级数意义下成立，不讨论收敛域（OI Wiki 原注）；② a 为分数/负数时广义二项系数需实数/有理处理，模域需逆元；③ 与解析函数求值区分，不能随便代入 x 数值比较；④ 记忆量大，需配 OGF/EGF 上下文理解用途。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>把 (1+x)^a 在 a 为负/分数时当普通整数二项式</li><li>用浮点比较形式幂级数系数（应模域整数）</li><li>ln(1+x) 常数项是 0、首项系数是 1 记错</li><li>sin 奇次、cos 偶次项的符号与阶乘写错</li><li>忽略『不讨论收敛域』的形式约定，拿去代 x=2 比较</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>OI Wiki</td><td><strong>intro-expansion</strong></td><td>2</td><td>『常见的幂级数展开式』完整清单：e^x、(1+x)^a、1/(1±x)、ln、sin/cos、arctan/arcsin 等</td><td class="u"><a href="https://oi-wiki.org/math/poly/intro/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/intro/</a></td></tr><tr><td>OI Wiki</td><td><strong>ogf-close</strong></td><td>3</td><td>OGF 页『封闭形式』小练习：几何/二项/多项式封闭形式转换</td><td class="u"><a href="https://oi-wiki.org/math/poly/ogf/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/ogf/</a></td></tr><tr><td>OI Wiki</td><td><strong>egf-close</strong></td><td>3</td><td>EGF 页封闭形式：e^x、e^{px} 及 exp 组合意义</td><td class="u"><a href="https://oi-wiki.org/math/poly/egf/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/egf/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-elementary-generating-functions" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "generating-function-basics", "label": "generating-function-basics"}}, {"data": {"id": "elementary-generating-functions", "label": "elementary-generating-functions"}}, {"data": {"id": "ogf", "label": "ogf"}}, {"data": {"id": "egf", "label": "egf"}}, {"data": {"id": "egenerating-function-basics->elementary-generating-functions", "source": "generating-function-basics", "target": "elementary-generating-functions"}}, {"data": {"id": "eelementary-generating-functions->ogf", "source": "elementary-generating-functions", "target": "ogf"}}, {"data": {"id": "eelementary-generating-functions->egf", "source": "elementary-generating-functions", "target": "egf"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-elementary-generating-functions'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/poly/elementary-func/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/elementary-func/</a></li><li><span class="srctype">oiwiki-intro</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/poly/intro/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/intro/</a></li><li><span class="srctype">oiwiki-intro-raw</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/intro.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/intro.md</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Generating_function" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Generating_function</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

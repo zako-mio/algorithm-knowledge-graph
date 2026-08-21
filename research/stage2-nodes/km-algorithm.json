@@ -1,0 +1,139 @@
+{
+  "id": "km-algorithm",
+  "name": "KM算法",
+  "group": "G-B-6",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "二分图最大权匹配(Kuhn-Munkres)O(V³)",
+  "what": "KM 算法（Kuhn–Munkres 算法，又称匈牙利算法的带权版）求二分图的最大权完美匹配，O(n³)。它维护一组可行顶标 lx/ly（满足对任意边 w(u,v) ≤ lx(u)+ly(v)），定义相等子图为满足 w = lx+ly 的边构成的子图；不断调整顶标、在相等子图中找完美匹配，当相等子图出现完美匹配时，它就是最大权完美匹配（因任何完美匹配权值和 ≤ Σlx+Σly，相等子图匹配权值和 = Σlx+Σly）。对于非平衡/非完全二分图，通过补点（少的一侧补到相等）+ 缺失边权设 0 或 -inf 转为方阵问题。是解决指派问题（assignment problem）的经典 O(n³) 算法。",
+  "why": {
+    "intuition": "给每个左点一个『心理价』lx、右点 ly，要求任意配对 u-v 的权值不超过 lx(u)+ly(v)（可行顶标）。若存在一组配对使得每对的权值恰好等于两者顶标之和（相等子图完美匹配），那么这些配对的权值和等于所有顶标之和，这已经是任何配对的权值和的上界——所以就是最优。算法像爬山：从宽松顶标开始，在相等子图中反复找增广路；找不到时把交错树 S 中的左点顶标降 a、T 中的右点顶标升 a（a 取 S-T' 边的最小 slack），把新边『拉进』相等子图，直到匹配完美。",
+    "principle": "① 可行顶标：w(u,v) ≤ lx(u)+ly(v)；② 相等子图：只含 w=lx+ly 的边；③ 定理：若某组可行顶标的相等子图有完美匹配 M，则 M 是最大权完美匹配（任意匹配权值和 ≤ Σlx+ly = M 的权值和）；④ 算法：初始化 lx(u)=max_v w(u,v), ly=0；对每个左部点做 BFS 增广，在相等子图中找增广路；若失败，交错树 S（左部在树内）/T（右部在树内），a = min{lx(u)+ly(v)-w(u,v) | u∈S, v∈T'}，对 u∈S: lx-=a，对 v∈T: ly+=a，则 S-T 边仍相等、S-T' 边 slack 变小可能加入相等子图，重复；⑤ 维护 slack(v)=min_{u∈S}{lx(u)+ly(v)-w(u,v)}，使每次顶标调整与更新为 O(n)，整体 O(n³)。",
+    "history": "指派问题最早可追溯到 1784 年 Monge；算法命名：Harold Kuhn 1955 年发表（基于 Kőnig 与 Egerváry 的匈牙利工作），James Munkres 1957 年证明其多项式时间，因此称 Kuhn–Munkres（KM）。2006 年发现 Jacobi 1890 年已用拉丁文发表了等价算法。O(n³) 的顶标优化由 Edmonds-Karp 与 Tomizawa 独立给出。OI Wiki 称其为 Hungarian Algorithm（最大权完美匹配），与 Kuhn 的增广路最大匹配区分。"
+  },
+  "how": {
+    "pseudocode": "# 平衡方阵 n×n，求最大权完美匹配 (缺失边设 -inf 或 0)\ninit: lx[i]=max_j w[i][j]; ly[j]=0\nfor i in 左部点:\n  while True:\n    visited_左/右 = False\n    if dfs(i) 找到增广路: break\n    a = min{ lx[u]+ly[v]-w[u][v] | u∈S(vis左), v∉T(vis右) }\n    for u∈S: lx[u]-=a\n    for v∉T: ly[v]+=a   # 等价于调整使新边进入相等子图\n# O(n^3) 实现用 slack 数组 + BFS",
+    "python": "def km_max_weight(weights):\n    \"\"\"Kuhn-Munkres 求最大权完美匹配 (O(n^3))。\n    weights: n×n 二维数组，缺失边权值用 -INF。\n    返回 (最大权和, match_row): match_row[i] = 第 i 行匹配的列。\"\"\"\n    n = len(weights)\n    INF = 10 ** 18\n    # 最大权 → 对权值取负转最小指派（加常数不影响 argmin，故直接取负）\n    a = [[-weights[i][j] for j in range(n)] for i in range(n)]\n    u = [0] * (n + 1)      # 行顶标\n    v = [0] * (n + 1)      # 列顶标\n    p = [0] * (n + 1)      # 列匹配的行\n    way = [0] * (n + 1)\n    for i in range(1, n + 1):\n        p[0] = i\n        j0 = 0\n        minv = [INF] * (n + 1)\n        used = [False] * (n + 1)\n        while True:\n            used[j0] = True\n            i0 = p[j0]\n            delta = INF\n            j1 = 0\n            for j in range(1, n + 1):\n                if not used[j]:\n                    cur = a[i0 - 1][j - 1] - u[i0] - v[j]\n                    if cur < minv[j]:\n                        minv[j] = cur\n                        way[j] = j0\n                    if minv[j] < delta:\n                        delta = minv[j]\n                        j1 = j\n            for j in range(n + 1):\n                if used[j]:\n                    u[p[j]] += delta\n                    v[j] -= delta\n                else:\n                    minv[j] -= delta\n            j0 = j1\n            if p[j0] == 0:\n                break\n        while True:\n            j1 = way[j0]\n            p[j0] = p[j1]\n            j0 = j1\n            if j0 == 0:\n                break\n    match_row = [0] * (n + 1)\n    for j in range(1, n + 1):\n        match_row[p[j]] = j\n    total = sum(weights[i - 1][match_row[i] - 1] for i in range(1, n + 1))\n    return total, [match_row[i] - 1 for i in range(1, n + 1)]\n\n\nif __name__ == '__main__':\n    import itertools, random\n\n    def brute(a):\n        best = -10 ** 18\n        for perm in itertools.permutations(range(len(a))):\n            s = sum(a[i][perm[i]] for i in range(len(a)))\n            best = max(best, s)\n        return best\n\n    # 手测\n    assert km_max_weight([[3, 1], [2, 1]])[0] == 4   # 选 3+1\n    assert km_max_weight([[5, 4], [3, 6]])[0] == 11  # 选 5+6\n    # 随机交叉验证（含负权）\n    random.seed(5)\n    for _ in range(500):\n        n = random.randint(1, 5)\n        a = [[random.randint(-10, 10) for _ in range(n)] for _ in range(n)]\n        r1, _ = km_max_weight(a)\n        r2 = brute(a)\n        assert r1 == r2, (a, r1, r2)\n    print('km-algorithm: All tests passed.')\n",
+    "pypy_notes": "O(n³) 的顶标实现必须用 slack/way 数组 + 交替路径维护（DFS 朴素版会退化为 O(n⁴)）。权值可能为负：最大权完美匹配需补 -INF 处理不存在边，或整体加常数转非负。n≤300 时 O(n³) 在 PyPy 下勉强可跑，更大规模考虑费用流。注意此题实现是『方阵』，矩形需补点。",
+    "complexity": {
+      "time": "O(n³)（n 轮 × 每轮 BFS/顶标调整 O(n) × 每轮扫描 O(n)）",
+      "space": "O(n²) 权重矩阵 + O(n) 顶标/slack/匹配数组"
+    },
+    "limitations": "标准 KM 求的是完美匹配（方阵）；矩形图需补点、缺失边权设 -INF（最大权）或 0（可放任不匹配）。负权与 -INF 混合时初始化 lx=max 需小心。O(n³) 在 n 大（>1000）时超时，可换费用流/网络流。与最小权指派问题仅相差符号取负。若只求最大匹配（无权）用 Kuhn/HK 更快。"
+  },
+  "examples": [
+    {
+      "oj": "UOJ",
+      "pid": "80",
+      "url": "https://uoj.ac/problem/80",
+      "difficulty": 4,
+      "key_point": "二分图最大权匹配模板题：KM 标准模板（n 可达 400），OI Wiki 习题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P6577",
+      "url": "https://www.luogu.com.cn/problem/P6577",
+      "difficulty": 4,
+      "key_point": "【模板】二分图最大权完美匹配：KM O(n³) 模板，含负数与缺失边处理"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4014",
+      "url": "https://www.luogu.com.cn/problem/P4014",
+      "difficulty": 4,
+      "key_point": "分配问题：指派问题模板，KM 最小/最大权两种（取负转换），网络流 24 题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2756",
+      "url": "https://www.luogu.com.cn/problem/P2756",
+      "difficulty": 3,
+      "key_point": "飞行员配对方案：二分图最大匹配建模入门（也可 KM 权为 1 或网络流）"
+    }
+  ],
+  "pitfalls": [
+    "朴素的 DFS 顶标调整（每次扫 S×T' 求 a）是 O(n⁴)，必须用 slack 数组维护到 O(n³)",
+    "最大权完美匹配要求方阵：矩形须补点并把缺失边设 -INF（不能设 0，会退化）",
+    "负权与 -INF 并存时初始化 lx=max 会把 -INF 也纳入，需逐行跳过 -INF",
+    "顶标更新顺序：S 中左点减 a、T 中右点加 a，写反导致相等子图变化方向错误",
+    "way/p 数组重置：每轮 i 循环必须重置 used/minv，way 与 p 不清除会串",
+    "与匈牙利算法（无权增广路）同名易混：KM 是带权完美匹配 O(n³)，hungarian 是无权最大匹配 O(VE)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "label",
+        "label": "可行顶标 lx/ly：w ≤ lx+ly"
+      },
+      {
+        "id": "equalg",
+        "label": "相等子图：w = lx+ly 的边"
+      },
+      {
+        "id": "thm",
+        "label": "相等子图完美匹配 ⇔ 最大权完美匹配"
+      },
+      {
+        "id": "bfs",
+        "label": "BFS 增广 + slack 维护 (O(n))"
+      },
+      {
+        "id": "adjust",
+        "label": "顶标调整 a=min slack(S,T')，拉入新边"
+      },
+      {
+        "id": "square",
+        "label": "矩形→方阵：补点 + 缺失边 -INF"
+      }
+    ],
+    "edges": [
+      {
+        "from": "label",
+        "to": "equalg"
+      },
+      {
+        "from": "equalg",
+        "to": "thm"
+      },
+      {
+        "from": "thm",
+        "to": "bfs"
+      },
+      {
+        "from": "bfs",
+        "to": "adjust"
+      },
+      {
+        "from": "adjust",
+        "to": "bfs"
+      },
+      {
+        "from": "square",
+        "to": "bfs"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/graph-matching/bigraph-weight-match/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/graph-matching/bigraph-weight-match.md",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/graph/hungarian-algorithm.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch20 pp191-204 (assignment problem)",
+      "verified": true
+    }
+  ]
+}

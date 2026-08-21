@@ -1,0 +1,56 @@
+{
+  "id": "char-polynomial",
+  "name": "特征多项式",
+  "group": "G-C-14",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "det(λI-A)，特征值与Cayley-Hamilton定理，线性递推加速基础",
+  "what": "特征多项式定义为p_A(λ)=det(λI-A)，是关于λ的n次首一多项式。其根为矩阵A的特征值。特征值之和=迹(A)，乘积=det(A)（韦达定理）。Cayley-Hamilton定理：矩阵满足自身的特征方程，即p_A(A)=0。此定理可用于加速线性递推：将A^n表示为A^0..A^(n-1)的线性组合（系数来自特征多项式），配合多项式取模可将O(n)降为O(n^2)或O(n log n)。",
+  "why": {
+    "intuition": "特征值是线性变换中'方向不变'的伸缩倍数。特征多项式的根（特征值）描述了变换的'本质频率'。Cayley-Hamilton定理说明矩阵'满足自身的方程'。",
+    "principle": "Faddeev-LeVerrier算法递推计算特征多项式系数：M_0=I, M_k=A*M_{k-1}+c_{k-1}*I, c_k=-trace(M_k)/k。Cayley-Hamilton保证A^n可由低次幂线性表出。",
+    "history": "特征多项式概念源于特征值问题。Cayley-Hamilton定理由Cayley(1858)和Hamilton证明。Faddeev-LeVerrier算法是O(n^3)求系数的方法。"
+  },
+  "how": {
+    "pseudocode": "Faddeev-LeVerrier:\n  M = I, c[0] = 1\n  for k in 1..n:\n    M = A * M\n    c[k] = -trace(M) / k\n    M = M + c[k] * I",
+    "python": "def mat_mul_simple(A, B, mod=None):\n    n, m = len(A), len(A[0])\n    k = len(B[0])\n    C = [[0] * k for _ in range(n)]\n    for i in range(n):\n        for j in range(k):\n            s = 0\n            for t in range(m):\n                s += A[i][t] * B[t][j]\n            if mod:\n                s %= mod\n            C[i][j] = s\n    return C\n\ndef char_polynomial_coefficients(A, mod=None):\n    \"\"\"Compute coefficients of characteristic polynomial det(xI - A)\n    using Faddeev-LeVerrier algorithm.\n    Returns [c_0, c_1, ..., c_n] where char poly = c_0*x^n + c_1*x^(n-1) + ... + c_n.\n    Actually returns [1, c1, c2, ...] where poly = x^n + c1*x^(n-1) + ... + cn.\n    \"\"\"\n    n = len(A)\n    I = [[1 if i == j else 0 for j in range(n)] for i in range(n)]\n    M = [row[:] for row in I]\n    coeffs = [0] * (n + 1)\n    coeffs[0] = 1\n    for k in range(1, n + 1):\n        MK = mat_mul_simple(A, M, mod)\n        trace = sum(MK[i][i] for i in range(n))\n        if mod:\n            ck = (-trace * pow(k, mod - 2, mod)) % mod\n        else:\n            ck = -trace / k\n        coeffs[k] = ck\n        for i in range(n):\n            MK[i][i] += ck\n        M = MK\n    return coeffs\n\ndef cayley_hamilton_check(A):\n    \"\"\"Verify Cayley-Hamilton: p(A) = 0 where p is char poly.\"\"\"\n    n = len(A)\n    coeffs = char_polynomial_coefficients(A)\n    # Compute p(A) = sum(coeffs[k] * A^(n-k)) for k=0..n\n    # A^0 = I\n    I = [[1 if i == j else 0 for j in range(n)] for i in range(n)]\n    result = [[0] * n for _ in range(n)]\n    Ak = [row[:] for row in I]  # A^0\n    for k in range(n + 1):\n        # Add coeffs[k] * A^(n-k)\n        power = n - k\n        Ap = [row[:] for row in I]\n        for _ in range(power):\n            Ap = mat_mul_simple(Ap, A)\n        for i in range(n):\n            for j in range(n):\n                result[i][j] += coeffs[k] * Ap[i][j]\n    # Check if result is zero\n    for i in range(n):\n        for j in range(n):\n            if abs(result[i][j]) > 1e-6:\n                return False\n    return True\n\nif __name__ == \"__main__\":\n    # 2x2: char poly of [[1,2],[3,4]] is x^2 - 5x - 2\n    coeffs = char_polynomial_coefficients([[1, 2], [3, 4]])\n    assert abs(coeffs[0] - 1) < 1e-6\n    assert abs(coeffs[1] - (-5)) < 1e-6\n    assert abs(coeffs[2] - (-2)) < 1e-6\n    # Identity matrix: char poly = (x-1)^n\n    coeffs2 = char_polynomial_coefficients([[1, 0], [0, 1]])\n    assert abs(coeffs2[0] - 1) < 1e-6\n    assert abs(coeffs2[1] - (-2)) < 1e-6\n    assert abs(coeffs2[2] - 1) < 1e-6\n    # 3x3\n    coeffs3 = char_polynomial_coefficients([[2, 0, 0], [0, 3, 0], [0, 0, 4]])\n    assert abs(coeffs3[0] - 1) < 1e-6\n    assert abs(coeffs3[1] - (-9)) < 1e-6\n    assert abs(coeffs3[2] - 26) < 1e-6\n    assert abs(coeffs3[3] - (-24)) < 1e-6\n    # Cayley-Hamilton check\n    assert cayley_hamilton_check([[1, 2], [3, 4]])\n    assert cayley_hamilton_check([[2, 0], [0, 3]])\n    print(\"char-polynomial: ALL TESTS PASSED\")\n",
+    "pypy_notes": "Faddeev-LeVerrier涉及矩阵乘法O(n^3)*n步=O(n^4)。竞赛中更多用于理论分析（Cayley-Hamilton加速递推）而非直接计算。",
+    "complexity": {
+      "time": "O(n^4)（Faddeev-LeVerrier）",
+      "space": "O(n^2)"
+    },
+    "limitations": "直接计算特征多项式系数O(n^4)较慢。特征值可能为复数。大矩阵计算精度问题。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3939",
+      "url": "https://www.luogu.com.cn/problem/P3939",
+      "difficulty": 6,
+      "key_point": "线性递推加速（特征多项式应用）"
+    }
+  ],
+  "pitfalls": [
+    "特征值可能为复数，实矩阵不一定有实特征值",
+    "代数重数（特征多项式中根的重数）≥几何重数（特征子空间维数）",
+    "Cayley-Hamilton保证A^n可降次，但系数计算需精确",
+    "浮点计算特征值有精度问题"
+  ],
+  "step_dag": {
+    "nodes": [],
+    "edges": []
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/linear-algebra/char-poly/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "线性代数教材"
+    }
+  ]
+}

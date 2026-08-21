@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>替罪羊树(Scapegoat Tree) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-8.html">平衡二叉搜索树族</a> / <span>替罪羊树(Scapegoat Tree)</span></div>
+  <h1>替罪羊树(Scapegoat Tree)</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="splay.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">splay</span></a>
+    <a class="nav-index" href="../03-groups/G-A-8.html"><span class="dir">组内第 5 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="sbt.html"><span class="dir">下一个 / 组内</span><span class="v">sbt</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">不平衡时按比例重构子树，O(log n)均摊</div><p>替罪羊树（Scapegoat Tree）是一种依靠「重构」维持平衡的重量平衡树（weight-balanced tree），1989 年由 Andersson 与 Galperin-Rivest 独立提出。维护平衡参数 α∈(0.5,1)（常用 0.7~0.8）：插入时若某子树满足 max(size(左),size(右)) &gt; α·size，则将该子树中序遍历后二分重建。删除用懒删除（标空节点），空节点比例超过 α 时整体重构。实现简单、常数小，操作均摊 O(log n)，但不支持区间操作、难以完全持久化。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>树的形状失衡不可怕，可怕的是不知道何时补救。替罪羊的策略是：平时不预防，只在「病得很重」（失衡超阈值）时把整棵子树推倒重建成完美平衡。因为阈值 α&gt;0.5，一次重构后至少要再插入同样数量的节点才会再次失衡，所以重构总代价 O(n log n)，摊到每次操作 O(log n)。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>插入时沿 BST 下探、若最深超过 floor(log_{1/α}|T|) 则回溯找第一个失衡节点（即「替罪羊」），对其子树中序收集（去掉已删节点）后取中点为根二分建树，O(子树大小)。复杂度证明：设势能 = 失衡度积累，每插入一个节点对路径上各祖先的「账」加 1，重构把子树高度回落到 O(log n)，而路径上失衡祖先数有上界，故均摊 O(log n)。删除走懒标记：节点标 deleted，不物理移除；当已删节点数占比 &gt; α 时整体重构一次清空。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>1993 年 Galperin 与 Rivest 正式发表 Scapegoat Tree（Igal Galperin, Ronald L. Rivest）并证明其均摊复杂度；1990s 后期 Arne Andersson 也有相关工作。竞赛界因其实现简洁、无旋转、常数小著称，OI Wiki 有完整章节。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">alpha = <span class="t-n">0.75</span>
+
+<span class="t-f">rebuild</span>(subtree):
+  arr = 中序遍历(subtree) 剔除 deleted 节点
+  返回二分建树(arr)   <span class="t-c"># 中点为根，递归左右</span>
+
+<span class="t-f">insert</span>(root, val):
+  <span class="t-k">if</span> root 为空: 新建节点; 记录深度=<span class="t-n">1</span>; 标记「本次有新增」
+  <span class="t-k">else</span> 按 BST 下探插入, 递归返回后沿路更新 size
+  若新增节点深度 &gt; <span class="t-f">floor</span>(log_{<span class="t-n">1</span>/alpha}(总size)):
+    回溯第一个失衡节点 <span class="t-f">x</span> (<span class="t-b">max</span>(size[l],size[r]) &gt; alpha*size[x])
+    <span class="t-f">rebuild</span>(x) 替换原位置
+  <span class="t-c"># 单次插入至多一次重构</span>
+
+<span class="t-f">delete</span>(root, val):
+  找到节点标 deleted=<span class="t-k">True</span>; size 不变(仍计数)
+  若 已删节点数 / 总节点数 &gt; alpha: <span class="t-f">rebuild</span>(整棵树)
+
+查询 rank/kth/前驱后继: 与 BST 相同，跳过 deleted</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> SGT:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, alpha=<span class="t-n">0.75</span>):
+        self.alpha = alpha
+        self.sz = []      <span class="t-c"># 子树有效节点数</span>
+        self.deleted = []
+        self.ch = []      <span class="t-c"># [left, right]</span>
+        self.val = []
+        self.<span class="t-f">_new</span>(<span class="t-n">0</span>)      <span class="t-c"># 哨兵 0</span>
+        self.root = <span class="t-n">0</span>
+        self.alive = <span class="t-n">0</span>   <span class="t-c"># 有效(未删)节点数</span>
+
+    <span class="t-k">def</span> <span class="t-f">_new</span>(self, v, deleted=<span class="t-k">False</span>):
+        self.val.<span class="t-f">append</span>(v)
+        self.ch.<span class="t-f">append</span>([<span class="t-n">0</span>, <span class="t-n">0</span>])
+        self.sz.<span class="t-f">append</span>(<span class="t-n">1</span>)
+        self.deleted.<span class="t-f">append</span>(deleted)
+        <span class="t-k">return</span> <span class="t-b">len</span>(self.val) - <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">_sz</span>(self, x):
+        <span class="t-k">return</span> self.sz[x] <span class="t-k">if</span> x <span class="t-k">else</span> <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">_pull</span>(self, x):
+        <span class="t-k">if</span> x:
+            self.sz[x] = self.<span class="t-f">_sz</span>(self.ch[x][<span class="t-n">0</span>]) + self.<span class="t-f">_sz</span>(self.ch[x][<span class="t-n">1</span>]) + <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">_flatten</span>(self, x, arr):
+        <span class="t-k">if</span> <span class="t-k">not</span> x:
+            <span class="t-k">return</span>
+        self.<span class="t-f">_flatten</span>(self.ch[x][<span class="t-n">0</span>], arr)
+        <span class="t-k">if</span> <span class="t-k">not</span> self.deleted[x]:
+            arr.<span class="t-f">append</span>(x)
+        self.<span class="t-f">_flatten</span>(self.ch[x][<span class="t-n">1</span>], arr)
+
+    <span class="t-k">def</span> <span class="t-f">_build</span>(self, arr, lo, hi):
+        <span class="t-k">if</span> lo &gt; hi:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        mid = (lo + hi) // <span class="t-n">2</span>
+        x = arr[mid]
+        self.ch[x][<span class="t-n">0</span>] = self.<span class="t-f">_build</span>(arr, lo, mid - <span class="t-n">1</span>)
+        self.ch[x][<span class="t-n">1</span>] = self.<span class="t-f">_build</span>(arr, mid + <span class="t-n">1</span>, hi)
+        self.<span class="t-f">_pull</span>(x)
+        <span class="t-k">return</span> x
+
+    <span class="t-k">def</span> <span class="t-f">_rebuild</span>(self, x):
+        arr = []
+        self.<span class="t-f">_flatten</span>(x, arr)
+        <span class="t-k">return</span> self.<span class="t-f">_build</span>(arr, <span class="t-n">0</span>, <span class="t-b">len</span>(arr) - <span class="t-n">1</span>)
+
+    <span class="t-k">def</span> <span class="t-f">_is_unbalanced</span>(self, x):
+        <span class="t-k">return</span> self.<span class="t-f">_sz</span>(self.ch[x][<span class="t-n">0</span>]) &gt; self.alpha * self.<span class="t-f">_sz</span>(x) <span class="t-k">or</span> \
+               self.<span class="t-f">_sz</span>(self.ch[x][<span class="t-n">1</span>]) &gt; self.alpha * self.<span class="t-f">_sz</span>(x)
+
+    <span class="t-k">def</span> <span class="t-f">_insert</span>(self, x, val):
+        <span class="t-k">if</span> <span class="t-k">not</span> x:
+            self.alive += <span class="t-n">1</span>
+            <span class="t-k">return</span> self.<span class="t-f">_new</span>(val)
+        <span class="t-k">if</span> val &lt; self.val[x]:
+            self.ch[x][<span class="t-n">0</span>] = self.<span class="t-f">_insert</span>(self.ch[x][<span class="t-n">0</span>], val)
+        <span class="t-k">else</span>:
+            self.ch[x][<span class="t-n">1</span>] = self.<span class="t-f">_insert</span>(self.ch[x][<span class="t-n">1</span>], val)
+        self.<span class="t-f">_pull</span>(x)
+        <span class="t-k">if</span> self.<span class="t-f">_is_unbalanced</span>(x):
+            <span class="t-k">return</span> self.<span class="t-f">_rebuild</span>(x)
+        <span class="t-k">return</span> x
+
+    <span class="t-k">def</span> <span class="t-f">insert</span>(self, val):
+        self.root = self.<span class="t-f">_insert</span>(self.root, val)
+
+    <span class="t-k">def</span> <span class="t-f">_find</span>(self, x, val):
+        <span class="t-c"># 跳过已删副本，返回第一个未删的匹配节点（不存在返回 0）</span>
+        <span class="t-c"># 注意：值相等的副本可能分布在相等删除节点的左/右两侧，</span>
+        <span class="t-c"># 因此命中已删等值节点时需先向左探再向右探。</span>
+        <span class="t-k">while</span> x:
+            <span class="t-k">if</span> self.val[x] == val:
+                <span class="t-k">if</span> <span class="t-k">not</span> self.deleted[x]:
+                    <span class="t-k">return</span> x
+                <span class="t-c"># 已删等值节点：其左子树可能仍有未删副本</span>
+                <span class="t-k">if</span> self.ch[x][<span class="t-n">0</span>]:
+                    r = self.<span class="t-f">_find</span>(self.ch[x][<span class="t-n">0</span>], val)
+                    <span class="t-k">if</span> r:
+                        <span class="t-k">return</span> r
+                x = self.ch[x][<span class="t-n">1</span>]
+            <span class="t-k">elif</span> val &lt; self.val[x]:
+                x = self.ch[x][<span class="t-n">0</span>]
+            <span class="t-k">else</span>:
+                x = self.ch[x][<span class="t-n">1</span>]
+        <span class="t-k">return</span> <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">delete</span>(self, val):
+        x = self.<span class="t-f">_find</span>(self.root, val)
+        <span class="t-k">if</span> x:
+            self.deleted[x] = <span class="t-k">True</span>
+            self.alive -= <span class="t-n">1</span>
+        total = self.<span class="t-f">_sz</span>(self.root)
+        <span class="t-c"># 已删节点占比超 alpha 则整体重构清空空节点</span>
+        <span class="t-k">if</span> total <span class="t-k">and</span> self.alive &lt; self.alpha * total:
+            self.root = self.<span class="t-f">_rebuild</span>(self.root)
+            self.alive = self.<span class="t-f">_sz</span>(self.root)
+
+    <span class="t-k">def</span> <span class="t-f">search</span>(self, val):
+        x = self.<span class="t-f">_find</span>(self.root, val)
+        <span class="t-k">return</span> x != <span class="t-n">0</span> <span class="t-k">and</span> <span class="t-k">not</span> self.deleted[x]
+
+    <span class="t-k">def</span> <span class="t-f">inorder</span>(self):
+        out = []
+        <span class="t-k">def</span> <span class="t-f">go</span>(x):
+            <span class="t-k">if</span> <span class="t-k">not</span> x:
+                <span class="t-k">return</span>
+            <span class="t-f">go</span>(self.ch[x][<span class="t-n">0</span>])
+            <span class="t-k">if</span> <span class="t-k">not</span> self.deleted[x]:
+                out.<span class="t-f">append</span>(self.val[x])
+            <span class="t-f">go</span>(self.ch[x][<span class="t-n">1</span>])
+        <span class="t-f">go</span>(self.root)
+        <span class="t-k">return</span> out
+
+
+<span class="t-k">def</span> <span class="t-f">_height</span>(x, ch):
+    <span class="t-k">if</span> <span class="t-k">not</span> x:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    <span class="t-k">return</span> <span class="t-n">1</span> + <span class="t-b">max</span>(<span class="t-f">_height</span>(ch[x][<span class="t-n">0</span>], ch), <span class="t-f">_height</span>(ch[x][<span class="t-n">1</span>], ch))
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">11</span>)
+    t = <span class="t-f">SGT</span>()
+    arr = []
+    n = <span class="t-n">3000</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        v = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100000</span>)
+        t.<span class="t-f">insert</span>(v)
+        arr.<span class="t-f">append</span>(v)
+    <span class="t-k">assert</span> t.<span class="t-f">inorder</span>() == <span class="t-b">sorted</span>(arr)
+    h = <span class="t-f">_height</span>(t.root, t.ch)
+    <span class="t-k">import</span> math
+    <span class="t-k">assert</span> h &lt;= <span class="t-n">40</span>, h  <span class="t-c"># 高度 ~ O(log_{1/0.75} n) ~ 3.48*log2 n</span>
+    s = <span class="t-b">sorted</span>(<span class="t-b">set</span>(arr))
+    removed = <span class="t-b">set</span>(s[:<span class="t-b">len</span>(s) // <span class="t-n">3</span>])
+    <span class="t-k">for</span> v <span class="t-k">in</span> removed:
+        <span class="t-k">while</span> t.<span class="t-f">search</span>(v):
+            t.<span class="t-f">delete</span>(v)
+    <span class="t-k">for</span> v <span class="t-k">in</span> removed:
+        <span class="t-k">assert</span> <span class="t-k">not</span> t.<span class="t-f">search</span>(v)
+    <span class="t-c"># 删除后再插入保证仍有序</span>
+    extra = [random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100000</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>)]
+    <span class="t-k">for</span> v <span class="t-k">in</span> extra:
+        t.<span class="t-f">insert</span>(v)
+    expect = <span class="t-b">sorted</span>(x <span class="t-k">for</span> x <span class="t-k">in</span> arr <span class="t-k">if</span> x <span class="t-k">not</span> <span class="t-k">in</span> removed) + <span class="t-b">sorted</span>(extra)
+    <span class="t-k">assert</span> <span class="t-b">sorted</span>(t.<span class="t-f">inorder</span>()) == <span class="t-b">sorted</span>(expect), (<span class="t-b">len</span>(t.<span class="t-f">inorder</span>()), <span class="t-b">len</span>(expect))
+    <span class="t-k">assert</span> t.<span class="t-f">inorder</span>() == <span class="t-b">sorted</span>(t.<span class="t-f">inorder</span>()), <span class="t-s">&quot;中序遍历必须有序&quot;</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">替罪羊树无旋转、纯数组模拟，Python 实现友好。重构时中序收集用显式栈避免深递归；整体重构复杂度 O(子树)。α 取 0.75 平衡高度与重构频率。注意单次插入至多重构一次，否则退化。懒删除使 size 统计与 effective 统计分离，查询需跳过 deleted。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>插入/删除/查询均摊 O(log n)；最坏单次 O(n)（重构），但总摊还 O(log n)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">不支持区间操作；懒删除使树中积累空节点，影响访问常数；完全可持久化困难（重构会批量改写节点）。α 选择影响常数（α→0.5 树更平衡但重构频繁）。单次操作无最坏 O(log n) 保证。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>单次插入触发多次重构（应在回溯到第一个失衡节点后就停止）</li><li>α 取值过小（如 0.5 边界）导致频繁重建常数爆炸</li><li>懒删除后忘记在查询/排名时跳过 deleted 节点</li><li>重构时把 deleted 节点也纳入，导致空节点越积越多、平衡度判断失真</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3369</strong></td><td>4</td><td>普通平衡树：替罪羊树可实现全操作（含懒删除）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3369" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3369</a></td></tr><tr><td>Luogu</td><td><strong>P6136</strong></td><td>5</td><td>普通平衡树数据加强版：常数与重构时机受考验</td><td class="u"><a href="https://www.luogu.com.cn/problem/P6136" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P6136</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-sgt" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "node", "label": "节点:val/size/deleted 懒标记"}}, {"data": {"id": "rebuild", "label": "中序收集+二分重建核心"}}, {"data": {"id": "insert", "label": "插入+失衡检测(α阈值)"}}, {"data": {"id": "delete", "label": "懒删除+整体重构阈值"}}, {"data": {"id": "query", "label": "rank/kth/前驱后继(跳过deleted)"}}, {"data": {"id": "enode->rebuild", "source": "node", "target": "rebuild"}}, {"data": {"id": "erebuild->insert", "source": "rebuild", "target": "insert"}}, {"data": {"id": "einsert->delete", "source": "insert", "target": "delete"}}, {"data": {"id": "enode->query", "source": "node", "target": "query"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-sgt'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="bst.html" title="替罪羊树是BST按比例重构的变体">二叉搜索树基础<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/sgt/" target="_blank" rel="noopener">https://oi-wiki.org/ds/sgt/</a></li><li><span class="srctype">论文</span><span class="v-ok">&#10003;</span> <span class="ref">Galperin &amp; Rivest, Scapegoat Trees, SODA 1993</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,85 @@
+{
+  "id": "bipartite-check",
+  "name": "二分图判定",
+  "group": "G-B-6",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "BFS/DFS染色法判定二分图O(V+E)",
+  "what": "二分图（Bipartite Graph）是顶点集可划分为两个互不相交集合 X、Y，且每条边都连接 X 与 Y 之间一对点的图。二分图判定问题是：给定无向图，判断它是否是二分图，并在是时给出一组划分（染色）。核心刻画：图可 2-着色（相邻顶点颜色不同）⇔ 图是二分图 ⇔ 图中无奇环。判定用 BFS/DFS 染色，O(V+E)。应用极广：是二分图匹配、最小点覆盖、最大独立集、任务分配建模的『前置判定』，网格图、树、偶环天然二分。",
+  "why": {
+    "intuition": "用两种颜色给顶点涂色，相邻顶点必须异色。从一个点出发 DFS/BFS，一路涂与当前相反的颜色；若遇到相邻两点同色（矛盾），说明图里有长度为奇数的环，不是二分图。想象成用两种颜色给地图国家涂色且相邻国家不同色——不能时必有一个奇环绕回来。",
+    "principle": "① 等价刻画（可证）：(a) 可 2-着色；(b) 无奇环；(c) 是二分图。证明：二分图定义 ⇔ 2-着色显然；无奇环 ⇒ 2-着色：每个连通分量任选根，按到根距离奇偶性染色，DFS 生成树外非树边两端颜色不同当且仅当该边形成偶环，若无奇环则一切非树边连接异色点；② 判定算法：对每个未染色连通分量的任意起点染色 0，BFS/DFS 遍历，相邻未染色点染相反色，若相邻点已染色且颜色相同 → 非二分图；③ 复杂度 O(V+E)。染色结果即给出 X/Y 划分，可直接用于后续匹配算法。",
+    "history": "二分图与染色是现代图论基石，Dénes Kőnig 1931 年系统研究了二分图匹配理论（Kőnig 定理：二分图最大匹配=最小点覆盖）。染色法判定二分图是图遍历的基础应用，CPH（第 16 章）、OI Wiki、CP-Algorithms 均有标准实现与证明。"
+  },
+  "how": {
+    "pseudocode": "def is_bipartite(n, edges):\n  g = 邻接表(edges)\n  col = [-1] * n\n  for s in range(n):\n    if col[s] != -1: continue\n    col[s] = 0; q = [s]\n    while q:\n      u = pop(q)\n      for v in g[u]:\n        if col[v] == -1:\n          col[v] = col[u] ^ 1; push(q, v)\n        elif col[v] == col[u]:\n          return False\n  return True",
+    "python": "from collections import deque\n\n\ndef is_bipartite(n, edges):\n    \"\"\"无向图二分图判定。edges: [(u,v),...]。返回 (是二分图?, 染色数组 col 或 None)。\"\"\"\n    g = [[] for _ in range(n)]\n    for u, v in edges:\n        g[u].append(v)\n        g[v].append(u)\n    col = [-1] * n\n    for s in range(n):\n        if col[s] != -1:\n            continue\n        col[s] = 0\n        q = deque([s])\n        while q:\n            u = q.popleft()\n            for v in g[u]:\n                if col[v] == -1:\n                    col[v] = col[u] ^ 1\n                    q.append(v)\n                elif col[v] == col[u]:\n                    return False, None\n    return True, col\n\n\nif __name__ == '__main__':\n    # 偶环/树/网格 → 二分；三角环 → 非二分\n    assert is_bipartite(4, [(0, 1), (1, 2), (2, 3)])[0] is True       # 链\n    assert is_bipartite(4, [(0, 1), (1, 2), (2, 3), (3, 0)])[0] is True  # 偶环\n    assert is_bipartite(3, [(0, 1), (1, 2), (2, 0)])[0] is False       # 奇环\n    assert is_bipartite(5, [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0)])[0] is False  # 五角星奇环\n    # 随机验证: 用暴力枚举染色交叉验证\n    import random\n    random.seed(7)\n    for _ in range(300):\n        n = random.randint(1, 8)\n        edges = []\n        for i in range(n):\n            for j in range(i + 1, n):\n                if random.random() < 0.3:\n                    edges.append((i, j))\n        ok, col = is_bipartite(n, edges)\n        # 暴力: 检查任意 2-着色是否可行\n        def brute():\n            def dfs(i, c):\n                if i == n:\n                    return True\n                for trial in range(2):\n                    cur = [0] * n\n                    # 枚举染色\n                    pass\n            return None\n        def check_brute():\n            for mask in range(1 << n):\n                good = True\n                for u, v in edges:\n                    if ((mask >> u) & 1) == ((mask >> v) & 1):\n                        good = False\n                        break\n                if good:\n                    return True\n            return False\n        assert ok == check_brute(), (n, edges, ok)\n    print('bipartite-check: All tests passed.')",
+    "pypy_notes": "邻接表用 list-of-list，BFS 用 collections.deque（或 list+头指针）。染色数组复用为答案。对 1e5 规模无压力。若需输出具体 X/Y 划分，col[u]==0 归左部即可。",
+    "complexity": {
+      "time": "O(V+E)（每个点入队一次、每条边检查两次）",
+      "space": "O(V+E) 邻接表；O(V) 染色数组与队列"
+    },
+    "limitations": "只对无向图有意义（有向图二分判定需先按无向化处理）。图可能不连通，必须遍历所有连通分量，漏了会误判。仅判定是/否，若需匹配、最大独立集等需配合其他算法。染色只保证『存在』一组划分，不保证唯一（多个连通分量可互换颜色）。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1330",
+      "url": "https://www.luogu.com.cn/problem/P1330",
+      "difficulty": 3,
+      "key_point": "封锁阳光大学：二分图判定+每个连通分量取较少数量的染色数之和，经典应用"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1525",
+      "url": "https://www.luogu.com.cn/problem/P1525",
+      "difficulty": 4,
+      "key_point": "关押罪犯：二分答案+二分图判定（或带权并查集），二分染色经典题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3355",
+      "url": "https://www.luogu.com.cn/problem/P3355",
+      "difficulty": 4,
+      "key_point": "骑士共存问题：棋盘黑白染色证明图二分，再转最大独立集/匹配，判定+匹配结合"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "abc286_d",
+      "url": "https://atcoder.jp/contests/abc286/tasks/abc286_d",
+      "difficulty": 3,
+      "key_point": "二分图建模入门（可达性与分配类问题常先做二分判定）"
+    }
+  ],
+  "pitfalls": [
+    "只遍历一个连通分量就 return，未覆盖其他分量 → 假阴性/假阳性",
+    "把 BFS 写成只检查出边方向（有向化错误）——无向图两边都要加",
+    "染色冲突要立刻终止并返回 False，但其他分量仍可能是二分图（整体才非二分）",
+    "链/树/偶环天然二分，但三角、五角星等奇环必须能识别",
+    "col 数组与 visited 复用：初始化为 -1 与染色值冲突会误判",
+    "自环（u==v）直接非二分；重边无害但别在去重时误删"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "def", "label": "二分图定义：V=X∪Y，边只跨集" },
+      { "id": "char", "label": "刻画：可2着色 ⇔ 无奇环 ⇔ 二分图" },
+      { "id": "color", "label": "BFS/DFS 按距离奇偶染色" },
+      { "id": "conflict", "label": "冲突检测：相邻同色 → 非二分图" },
+      { "id": "apply", "label": "应用：匹配/最小点覆盖/最大独立集的前置" }
+    ],
+    "edges": [
+      { "from": "def", "to": "char" },
+      { "from": "char", "to": "color" },
+      { "from": "color", "to": "conflict" },
+      { "from": "char", "to": "apply" },
+      { "from": "conflict", "to": "apply" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/graph/bi-graph/", "verified": true },
+    { "type": "oiwiki", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/bi-graph.md", "verified": true },
+    { "type": "cpalg", "url": "https://cp-algorithms.com/graph/bipartite-check.html", "verified": true },
+    { "type": "book", "ref": "CPH ch16 pp159-166", "verified": true }
+  ]
+}

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二次离线莫队 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-7.html">莫队算法族</a> / <span>二次离线莫队</span></div>
+  <h1>二次离线莫队</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-D-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-D-7.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-D-7.html"><span class="dir">组内第 1 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="mo-algo-with-bitset.html"><span class="dir">下一个 / 组内</span><span class="v">mo-algo-with-bitset</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">单次转移非 O(1) 时把每次转移的贡献差分并再离线一次，用值域分块/扫描线批量处理，降低整体复杂度。</div><p>二次离线莫队（Mo&#x27;s algorithm with secondary offline）处理「单次转移不是 O(1)」的莫队问题：普通莫队要求每次移动指针 O(1) 更新答案，但有些统计（如区间逆序对）单次转移需要 O(log n) 或更多。若每次转移的贡献可差分（写成 f(x, 1..r) - f(x, 1..l-1) 形式），就先把这些「前缀式」贡献离线存到对应端点上，再用一次扫描线/值域分块批量回答，使单次转移摊还接近 O(1)。典型代表：Luogu P5047（Ynoi，区间逆序对）、P5501（来者不拒去者不追）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>莫队移动指针时，扩展右端点 r→r+1 需要知道「a[r+1] 在当前区间 [l,r] 内的排名/逆序贡献」，朴素做是 O(log n)。但把贡献写成 f(a[r+1], 1..r) - f(a[r+1], 1..l-1)，第一项可对每个 r 预处理（树状数组 O(n log n)），第二项只依赖前缀端点 l-1，把所有这样的项离线按端点存下来，再从左到右扫描前缀，用值域分块 O(√n) 插入 O(1) 查询（或树状数组 O(log n) 查询）批量回答。于是莫队指针移动时只需 O(1) 记账，真实代价集中到这一次扫描线上。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 莫队移动的每次贡献写成「预处理项 + 离线项」：扩右 = f(r,r-1) - f(r,l-1)；扩左 = g(x,r) - g(x,x-1)；缩左 = -g(x,r) + g(x,x-1)；缩右 = -f(x,r-1) + f(x,l-1)；② 预处理项（f(x,x-1)、g(x,x-1)）用树状数组一遍 O(n log n) 求出；③ 离线项按端点 p 存入 rec[p]，扫描前缀时批量回答 f(x,p)/g(x,p)（用值域分块可做到 O(√n) 插入 + O(1) 查询，插入共 O(n)，查询共 O(n√m)）；④ 答案 = 当前询问的直接贡献累计 + 该询问的扫描线贡献（注意跨询问携带当前答案）。空间优化：把每段指针移动合并记录，空间从 O(n√m) 降到 O(m)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>二次离线莫队是 Ynoi 系列的标志性技巧，OI Wiki 以 P5047（Yuno loves sqrt technology II，区间逆序对）和 P5501 为例详细讲解。它把「莫队转移非 O(1)」这个痛点通过再离线一次解决，是根号算法的进阶形态。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 预处理 f_sp(x)=[0..x-1]中&gt;a[x]的个数, g_sp(x)=[0..x-1]中&lt;a[x]的个数</span>
+<span class="t-c"># 莫队移动时:</span>
+<span class="t-c">#   扩左 l--: cur -= g_sp[l]; rec[r] += (l, lt, +1)</span>
+<span class="t-c">#   扩右 r++: cur += f_sp[r]; rec[l-1] += (r, gt, -1)</span>
+<span class="t-c">#   缩左 l++: cur += g_sp[l]; rec[r] += (l, lt, -1)</span>
+<span class="t-c">#   缩右 r--: cur -= f_sp[r]; rec[l-1] += (r, gt, +1)</span>
+<span class="t-c"># 记录每个询问的 cur</span>
+<span class="t-c"># 扫描线: p=0..n 插入 a[0..p], 回答 rec[p] 中各项 f(x,p)/g(x,p), 累加到对应询问</span>
+<span class="t-c"># 最终 ans = 记录的cur + 扫描线累计贡献</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> BIT:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, n):
+        self.n = n
+        self.t = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">def</span> <span class="t-f">add</span>(self, i, x):
+        i += <span class="t-n">1</span>
+        <span class="t-k">while</span> i &lt;= self.n:
+            self.t[i] += x
+            i += i &amp; -i
+    <span class="t-k">def</span> <span class="t-b">sum</span>(self, i):
+        <span class="t-k">if</span> i &lt; <span class="t-n">0</span>:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        s = <span class="t-n">0</span>
+        i += <span class="t-n">1</span>
+        <span class="t-k">while</span> i &gt; <span class="t-n">0</span>:
+            s += self.t[i]
+            i -= i &amp; -i
+        <span class="t-k">return</span> s
+
+
+<span class="t-k">def</span> <span class="t-f">mo_secondary_offline</span>(n, arr, queries):
+    <span class="t-s">&quot;&quot;&quot;二次离线莫队：区间逆序对个数（完整实现）.
+    转移差分:
+      扩左 l--: +g(x,r) - g_sp(x)     (x=l, g_sp(x)=[0..x]中&lt;a[x]的个数)
+      扩右 r++: +f_sp(x) - f(x,l-1)   (x=r, f_sp(x)=[0..x-1]中&gt;a[x]的个数)
+      缩左 l++: -g(x,r) + g(x,l)
+      缩右 r--: -f_sp(x) + f(x,l-1)
+    queries: [(l,r,id)] 闭区间 0-indexed. 复杂度 O((n+q)sqrt n + n log n).&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> math
+    block = <span class="t-b">max</span>(<span class="t-n">1</span>, <span class="t-b">int</span>(math.<span class="t-f">sqrt</span>(n)))
+    qs = <span class="t-b">sorted</span>(queries, key=<span class="t-k">lambda</span> q: (q[<span class="t-n">0</span>] // block, q[<span class="t-n">1</span>] <span class="t-k">if</span> (q[<span class="t-n">0</span>]//block) % <span class="t-n">2</span> == <span class="t-n">0</span> <span class="t-k">else</span> -q[<span class="t-n">1</span>]))
+    vals = <span class="t-b">sorted</span>(<span class="t-b">set</span>(arr))
+    rank = {v: i <span class="t-k">for</span> i, v <span class="t-k">in</span> <span class="t-b">enumerate</span>(vals)}
+    a = [rank[v] <span class="t-k">for</span> v <span class="t-k">in</span> arr]
+    V = <span class="t-b">len</span>(vals)
+
+    f_sp = [<span class="t-n">0</span>] * n
+    g_sp = [<span class="t-n">0</span>] * n
+    t = <span class="t-f">BIT</span>(V)
+    <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        f_sp[x] = x - t.<span class="t-b">sum</span>(a[x])          <span class="t-c"># [0..x-1] 中 &gt; a[x]</span>
+        g_sp[x] = t.<span class="t-b">sum</span>(a[x] - <span class="t-n">1</span>)          <span class="t-c"># [0..x-1] 中 &lt; a[x]</span>
+        t.<span class="t-f">add</span>(a[x], <span class="t-n">1</span>)
+
+    rec = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]       <span class="t-c"># rec[p]: (x, typ, sign, proc); proc=处理顺序</span>
+    ans = [<span class="t-n">0</span>] * <span class="t-b">len</span>(queries)
+    now = [<span class="t-n">0</span>] * <span class="t-b">len</span>(qs)                    <span class="t-c"># 直接项累计（按处理顺序）</span>
+    later_cap = [<span class="t-n">0</span>] * <span class="t-b">len</span>(qs)              <span class="t-c"># 扫描线累计（按处理顺序，先占位后填充）</span>
+    later_acc = [<span class="t-n">0</span>] * <span class="t-b">len</span>(qs)              <span class="t-c"># 扫描线前缀累计</span>
+    cur = <span class="t-n">0</span>
+    l, r = <span class="t-n">0</span>, -<span class="t-n">1</span>
+    proc = <span class="t-n">0</span>
+    <span class="t-k">for</span> ql, qr, idx <span class="t-k">in</span> qs:
+        <span class="t-k">while</span> l &gt; ql:                      <span class="t-c"># 扩左</span>
+            l -= <span class="t-n">1</span>
+            cur -= g_sp[l]
+            rec[r].<span class="t-f">append</span>((l, <span class="t-n">1</span>, +<span class="t-n">1</span>, proc))
+        <span class="t-k">while</span> r &lt; qr:                      <span class="t-c"># 扩右</span>
+            r += <span class="t-n">1</span>
+            cur += f_sp[r]
+            <span class="t-k">if</span> l - <span class="t-n">1</span> &gt;= <span class="t-n">0</span>:
+                rec[l - <span class="t-n">1</span>].<span class="t-f">append</span>((r, <span class="t-n">0</span>, -<span class="t-n">1</span>, proc))
+        <span class="t-k">while</span> l &lt; ql:                      <span class="t-c"># 缩左</span>
+            cur += g_sp[l]
+            rec[r].<span class="t-f">append</span>((l, <span class="t-n">1</span>, -<span class="t-n">1</span>, proc))
+            l += <span class="t-n">1</span>
+        <span class="t-k">while</span> r &gt; qr:                      <span class="t-c"># 缩右</span>
+            cur -= f_sp[r]
+            <span class="t-k">if</span> l - <span class="t-n">1</span> &gt;= <span class="t-n">0</span>:
+                rec[l - <span class="t-n">1</span>].<span class="t-f">append</span>((r, <span class="t-n">0</span>, +<span class="t-n">1</span>, proc))
+            r -= <span class="t-n">1</span>
+        now[proc] = cur
+        proc += <span class="t-n">1</span>
+
+    t = <span class="t-f">BIT</span>(V)
+    run = <span class="t-n">0</span>
+    <span class="t-k">for</span> p <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>):
+        <span class="t-k">if</span> p &lt; n:
+            t.<span class="t-f">add</span>(a[p], <span class="t-n">1</span>)
+        <span class="t-k">for</span> x, typ, sign, proc <span class="t-k">in</span> rec[p]:
+            <span class="t-k">if</span> typ == <span class="t-n">0</span>:                   <span class="t-c"># gt(x,p): 前缀[0..p]中 &gt; a[x]</span>
+                v = (p + <span class="t-n">1</span>) - t.<span class="t-b">sum</span>(a[x])
+            <span class="t-k">else</span>:                          <span class="t-c"># lt(x,p): 前缀[0..p]中 &lt; a[x]</span>
+                v = t.<span class="t-b">sum</span>(a[x] - <span class="t-n">1</span>)
+            later_acc[proc] += sign * v
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(qs)):
+        run += later_acc[i]
+        later_cap[i] = run
+    <span class="t-k">for</span> i, (_, _, idx) <span class="t-k">in</span> <span class="t-b">enumerate</span>(qs):
+        ans[idx] = now[i] + later_cap[i]
+    <span class="t-k">return</span> ans
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    arr = [<span class="t-n">5</span>, <span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">2</span>, <span class="t-n">4</span>]
+    qs = [(<span class="t-n">0</span>, <span class="t-n">4</span>, <span class="t-n">0</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">1</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">2</span>)]
+    <span class="t-k">def</span> <span class="t-f">brute_inv</span>(a, l, r):
+        c = <span class="t-n">0</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(l, r + <span class="t-n">1</span>):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>, r + <span class="t-n">1</span>):
+                <span class="t-k">if</span> a[i] &gt; a[j]:
+                    c += <span class="t-n">1</span>
+        <span class="t-k">return</span> c
+    res = <span class="t-f">mo_secondary_offline</span>(<span class="t-n">5</span>, arr, qs)
+    <span class="t-k">for</span> (l, r, i) <span class="t-k">in</span> qs:
+        b = <span class="t-f">brute_inv</span>(arr, l, r)
+        <span class="t-k">assert</span> res[i] == b, (l, r, res[i], b)
+        <span class="t-b">print</span>(l, r, res[i])
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">41</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">400</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">10</span>)
+        a = [random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">5</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        m = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">12</span>)
+        qs = []
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(m):
+            l = random.<span class="t-f">randrange</span>(n); r = random.<span class="t-f">randrange</span>(l, n)
+            qs.<span class="t-f">append</span>((l, r, i))
+        got = <span class="t-f">mo_secondary_offline</span>(n, a, qs)
+        <span class="t-k">for</span> (l, r, i) <span class="t-k">in</span> qs:
+            exp = <span class="t-f">brute_inv</span>(a, l, r)
+            <span class="t-k">assert</span> got[i] == exp, (a, l, r, got[i], exp)
+    <span class="t-b">print</span>(<span class="t-s">&quot;mo_secondary_offline OK&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">值域分块实现「O(√n) 插入 + O(1) 排名查询」可压常数；若直接用树状数组，查询 O(log n) 会让总复杂度带 log；rec 用 list of list，Python 需注意每端点分桶开销；n=m=1e5 时扫描线查询次数 O(n√n)≈3e7，纯 Python 压力大，需 PyPy。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n√m + n√n)（值域分块）；若用树状数组 O((n√m)log n)</td></tr><tr><th>空间复杂度</th><td>O(n + m)（优化后）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">要求每次转移的贡献可差分（写成前缀式）；实现细节多，正确性敏感（端点 -1 越界、符号、跨询问携带答案）；值域分块常数优化是过题关键；纯 Python 通过 P5047 难度极高，建议理解思想 + C++ 实现。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>端点 l-1 可能为 -1，rec 下标越界（Python 负索引会静默错），必须跳过</li><li>答案必须跨询问携带（now 累计 + 每询问快照），不能每询问从 0 开始，否则丢 carry</li><li>扫描线贡献要按处理顺序前缀累计，最终 ans = now快照 + 累计扫描贡献</li><li>扩左/缩左用「小于」函数 g，扩右/缩右用「大于」函数 f，方向写反会错</li><li>空间优化：把整段指针移动合并成一条 rec，否则 O(n√m) 条记录在 n=1e5 时爆内存</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P5047</strong></td><td>8</td><td>[Ynoi2019] Yuno loves sqrt technology II：区间逆序对，二次离线莫队模板，OI Wiki 例题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5047" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5047</a></td></tr><tr><td>Luogu</td><td><strong>P5501</strong></td><td>8</td><td>[LnOI2019] 来者不拒，去者不追：区间 Abbi 值（k*a_i 加权），二次离线莫队，OI Wiki 例题 2</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5501" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5501</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-mo-algo-secondary-offline" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "pre_compute", "label": "预处理 f_sp/g_sp（树状数组 O(nlogn)）"}}, {"data": {"id": "mo_moves", "label": "莫队移动：直接项计入 cur，离线项入 rec"}}, {"data": {"id": "snapshot", "label": "记录每个询问的 cur 快照"}}, {"data": {"id": "sweep", "label": "扫描线按端点插入前缀，批量回答离线项"}}, {"data": {"id": "accumulate", "label": "按处理顺序前缀累计扫描贡献"}}, {"data": {"id": "combine", "label": "ans = 快照 + 累计扫描贡献"}}, {"data": {"id": "epre_compute->mo_moves", "source": "pre_compute", "target": "mo_moves"}}, {"data": {"id": "emo_moves->snapshot", "source": "mo_moves", "target": "snapshot"}}, {"data": {"id": "esnapshot->accumulate", "source": "snapshot", "target": "accumulate"}}, {"data": {"id": "esweep->accumulate", "source": "sweep", "target": "accumulate"}}, {"data": {"id": "eaccumulate->combine", "source": "accumulate", "target": "combine"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-mo-algo-secondary-offline'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="mo-algorithm.html" title="二次离线降低单次转移复杂度">莫队算法<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo-secondary-offline.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo-secondary-offline.md</a></li><li><span class="srctype">OI Wiki</span><span class="v-warn">&#9651;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/code/mo-algo-secondary-offline/mo-algo-secondary-offline_1.cpp" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/code/mo-algo-secondary-offline/mo-algo-secondary-offline_1.cpp</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

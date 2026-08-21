@@ -1,0 +1,76 @@
+{
+  "id": "generating-function-shift",
+  "name": "生成函数平移",
+  "group": "G-C-13",
+  "stage": "frontier",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "多项式平移 f(x+c) 与连续点值平移 f(0..n)→f(c..c+n)，Taylor公式/二项式定理/Lagrange插值法，O(n log n)",
+  "what": "生成函数平移（shift）是多项式/幂级数的高级操作，两大主题：① 多项式平移 f(x)↦f(x+c)：已知 f(x) 的系数求 f(x+c) 的系数，有分治法 O(n log² n)、Taylor 公式法（用 f^{(t)}(c) 表达 [x^t]f(x+c)=f^{(t)}(c)/t!）、二项式定理法（三种殊途同归，均归约为卷积 A_0(x)B_0(x) 其中 A_0[i]=f_{n−i}(n−i)!、B_0[i]=c^i/i!）。② 连续点值平移：已知 f(0),f(1),…,f(n)（连续点值）求 f(c),f(c+1),…,f(c+n)，用 Lagrange 插值公式法 O(n log n)（构造 A_0[i]=f(i)(−1)^{n−i}/(i!(n−i)!)、B_0[i]=1/(c−n+i)，[x^{n+t}](A_0B_0) 还原 f(c+t)）。典型应用：同一行第一类无符号斯特林数（上升幂 x^{\\overline n} 的平移）、模素数阶乘 n!、二项式系数前缀和、调和数、整式递推等。",
+  "why": {
+    "intuition": "『平移』把问题从『系数空间』搬去『点值空间』再搬回。f(x+c) 的系数和 f 在点 c 处的高阶导联系起来（Taylor 展开），而高阶导系数又是 f 系数与阶乘的卷积——于是平移=一个卷积。连续点值平移则反其道：有 n+1 个连续点值就能确定整个多项式，Lagrange 插值把 f(c+t) 写成带 1/(c+t−i) 核的和，该核可化成卷积。所以两类平移本质都是『把求和写成卷积』。",
+    "principle": "多项式平移（Taylor 公式法）：f(x+c)=Σ_t f^{(t)}(c)x^t/t!，而 f^{(t)}(c)=Σ_{i=t}^n f_i·i!·c^{i−t}/(i−t)!。令 A_0(x)=Σ f_{n−i}(n−i)!x^i、B_0(x)=Σ c^i/i!·x^i，则 [x^{n−t}](A_0B_0)=Σ_{i=0}^{n−t} f_{i+t}(i+t)!·c^i/i! = t![x^t]f(x+c)，故一个卷积得全部系数。连续点值平移（Lagrange 插值法）：f(x)=Σ_i f(i)·x!/((x−n−1)!(x−i))·(−1)^{n−i}/(i!(n−i)!)，取 x=c+t 并令 A_0、B_0 如上，[x^{n+t}](A_0B_0) 与 f(c+t) 差一个含阶乘的因子，得 O(n log n) 单次卷积完成 n+1 个点值。条件 c>n 时 B_0 分母无零；一般情况分类讨论。",
+    "history": "多项式平移是『简单情况的多项式复合』，历史上由分治（Bernoulli 式）与 Taylor/二项式技巧分别给出；OI Wiki《多项式平移》页系统整理三种方法与 Lagrange 插值法，并把『同一行第一类无符号斯特林数』『模素数阶乘』『二项式系数前缀和』列为应用。现代 O(n log n) 上升幂算法（如 Bostan–Gaudry–Schost 线）也依赖平移思想。竞赛中 shift 是处理斯特林数整行、阶乘快速求值的隐藏利器。"
+  },
+  "how": {
+    "pseudocode": "# 多项式平移 f(x+c) mod x^n (Taylor/二项式定理法, 卷积归约)\n# 输入 f[0..n-1], 常数 c; 输出 g[0..n-1] = f(x+c)\n# A[i] = f[n-1-i]*(n-1-i)!   (i=0..n-1)\n# B[i] = c^i / i!            (i=0..n-1)\n# C = A * B (卷积) -> C[n-1-k] = k! * g[k]  =>  g[k] = C[n-1-k] / k!\n\n# 连续点值平移 f(c),f(c+1),...,f(c+n): (c>n)\n# A[i] = f(i)*(-1)^{n-i}/(i!*(n-i)!)\n# B[i] = 1/(c-n+i)\n# D = A * B; f(c+t) = D[n+t] * (c+t)! / ((c+t-n-1)!)",
+    "python": "MOD = 998244353\n\n\ndef _precompute_factorials(n, mod=MOD):\n    fact = [1] * (n + 1)\n    for i in range(1, n + 1):\n        fact[i] = fact[i - 1] * i % mod\n    inv = [1] * (n + 1)\n    inv[n] = pow(fact[n], mod - 2, mod)\n    for i in range(n, 0, -1):\n        inv[i - 1] = inv[i] * i % mod\n    return fact, inv\n\n\ndef _conv(a, b, mod=MOD):\n    c = [0] * (len(a) + len(b) - 1)\n    for i, x in enumerate(a):\n        for j, y in enumerate(b):\n            c[i + j] = (c[i + j] + x * y) % mod\n    return c\n\n\ndef poly_shift(f, c, mod=MOD):\n    \"\"\"多项式平移 f(x+c) 的前 len(f) 项. O(n^2) 朴素卷积(演示).\"\"\"\n    n = len(f)\n    fact, invf = _precompute_factorials(n, mod)\n    A = [f[n - 1 - i] * fact[n - 1 - i] % mod for i in range(n)]\n    powc = [1] * n\n    for i in range(1, n):\n        powc[i] = powc[i - 1] * c % mod\n    B = [powc[i] * invf[i] % mod for i in range(n)]\n    C = _conv(A, B)\n    g = [0] * n\n    for k in range(n):\n        g[k] = C[n - 1 - k] * invf[k] % mod\n    return g\n\n\ndef shift_verify(f, c):\n    \"\"\"直接展开验证 (x+c)^k.\"\"\"\n    from math import comb\n    g = [0] * len(f)\n    for k, fk in enumerate(f):\n        for i in range(k + 1):\n            g[i] += fk * comb(k, i) * (c ** (k - i))\n    return [v % MOD for v in g]\n\n\ndef point_shift(f_points, c, mod=MOD):\n    \"\"\"连续点值平移: 已知 f(0..n), 求 f(c..c+n). c > n 版本. O(n^2) 朴素.\"\"\"\n    n = len(f_points) - 1\n    fact, invf = _precompute_factorials(c + n, mod)\n    A = []\n    for i in range(n + 1):\n        A.append(f_points[i] % mod * (1 if (n - i) % 2 == 0 else mod - 1) % mod\n                 * invf[i] % mod * invf[n - i] % mod)\n    # B[i] = 1/(c-n+i), i=0..2n\n    B = [0] * (2 * n + 1)\n    for i in range(2 * n + 1):\n        denom = (c - n + i) % mod\n        B[i] = pow(denom, mod - 2, mod)\n    D = _conv(A, B)\n    out = []\n    for t in range(n + 1):\n        val = D[n + t]\n        # val = (c+t)! / ((c+t-n-1)!) * f(c+t)\n        val = val * fact[c + t] % mod * invf[c + t - n - 1] % mod\n        out.append(val)\n    return out\n\n\ndef _eval_shift_poly(f, c):\n    \"\"\"对多项式 f(系数) 在点 x 求值.\"\"\"\n    val = 0\n    for i in range(len(f) - 1, -1, -1):\n        val = val * c + f[i]\n    return val\n\n\nif __name__ == \"__main__\":\n    # 多项式平移: f = 1 + 2x + x^2, c = 1 => (x+1)^2 + 2(x+1) + 1 = x^2+4x+4\n    f = [1, 2, 1]\n    g = poly_shift(f, 1)\n    assert g == [4, 4, 1], g\n    assert g == shift_verify(f, 1)\n    # 随机验证: f(x)=3x^3+2x+5, c=2\n    f2 = [5, 2, 0, 3]\n    g2 = poly_shift(f2, 2)\n    assert g2 == shift_verify(f2, 2)\n    # 连续点值平移: 取 f(x)=x^2, 点值 0,1,4; 平移 c=4 => f(4..6)=16,25,36\n    pts = [_eval_shift_poly([0, 0, 1], i) for i in range(3)]  # 0,1,4\n    moved = point_shift(pts, 4)\n    assert moved == [16, 25, 36], moved\n    print(\"generating-function-shift: all tests passed\")\n",
+    "pypy_notes": "本实现用朴素卷积 O(n²) 教学；竞赛需 NTT O(n log n)。多项式平移求 A/B 后一次卷积。连续点值平移注意 c>n 的分母非零条件（模素数下可用逆元处理分母为零的特殊情形分类讨论）。阶乘预计算到 c+t 上限。PyPy 大 n 用 NTT 库。",
+    "complexity": {
+      "time": "朴素 O(n²)；NTT 优化 O(n log n)（一次卷积）",
+      "space": "O(n)"
+    },
+    "limitations": "① 连续点值平移的 Lagrange 法要求 c>n（分母 x−i≠0），否则需特殊处理；② 依赖 NTT/多项式乘法，纯 Python 慢；③ 多项式平移 Taylor 法的卷积是『逆序』技巧，容易下标错位；④ 只对多项式（有限次）成立，一般幂级数需 truncate。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P5408",
+      "url": "https://www.luogu.com.cn/problem/P5408",
+      "difficulty": 5,
+      "key_point": "第一类斯特林数·行：上升幂 x^\\overline n 求法，OI Wiki shift 页应用（同符号化方法）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P5282",
+      "url": "https://www.luogu.com.cn/problem/P5282",
+      "difficulty": 6,
+      "key_point": "【模板】快速阶乘算法：连续点值平移 O(√n log n)，OI Wiki shift 页例题"
+    },
+    {
+      "oj": "LOJ",
+      "pid": "166",
+      "url": "https://loj.ac/p/166",
+      "difficulty": 5,
+      "key_point": "拉格朗日插值 2：连续点值平移模板，OI Wiki shift 页例题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P5702",
+      "url": "https://www.luogu.com.cn/problem/P5702",
+      "difficulty": 6,
+      "key_point": "调和级数求和：连续点值平移/整式递推应用，OI Wiki shift 页例题"
+    }
+  ],
+  "pitfalls": [
+    "卷积下标错位：A 是逆序 f，C[n-1-k]=k!·g[k] 的索引关系写错",
+    "连续点值平移分母 c-n+i 为零未处理",
+    "阶乘预计算范围不足（需到 c+t）",
+    "c 为负/模数时 (c-n+i) 的模处理",
+    "只验证 f(x+c) 而忘 f 本身有常数项时的符号"
+  ],
+  "step_dag": {
+    "nodes": [
+      "newton-iteration-poly", "generating-function-shift", "stirling-number"
+    ],
+    "edges": [
+      {"from": "newton-iteration-poly", "to": "generating-function-shift", "type": "prerequisite"},
+      {"from": "generating-function-shift", "to": "stirling-number", "type": "combination"}
+    ]
+  },
+  "sources": [
+    {"type": "oiwiki", "url": "https://oi-wiki.org/math/poly/shift/", "verified": true},
+    {"type": "oiwiki-raw", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/shift.md", "verified": true},
+    {"type": "oiwiki-comp-rev", "url": "https://oi-wiki.org/math/poly/comp-rev/", "verified": true}
+  ]
+}

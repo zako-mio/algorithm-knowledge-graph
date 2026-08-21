@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最大团 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-9.html">图论高级专题</a> / <span>最大团</span></div>
+  <h1>最大团</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-B-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="planar-graph.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">planar-graph</span></a>
+    <a class="nav-index" href="../03-groups/G-B-9.html"><span class="dir">组内第 4 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="lgv-lemma.html"><span class="dir">下一个 / 组内</span><span class="v">lgv-lemma</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">NP-hard，Bron-Kerbosch回溯或状压DP</div><p>团（clique）是无向图中两两相邻的顶点子集（完全子图）。极大团（maximal clique）是不能再加入任何顶点仍保持团的团；最大团（maximum clique）是所有极大团中顶点数最多的一个，即最大完全子图。求最大团问题是经典的 NP-hard 问题，一般规模下用 Bron–Kerbosch 回溯搜索或折半/状压 DP，小规模（n≤40 左右）可用折半枚举，n 很大时只能靠启发式。最大团与最大独立集互补：独立集指两两不相邻的顶点集，在图 G 的补图（边变非边）上，G 的团就是补图的独立集，反之亦然。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>最大团的核心困难在于：你不知道某个顶点最终是否属于最大团。Bron–Kerbosch 用三个集合 R/P/X 递归：R 是当前已经选入的团，P 是仍可与 R 中所有点相邻的候选点，X 是已被排除（曾经尝试过）的点。每次从 P 取一个点 v 加入 R 并递归（同时用 N(v) 收紧 P 和 X），随后把 v 从 P 移入 X，避免重复枚举同一团。当 P 与 X 同时为空，R 就是极大团，记录其大小。枚举所有极大团后取最大者即最大团。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>正确性依赖：任何包含当前 R 的极大团，其下一步加入的点必然来自 P∩N(v)；把 v 从 P 移到 X 保证每种&#x27;哪一步选哪个点&#x27;的选择只被枚举一次，避免重复。优化：选 pivot 点 u（P∪X 中的点），只枚举 P\N(u) 中的点——因为含 u 的极大团若再加一个与 u 相邻的点，则只需枚举 u 本身即可覆盖，这样大幅剪枝。另一个常见优化是按度数排序并加剪枝（当前 R 大小 + 剩余候选数 ≤ 已知最优则剪掉）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>团问题起源于图论（1930 年代 Ramsey 理论的相关问题），Bron–Kerbosch 算法由 Coen Bron 与 Joep Kerbosch 于 1973 年提出，至今仍是枚举所有极大团的标准算法。最大团问题的 NP-hard 性在 1972 年 Karp 的 21 个 NP-complete 问题列表中得到确认（顶点覆盖/独立集/团归约）。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">BronKerbosch</span>(R, P, X):
+    <span class="t-k">if</span> P <span class="t-k">and</span> X are both empty:
+        报告 R 为一个极大团; 更新全局最大团大小
+    u = 从 P ∪ X 中选 pivot
+    <span class="t-k">for</span> v <span class="t-k">in</span> P \ <span class="t-f">N</span>(u):
+        <span class="t-f">BronKerbosch</span>(R ∪ {v}, P ∩ <span class="t-f">N</span>(v), X ∩ <span class="t-f">N</span>(v))
+        P = P \ {v}
+        X = X ∪ {v}</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">max_clique</span>(n, adj):
+    <span class="t-s">&quot;&quot;&quot;Bron-Kerbosch with pivot 求无向图最大团大小.
+    adj: 邻接表, n 个点(0-index), adj[i] 为集合.
+    &quot;&quot;&quot;</span>
+    best = <span class="t-n">0</span>
+    cur = []
+
+    <span class="t-k">def</span> <span class="t-f">bk</span>(R, P, X):
+        <span class="t-k">nonlocal</span> best
+        <span class="t-k">if</span> <span class="t-k">not</span> P <span class="t-k">and</span> <span class="t-k">not</span> X:
+            best = <span class="t-b">max</span>(best, <span class="t-b">len</span>(R))
+            <span class="t-k">return</span>
+        <span class="t-c"># 剪枝: 当前团大小 + 候选数 &lt;= best 则不可能超越</span>
+        <span class="t-k">if</span> <span class="t-b">len</span>(R) + <span class="t-b">len</span>(P) &lt;= best:
+            <span class="t-k">return</span>
+        <span class="t-c"># 选 pivot: 使 P \ N(u) 尽量小</span>
+        u = <span class="t-b">next</span>(<span class="t-b">iter</span>(P | X))
+        <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">list</span>(P - adj[u]):
+            <span class="t-f">bk</span>(R | {v}, P &amp; adj[v], X &amp; adj[v])
+            P.<span class="t-f">discard</span>(v)
+            X.<span class="t-f">add</span>(v)
+
+    <span class="t-f">bk</span>(<span class="t-b">set</span>(), <span class="t-b">set</span>(<span class="t-b">range</span>(n)), <span class="t-b">set</span>())
+    <span class="t-k">return</span> best
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 三角形 0-1-2-0</span>
+    adj = [
+        {<span class="t-n">1</span>, <span class="t-n">2</span>},
+        {<span class="t-n">0</span>, <span class="t-n">2</span>},
+        {<span class="t-n">0</span>, <span class="t-n">1</span>},
+    ]
+    <span class="t-k">assert</span> <span class="t-f">max_clique</span>(<span class="t-n">3</span>, adj) == <span class="t-n">3</span>
+
+    <span class="t-c"># 四边形 + 一条对角线 =&gt; 最大团为三角形</span>
+    adj2 = [
+        {<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>},
+        {<span class="t-n">0</span>, <span class="t-n">2</span>},
+        {<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">3</span>},
+        {<span class="t-n">0</span>, <span class="t-n">2</span>},
+    ]
+    <span class="t-k">assert</span> <span class="t-f">max_clique</span>(<span class="t-n">4</span>, adj2) == <span class="t-n">3</span>
+
+    <span class="t-c"># 空图 =&gt; 1</span>
+    adj3 = [<span class="t-b">set</span>() <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">5</span>)]
+    <span class="t-k">assert</span> <span class="t-f">max_clique</span>(<span class="t-n">5</span>, adj3) == <span class="t-n">1</span>
+
+    <span class="t-c"># 完全图 K5 =&gt; 5</span>
+    adj4 = [<span class="t-b">set</span>(<span class="t-b">range</span>(<span class="t-n">5</span>)) - {i} <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">5</span>)]
+    <span class="t-k">assert</span> <span class="t-f">max_clique</span>(<span class="t-n">5</span>, adj4) == <span class="t-n">5</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;max-clique tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 实现用 set 交集方便但常数大，n 稍大（&gt;50）会非常慢。竞技中最大团常直接交 C++ 模板；若 Python 必写，小规模（n≤30~40）建议折半枚举（meet-in-the-middle）或 bitset 优化邻接矩阵。n=1 时答案应为 1（单点本身是团）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>最坏指数级（枚举所有极大团，n 很大时不可接受）；带 pivot 的 Bron–Kerbosch 在一般图上通常远快于最坏情况</td></tr><tr><th>空间复杂度</th><td>O(n + 递归深度)，递归深度最坏 O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">NP-hard：n 较大时无多项式算法；回溯在稠密图/大 n 下必然超时；最大独立集/顶点覆盖可互化但复杂度同样是指数级。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>Bron–Kerbosch 忘记 pivot 优化在一般图上会指数爆炸，务必剪枝</li><li>P 与 X 同时为空才记录极大团，只判 P 空会重复计数/漏解</li><li>孤立点构成的&#x27;团&#x27;大小为 1，边界不能判 0</li><li>与最大独立集互补：别忘了补图转换</li><li>Python 的 set 交集在递归中反复构造开销大，n&gt;50 建议换 C++</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>POJ</td><td><strong>2989</strong></td><td>4</td><td>All Friends：Bron–Kerbosch 模板题，求所有极大团的个数</td><td class="u"><a href="http://poj.org/problem?id=2989" target="_blank" rel="noopener">http://poj.org/problem?id=2989</a></td></tr><tr><td>Luogu</td><td><strong>U461211</strong></td><td>4</td><td>数据加强版字符串 Hash：卡碰撞/随机化相关，可与团无关，用于对比哈希与精确判定</td><td class="u"><a href="https://www.luogu.com.cn/problem/U461211" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/U461211</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-max-clique" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "init", "label": "初始化 R={}, P=全部点, X={}"}}, {"data": {"id": "pivot", "label": "选取 pivot 缩小枚举范围"}}, {"data": {"id": "rec", "label": "枚举 v in P\\N(u) 递归 (R∪{v}, P∩N(v), X∩N(v))"}}, {"data": {"id": "prune", "label": "R大小+候选数剪枝"}}, {"data": {"id": "record", "label": "P,X 皆空时更新最大团"}}, {"data": {"id": "einit->pivot", "source": "init", "target": "pivot"}}, {"data": {"id": "epivot->rec", "source": "pivot", "target": "rec"}}, {"data": {"id": "erec->rec", "source": "rec", "target": "rec"}}, {"data": {"id": "erec->prune", "source": "rec", "target": "prune"}}, {"data": {"id": "eprune->rec", "source": "prune", "target": "rec"}}, {"data": {"id": "eprune->record", "source": "prune", "target": "record"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-max-clique'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/max-clique/" target="_blank" rel="noopener">https://oi-wiki.org/graph/max-clique/</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Clique_problem" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Clique_problem</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

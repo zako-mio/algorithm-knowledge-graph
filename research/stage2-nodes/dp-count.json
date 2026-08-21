@@ -1,0 +1,102 @@
+{
+  "id": "dp-count",
+  "name": "计数DP",
+  "group": "G-A-11",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "利用DP记忆化求计数问题，划分子集不重不漏",
+  "what": "计数DP是一种利用类似DP的记忆化方法解决计数（和求和）问题的技术。与最优化DP的关键区别在于：计数问题要求将状态空间划分为若干两两无交的子集（不重不漏），而最优化DP只需子集的并覆盖全集即可。典型问题包括整数划分、路径计数、组合数计算等。",
+  "why": {
+    "intuition": "如果集合S可以划分为两两无交的子集S1,S2,...,Sk，则|S|=|S1|+|S2|+...+|Sk|。关键是找到一种划分方式使得每个子集的计数与原问题同构（规模更小的同类问题），从而可以用记忆化递推求解。",
+    "principle": "基本范式：f(S)=sum{f(S_i)} 其中S=并集(S_i)且S_i两两无交。与最优化DP的区别：max可以取任意划分(只需覆盖全集)，但计数要求不重不漏。整数划分：f(n,M)=f(n,M-1)+f(n-M,M)（含M与不含M两类，不重叠）。状态转移方程确定后用递推或记忆化搜索计算。",
+    "history": "计数DP是竞赛中处理大规模计数问题的核心技术。OI Wiki将其与最优化DP对比，强调了「不重不漏」的划分要求。整数划分问题是最经典的计数DP教学案例，从O(n²)到O(n^{3/2})有多种优化。"
+  },
+  "how": {
+    "pseudocode": "# 整数划分(顺序不同算同一种)\n# f(n, M) = 将n划分为不超过M的正整数的方案数\nf(n, M) = f(n, M-1) + f(n-M, M) if n >= M else f(n, M-1)\n# 边界: f(0, M)=1, f(n, 0)=0 (n>0)\n# 优化: 滚动数组",
+    "python": "def integer_partition(n):\n    \"\"\"整数划分: 将n划分为若干正整数之和的方案数(顺序无关)\n    如 n=4: 4=3+1=2+2=2+1+1=1+1+1+1, 共5种\n    f(n, M) = f(n, M-1) + f(n-M, M)  (不含M + 含M)\n    \"\"\"\n    f = [0] * (n + 1)\n    f[0] = 1\n    for M in range(1, n + 1):  # 枚举最大数\n        for j in range(M, n + 1):\n            f[j] += f[j - M]\n    return f[n]\n\n\ndef integer_partition_ordered(n):\n    \"\"\"有序整数划分(顺序不同算不同种)\n    如 n=4: 1+1+1+1, 1+1+2, 1+2+1, 2+1+1, 1+3, 3+1, 2+2, 4 = 8种\n    g(n) = 2^(n-1) (n>=1)\n    \"\"\"\n    if n == 0:\n        return 1\n    return 1 << (n - 1)\n\n\ndef count_paths(n, m):\n    \"\"\"网格路径计数: 从(0,0)到(n-1,m-1)只向下向右走的方案数\n    C(n+m-2, n-1)\n    \"\"\"\n    f = [[0] * m for _ in range(n)]\n    f[0][0] = 1\n    for i in range(n):\n        for j in range(m):\n            if i > 0:\n                f[i][j] += f[i - 1][j]\n            if j > 0:\n                f[i][j] += f[i][j - 1]\n    return f[n - 1][m - 1]\n\n\nif __name__ == \"__main__\":\n    # 整数划分测试\n    assert integer_partition(4) == 5, f\"Expected 5, got {integer_partition(4)}\"\n    assert integer_partition(1) == 1\n    # 5的划分: {5},{4,1},{3,2},{3,1,1},{2,2,1},{2,1,1,1},{1,1,1,1,1} = 7\n    assert integer_partition(5) == 7, f\"Expected 7, got {integer_partition(5)}\"\n    assert integer_partition(6) == 11\n\n    # 有序划分\n    assert integer_partition_ordered(4) == 8\n    assert integer_partition_ordered(1) == 1\n\n    # 路径计数\n    assert count_paths(3, 3) == 6  # C(4,2)=6\n    assert count_paths(2, 2) == 2\n    assert count_paths(1, 1) == 1\n\n    print(\"All tests passed.\")\n",
+    "pypy_notes": "PyPy对列表操作和整数加法快，n=5000的整数划分约0.1s。注意结果可能很大，Python天然支持大整数无需取模处理。",
+    "complexity": {
+      "time": "整数划分: O(n²) → O(n^{3/2})优化；路径计数: O(nm)",
+      "space": "O(n) 滚动数组"
+    },
+    "limitations": "结果可能极大需取模。整数划分O(n²)在n>1e4时Python慢。计数DP的正确性核心在于不重不漏的划分证明，容易出错。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1025",
+      "url": "https://www.luogu.com.cn/problem/P1025",
+      "difficulty": 2,
+      "key_point": "NOIP2001 数的划分：将n划分为k个正整数的方案数，计数DP"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "62",
+      "url": "https://leetcode.cn/problems/unique-paths/",
+      "difficulty": 1,
+      "key_point": "不同路径：网格路径计数DP入门"
+    }
+  ],
+  "pitfalls": [
+    "划分不重不漏是正确性的关键：确保子集两两无交，否则会重复计数",
+    "整数划分中「有序」vs「无序」的状态转移方程完全不同",
+    "结果可能溢出：Python天然大整数，其他语言需取模",
+    "边界f(0)=1（空集是一种方案）容易遗漏"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "state",
+        "label": "状态定义(子集大小)"
+      },
+      {
+        "id": "partition",
+        "label": "不重不漏划分"
+      },
+      {
+        "id": "transition",
+        "label": "转移方程(求和)"
+      },
+      {
+        "id": "boundary",
+        "label": "边界 f(0)=1"
+      },
+      {
+        "id": "answer",
+        "label": "答案 f(n)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "state",
+        "to": "partition"
+      },
+      {
+        "from": "partition",
+        "to": "transition"
+      },
+      {
+        "from": "transition",
+        "to": "boundary"
+      },
+      {
+        "from": "boundary",
+        "to": "answer"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/count/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/dynamic_programming/knapsack.html",
+      "verified": true,
+      "note": "计数 DP 与背包计数转移思想"
+    }
+  ]
+}

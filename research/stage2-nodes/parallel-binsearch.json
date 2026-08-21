@@ -1,0 +1,110 @@
+{
+  "id": "parallel-binsearch",
+  "name": "整体二分/并行二分",
+  "group": "G-E-7",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "多询问一起二分：把操作和询问按答案值域分治，O(T·log n)同时处理所有询问",
+  "what": "整体二分(Parallel Binary Search)是一种离线算法，将多个二分答案的询问同时进行：在每一层分治中，将所有询问按答案是否 <= mid 分为两组，同时处理所有 <= mid 的修改操作，递归处理两组。总复杂度 O(T log V)，其中 T 是单次操作+查询的复杂度。",
+  "why": {
+    "intuition": "如果有 Q 个询问每个都需要二分答案(值域 V)，逐个二分是 O(Q * T * log V)。但很多二分过程重叠：同一层所有询问都猜 mid，可以一次性处理所有 <= mid 的修改对全部询问的贡献。把询问按'答案 <= mid'还是'> mid'分组后递归，每层只处理一次全部操作，共 log V 层 → O(T * (N+Q) * log V)。",
+    "principle": "solve(l, r, ops, queries): ①若 l==r，所有 query 的答案为 l ②取 mid=(l+r)/2 ③对当前值域 [l,mid] 的修改操作执行(树状数组等) ④对每个 query 检查答案是否 <= mid(查树状数组)，是则分入 q1(还需处理左半)，否则扣减 k 后分入 q2 ⑤撤销修改 ⑥递归 solve(l,mid,ops1,q1) 和 solve(mid+1,r,ops2,q2)。适用条件：答案可二分、修改贡献独立且可加、允许离线。",
+    "history": "整体二分是离线算法的经典代表，常用于区间第 k 小(静态/动态)、带修区间第 k 小等。OI Wiki 将其与 CDQ 分治、莫队并列为离线三宝。经典题目包括 Luogu P3834(区间 k 小)和 P2617(Dynamic Rankings)。"
+  },
+  "how": {
+    "pseudocode": "# 区间第 k 小(静态)\nsolve(l, r, nums, queries):\n  if l == r:\n    for q in queries: ans[q.id] = l\n    return\n  mid = (l + r) / 2\n  q1, q2 = [], []\n  # 值 <= mid 的数: 在其位置 +1\n  for num in nums:\n    if num.val <= mid:\n      bit.add(num.pos, 1)\n  for q in queries:\n    t = bit.query(q.r) - bit.query(q.l-1)\n    if q.k <= t:\n      q1.append(q)\n    else:\n      q.k -= t\n      q2.append(q)\n  # 撤销\n  for num in nums:\n    if num.val <= mid:\n      bit.add(num.pos, -1)\n  # 分值域递归\n  nums1 = [n for n in nums if n.val <= mid]\n  nums2 = [n for n in nums if n.val > mid]\n  solve(l, mid, nums1, q1)\n  solve(mid+1, r, nums2, q2)",
+    "python": "class BIT:\n    \"\"\"树状数组: 单点修改+前缀查询。\"\"\"\n    def __init__(self, n):\n        self.n = n\n        self.tree = [0] * (n + 2)\n\n    def add(self, i, v):\n        while i <= self.n:\n            self.tree[i] += v\n            i += i & (-i)\n\n    def query(self, i):\n        s = 0\n        while i > 0:\n            s += self.tree[i]\n            i -= i & (-i)\n        return s\n\n\ndef parallel_binsearch_kth(arr, queries):\n    \"\"\"区间第 k 小(整体二分)。\n    arr: 原数组(0-indexed值)\n    queries: [(l, r, k), ...] 0-indexed, k从1开始\n    返回每个查询的答案。\n    \"\"\"\n    n = len(arr)\n    # 离散化\n    vals = sorted(set(arr))\n    val_map = {v: i + 1 for i, v in enumerate(vals)}  # 1-indexed\n    m = len(vals)\n\n    # 数: (位置, 离散值), 按值排序\n    nums = sorted([(i, val_map[arr[i]]) for i in range(n)], key=lambda x: x[1])\n\n    # 查询: (l, r, k, id) 0-indexed -> 1-indexed\n    qs = [(q[0] + 1, q[1] + 1, q[2], idx) for idx, q in enumerate(queries)]\n    ans = [0] * len(queries)\n    bit = BIT(n)\n\n    def solve(l, r, nums, qs):\n        if l == r:\n            for q in qs:\n                ans[q[3]] = vals[l - 1]  # 映射回原值\n            return\n        mid = (l + r) // 2\n        # 处理值 <= mid 的数\n        nums_l = []\n        nums_r = []\n        ni = 0\n        for num in nums:\n            if num[1] <= mid:\n                bit.add(num[0] + 1, 1)  # 位置 1-indexed\n                nums_l.append(num)\n            else:\n                nums_r.append(num)\n        # 分配查询\n        q1 = []\n        q2 = []\n        for q in qs:\n            t = bit.query(q[1]) - bit.query(q[0] - 1)\n            if q[2] <= t:\n                q1.append(q)\n            else:\n                q2.append((q[0], q[1], q[2] - t, q[3]))\n        # 撤销\n        for num in nums_l:\n            bit.add(num[0] + 1, -1)\n        # 递归\n        if q1:\n            solve(l, mid, nums_l, q1)\n        if q2:\n            solve(mid + 1, r, nums_r, q2)\n\n    solve(1, m, nums, qs)\n    return ans\n\n\nif __name__ == '__main__':\n    arr = [1, 5, 2, 6, 3, 7, 4]\n    queries = [(0, 5, 4), (2, 4, 2), (0, 6, 5)]  # (l, r, k) 0-indexed\n    result = parallel_binsearch_kth(arr, queries)\n    print(f'Kth smallest results: {result}')\n    # 验证\n    # [1,5,2,6,3,7] sorted=[1,2,3,5,6,7], 4th=5\n    # [2,6,3] sorted=[2,3,6], 2nd=3\n    # [1,5,2,6,3,7,4] sorted=[1,2,3,4,5,6,7], 5th=5\n    assert result == [5, 3, 5], f'Expected [5,3,5], got {result}'\n    print('Parallel binary search: test passed!')\n",
+    "pypy_notes": "PyPy 对整体二分中频繁的列表分配和树状数组操作性能尚可；但递归层深 log V，每层 O(N+Q)，N,Q>1e5 时可能 TLE；建议 C++ 实现。Python 用于理解算法。",
+    "complexity": {
+      "time": "O((N+Q) * log V * T) — T为单次树状数组操作 O(log N), 共 log V 层",
+      "space": "O(N+Q) — 每层临时存储操作和查询"
+    },
+    "limitations": "仅适用于离线(已知全部询问)；答案需可二分；修改贡献需独立且可加；动态(带修改)版本需将修改也按时间序融入操作流。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3834",
+      "url": "https://www.luogu.com.cn/problem/P3834",
+      "difficulty": 4,
+      "key_point": "可持久化线段树2(区间k小): 整体二分替代可持久化线段树"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2617",
+      "url": "https://www.luogu.com.cn/problem/P2617",
+      "difficulty": 5,
+      "key_point": "Dynamic Rankings(带修区间k小): 整体二分+修改操作融入"
+    }
+  ],
+  "pitfalls": [
+    "树状数组用完必须撤销(逆序 add -v), 否则跨层污染",
+    "查询分组时 k 值需扣减(答案>mid 的查询减去 <=mid 的数量后进入右半)",
+    "值域边界: l==r 时记录答案, 注意映射回原值(离散化逆映射)",
+    "操作和查询的顺序: 修改必须按时间排在查询之前(带修版本)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "init",
+        "label": "初始化: 离散化+排序操作和查询"
+      },
+      {
+        "id": "mid",
+        "label": "取 mid, 执行值<=mid 的修改"
+      },
+      {
+        "id": "check",
+        "label": "对每个查询检查答案与 mid 关系"
+      },
+      {
+        "id": "split",
+        "label": "分组: 答案<=mid 和 >mid"
+      },
+      {
+        "id": "undo",
+        "label": "撤销修改"
+      },
+      {
+        "id": "recurse",
+        "label": "递归左右半值域"
+      }
+    ],
+    "edges": [
+      {
+        "from": "init",
+        "to": "mid"
+      },
+      {
+        "from": "mid",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "to": "split"
+      },
+      {
+        "from": "split",
+        "to": "undo"
+      },
+      {
+        "from": "undo",
+        "to": "recurse"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/misc/parallel-binsearch/",
+      "verified": true
+    },
+    {
+      "type": "wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Binary_search",
+      "verified": true,
+      "note": "整体二分与二分思想背景"
+    }
+  ]
+}

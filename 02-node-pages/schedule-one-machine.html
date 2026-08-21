@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>单机调度 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-10.html">调度与其他专题</a> / <span>单机调度</span></div>
+  <h1>单机调度</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-10</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-D-10.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-D-10.html"><span class="dir">组内第 1 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="schedule-two-machines.html"><span class="dir">下一个 / 组内</span><span class="v">schedule-two-machines</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">单机作业排序使最大延迟/完工时间最优，按截止期贪心</div><p>单机调度（scheduling on one machine）问题：n 个作业在一台机器上依次加工，作业 i 耗时 t_i，若作业在等待 t 秒后才被处理则需付罚金 f_i(t)。目标是最小化总罚金 F(π)=Σ f_πi(等待时间)。特殊情形可精确求解：①线性罚函数 f_i(t)=c_i·t：按 c_i/t_i 非增排序（交换相邻两项分析最优条件）；②指数罚函数 f_i(t)=c_i·e^(αt)：按 (1−e^(αt_i))/c_i 非增排序；③相同单调增罚函数：按 t_i 非降排序。Livshits–Kladov 定理：排列法（交换相邻作业看罚金变化）仅适用于上述三类罚函数。若目标改为&#x27;最小化最大延迟&#x27;，则按截止期 d_i 非降排序（EDD 规则）贪心。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>相邻交换（permutation method）：若最优排列中相邻两个作业 i、j 交换后罚金不变差，则可推导出排序准则。对线性罚金 f=c·t，交换相邻两作业只影响这两项的罚金变化 Δ=c_i·t_j − c_j·t_i；要求 Δ≥0（最优排列中不交换更好），化简得 c_i/t_i ≥ c_j/t_j，故按 c/t 降序。直观：&#x27;代价系数/耗时&#x27;越大的作业越该先做。对截止期目标，直觉是先做截止期最早的作业（EDD）才能避免延迟累积。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>相邻交换法证明全局最优：假设排列 π 最优，则任何相邻交换不降低目标；由此推出对所有相邻位置满足局部不等式，该不等式是传递的，故整个排列由该排序准则唯一确定，从而全局最优。线性情形：c_i·t_j ≥ c_j·t_i ⟺ c_i/t_i ≥ c_j/t_j。EDD（最早截止期优先）最小化最大延迟：若某排列中 d_i&gt;d_j 却先做 i，交换后最大延迟不增。注意：&#x27;单机+最小化总完成时间&#x27;的经典结果是 SPT（最短加工时间优先）；不同目标对应不同排序规则，务必先看清目标函数。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>单机排序是调度理论（Scheduling Theory）最基础的模型，起源可追溯至 1950s（Smith 1956 的加权完成时间排序，等价于线性罚函数 c_i/t_i 排序；Jackson 1955 提出 EDD 规则）。Livshits 与 Kladov 定理界定了相邻交换法适用的罚函数族。CP-Algorithms 的 schedule_one_machine 条目以线性/指数/单调三种罚函数系统介绍了这一经典问题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 线性罚函数 f_i(t)=c_i*t, 最小化总罚金</span>
+sort jobs <span class="t-f">by</span> (c_i / t_i) 降序   <span class="t-c"># 或按 c_i*t_j &gt; c_j*t_i 比较器</span>
+
+<span class="t-c"># 相同单调罚函数(如均方差/总完成时间) =&gt; 按 t_i 升序 (SPT)</span>
+<span class="t-c"># 指数罚函数 =&gt; 按 (1-exp(a*t_i))/c_i 降序</span>
+
+<span class="t-c"># 最小化最大延迟 =&gt; 按 deadline d_i 升序 (EDD)</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">schedule_linear</span>(jobs):
+    <span class="t-s">&quot;&quot;&quot;单机+线性罚金 f_i(t)=c_i*t: 按 c/t 降序排.
+    jobs: list of (t_i, c_i). 返回最优顺序列表.
+    &quot;&quot;&quot;</span>
+    <span class="t-k">return</span> <span class="t-b">sorted</span>(<span class="t-b">range</span>(<span class="t-b">len</span>(jobs)), key=<span class="t-k">lambda</span> i: jobs[i][<span class="t-n">1</span>] / jobs[i][<span class="t-n">0</span>], reverse=<span class="t-k">True</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">total_penalty</span>(jobs, order):
+    <span class="t-s">&quot;&quot;&quot;给定顺序的总罚金 (线性情形): sum c_i * (等待时间)&quot;&quot;&quot;</span>
+    time = <span class="t-n">0</span>
+    total = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> order:
+        t, c = jobs[i]
+        total += c * time
+        time += t
+    <span class="t-k">return</span> total
+
+
+<span class="t-k">def</span> <span class="t-f">schedule_edd</span>(jobs):
+    <span class="t-s">&quot;&quot;&quot;最小化最大延迟: EDD 按截止期升序.
+    jobs: list of (duration, deadline). 返回顺序.
+    &quot;&quot;&quot;</span>
+    <span class="t-k">return</span> <span class="t-b">sorted</span>(<span class="t-b">range</span>(<span class="t-b">len</span>(jobs)), key=<span class="t-k">lambda</span> i: jobs[i][<span class="t-n">1</span>])
+
+
+<span class="t-k">def</span> <span class="t-f">max_lateness</span>(jobs, order):
+    <span class="t-s">&quot;&quot;&quot;最大延迟 L_max = max(completion - deadline)&quot;&quot;&quot;</span>
+    time = <span class="t-n">0</span>
+    L = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> order:
+        dur, ddl = jobs[i]
+        time += dur
+        L = <span class="t-b">max</span>(L, time - ddl)
+    <span class="t-k">return</span> L
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 线性罚金: 对拍暴力</span>
+    <span class="t-k">import</span> itertools
+
+    <span class="t-k">def</span> <span class="t-f">brute_linear</span>(jobs):
+        <span class="t-k">return</span> <span class="t-b">min</span>(itertools.<span class="t-f">permutations</span>(<span class="t-b">range</span>(<span class="t-b">len</span>(jobs))),
+                   key=<span class="t-k">lambda</span> o: <span class="t-f">total_penalty</span>(jobs, o))
+
+    jobs1 = [(<span class="t-n">2</span>, <span class="t-n">3</span>), (<span class="t-n">3</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">5</span>), (<span class="t-n">4</span>, <span class="t-n">2</span>)]
+    ord1 = <span class="t-f">schedule_linear</span>(jobs1)
+    <span class="t-k">assert</span> <span class="t-f">total_penalty</span>(jobs1, ord1) == <span class="t-f">total_penalty</span>(jobs1, <span class="t-f">brute_linear</span>(jobs1))
+
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        <span class="t-k">import</span> random
+        random.<span class="t-f">seed</span>(<span class="t-n">0</span>)
+        n = random.<span class="t-f">randrange</span>(<span class="t-n">1</span>, <span class="t-n">8</span>)
+        js = [(random.<span class="t-f">randrange</span>(<span class="t-n">1</span>, <span class="t-n">8</span>), random.<span class="t-f">randrange</span>(<span class="t-n">1</span>, <span class="t-n">8</span>)) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        o = <span class="t-f">schedule_linear</span>(js)
+        <span class="t-k">assert</span> <span class="t-f">total_penalty</span>(js, o) == <span class="t-f">total_penalty</span>(js, <span class="t-f">brute_linear</span>(js)), js
+
+    <span class="t-c"># EDD 最小化最大延迟: 对拍暴力</span>
+    <span class="t-k">def</span> <span class="t-f">brute_edd</span>(jobs):
+        <span class="t-k">return</span> <span class="t-b">min</span>(itertools.<span class="t-f">permutations</span>(<span class="t-b">range</span>(<span class="t-b">len</span>(jobs))),
+                   key=<span class="t-k">lambda</span> o: <span class="t-f">max_lateness</span>(jobs, o))
+
+    jobs2 = [(<span class="t-n">3</span>, <span class="t-n">6</span>), (<span class="t-n">2</span>, <span class="t-n">5</span>), (<span class="t-n">4</span>, <span class="t-n">9</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>)]
+    o2 = <span class="t-f">schedule_edd</span>(jobs2)
+    <span class="t-k">assert</span> <span class="t-f">max_lateness</span>(jobs2, o2) == <span class="t-f">max_lateness</span>(jobs2, <span class="t-f">brute_edd</span>(jobs2))
+
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        n = random.<span class="t-f">randrange</span>(<span class="t-n">1</span>, <span class="t-n">8</span>)
+        js = [(random.<span class="t-f">randrange</span>(<span class="t-n">1</span>, <span class="t-n">8</span>), random.<span class="t-f">randrange</span>(<span class="t-n">1</span>, <span class="t-n">15</span>)) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        o = <span class="t-f">schedule_edd</span>(js)
+        <span class="t-k">assert</span> <span class="t-f">max_lateness</span>(js, o) == <span class="t-f">max_lateness</span>(js, <span class="t-f">brute_edd</span>(js)), js
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;schedule-one-machine tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">排序直接内建 sort + key，O(n log n)。比较器若用自定义 cmp_to_key 会慢，尽量用 key 构造（如 c/t 浮点、或避免浮点用交叉乘）。大数据量下浮点 c/t 排序注意精度：用交叉乘法 comparator 更稳。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n log n)（一次排序）</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅适用于三类特殊罚函数（线性/指数/相同单调）；其他罚函数需一般整数规划/搜索；&#x27;最小化最大延迟&#x27;用 EDD，但若同时有准备时间等约束则复杂化；若作业可中断（preemptive）模型不同。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>不同目标函数对应不同排序规则：线性罚金 c/t、EDD 用于最大延迟、SPT 用于总完成时间，勿混用</li><li>浮点除法排序在大数据下精度问题，改用交叉乘法比较</li><li>带常数项罚金（f_i(t)=c_i·t+d_i）先把常数项单独求和</li><li>作业可能被&#x27;可中断/抢占&#x27;模型改变结果</li><li>相邻交换法只在满足 Livshits–Kladov 前提时适用</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1248</strong></td><td>4</td><td>加工生产调度：双机流水作业 Johnson 法则（见 schedule-two-machines）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1248" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1248</a></td></tr><tr><td>Luogu</td><td><strong>P2123</strong></td><td>5</td><td>皇后游戏：相邻交换推排序比较器（线性罚函数思想的竞赛变体）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2123" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2123</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-schedule-one-machine" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "objective", "label": "明确目标函数(总罚金/最大延迟/完工时间)"}}, {"data": {"id": "penalty_type", "label": "识别罚函数类型(线性/指数/单调)"}}, {"data": {"id": "swap", "label": "相邻交换推排序准则"}}, {"data": {"id": "sort", "label": "按推导准则排序 O(n log n)"}}, {"data": {"id": "answer", "label": "输出最优顺序并计算目标值"}}, {"data": {"id": "eobjective->penalty_type", "source": "objective", "target": "penalty_type"}}, {"data": {"id": "epenalty_type->swap", "source": "penalty_type", "target": "swap"}}, {"data": {"id": "eswap->sort", "source": "swap", "target": "sort"}}, {"data": {"id": "esort->answer", "source": "sort", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-schedule-one-machine'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="schedule-two-machines.html" title="由单机扩展到双机流水调度">双机调度(Johnson 法则)<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/schedules/schedule_one_machine.html" target="_blank" rel="noopener">https://cp-algorithms.com/schedules/schedule_one_machine.html</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Job_shop_scheduling" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Job_shop_scheduling</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

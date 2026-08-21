@@ -1,0 +1,114 @@
+{
+  "id": "ntt",
+  "name": "NTT(数论变换)",
+  "group": "G-C-12",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "模意义下FFT，用原根替代单位根避免浮点误差，998244353为常用模数",
+  "what": "数论变换（NTT）是 FFT 在模素数 p 意义下的版本：用模 p 下的本原单位根（原根 g 的幂）替代复数单位根，加减乘全部在整数取模下进行，彻底避免浮点误差。要求 p-1 能被 2^k 整除，常用模数 998244353=119·2^23+1（原根 3），支持长度到 2^23。实现与 FFT 完全同构：位逆序置换+蝶形，只是旋转因子 w_h=g^{(p-1)/h}，逆变换用逆根再乘 n 的逆元。因为结果精确，可处理系数取模的题目、任意模数 NTT(拆系数/多模合并)、以及作为所有多项式算法(逆元/ln/exp/多点求值等)的底层卷积引擎。",
+  "why": {
+    "intuition": "复数单位根满足 ω^n=1、ω^{n/2}=-1 等性质，NTT 只是找一个'模 p 下同样满足这些性质'的数——原根的幂。整型运算没有浮点误差，还能直接吃取模系数，完美替代复数 FFT。",
+    "principle": "对素数 p=qn+1(n=2^m)，原根 g 满足 g^{p-1}≡1。令 g_n=g^q≡g^{(p-1)/n} 扮演 ω_n，则 g_n^n≡1、g_n^{n/2}≡-1，且迭代到长度 l 时旋转因子为 g^{(p-1)/l}。DFT 公式 X_k=Σ a_j g_n^{jk}。正变换根 g^{(p-1)/h}，逆变换取逆元并整体乘 n^{-1}。NTT 与 FFT 的分治结构完全一致。",
+    "history": "NTT 源自 1970 年代 Pollard 与 Rader 等人对 DFT 在有限域/数环上的推广。OI/ACM 自 2010s 起成为标准工具，998244353 因 2^23 因子与简洁原根成为首选。OI Wiki 的 poly/ntt 页面列出多个 NTT 友好模数（167772161、469762049、998244353、1004535809 等）。"
+  },
+  "how": {
+    "pseudocode": "# 迭代 NTT, mod p, 原根 g, n=2^k | p-1\nbit_reverse_permute(a)\nfor h in 2,4,8,...,n:\n    w_h = g^((p-1)/h)          # 正变换; 逆变换用逆元\n    for i in step h:\n        w = 1\n        for j in i..i+h/2-1:\n            u=a[j]; v=a[j+h/2]*w % p\n            a[j]=(u+v)%p; a[j+h/2]=(u-v)%p\n            w = w*w_h % p\nif invert: 整体乘 n^{-1} mod p",
+    "python": "MOD = 998244353\nROOT = 3  # 998244353 = 7*17*2^23 + 1 的原根\n\n\ndef mod_pow(a, b, mod=MOD):\n    r = 1\n    while b:\n        if b & 1:\n            r = r * a % mod\n        a = a * a % mod\n        b >>= 1\n    return r\n\n\ndef ntt(a, invert=False):\n    \"\"\"NTT(原根实现, 蝴蝶操作)。a: list[int] mod MOD, 长度须为 2 的幂。\"\"\"\n    n = len(a)\n    a = a[:]\n    # 位逆序置换\n    j = 0\n    for i in range(1, n):\n        bit = n >> 1\n        while j & bit:\n            j ^= bit\n            bit >>= 1\n        j ^= bit\n        if i < j:\n            a[i], a[j] = a[j], a[i]\n    h = 2\n    while h <= n:\n        # w_h = g^((MOD-1)/h) 或逆元\n        w_h = mod_pow(ROOT, (MOD - 1) // h)\n        if invert:\n            w_h = mod_pow(w_h, MOD - 2)\n        for i in range(0, n, h):\n            w = 1\n            for j in range(i, i + h // 2):\n                u = a[j]\n                v = a[j + h // 2] * w % MOD\n                a[j] = (u + v) % MOD\n                a[j + h // 2] = (u - v) % MOD\n                w = w * w_h % MOD\n        h <<= 1\n    if invert:\n        inv_n = mod_pow(n, MOD - 2)\n        for i in range(n):\n            a[i] = a[i] * inv_n % MOD\n    return a\n\n\ndef poly_mul_ntt(a, b, mod=MOD):\n    n = 1\n    need = len(a) + len(b) - 1\n    while n < need:\n        n <<= 1\n    fa = a[:] + [0] * (n - len(a))\n    fb = b[:] + [0] * (n - len(b))\n    fa = ntt(fa)\n    fb = ntt(fb)\n    for i in range(n):\n        fa[i] = fa[i] * fb[i] % mod\n    fa = ntt(fa, True)\n    return fa[:need]\n\n\ndef poly_mul_naive(a, b, mod=MOD):\n    res = [0] * (len(a) + len(b) - 1)\n    for i, x in enumerate(a):\n        for j, y in enumerate(b):\n            res[i + j] = (res[i + j] + x * y) % mod\n    return res[:len(a) + len(b) - 1]\n\n\nif __name__ == \"__main__\":\n    import random\n    # 与朴素卷积对拍\n    for _ in range(50):\n        la = random.randint(1, 10)\n        lb = random.randint(1, 10)\n        a = [random.randint(0, MOD - 1) for _ in range(la)]\n        b = [random.randint(0, MOD - 1) for _ in range(lb)]\n        assert poly_mul_ntt(a, b) == poly_mul_naive(a, b), (a, b)\n    # OI-wiki 引入样例\n    assert poly_mul_ntt([7, 3, 5], [1, 2, 7]) == [7, 17, 60, 31, 35]\n    # 单位根性质: g_n^(n/2) = -1\n    g4 = mod_pow(ROOT, (MOD - 1) // 4)\n    assert g4 * g4 % MOD == MOD - 1\n    print(\"NTT tests passed\")\n",
+    "pypy_notes": "Python NTT 每层蝶形含取模, 1e5 级长度在 PyPy 下勉强/可能 TLE; 优化: 内层用局部变量+延迟取模, 或改用 numpy 向量化。教学正确实现可处理 1e4~1e5 规模。",
+    "complexity": {
+      "time": "O(n log n)",
+      "space": "O(n)"
+    },
+    "limitations": "要求模数 p 为 NTT 友好素数(2^k | p-1)且长度 <=2^k; 任意模数(如 1e9+7)需拆系数(每个系数拆高 15 位+低 15 位做 3 次 NTT)或多模 NTT+CRT, 常数大。Python 纯实现性能受限, N=1e5 可能 TLE, 需优化或换语言。"
+  },
+  "examples": [
+    {
+      "oj": "Library Checker",
+      "pid": "convolution_mod",
+      "url": "https://judge.yosupo.jp/problem/convolution_mod",
+      "difficulty": 3,
+      "key_point": "模板题: 模意义卷积, 判 NTT 正确性的权威平台"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3803",
+      "url": "https://www.luogu.com.cn/problem/P3803",
+      "difficulty": 3,
+      "key_point": "多项式乘法模板题(NTT 版)"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4238",
+      "url": "https://www.luogu.com.cn/problem/P4238",
+      "difficulty": 4,
+      "key_point": "多项式求逆: 牛顿迭代+卷积, NTT 的典型应用"
+    }
+  ],
+  "pitfalls": [
+    "模数不是 NTT 友好素数(2^k∤p-1)时直接套用会错",
+    "长度超过模数支持的 2^k 上界(如 998244353 只支持 2^23)",
+    "逆变换忘记乘 n 的逆元",
+    "旋转因子方向与 FFT 混淆(正变换与逆变换用反)",
+    "任意模数题目忘记拆系数/CRT, 用普通 NTT 出错误答案"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "check_mod",
+        "label": "确认模数 NTT 友好, 定长度上界"
+      },
+      {
+        "id": "find_root",
+        "label": "找原根 g 并计算旋转因子 g^((p-1)/h)"
+      },
+      {
+        "id": "butterfly",
+        "label": "位逆序+蝶形(与 FFT 同构)"
+      },
+      {
+        "id": "inv_scale",
+        "label": "逆变换用逆根并乘 n 逆元"
+      },
+      {
+        "id": "arbitrary_mod",
+        "label": "(可选)拆系数/多模 NTT 处理任意模数"
+      }
+    ],
+    "edges": [
+      {
+        "from": "check_mod",
+        "to": "find_root"
+      },
+      {
+        "from": "find_root",
+        "to": "butterfly"
+      },
+      {
+        "from": "butterfly",
+        "to": "inv_scale"
+      },
+      {
+        "from": "inv_scale",
+        "to": "arbitrary_mod"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/poly/ntt/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/ntt.md",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/algebra/fft.html",
+      "verified": true
+    }
+  ]
+}

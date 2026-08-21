@@ -1,0 +1,115 @@
+{
+  "id": "dp-knapsack01",
+  "name": "0-1背包",
+  "group": "G-A-11",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "每个物品取/不取，O(nW)转移，滚动数组优化空间",
+  "what": "0-1 背包：n 个物品各有重量 w[i] 和价值 v[i]，背包容量 W，每件物品最多取一次（取或不取），求不超过容量下的最大价值。状态 dp[j] 表示容量 j 时的最大价值，转移 dp[j]=max(dp[j], dp[j-w[i]]+v[i])。关键：内层 j 必须逆序遍历（W→w[i]），保证每件物品只用一次；若正序则物品被重复取用（退化为完全背包）。滚动数组优化空间至 O(W)。",
+  "why": {
+    "intuition": "对每件物品 i，决策只有取或不取。不取 → 价值不变 dp[j]；取 → 容量减少 w[i]、价值增加 v[i]，即 dp[j-w[i]]+v[i]。取较大者。为何逆序？因为 dp[j] 依赖 dp[j-w[i]]（更小容量），若正序则 dp[j-w[i]] 已被当前物品 i 更新过，相当于物品 i 被取了两次。逆序保证更新 dp[j] 时 dp[j-w[i]] 还是上一轮（物品 i-1）的值。",
+    "principle": "二维状态 f[i][j]=max(f[i-1][j], f[i-1][j-w[i]]+v[i])，i 是物品、j 是容量。因 f[i] 只依赖 f[i-1]，可压缩为 1D：dp[j]=max(dp[j], dp[j-w[i]]+v[i])。逆序遍历 j=W→w[i] 保证读 dp[j-w[i]] 时它还是 i-1 轮的值（j-w[i]<j 尚未被本轮更新）。正序则 j-w[i]<j 已被更新成 i 轮值，相当于同一物品取多次。这是背包 DP 所有变体的基础。",
+    "history": "0-1 背包是 Knapsack problem 的最基本形式，由 Dantzig 1957 系统讨论。OI Wiki 以 USACO07 Charm Bracelet 为入门例题。滚动数组逆序遍历是经典技巧。CPH 第7章详细推导。"
+  },
+  "how": {
+    "pseudocode": "# 0-1背包\ndp = [0] * (W + 1)\nfor i in range(1, n+1):\n  for j in range(W, w[i]-1, -1):  # 逆序!\n    dp[j] = max(dp[j], dp[j-w[i]] + v[i])\nanswer = dp[W]",
+    "python": "# 0-1背包（含自测）\ndef knapsack01(n, W, w, v):\n    \"\"\"n物品, 容量W, 重量w[1..n], 价值v[1..n] (1-indexed)\n    返回最大价值\"\"\"\n    dp = [0] * (W + 1)\n    for i in range(n):\n        wi, vi = w[i], v[i]\n        for j in range(W, wi - 1, -1):  # 逆序保证每件只取一次\n            if dp[j - wi] + vi > dp[j]:\n                dp[j] = dp[j - wi] + vi\n    return dp[W]\n\nif __name__ == \"__main__\":\n    # USACO07 Charm Bracelet 示例\n    # 4件物品, 容量6\n    #   w=[2,3,4,5] v=[1,2,5,6]\n    #   最优: 取物品3(w=4,v=5) + 物品1(w=2,v=1) = v6 w6\n    W = 6\n    w = [2, 3, 4, 5]\n    v = [1, 2, 5, 6]\n    assert knapsack01(4, W, w, v) == 6\n    # 单件物品\n    assert knapsack01(1, 5, [3], [10]) == 10\n    assert knapsack01(1, 2, [3], [10]) == 0  # 装不下\n    # 容量0\n    assert knapsack01(3, 0, [1, 2, 3], [10, 20, 30]) == 0\n    # 全装下\n    assert knapsack01(3, 100, [1, 2, 3], [10, 20, 30]) == 60\n    print(\"dp-knapsack01 OK\")\n",
+    "pypy_notes": "0-1背包内层逆序循环是纯整数操作，PyPy JIT 友好，O(nW) 快数倍。注意 W 很大（如 10^9）时数组开不下，需改用 dp 状态离散化或 meet-in-the-middle。Python 大 W 可用 dict 存稀疏状态。PyPy 下 list-strategy 对 int 列表紧凑存储省内存。",
+    "complexity": {
+      "time": "O(nW)",
+      "space": "O(W) 滚动数组"
+    },
+    "limitations": "1) W 很大时 O(nW) 超时且 O(W) 内存爆，需 meet-in-the-middle 或其他方法；2) 逆序遍历易写错成正序（变完全背包）；3) 求方案数而非最值时转移改加法。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P2871",
+      "url": "https://www.luogu.com.cn/problem/P2871",
+      "difficulty": 3,
+      "key_point": "0-1 背包模板题，n≤350, W≤12888"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1048",
+      "url": "https://www.luogu.com.cn/problem/P1048",
+      "difficulty": 2,
+      "key_point": "0-1 背包变体（时间=容量），可记忆化或递推"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1060",
+      "url": "https://www.luogu.com.cn/problem/P1060",
+      "difficulty": 3,
+      "key_point": "0-1 背包，价值=价格×重要度"
+    }
+  ],
+  "pitfalls": [
+    "内层 j 正序遍历 → 变成完全背包（物品被重复取用）",
+    "j 范围写成 range(W, 0, -1) 漏了 -1 上界 → 应 range(W, w[i]-1, -1)",
+    "二维转一维忘记去掉物品维度 → 空间 O(nW) 可能 MLE",
+    "W 极大（10^9）直接开数组 → 内存爆，应改离散化或 meet-in-middle",
+    "求方案数时用 max 而非 += → 答案错"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "s1",
+        "label": "初始化 dp[0..W]=0（求最值）或 dp[0]=1 其余=0（求方案数）"
+      },
+      {
+        "id": "s2",
+        "label": "外层循环 i=1..n 枚举物品"
+      },
+      {
+        "id": "s3",
+        "label": "内层循环 j=W→w[i] 逆序枚举容量"
+      },
+      {
+        "id": "s4",
+        "label": "转移: dp[j]=max(dp[j], dp[j-w[i]]+v[i])"
+      },
+      {
+        "id": "s5",
+        "label": "答案: dp[W]（最值）或 dp 全表求和（方案数）"
+      }
+    ],
+    "edges": [
+      {
+        "from": "s1",
+        "to": "s2"
+      },
+      {
+        "from": "s2",
+        "to": "s3",
+        "label": "逆序是0-1背包的关键"
+      },
+      {
+        "from": "s3",
+        "to": "s4"
+      },
+      {
+        "from": "s4",
+        "to": "s5"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/knapsack/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/dynamic_programming/knapsack.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch7 p78",
+      "verified": true
+    }
+  ]
+}

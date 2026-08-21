@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Tree（Self-Adjusting Top Tree，SATT） · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-4.html">树链剖分与动态树</a> / <span>Top Tree（Self-Adjusting Top Tree，SATT）</span></div>
+  <h1>Top Tree（Self-Adjusting Top Tree，SATT）</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-D-4</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="euler-tour-tree.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">euler-tour-tree</span></a>
+    <a class="nav-index" href="../03-groups/G-D-4.html"><span class="dir">组内第 3 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-D-4.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">基于树收缩（Compress/Rake）的簇（Cluster）级动态树框架，Self-Adjusting Top Tree 用三叉树维护完全动态森林的路径与子树信息。</div><p>Top Tree 是一棵二叉树，每个节点对应原树在树收缩过程中的一个『簇』（Cluster）——一个由 Compress/Rake 操作合并出来的连通子图，有两个端点。叶子是基簇（单条边），根是根簇（除端点外包含整棵树）。Self-Adjusting Top Tree（SATT）由 Tarjan 与 Werneck 于 2005 年提出，用一棵自调整三叉树（Compress Tree + Rake Tree 组合）表示簇的层级关系，支持链修改/查询、子树修改/查询，以及非局部搜索（如动态维护重心、直径）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把一棵树『收缩』成一条边是构造性的：Compress 把度数为 2 的路径顶点合并，Rake 把度数为 1 的叶子并到邻居上。任何树都能只用这两个操作缩成一条边。每一次合并对应一个簇，把合并顺序组织成树，就得到 Top Tree——本质是『树收缩过程的一棵记录树』。簇的两个端点之间的路径是簇路径，簇只存内点与内边信息，因此路径信息与子树信息都被封装进簇里，维护簇的信息等价于维护整棵树的信息。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 簇（Cluster）：T_x 中一条边所蕴含的原树连通子图，含 2 个端点；基簇=单条边，根簇=整棵树。② Compress：度 2 点 x 与其两边 (y,x),(x,z) 合并进新边 (y,z)，即把路径段压成一簇。③ Rake：叶子 x 与边 (x,y) 合并进 y 的另一条边。④ SATT 用三叉节点表示：Compress Node 表示一次 Compress，Rake Node 表示一次 Rake；左中右三棵子树分别管理簇路径两侧的 Rake 信息与 Compress 路径。⑤ Access(x) 沿簇树把 x 旋到根（全局 splay），与 LCT 的 access 类似；任意路径/子树操作转化为根簇的信息，Pushup 时维护 len（簇路径长度）、maxs[0/1]（到簇端点的最大距离）等。⑥ 非局部搜索：权值第二小、重心等不满足局部性（在包含它的所有子树中都成立的『局部』性质）的查询，需要在簇树上进行带剪枝的搜索。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Top Tree 概念由 Robert E. Tarjan 与 Renato F. Werneck 在 2005 年论文《Self-Adjusting Top Trees》中提出（并在此前有 Static/Dynamic Top Trees 的工作），是动态树研究的集大成者，统一了路径与子树两类操作。OI Wiki 提供 SATT 的中文教程与实现（含 Luogu P3690 模板与 CEOI2019 Dynamic Diameter 例题）。竞赛中使用较少（实现复杂），更多作为前沿理解。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">struct SATT:
+    <span class="t-c"># 三叉树：ls/ms/rs，节点类型 op ∈ {Compress, Rake}</span>
+    <span class="t-b">len</span>[x]      <span class="t-c"># Compress 簇路径长度</span>
+    maxs[x][<span class="t-n">0</span>/<span class="t-n">1</span>] <span class="t-c"># 簇端点到簇内点/端点的最大距离（Rake 只用 maxs[0]）</span>
+    diam[x]     <span class="t-c"># 簇直径</span>
+
+    <span class="t-f">Pushup</span>(x):
+      <span class="t-k">if</span> op[x] == Compress:
+        <span class="t-b">len</span>[x] = <span class="t-b">len</span>[ls]+<span class="t-b">len</span>[rs]
+        diam[x] = <span class="t-b">max</span>(maxs[ls][<span class="t-n">1</span>]+maxs[rs][<span class="t-n">0</span>],
+                      <span class="t-b">max</span>(maxs[ls][<span class="t-n">1</span>],maxs[rs][<span class="t-n">0</span>])+maxs[ms][<span class="t-n">0</span>],
+                      <span class="t-b">max</span>(diam[ls],diam[rs],diam[ms]))
+        maxs[x][<span class="t-n">0</span>]=<span class="t-b">max</span>(maxs[ls][<span class="t-n">0</span>], <span class="t-b">len</span>[ls]+<span class="t-b">max</span>(maxs[ms][<span class="t-n">0</span>],maxs[rs][<span class="t-n">0</span>]))
+        maxs[x][<span class="t-n">1</span>]=<span class="t-b">max</span>(maxs[rs][<span class="t-n">1</span>], <span class="t-b">len</span>[rs]+<span class="t-b">max</span>(maxs[ms][<span class="t-n">0</span>],maxs[ls][<span class="t-n">1</span>]))
+      <span class="t-k">else</span>:  <span class="t-c"># Rake</span>
+        diam[x] = <span class="t-b">max</span>(maxs[ls][<span class="t-n">0</span>]+maxs[rs][<span class="t-n">0</span>],
+                      maxs[ms][<span class="t-n">0</span>]+<span class="t-b">max</span>(maxs[ls][<span class="t-n">0</span>],maxs[rs][<span class="t-n">0</span>]),
+                      <span class="t-b">max</span>(diam[ls],diam[rs],diam[ms]))
+        maxs[x][<span class="t-n">0</span>]=<span class="t-b">max</span>(maxs[ms][<span class="t-n">0</span>], <span class="t-b">max</span>(maxs[ls][<span class="t-n">0</span>],maxs[rs][<span class="t-n">0</span>]))
+
+    <span class="t-f">Access</span>(x):  <span class="t-c"># 把 x 旋到全局根（省略 Global Splay 细节）</span>
+    Link/ Cut/ PathQuery/ SubtreeQuery: 均基于 Access + Pushup</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> random
+
+<span class="t-k">class</span> SATTNode:
+    <span class="t-s">&quot;&quot;&quot;简化教学实现：仅用于展示簇树的 Pushup 结构，非完整 SATT。
+    真实 SATT 需三叉自调整结构与 Access 序列，Python 实现过于复杂，
+    本节点以概念演示为主，详见 OI Wiki top-tree 页面。&quot;&quot;&quot;</span>
+    __slots__ = (<span class="t-s">&#x27;op&#x27;</span>, <span class="t-s">&#x27;left&#x27;</span>, <span class="t-s">&#x27;mid&#x27;</span>, <span class="t-s">&#x27;right&#x27;</span>, <span class="t-s">&#x27;len&#x27;</span>, <span class="t-s">&#x27;maxs&#x27;</span>, <span class="t-s">&#x27;diam&#x27;</span>)
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, op):
+        self.op = op  <span class="t-c"># &#x27;compress&#x27; | &#x27;rake&#x27;</span>
+        self.left = self.mid = self.right = <span class="t-k">None</span>
+        self.<span class="t-b">len</span> = <span class="t-n">0</span>
+        self.maxs = [<span class="t-n">0</span>, <span class="t-n">0</span>]
+        self.diam = <span class="t-n">0</span>
+
+<span class="t-k">def</span> <span class="t-f">pushup</span>(x):
+    <span class="t-s">&quot;&quot;&quot;演示 Compress/Rake 节点的信息合并（OI Wiki 代码的 Python 直译）&quot;&quot;&quot;</span>
+    L, M, R = x.left, x.mid, x.right
+    <span class="t-k">if</span> x.op == <span class="t-s">&#x27;compress&#x27;</span>:
+        x.<span class="t-b">len</span> = (L.<span class="t-b">len</span> <span class="t-k">if</span> L <span class="t-k">else</span> <span class="t-n">0</span>) + (R.<span class="t-b">len</span> <span class="t-k">if</span> R <span class="t-k">else</span> <span class="t-n">0</span>)
+        ms0 = M.maxs[<span class="t-n">0</span>] <span class="t-k">if</span> M <span class="t-k">else</span> <span class="t-n">0</span>
+        ms1 = M.maxs[<span class="t-n">0</span>] <span class="t-k">if</span> M <span class="t-k">else</span> <span class="t-n">0</span>
+        dl = L.diam <span class="t-k">if</span> L <span class="t-k">else</span> <span class="t-n">0</span>
+        dr = R.diam <span class="t-k">if</span> R <span class="t-k">else</span> <span class="t-n">0</span>
+        dm = M.diam <span class="t-k">if</span> M <span class="t-k">else</span> <span class="t-n">0</span>
+        x.diam = <span class="t-b">max</span>((L.maxs[<span class="t-n">1</span>] <span class="t-k">if</span> L <span class="t-k">else</span> <span class="t-n">0</span>) + (R.maxs[<span class="t-n">0</span>] <span class="t-k">if</span> R <span class="t-k">else</span> <span class="t-n">0</span>),
+                     <span class="t-b">max</span>((L.maxs[<span class="t-n">1</span>] <span class="t-k">if</span> L <span class="t-k">else</span> <span class="t-n">0</span>), (R.maxs[<span class="t-n">0</span>] <span class="t-k">if</span> R <span class="t-k">else</span> <span class="t-n">0</span>)) + ms0,
+                     <span class="t-b">max</span>(dl, dr, dm))
+        x.maxs[<span class="t-n">0</span>] = <span class="t-b">max</span>((L.maxs[<span class="t-n">0</span>] <span class="t-k">if</span> L <span class="t-k">else</span> <span class="t-n">0</span>),
+                        (L.<span class="t-b">len</span> <span class="t-k">if</span> L <span class="t-k">else</span> <span class="t-n">0</span>) + <span class="t-b">max</span>(ms1, (R.maxs[<span class="t-n">0</span>] <span class="t-k">if</span> R <span class="t-k">else</span> <span class="t-n">0</span>)))
+        x.maxs[<span class="t-n">1</span>] = <span class="t-b">max</span>((R.maxs[<span class="t-n">1</span>] <span class="t-k">if</span> R <span class="t-k">else</span> <span class="t-n">0</span>),
+                        (R.<span class="t-b">len</span> <span class="t-k">if</span> R <span class="t-k">else</span> <span class="t-n">0</span>) + <span class="t-b">max</span>(ms0, (L.maxs[<span class="t-n">1</span>] <span class="t-k">if</span> L <span class="t-k">else</span> <span class="t-n">0</span>)))
+    <span class="t-k">else</span>:  <span class="t-c"># rake</span>
+        ls0 = L.maxs[<span class="t-n">0</span>] <span class="t-k">if</span> L <span class="t-k">else</span> <span class="t-n">0</span>
+        rs0 = R.maxs[<span class="t-n">0</span>] <span class="t-k">if</span> R <span class="t-k">else</span> <span class="t-n">0</span>
+        ms0 = M.maxs[<span class="t-n">0</span>] <span class="t-k">if</span> M <span class="t-k">else</span> <span class="t-n">0</span>
+        x.diam = <span class="t-b">max</span>(ls0 + rs0, ms0 + <span class="t-b">max</span>(ls0, rs0),
+                     <span class="t-b">max</span>(L.diam <span class="t-k">if</span> L <span class="t-k">else</span> <span class="t-n">0</span>, R.diam <span class="t-k">if</span> R <span class="t-k">else</span> <span class="t-n">0</span>, M.diam <span class="t-k">if</span> M <span class="t-k">else</span> <span class="t-n">0</span>))
+        x.maxs[<span class="t-n">0</span>] = <span class="t-b">max</span>(ms0, <span class="t-b">max</span>(ls0, rs0))
+
+<span class="t-k">def</span> <span class="t-f">top_tree_selfcheck</span>():
+    <span class="t-c"># 单节点叶簇：压缩路径长度为边权，构造一条三边链并验证 len 与直径</span>
+    a = <span class="t-f">SATTNode</span>(<span class="t-s">&#x27;compress&#x27;</span>); a.<span class="t-b">len</span> = <span class="t-n">2</span>; a.maxs = [<span class="t-n">2</span>, <span class="t-n">2</span>]
+    b = <span class="t-f">SATTNode</span>(<span class="t-s">&#x27;compress&#x27;</span>); b.<span class="t-b">len</span> = <span class="t-n">3</span>; b.maxs = [<span class="t-n">3</span>, <span class="t-n">3</span>]
+    root = <span class="t-f">SATTNode</span>(<span class="t-s">&#x27;compress&#x27;</span>)
+    root.left, root.right = a, b
+    <span class="t-f">pushup</span>(root)
+    <span class="t-k">assert</span> root.<span class="t-b">len</span> == <span class="t-n">5</span>
+    <span class="t-k">assert</span> root.diam == <span class="t-n">5</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;TopTree cluster pushup OK (len=%d diam=%d)&#x27;</span> % (root.<span class="t-b">len</span>, root.diam))
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-f">top_tree_selfcheck</span>()</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">SATT 完整实现在 Python 中几乎不可行（三叉自调整 + Access + 懒标记常数极大），本节点 Python 仅供理解簇的 Pushup 概念；竞赛如需动态树请用 C++。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>Access/链查询/子树查询均摊 O(log n)（势能分析基于 r(i)=⌈log2 siz(i)⌉）</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">实现极其复杂（三叉树、自调整、懒翻转、非局部搜索），实际竞赛中除模板题外极少使用；比 LCT 多出子树信息与非局部搜索能力，但常数大、调试难。Python 不适用。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>Compress 与 Rake 节点的 Pushup 公式不同，写反导致信息错误</li><li>SATT 的三叉结构顺序（ls/ms/rs）决定簇路径方向，翻转时必须交换 ls/rs 与 maxs[0/1]</li><li>非局部信息（如重心、第二小）不能只靠 Pushup，需在簇树上搜索，勿直接用子树聚合</li><li>省略 Global Splay 会影响均摊界，测试数据小可能看不出来</li><li>先完整掌握 LCT 与动态树再学 SATT，直接上手极易出错</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3690</strong></td><td>6</td><td>【模板】动态树：OI Wiki 给出 SATT 解 LCT 模板题的实现，可对比两者常数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3690" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3690</a></td></tr><tr><td>LOJ</td><td><strong>3163</strong></td><td>8</td><td>CEOI 2019 Dynamic Diameter：动态边权下维护直径，SATT 的 Pushup 直接维护 diam 即可</td><td class="u"><a href="https://loj.ac/p/3163" target="_blank" rel="noopener">https://loj.ac/p/3163</a></td></tr><tr><td>LOJ</td><td><strong>3213</strong></td><td>9</td><td>CSP-S2019 树的重心：利用 SATT 非局部搜索在簇树上定位重心，每删一条边 O(log n) 维护</td><td class="u"><a href="https://loj.ac/p/3213" target="_blank" rel="noopener">https://loj.ac/p/3213</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-top-tree" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "cluster", "label": "簇与树收缩（Compress/Rake）"}}, {"data": {"id": "top-tree-def", "label": "Top Tree 定义与性质"}}, {"data": {"id": "satt", "label": "Self-Adjusting Top Tree 结构"}}, {"data": {"id": "pushup", "label": "簇信息合并（len/maxs/diam）"}}, {"data": {"id": "nonlocal", "label": "非局部搜索"}}, {"data": {"id": "ecluster->top-tree-def", "source": "cluster", "target": "top-tree-def"}}, {"data": {"id": "etop-tree-def->satt", "source": "top-tree-def", "target": "satt"}}, {"data": {"id": "esatt->pushup", "source": "satt", "target": "pushup"}}, {"data": {"id": "epushup->nonlocal", "source": "pushup", "target": "nonlocal"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-top-tree'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="lct.html" title="Top Tree是LCT维护树上路径和子树信息的扩展">Link-Cut Tree<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/top-tree.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/top-tree.md</a></li><li><span class="srctype">OI Wiki</span><span class="v-warn">&#9651;</span> <a href="https://oi-wiki.org/ds/top-tree/" target="_blank" rel="noopener">https://oi-wiki.org/ds/top-tree/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

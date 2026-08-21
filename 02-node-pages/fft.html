@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFT(快速傅里叶变换) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-12.html">多项式与FFT族</a> / <span>FFT(快速傅里叶变换)</span></div>
+  <h1>FFT(快速傅里叶变换)</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-12</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-C-12.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-C-12.html"><span class="dir">组内第 1 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="ntt.html"><span class="dir">下一个 / 组内</span><span class="v">ntt</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">O(n log n)计算多项式乘法，基于DFT与蝴蝶操作，NTT为模意义版本</div><p>快速傅里叶变换（FFT）把多项式从系数表示转为在单位根处的点值表示（DFT），利用单位根性质分治加速，在 O(n log n) 内完成多项式乘法：系数→点值（正变换）→逐点相乘→点值→系数（逆变换）。核心是蝴蝶操作（奇偶分治+旋转因子），实现分递归与迭代（位逆序置换+倍增合并）两种。FFT 用复数运算，存在浮点误差；模意义版本是 NTT。应用远超多项式乘法：大整数乘法、所有可能和/差、循环相关与自相关、卷积型 DP 加速、字符串匹配（与 pattern 反转卷积）等。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>朴素乘法把每个系数对乘一遍 O(n^2)。换个角度：多项式在 n 个点上的取值（点值）可以逐点相乘来得到乘积的点值，而求 n 个点的点值+还原系数都能用分治加速——因为取单位根时奇偶项平方重合，能成对复用，这就是&#x27;快速&#x27;的来源。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>DFT 是线性变换，取 n=2^k 次单位根 ω_n=e^{-2πi/n}。分治：f(x)=G(x^2)+x·H(x^2)，由 ω_n^{k+n/2}=-ω_n^k 得 f(ω^k)=G(ω^{2k})+ω^k H(ω^{2k})，f(ω^{k+n/2})=G(ω^{2k})-ω^k H(ω^{2k})，一次算出两点。递归深度 log n，总 O(n log n)。逆变换取共轭根再除 n。迭代版先用位逆序置换把输入排成可自底向上合并的顺序，每层做蝶形。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>FFT 的思想源于 Fourier(1807)，离散版本 DFT 用于信号处理。Cooley &amp; Tukey 1965 提出分治 FFT 算法（思想可追溯至 Gauss），被列为计算数学十大算法之一。OI/ACM 中 2000 年代起成为多项式全家桶的基石，OI Wiki 与 CP-Algorithms 均有系统教程。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 迭代 FFT (in-place), n=2^k</span>
+<span class="t-f">bit_reverse_permute</span>(a)      <span class="t-c"># 位逆序置换</span>
+<span class="t-k">for</span> h <span class="t-k">in</span> <span class="t-n">2</span>,<span class="t-n">4</span>,<span class="t-n">8</span>,...,n:        <span class="t-c"># 合并区间长度</span>
+    wn = <span class="t-f">exp</span>(-<span class="t-n">2</span>πi/h)        <span class="t-c"># 旋转因子</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> step h:
+        w = <span class="t-n">1</span>
+        <span class="t-k">for</span> j <span class="t-k">in</span> i..i+h/<span class="t-n">2</span>-<span class="t-n">1</span>:
+            u = a[j]; v = a[j+h/<span class="t-n">2</span>]*w
+            a[j] = u+v; a[j+h/<span class="t-n">2</span>] = u-v
+            w *= wn
+<span class="t-c"># 逆变换: 根取共轭, 最后整体除以 n</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> cmath
+<span class="t-k">import</span> math
+<span class="t-k">import</span> random
+
+
+<span class="t-k">def</span> <span class="t-f">fft_recursive</span>(a, invert=<span class="t-k">False</span>):
+    <span class="t-s">&quot;&quot;&quot;递归 FFT。a: list[complex], 长度必须是 2 的幂。
+    invert=False: DFT; invert=True: IDFT(由调用方负责除以 n).&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(a)
+    <span class="t-k">if</span> n == <span class="t-n">1</span>:
+        <span class="t-k">return</span> a[:]
+    w_n = cmath.<span class="t-f">exp</span>(<span class="t-b">complex</span>(<span class="t-n">0</span>, -<span class="t-n">2</span> * math.pi / n)) <span class="t-k">if</span> <span class="t-k">not</span> invert <span class="t-k">else</span> cmath.<span class="t-f">exp</span>(<span class="t-b">complex</span>(<span class="t-n">0</span>, <span class="t-n">2</span> * math.pi / n))
+    a_even = <span class="t-f">fft_recursive</span>(a[<span class="t-n">0</span>::<span class="t-n">2</span>], invert)
+    a_odd = <span class="t-f">fft_recursive</span>(a[<span class="t-n">1</span>::<span class="t-n">2</span>], invert)
+    w = <span class="t-n">1</span> + <span class="t-n">0j</span>
+    out = [<span class="t-n">0j</span>] * n
+    half = n // <span class="t-n">2</span>
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(half):
+        t = w * a_odd[k]
+        out[k] = a_even[k] + t
+        out[k + half] = a_even[k] - t
+        w *= w_n
+    <span class="t-k">return</span> out
+
+
+<span class="t-k">def</span> <span class="t-f">fft_recursive_rounded</span>(a, invert=<span class="t-k">False</span>):
+    <span class="t-s">&quot;&quot;&quot;带归一化的递归 FFT 封装: invert 时自动除以 n. 返回新列表。&quot;&quot;&quot;</span>
+    out = <span class="t-f">fft_recursive</span>(a, invert)
+    <span class="t-k">if</span> invert:
+        n = <span class="t-b">len</span>(a)
+        out = [x / n <span class="t-k">for</span> x <span class="t-k">in</span> out]
+    <span class="t-k">return</span> out
+
+
+<span class="t-k">def</span> <span class="t-f">bit_reverse_permute</span>(a):
+    n = <span class="t-b">len</span>(a)
+    j = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n):
+        bit = n &gt;&gt; <span class="t-n">1</span>
+        <span class="t-k">while</span> j &amp; bit:
+            j ^= bit
+            bit &gt;&gt;= <span class="t-n">1</span>
+        j ^= bit
+        <span class="t-k">if</span> i &lt; j:
+            a[i], a[j] = a[j], a[i]
+
+
+<span class="t-k">def</span> <span class="t-f">fft_iterative</span>(a, invert=<span class="t-k">False</span>):
+    <span class="t-s">&quot;&quot;&quot;迭代 FFT(位逆序置换 + 蝴蝶操作). 原地修改. 长度须为 2 的幂.&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(a)
+    a = a[:]
+    <span class="t-f">bit_reverse_permute</span>(a)
+    h = <span class="t-n">2</span>
+    <span class="t-k">while</span> h &lt;= n:
+        angle = -<span class="t-n">2</span> * math.pi / h
+        <span class="t-k">if</span> invert:
+            angle = -angle
+        w_h = cmath.<span class="t-f">exp</span>(<span class="t-b">complex</span>(<span class="t-n">0</span>, angle))
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, n, h):
+            w = <span class="t-n">1</span> + <span class="t-n">0j</span>
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, i + h // <span class="t-n">2</span>):
+                u = a[j]
+                v = a[j + h // <span class="t-n">2</span>] * w
+                a[j] = u + v
+                a[j + h // <span class="t-n">2</span>] = u - v
+                w *= w_h
+        h &lt;&lt;= <span class="t-n">1</span>
+    <span class="t-k">if</span> invert:
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            a[i] /= n
+    <span class="t-k">return</span> a
+
+
+<span class="t-k">def</span> <span class="t-f">poly_multiply_fft</span>(a, b):
+    <span class="t-s">&quot;&quot;&quot;FFT 多项式乘法(返回实部圆整的整数系数). 支持小规模正数系数.&quot;&quot;&quot;</span>
+    n = <span class="t-n">1</span>
+    need = <span class="t-b">len</span>(a) + <span class="t-b">len</span>(b) - <span class="t-n">1</span>
+    <span class="t-k">while</span> n &lt; need:
+        n &lt;&lt;= <span class="t-n">1</span>
+    fa = [<span class="t-b">complex</span>(x, <span class="t-n">0</span>) <span class="t-k">for</span> x <span class="t-k">in</span> a] + [<span class="t-n">0j</span>] * (n - <span class="t-b">len</span>(a))
+    fb = [<span class="t-b">complex</span>(x, <span class="t-n">0</span>) <span class="t-k">for</span> x <span class="t-k">in</span> b] + [<span class="t-n">0j</span>] * (n - <span class="t-b">len</span>(b))
+    fa = <span class="t-f">fft_iterative</span>(fa, <span class="t-k">False</span>)
+    fb = <span class="t-f">fft_iterative</span>(fb, <span class="t-k">False</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        fa[i] *= fb[i]
+    fc = <span class="t-f">fft_iterative</span>(fa, <span class="t-k">True</span>)
+    <span class="t-k">return</span> [<span class="t-b">int</span>(<span class="t-b">round</span>(fc[i].real)) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(need)]
+
+
+<span class="t-k">def</span> <span class="t-f">poly_multiply_naive</span>(a, b):
+    res = [<span class="t-n">0</span>] * (<span class="t-b">len</span>(a) + <span class="t-b">len</span>(b) - <span class="t-n">1</span>)
+    <span class="t-k">for</span> i, x <span class="t-k">in</span> <span class="t-b">enumerate</span>(a):
+        <span class="t-k">for</span> j, y <span class="t-k">in</span> <span class="t-b">enumerate</span>(b):
+            res[i + j] += x * y
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 自测: 与朴素卷积对拍(小规模)</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">50</span>):
+        la = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">8</span>)
+        lb = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">8</span>)
+        a = [random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">9</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(la)]
+        b = [random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">9</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(lb)]
+        <span class="t-k">assert</span> <span class="t-f">poly_multiply_fft</span>(a, b) == <span class="t-f">poly_multiply_naive</span>(a, b), (a, b)
+    <span class="t-c"># OI-wiki 引入样例: (5x^2+3x+7)(7x^2+2x+1)</span>
+    A = [<span class="t-n">7</span>, <span class="t-n">3</span>, <span class="t-n">5</span>]
+    B = [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">7</span>]
+    <span class="t-k">assert</span> <span class="t-f">poly_multiply_fft</span>(A, B) == [<span class="t-n">7</span>, <span class="t-n">17</span>, <span class="t-n">60</span>, <span class="t-n">31</span>, <span class="t-n">35</span>], <span class="t-f">poly_multiply_fft</span>(A, B)
+    <span class="t-c"># 递归版与迭代版一致</span>
+    x = [<span class="t-b">complex</span>(random.<span class="t-f">randint</span>(-<span class="t-n">5</span>, <span class="t-n">5</span>), random.<span class="t-f">randint</span>(-<span class="t-n">5</span>, <span class="t-n">5</span>)) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">8</span>)]
+    <span class="t-k">assert</span> <span class="t-b">all</span>(<span class="t-b">abs</span>(<span class="t-f">fft_recursive</span>(x)[k] - <span class="t-f">fft_iterative</span>(x)[k]) &lt; <span class="t-n">1e-9</span> <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">8</span>))
+    <span class="t-c"># 单位复根校验: 插值还原</span>
+    y = <span class="t-f">fft_iterative</span>(x, <span class="t-k">False</span>)
+    z = <span class="t-f">fft_iterative</span>(y, <span class="t-k">True</span>)
+    <span class="t-k">assert</span> <span class="t-b">all</span>(<span class="t-b">abs</span>(z[k] - x[k]) &lt; <span class="t-n">1e-9</span> <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">8</span>))
+    <span class="t-c"># 多项式乘法样例: (5x^2+3x+7)(7x^2+2x+1)=35x^4+31x^3+60x^2+17x+7</span>
+    <span class="t-k">assert</span> <span class="t-f">poly_multiply_fft</span>([<span class="t-n">7</span>, <span class="t-n">3</span>, <span class="t-n">5</span>], [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">7</span>]) == [<span class="t-n">7</span>, <span class="t-n">17</span>, <span class="t-n">60</span>, <span class="t-n">31</span>, <span class="t-n">35</span>]
+    <span class="t-b">print</span>(<span class="t-s">&quot;FFT tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 纯循环 FFT 常数大，1e5 长度乘法可能 TLE（复杂度 O(n log n) 但每次迭代有 Python 开销与复数对象）。教学正确。竞赛中 Python 建议：能取模就用 NTT；不能取模时可用 numpy 的 FFT（numpy 未内置不可用则手写递归版）。分块卷积（块内朴素/FFT）可缓解。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n log n) 多项式乘法</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">浮点误差: 系数较大(如 1e9 量级且 n 大)时圆整可能错, 需要 NTT/拆系数 FFT(three-FFT / 任意模数)。长度必须是 2 的幂, 需补齐。Python 纯实现性能差, N=1e5 级可能 TLE, 应改用 NTT 或 numpy。递归版在 Python 有递归深度限制, 需 sys.setrecursionlimit 或改迭代。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>忘记把长度补齐到 2 的幂(且需 &gt;= degA+degB+1)</li><li>逆变换忘记除以 n(每个点都要除)</li><li>浮点圆整用 round 而非 int 截断(负数系数会错)</li><li>位逆序置换实现写错(标准翻转循环易错)</li><li>复数旋转因子方向搞反(正负号), 导致结果共轭</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3803</strong></td><td>3</td><td>多项式乘法模板题(FFT/NTT 均可), 入门必做</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3803" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3803</a></td></tr><tr><td>HDU</td><td><strong>1402</strong></td><td>3</td><td>A * B Problem Plus: 大整数乘法, 经典 FFT 应用</td><td class="u"><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1402" target="_blank" rel="noopener">http://acm.hdu.edu.cn/showproblem.php?pid=1402</a></td></tr><tr><td>Codeforces</td><td><strong>553E</strong></td><td>6</td><td>Kyoya and Train: FFT 优化 DP 转移的卷积结构</td><td class="u"><a href="https://codeforces.com/contest/553/problem/E" target="_blank" rel="noopener">https://codeforces.com/contest/553/problem/E</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-fft" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "pad", "label": "补齐到 2 的幂 n>=len(a)+len(b)-1"}}, {"data": {"id": "dft", "label": "正变换: 位逆序+蝶形合并, 得到点值"}}, {"data": {"id": "pointwise", "label": "点值逐点相乘"}}, {"data": {"id": "idft", "label": "逆变换(共轭根+除以 n)还原系数"}}, {"data": {"id": "round", "label": "浮点圆整为整数系数"}}, {"data": {"id": "epad->dft", "source": "pad", "target": "dft"}}, {"data": {"id": "edft->pointwise", "source": "dft", "target": "pointwise"}}, {"data": {"id": "epointwise->idft", "source": "pointwise", "target": "idft"}}, {"data": {"id": "eidft->round", "source": "idft", "target": "round"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-fft'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="ntt.html" title="NTT是FFT在模意义下的等价，用原根替代单位根">NTT(数论变换)<span class="etype">变体</span></a><a class="chip e-variant" href="fwt.html" title="FWT是FFT在位运算卷积上的推广">FWT(快速沃尔什变换)<span class="etype">变体</span></a><a class="chip e-cooccurrence" href="polynomial-basics.html" title="FFT是多项式乘法的加速工具">多项式基础<span class="etype">共现</span></a><a class="chip e-cooccurrence" href="big-integer.html" title="大整数乘法可用FFT/NTT加速到O(n log n)">高精度(大整数)<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/poly/fft/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/fft/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/fft.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/fft.md</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/algebra/fft.html" target="_blank" rel="noopener">https://cp-algorithms.com/algebra/fft.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

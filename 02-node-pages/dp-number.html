@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数位DP · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-11.html">动态规划基础族</a> / <span>数位DP</span></div>
+  <h1>数位DP</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-11</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="dp-count.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">dp-count</span></a>
+    <a class="nav-index" href="../03-groups/G-A-11.html"><span class="dir">组内第 13 / 15</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dp-dag.html"><span class="dir">下一个 / 组内</span><span class="v">dp-dag</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">按数位逐位枚举，记忆化记录合法状态，大区间计数</div><p>数位DP是一种用于解决「在区间[L,R]中满足特定条件的数的个数」类问题的动态规划。当上界很大(如10^18)时，朴素枚举不可行。数位DP按数位从高到低逐位枚举，用记忆化记录「不贴上界、无前导零」时的通用答案，避免重复计算。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>从7000到7999、8000到8999、9000到9999的过程高度相似——都是后三位从000变到999，只有千位不同。数位DP将这种重复提取为「不贴上限时后k位的通用答案」，用记忆化避免逐个数验证。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>核心技巧：(1) 区间差分：ans[L,R]=solve(R)-solve(L-1)。(2) 从高到低枚举每一位，维护两个标记：lim(是否贴上界)和lead(是否有前导零)。(3) 当lim=false且lead=false时，后续答案是确定的，可记忆化。(4) 记忆化状态：f(pos, [其他约束], lim, lead)。时间复杂度O(位数 * 状态数)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>数位DP是竞赛中处理大数计数问题的标准技术。其核心思想——按位分解、标记上界与前导零、记忆化通用答案——适用于统计不含某数字、数位和限制、单调递增等各种约束。OI Wiki以P2602(数字计数)和HDU2089(不要62)为教学题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 记忆化搜索框架</span>
+@lru_cache
+<span class="t-k">def</span> <span class="t-f">dfs</span>(pos, ..., lim, lead):
+  <span class="t-k">if</span> pos == <span class="t-n">0</span>: <span class="t-k">return</span> <span class="t-n">1</span>  <span class="t-c"># 所有位都处理完</span>
+  <span class="t-k">if</span> <span class="t-k">not</span> lim <span class="t-k">and</span> <span class="t-k">not</span> lead <span class="t-k">and</span> f[pos][...] != -<span class="t-n">1</span>:
+    <span class="t-k">return</span> f[pos][...]
+  upper = digits[pos] <span class="t-k">if</span> lim <span class="t-k">else</span> <span class="t-n">9</span>
+  ans = <span class="t-n">0</span>
+  <span class="t-k">for</span> d <span class="t-k">in</span> <span class="t-n">0.</span>.upper:
+    ans += <span class="t-f">dfs</span>(pos-<span class="t-n">1</span>, ..., lim <span class="t-k">and</span> d==upper, lead <span class="t-k">and</span> d==<span class="t-n">0</span>)
+  <span class="t-k">if</span> <span class="t-k">not</span> lim <span class="t-k">and</span> <span class="t-k">not</span> lead: f[pos][...] = ans
+  <span class="t-k">return</span> ans</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> functools <span class="t-k">import</span> lru_cache
+
+
+<span class="t-k">def</span> <span class="t-f">count_digit</span>(l, r, target):
+    <span class="t-s">&quot;&quot;&quot;Luogu P2602 数字计数: 统计[L,R]中target数码出现次数
+    前导零不计入统计
+    &quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">solve</span>(n, d):
+        <span class="t-k">if</span> n &lt;= <span class="t-n">0</span>:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        digits = []
+        tmp = n
+        <span class="t-k">while</span> tmp:
+            digits.<span class="t-f">append</span>(tmp % <span class="t-n">10</span>)
+            tmp //= <span class="t-n">10</span>
+        digits.<span class="t-f">reverse</span>()
+        length = <span class="t-b">len</span>(digits)
+
+        @<span class="t-f">lru_cache</span>(maxsize=<span class="t-k">None</span>)
+        <span class="t-k">def</span> <span class="t-f">dfs</span>(pos, cnt, lim, lead):
+            <span class="t-s">&quot;&quot;&quot;从第pos位开始, 已累计cnt个target, lim=贴上界, lead=前导零&quot;&quot;&quot;</span>
+            <span class="t-k">if</span> pos == length:
+                <span class="t-k">return</span> cnt
+            res = <span class="t-n">0</span>
+            upper = digits[pos] <span class="t-k">if</span> lim <span class="t-k">else</span> <span class="t-n">9</span>
+            <span class="t-k">for</span> val <span class="t-k">in</span> <span class="t-b">range</span>(upper + <span class="t-n">1</span>):
+                new_lead = lead <span class="t-k">and</span> (val == <span class="t-n">0</span>)
+                new_cnt = cnt
+                <span class="t-c"># 计数: 当前位等于target 且 非前导零</span>
+                <span class="t-k">if</span> val == d <span class="t-k">and</span> <span class="t-k">not</span> new_lead:
+                    new_cnt = cnt + <span class="t-n">1</span>
+                res += <span class="t-f">dfs</span>(pos + <span class="t-n">1</span>, new_cnt, lim <span class="t-k">and</span> (val == upper), new_lead)
+            <span class="t-k">return</span> res
+
+        result = <span class="t-f">dfs</span>(<span class="t-n">0</span>, <span class="t-n">0</span>, <span class="t-k">True</span>, <span class="t-k">True</span>)
+        dfs.<span class="t-f">cache_clear</span>()
+        <span class="t-k">return</span> result
+
+    <span class="t-k">return</span> <span class="t-f">solve</span>(r, target) - <span class="t-f">solve</span>(l - <span class="t-n">1</span>, target)
+
+
+<span class="t-k">def</span> <span class="t-f">count_without_62</span>(l, r):
+    <span class="t-s">&quot;&quot;&quot;HDU 2089 不要62: 统计[L,R]中不含4且不含连续62的数的个数&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">solve</span>(n):
+        <span class="t-k">if</span> n == <span class="t-n">0</span>:
+            <span class="t-k">return</span> <span class="t-n">1</span>
+        digits = []
+        tmp = n
+        <span class="t-k">while</span> tmp:
+            digits.<span class="t-f">append</span>(tmp % <span class="t-n">10</span>)
+            tmp //= <span class="t-n">10</span>
+        digits.<span class="t-f">reverse</span>()
+        length = <span class="t-b">len</span>(digits)
+
+        @<span class="t-f">lru_cache</span>(maxsize=<span class="t-k">None</span>)
+        <span class="t-k">def</span> <span class="t-f">dfs</span>(pos, prev, lim, lead):
+            <span class="t-s">&quot;&quot;&quot;pos: 当前位, prev: 上一位数字(-1表示开始), lim: 贴上界, lead: 前导零&quot;&quot;&quot;</span>
+            <span class="t-k">if</span> pos == length:
+                <span class="t-k">return</span> <span class="t-n">1</span>
+            res = <span class="t-n">0</span>
+            upper = digits[pos] <span class="t-k">if</span> lim <span class="t-k">else</span> <span class="t-n">9</span>
+            <span class="t-k">for</span> d <span class="t-k">in</span> <span class="t-b">range</span>(upper + <span class="t-n">1</span>):
+                <span class="t-k">if</span> d == <span class="t-n">4</span>:
+                    <span class="t-k">continue</span>  <span class="t-c"># 不含4</span>
+                <span class="t-k">if</span> prev == <span class="t-n">6</span> <span class="t-k">and</span> d == <span class="t-n">2</span>:
+                    <span class="t-k">continue</span>  <span class="t-c"># 不含62</span>
+                res += <span class="t-f">dfs</span>(pos + <span class="t-n">1</span>, d, lim <span class="t-k">and</span> (d == upper), lead <span class="t-k">and</span> (d == <span class="t-n">0</span>))
+            <span class="t-k">return</span> res
+
+        result = <span class="t-f">dfs</span>(<span class="t-n">0</span>, -<span class="t-n">1</span>, <span class="t-k">True</span>, <span class="t-k">True</span>)
+        dfs.<span class="t-f">cache_clear</span>()
+        <span class="t-k">return</span> result
+
+    <span class="t-k">return</span> <span class="t-f">solve</span>(r) - <span class="t-f">solve</span>(l - <span class="t-n">1</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># P2602: 统计[1,12]中每个数字出现次数</span>
+    <span class="t-c"># 1: 4次(1,10,11,12), 2: 2次(2,12), ... </span>
+    <span class="t-k">assert</span> <span class="t-f">count_digit</span>(<span class="t-n">1</span>, <span class="t-n">12</span>, <span class="t-n">1</span>) == <span class="t-n">5</span>, <span class="t-s">f&quot;digit 1: {count_digit(1, 12, 1)}&quot;</span>  <span class="t-c"># 1,10,11,12: 1+1+2+1=5</span>
+    <span class="t-k">assert</span> <span class="t-f">count_digit</span>(<span class="t-n">1</span>, <span class="t-n">12</span>, <span class="t-n">2</span>) == <span class="t-n">2</span>, <span class="t-s">f&quot;digit 2: {count_digit(1, 12, 2)}&quot;</span>
+    <span class="t-k">assert</span> <span class="t-f">count_digit</span>(<span class="t-n">1</span>, <span class="t-n">12</span>, <span class="t-n">0</span>) == <span class="t-n">1</span>, <span class="t-s">f&quot;digit 0: {count_digit(1, 12, 0)}&quot;</span>
+
+    <span class="t-c"># 不要62: [1,20]中不含4和62的数</span>
+    <span class="t-c"># 含4的: 4,14 = 2个; 含62的: 无; 答案=20-2=18</span>
+    <span class="t-k">assert</span> <span class="t-f">count_without_62</span>(<span class="t-n">1</span>, <span class="t-n">20</span>) == <span class="t-n">18</span>, <span class="t-s">f&quot;Expected 18, got {count_without_62(1, 20)}&quot;</span>
+    <span class="t-c"># [1,100]中含4的: 19个, 含62的: 62 = 1个, 共20个排除</span>
+    <span class="t-k">assert</span> <span class="t-f">count_without_62</span>(<span class="t-n">1</span>, <span class="t-n">100</span>) == <span class="t-n">80</span>, <span class="t-s">f&quot;Expected 80, got {count_without_62(1, 100)}&quot;</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy的lru_cache对记忆化搜索高效。注意每次solve后cache_clear避免状态污染。数位DP的状态数通常很小(位数*约束)，PyPy下速度足够。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(位数 * 状态数 * 10) — 位数通常&lt;=18, 状态数取决于约束</td></tr><tr><th>空间复杂度</th><td>O(位数 * 状态数) — lru_cache</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">记忆化搜索需注意cache_clear避免不同上界间状态污染。前导零和贴上界的标记处理是出错高发区。迭代写法比递归快但实现复杂。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>lim和lead标记的记忆化：只在lim=false且lead=false时才可缓存，否则上界不同答案不同</li><li>前导零处理：如统计0出现次数时前导零的0不计入</li><li>lru_cache跨调用残留：每次solve不同上界时必须cache_clear</li><li>区间差分方向：solve(R)-solve(L-1)而非solve(L)-solve(R)</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P2602</strong></td><td>2</td><td>数字计数：数位DP经典模板，统计各数码出现次数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2602" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2602</a></td></tr><tr><td>HDU</td><td><strong>2089</strong></td><td>2</td><td>不要62：数位DP入门，不含4和连续62</td><td class="u"><a href="https://acm.hdu.edu.cn/showproblem.php?pid=2089" target="_blank" rel="noopener">https://acm.hdu.edu.cn/showproblem.php?pid=2089</a></td></tr><tr><td>Luogu</td><td><strong>P4124</strong></td><td>3</td><td>手机号码：数位DP进阶，多重数位约束</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4124" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4124</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dp-number" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "decompose", "label": "按数位分解上界"}}, {"data": {"id": "state", "label": "状态定义(pos,约束,lim,lead)"}}, {"data": {"id": "transition", "label": "逐位枚举转移"}}, {"data": {"id": "memo", "label": "记忆化(非贴界状态)"}}, {"data": {"id": "answer", "label": "区间差分"}}, {"data": {"id": "edecompose->state", "source": "decompose", "target": "state"}}, {"data": {"id": "estate->transition", "source": "state", "target": "transition"}}, {"data": {"id": "etransition->memo", "source": "transition", "target": "memo"}}, {"data": {"id": "ememo->answer", "source": "memo", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dp-number'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="dp-basic.html" title="数位DP是DP基础在数位枚举上的应用">动态规划基础<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/number/" target="_blank" rel="noopener">https://oi-wiki.org/dp/number/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/dynamic_programming/knapsack.html" target="_blank" rel="noopener">https://cp-algorithms.com/dynamic_programming/knapsack.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

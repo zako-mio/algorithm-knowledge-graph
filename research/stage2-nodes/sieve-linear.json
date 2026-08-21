@@ -1,0 +1,73 @@
+{
+  "id": "sieve-linear",
+  "name": "线性筛(欧拉筛)",
+  "group": "G-C-7",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "O(n)筛素数，每个合数只被最小质因子筛一次，可同时求积性函数",
+  "what": "线性筛（Linear Sieve / Euler Sieve）保证每个合数只被它的最小质因子筛掉一次，从而总时间复杂度严格 O(n)。与埃氏筛（一个合数被多个质因子重复标记）相比，线性筛在 O(n) 内同时求出每个数的最小质因子，并可在筛的过程中顺带计算各种积性函数（欧拉函数 phi、莫比乌斯函数 mu、约数个数 d、约数和 sigma 等），是数论中最高效、最常用的筛法。",
+  "why": {
+    "intuition": "埃氏筛浪费在对 12=2×2×3 既被 2 划又被 3 划。线性筛规定「只允许最小的质因子来划掉一个合数」：每个合数 n 只由 n/min_prime × min_prime 产生，且当内层质数 p 已经是 i 的最小质因子（i%p==0）时立即 break，防止更大的质数再来划 n。这样每个数恰被标记一次。",
+    "principle": "外层 i 从 2 到 n：若 i 未被标记则加入素数表；随后用素数表里的每个 p 标记 i×p（p≤i 的最小质因子）：若 i%p==0，标记后 break（因为更大的 p' 的 i×p' 会由 (i×p')/(p') 这个更小的数乘上其最小质因子 p' 标记）。标记的同时维护积性函数：i%p==0 时 f[i×p]=f[i]×p 类公式，否则 f[i×p]=f[i]×f[p]。",
+    "history": "线性筛由计算机科学家在 20 世纪中期系统化（常归功于对埃氏筛的优化探索），在中国算法圈常称「欧拉筛」。其同时求最小质因子与积性函数的能力使它在 MO 数论（莫比乌斯反演、欧拉函数前缀和）中成为标准预处理工具。OI Wiki 与 CP-Algorithms 均给出详细实现与正确性证明。"
+  },
+  "how": {
+    "pseudocode": "pri = []; not_prime[0..n] = false; phi[0..n] = 0\nfor i = 2..n:\n  if not not_prime[i]:\n    pri.append(i); phi[i] = i-1\n  for p in pri:\n    if i*p > n: break\n    not_prime[i*p] = true\n    if i % p == 0:\n      phi[i*p] = phi[i] * p     # p 已是最小质因子\n      break\n    else:\n      phi[i*p] = phi[i] * (p-1) # 互质, 积性",
+    "python": "def linear_sieve_phi(n):\n    \"\"\"线性筛: 同时求出素数表 pri 和欧拉函数 phi[1..n]\"\"\"\n    pri = []\n    not_prime = [False] * (n + 1)\n    phi = [0] * (n + 1)\n    phi[1] = 1\n    for i in range(2, n + 1):\n        if not not_prime[i]:\n            pri.append(i)\n            phi[i] = i - 1\n        for p in pri:\n            if i * p > n:\n                break\n            not_prime[i * p] = True\n            if i % p == 0:\n                phi[i * p] = phi[i] * p\n                break\n            phi[i * p] = phi[i] * (p - 1)\n    return pri, phi\n\n\ndef linear_sieve_mu(n):\n    \"\"\"线性筛莫比乌斯函数 mu\"\"\"\n    pri = []\n    not_prime = [False] * (n + 1)\n    mu = [0] * (n + 1)\n    mu[1] = 1\n    for i in range(2, n + 1):\n        if not not_prime[i]:\n            pri.append(i)\n            mu[i] = -1\n        for p in pri:\n            if i * p > n:\n                break\n            not_prime[i * p] = True\n            if i % p == 0:\n                mu[i * p] = 0\n                break\n            mu[i * p] = -mu[i]\n    return pri, mu\n\n\ndef is_prime_simple(x, pri):\n    \"\"\"用素数表判断 x 是否为素数（x 较小）\"\"\"\n    import math\n    if x < 2:\n        return False\n    for p in pri:\n        if p * p > x:\n            break\n        if x % p == 0:\n            return x == p\n    return True\n\n\nif __name__ == \"__main__\":\n    pri, phi = linear_sieve_phi(100)\n    assert pri[:10] == [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]\n    assert 97 in pri\n    assert 91 not in pri\n    # 欧拉函数已知值: phi(12)=4, phi(9)=6, phi(1)=1, phi(97)=96\n    assert phi[12] == 4\n    assert phi[9] == 6\n    assert phi[1] == 1\n    assert phi[97] == 96\n\n    # 与埃氏筛交叉验证素数集合（用 n=500 重跑一遍线性筛）\n    pri500, _ = linear_sieve_phi(500)\n    from math import isqrt\n    n = 500\n    s = [True] * (n + 1)\n    s[0] = s[1] = False\n    for i in range(2, isqrt(n) + 1):\n        if s[i]:\n            for j in range(i * i, n + 1, i):\n                s[j] = False\n    expected = {i for i in range(2, n + 1) if s[i]}\n    assert set(pri500) == expected\n\n    # 暴力验证欧拉函数\n    def phi_brute(x):\n        return sum(1 for k in range(1, x + 1) if __import__('math').gcd(k, x) == 1)\n    for x in range(1, 50):\n        assert phi[x] == phi_brute(x), (x, phi[x], phi_brute(x))\n\n    print(\"All tests passed.\")",
+    "pypy_notes": "PyPy 下线性筛 n=1e7 约 1-2s，与埃氏筛相当但还附带积性函数表。Python 内层 for p in pri 的 Python 级循环是瓶颈（比 C 慢），n>1e7 时建议用字节级优化或 numpy 向量化（若 OJ 允许）。mu 数组仅需 int 小值，可用 array('b') 省内存。",
+    "complexity": {
+      "time": "O(n) — 每个合数恰被最小质因子筛一次",
+      "space": "O(n) — 素数表 + not_prime + 函数表"
+    },
+    "limitations": "Python 的线性筛常数较大（内层 Python 循环），n 超 1e8 时仍会超时/超内存；此时应寻求数论分块+杜教筛等亚线性方法。线性筛需要至少一个积性函数需要维护时才有优势，纯筛素数时埃氏筛+位压缩常数更小。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3383",
+      "url": "https://www.luogu.com.cn/problem/P3383",
+      "difficulty": 3,
+      "key_point": "【模板】线性筛素数：线性筛/埃氏筛均可，检验基础实现"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2568",
+      "url": "https://www.luogu.com.cn/problem/P2568",
+      "difficulty": 6,
+      "key_point": "GCD：线性筛预处理欧拉函数前缀和求 sum gcd=素数 的对数"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2158",
+      "url": "https://www.luogu.com.cn/problem/P2158",
+      "difficulty": 4,
+      "key_point": "仪仗队：线性筛欧拉函数求和，互素对数计数"
+    }
+  ],
+  "pitfalls": [
+    "忘记在内层 if i%p==0 时 break，导致合数被重复标记（退化为非线性）",
+    "break 条件写反（i%p!=0 时 break），产生漏筛",
+    "i*p 可能溢出 int（Python 无此问题，但乘法仍要趁早判断 >n 再 break）",
+    "维护积性函数时分不清 i%p==0 与互质两分支的公式",
+    "phi[1]=1 漏初始化导致后续累加错位"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "init", "label": "初始化 not_prime 与素数表" },
+      { "id": "mark", "label": "外循环: 未标记则入素数表" },
+      { "id": "sieve", "label": "内循环: 标记 i×p, i%p==0 时 break" },
+      { "id": "func", "label": "同时按分支维护积性函数" }
+    ],
+    "edges": [
+      { "from": "init", "to": "mark" },
+      { "from": "mark", "to": "sieve" },
+      { "from": "sieve", "to": "func" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/math/number-theory/sieve/", "verified": true },
+    { "type": "cpalg", "url": "https://cp-algorithms.com/algebra/prime-sieve-linear.html", "verified": true },
+    { "type": "book", "ref": "CPH ch21 Number theory (p207-216)", "verified": true }
+  ]
+}

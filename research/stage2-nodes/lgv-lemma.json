@@ -1,0 +1,102 @@
+{
+  "id": "lgv-lemma",
+  "name": "LGV行列式引理",
+  "group": "G-B-9",
+  "stage": "advanced",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "Lindström-Gessel-Viennot引理，不相交路径计数",
+  "what": "LGV 引理（Lindström–Gessel–Viennot lemma）用于在**有向无环图**上计算若干对起终点之间的不相交路径计数。设起点集合 A={a1..an}、终点集合 B={b1..bn}，e(ai,bj) 表示从 ai 到 bj 的所有路径的边权之积之和（路径计数时边权取 1，边权可为生成函数）。则由矩阵 M[i][j]=e(ai,bj) 的行列式等于：所有从 A 到 B 的不相交路径组 S（每个 ai 恰好连到某个 bσ(i)，且各路径无公共顶点）的权值之和再乘以符号 (-1)^t(σ)。",
+  "why": {
+    "intuition": "行列式展开是 '所有排列 σ 的带符号路径组' 的求和。含交叉的路径组（两条路径在某点 u 相交）可以成对抵消：若路径 i 与路径 j 在 u 相交，则交换它们在 u 之后的部分，得到另一条路径组，二者权值相同而排列奇偶性相反（交换了两个终点，逆序对奇偶性改变），符号相反，恰好抵消。于是剩余的就只有不相交路径组，从而 det(M) = 带符号的不相交路径组求和。若起终点满足 ai→bi 是自然对应（如单调递增的配对），则 σ 为恒等排列，符号全为正。",
+    "principle": "关键前提是图必须是有向无环图（保证'交换相交点之后的部分'仍合法且权重相同），且 A、B 两两互不重复。应用流程：选定合适的 A、B（通常取必经的入口/出口集合），用 DP 或组合数算出每个 e(ai,bj)，再求行列式。当配对自然（如 a1<a2<...<an 与 b1<b2<...<bn 且路径不交即对应），答案直接是 det(M)，无需处理符号。",
+    "history": "引理由 Lindström 于 1973 年、Gessel 与 Viennot 于 1985 年分别证明/推广，是组合数学中把不相交路径与行列式联系起来的经典工具。在信息学竞赛中最常见的形式是格点棋盘上（只能向下/向右走）的路径计数，1980 年代后成为 combinatorics on lattice paths 的基本工具。"
+  },
+  "how": {
+    "pseudocode": "# 网格不相交路径计数 (经典应用)\n# 起点 A, 终点 B, 边权=1\n# 1. 对每个 (ai, bj) 用组合数/DP 求路径数 e(ai,bj)\n#    DP: dp[i][j] = dp[i-1][j] + dp[i][j-1] (带障碍)\n#    无障碍时 e(ai,bj) = C(Δx+Δy, Δx)\n# 2. 构造矩阵 M[i][j] = e(ai,bj)\n# 3. 答案 = det(M) (配对自然时无符号问题)\n# 4. 行列式用高斯消元 O(n^3) 求, 模质数下除法用逆元",
+    "python": "MOD = 10**9 + 7\n\n\ndef comb(n, k):\n    \"\"\"组合数 C(n,k) mod MOD, n<=2000 用阶乘表\"\"\"\n    fac = [1] * (n + 1)\n    for i in range(1, n + 1):\n        fac[i] = fac[i - 1] * i % MOD\n    inv = [1] * (n + 1)\n    inv[n] = pow(fac[n], MOD - 2, MOD)\n    for i in range(n, 0, -1):\n        inv[i - 1] = inv[i] * i % MOD\n    return lambda x, y: fac[x] * inv[y] % MOD * inv[x - y] % MOD if 0 <= y <= x else 0\n\n\ndef det_mod(a):\n    \"\"\"模质数下的高斯消元行列式\"\"\"\n    n = len(a)\n    res = 1\n    for i in range(n):\n        piv = i\n        while piv < n and a[piv][i] == 0:\n            piv += 1\n        if piv == n:\n            return 0\n        if piv != i:\n            a[i], a[piv] = a[piv], a[i]\n            res = -res\n        inv = pow(a[i][i], MOD - 2, MOD)\n        for j in range(i + 1, n):\n            f = a[j][i] * inv % MOD\n            for k in range(i, n):\n                a[j][k] = (a[j][k] - f * a[i][k]) % MOD\n    for i in range(n):\n        res = res * a[i][i] % MOD\n    return res\n\n\ndef lgv_paths_2(start_pts, end_pts, n_grid):\n    \"\"\"2x2 LGV: 格点棋盘(只能右/下)从两个起点到两个终点的\n    不相交路径数. 每个 e(ai,bj) 用组合数, 行列式即答案.\n    返回 (行列式, e矩阵)\n    \"\"\"\n    C = comb(2 * n_grid, n_grid)\n    M = [[0, 0], [0, 0]]\n    for i in range(2):\n        for j in range(2):\n            x1, y1 = start_pts[i]\n            x2, y2 = end_pts[j]\n            dx, dy = x2 - x1, y2 - y1\n            M[i][j] = C(dx + dy, dx)\n    d = det_mod([row[:] for row in M])\n    return d % MOD, M\n\n\nif __name__ == \"__main__\":\n    # 小棋盘: (0,0)->(1,1) 与 (0,1)->(1,2) 两条路径不交\n    # 起点 (0,0),(0,1); 终点 (1,1),(1,2)\n    # e((0,0),(1,1)) = C(2,1)=2 ; e((0,0),(1,2)) = C(3,1)=3\n    # e((0,1),(1,1)) = C(1,1)=1 ; e((0,1),(1,2)) = C(2,1)=2\n    # det = 2*2 - 3*1 = 1\n    start = [(0, 0), (0, 1)]\n    end = [(1, 1), (1, 2)]\n    d, M = lgv_paths_2(start, end, 3)\n    assert d == 1, d\n    assert M == [[2, 3], [1, 2]]\n\n    # 起点 (0,0),(0,1); 终点 (1,1),(2,1) : 第一条必经过\n    # e((0,0),(1,1))=C(2,1)=2, e((0,0),(2,1))=C(3,1)=3\n    # e((0,1),(1,1))=1, e((0,1),(2,1))=C(2,1)=2 => det=2*2-3*1=1\n    # 实际 det = 2*1 - 3*1 = -1 (mod MOD) -> MOD-1\n    d2, _ = lgv_paths_2([(0, 0), (0, 1)], [(1, 1), (2, 1)], 3)\n    assert d2 == MOD - 1, d2\n\n    print(\"lgv-lemma tests passed\")\n",
+    "pypy_notes": "核心是组合数 + 行列式。格点路径数在障碍情况下改用 O(nm) DP 预处理每个 e(ai,bj)。行列式模运算在 PyPy 下高斯消元 O(k^3) 可跑 k≤100 左右；注意 Python 二维列表逐行乘在 k 较大时用内建循环优化。组合数表若 n 很大（1e5+）需用阶乘+逆元全局预处理。",
+    "complexity": {
+      "time": "DP 求 e 为 O(nm)（或 O(n) 组合数），行列式高斯消元 O(k^3)，k 为起点个数",
+      "space": "O(nm + k^2)"
+    },
+    "limitations": "只适用于 DAG；A、B 中元素必须两两不同；必须正确选择起点/终点集合（通常取必经的关键集合），选错则行列式无意义；k 较大时行列式求解成本高。"
+  },
+  "examples": [
+    {
+      "oj": "Codeforces",
+      "pid": "348D",
+      "url": "https://codeforces.com/problemset/problem/348/D",
+      "difficulty": 4,
+      "key_point": "Turtles：网格障碍路径计数，取 A={(1,2),(2,1)}, B={(n-1,m),(n,m-1)} 应用 LGV，O(nm) DP"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "U461211",
+      "url": "https://www.luogu.com.cn/problem/U461211",
+      "difficulty": 4,
+      "key_point": "（此题为字符串哈希加强题，非 LGV 题；仅作交叉对比参考）"
+    }
+  ],
+  "pitfalls": [
+    "只适用于有向无环图；存在环时交换路径部分不合法",
+    "A、B 起点/终点不能重复，集合大小必须相等",
+    "配对非自然时，行列式带符号，需按 σ 的逆序数取符号",
+    "起点终点集合选择不当会得到错误/无意义答案，选关键必经点",
+    "行列式需在模数下用逆元；模数为质数时简单，否则用高斯消元除法"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "pick_ab",
+        "label": "选取起点集 A 与终点集 B"
+      },
+      {
+        "id": "count_e",
+        "label": "计算每个 e(ai,bj)（DP/组合数）"
+      },
+      {
+        "id": "matrix",
+        "label": "构造路径计数矩阵 M"
+      },
+      {
+        "id": "det",
+        "label": "高斯消元求行列式"
+      },
+      {
+        "id": "answer",
+        "label": "得到不相交路径数（处理符号）"
+      }
+    ],
+    "edges": [
+      {
+        "from": "pick_ab",
+        "to": "count_e"
+      },
+      {
+        "from": "count_e",
+        "to": "matrix"
+      },
+      {
+        "from": "matrix",
+        "to": "det"
+      },
+      {
+        "from": "det",
+        "to": "answer"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/lgv/",
+      "verified": true
+    },
+    {
+      "type": "wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Lindström–Gessel–Viennot_lemma",
+      "verified": true
+    }
+  ]
+}

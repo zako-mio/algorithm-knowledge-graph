@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>支配树 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-4.html">连通性族</a> / <span>支配树</span></div>
+  <h1>支配树</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-B-4</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="two-sat.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">two-sat</span></a>
+    <a class="nav-index" href="../03-groups/G-B-4.html"><span class="dir">组内第 6 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="block-forest.html"><span class="dir">下一个 / 组内</span><span class="v">block-forest</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">有向图支配关系树：Lengauer-Tarjan算法O((V+E)α)，DAG/树有特例O((V+E)log)解法</div><p>支配树(Dominator Tree)用于描述有向图中&#x27;从入口s出发到某点的所有路径都必须经过哪些点&#x27;的支配关系。若从s到u的每条路径都经过v，则称v支配u。支配关系满足树形结构：每个节点(除s外)恰有一个直接支配者idom(u)，把所有idom边连起来就得到以s为根的支配树。在支配树上，v支配u当且仅当v是u的祖先。求解支配树的经典算法是Lengauer-Tarjan算法，复杂度O((E+V)α(V))，通过半支配点(semi-dominator)间接求直接支配者。对DAG有更简单的拓扑序+倍增LCA解法，对树则支配树就是它本身。典型应用：ZJOI2012灾难(灭绝树)、程序控制流图分析、统计每个点被哪些点必经支配。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>想弄清&#x27;哪些点支配了哪些点&#x27;，最朴素是删除每个点再DFS(O(n³))，或用数据流方程迭代(O(n²))。支配树把&#x27;支配&#x27;关系压成一颗树：树上祖先即支配者。Lengauer-Tarjan的核心是半支配点——一个略弱于直接支配者、但更容易算的量：sdom(u)是&#x27;从某个节点出发经一条路径(中间节点dfn都大于u)能走到u的节点中dfn最小者&#x27;。算出sdom后再通过一条修正公式得到idom，复杂度降至近线性。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>算法分三阶段：(1)从s对原图DFS，得到DFS树T和dfn编号；(2)按dfn从大到小，利用带权并查集计算每个节点的半支配点sdom(u)=min(前驱中dfn&lt;dfn[u]的节点, 满足w&gt;u且存在w→…→v→u路径的sdom(w))；(3)根据定理：令v为sdom(u)到u的路径上sdom最小的节点，则idom(u)=sdom(u)(当sdom(u)=sdom(v))否则idom(u)=idom(v)，通过第二次带权并查集扫描得到所有idom。带权并查集每次find时维护&#x27;路径上sdom最小的节点&#x27;即可O((E+V)α)。DAG特例：按拓扑序处理，u的idom是其所有前驱在支配树上的LCA(倍增维护)，复杂度O((E+V)log)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>支配概念1959年由Prosser在网络流论文中提出，1969年Lowry与Medlock给出首个有效算法，1979年Lengauer与Tarjan发表近线性算法，至今仍是编译器控制流分析与工业软件领域的重要工具。竞赛界最早通过ZJOI2012灾难(灭绝树)引入该概念，OI Wiki的dominator-tree页有完整介绍；CP-Algorithms目前无此条目。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># Lengauer-Tarjan 框架</span>
+<span class="t-f">dfs</span>(s):   <span class="t-c"># 建DFS树, 记录dfn/pos/fth</span>
+  dfn[u]=++dfc; pos[dfc]=u
+  <span class="t-k">for</span> v <span class="t-k">in</span> out[u]: <span class="t-k">if</span> <span class="t-k">not</span> dfn[v]: <span class="t-f">dfs</span>(v); fth[v]=u
+
+<span class="t-c"># 带权并查集 find(x): 返回sdm最小的节点mn[x]</span>
+<span class="t-c"># 阶段1: 算sdm (按dfc从大到小)</span>
+<span class="t-k">for</span> i <span class="t-k">in</span> dfc.<span class="t-n">.2</span>:
+  u=pos[i]
+  res=dfn[u]
+  <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-k">in</span>[u]:            <span class="t-c"># 入边</span>
+    <span class="t-k">if</span> dfn[v]==<span class="t-n">0</span>: <span class="t-k">continue</span>
+    <span class="t-f">find</span>(v)
+    <span class="t-k">if</span> dfn[v]&lt;dfn[u]: res=<span class="t-b">min</span>(res, dfn[v])
+    <span class="t-k">else</span>: res=<span class="t-b">min</span>(res, dfn[sdm[mn[v]]])
+  sdm[u]=pos[res]
+  fa[u]=fth[u]               <span class="t-c"># 并查集挂到父节点</span>
+  <span class="t-c"># 阶段2(内联): 对挂在sdm[u]下的v: idom[v]=sdm[v]或mn[v]</span>
+<span class="t-c"># 阶段3: 修正</span>
+<span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-n">2.</span>.dfc:
+  u=pos[i]
+  <span class="t-k">if</span> idom[u]!=sdm[u]: idom[u]=idom[idom[u]]
+<span class="t-c"># 支配树边: (idom[u], u)</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># DAG上的支配树: 拓扑序+倍增LCA (P2597灾难的解法)</span>
+<span class="t-k">import</span> sys
+<span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">1</span> &lt;&lt; <span class="t-n">25</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">dominator_tree_dag</span>(n, s, edges):
+    <span class="t-s">&quot;&quot;&quot;DAG的支配树.
+    n: 节点数, s: 唯一入口(1-based), edges: [(u,v),...]
+    返回: idom数组(1-based, idom[s]=s), 支配树上父节点
+    &quot;&quot;&quot;</span>
+    g = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    rg = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    indeg = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> edges:
+        g[u].<span class="t-f">append</span>(v)
+        rg[v].<span class="t-f">append</span>(u)
+        indeg[v] += <span class="t-n">1</span>
+
+    <span class="t-c"># 拓扑序</span>
+    q = <span class="t-f">deque</span>([s])
+    topo = []
+    indeg_saved = indeg[:]
+    <span class="t-k">while</span> q:
+        u = q.<span class="t-f">popleft</span>()
+        topo.<span class="t-f">append</span>(u)
+        <span class="t-k">for</span> v <span class="t-k">in</span> g[u]:
+            indeg[v] -= <span class="t-n">1</span>
+            <span class="t-k">if</span> indeg[v] == <span class="t-n">0</span>:
+                q.<span class="t-f">append</span>(v)
+
+    LOG = (n + <span class="t-n">1</span>).<span class="t-f">bit_length</span>()
+    up = [[<span class="t-n">0</span>] * (n + <span class="t-n">1</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(LOG)]  <span class="t-c"># 支配树倍增祖先</span>
+    dep = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    idom = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    idom[s] = s
+
+    <span class="t-k">def</span> <span class="t-f">lca</span>(u, v):
+        <span class="t-k">if</span> dep[u] &lt; dep[v]:
+            u, v = v, u
+        d = dep[u] - dep[v]
+        k = <span class="t-n">0</span>
+        <span class="t-k">while</span> d:
+            <span class="t-k">if</span> d &amp; <span class="t-n">1</span>:
+                u = up[k][u]
+            d &gt;&gt;= <span class="t-n">1</span>
+            k += <span class="t-n">1</span>
+        <span class="t-k">if</span> u == v:
+            <span class="t-k">return</span> u
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(LOG - <span class="t-n">1</span>, -<span class="t-n">1</span>, -<span class="t-n">1</span>):
+            <span class="t-k">if</span> up[k][u] != up[k][v]:
+                u = up[k][u]
+                v = up[k][v]
+        <span class="t-k">return</span> up[<span class="t-n">0</span>][u]
+
+    <span class="t-c"># 按拓扑序: idom[u] = 所有前驱在支配树上的LCA</span>
+    <span class="t-k">for</span> u <span class="t-k">in</span> topo:
+        <span class="t-k">if</span> u == s:
+            <span class="t-k">continue</span>
+        <span class="t-k">if</span> <span class="t-k">not</span> rg[u]:
+            <span class="t-k">continue</span>
+        anc = rg[u][<span class="t-n">0</span>]
+        <span class="t-k">for</span> v <span class="t-k">in</span> rg[u][<span class="t-n">1</span>:]:
+            anc = <span class="t-f">lca</span>(anc, v)
+        idom[u] = anc
+        up[<span class="t-n">0</span>][u] = anc
+        dep[u] = dep[anc] + <span class="t-n">1</span>
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, LOG):
+            up[k][u] = up[k - <span class="t-n">1</span>][up[k - <span class="t-n">1</span>][u]]
+    <span class="t-k">return</span> idom
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 测试DAG: s=1, 1-&gt;2, 1-&gt;3, 2-&gt;4, 3-&gt;4, 4-&gt;5</span>
+    <span class="t-c"># 支配: 1支配全部; 4支配5; idom: 2&lt;-1,3&lt;-1,4&lt;-1,5&lt;-4</span>
+    edges = [(<span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>), (<span class="t-n">3</span>, <span class="t-n">4</span>), (<span class="t-n">4</span>, <span class="t-n">5</span>)]
+    idom = <span class="t-f">dominator_tree_dag</span>(<span class="t-n">5</span>, <span class="t-n">1</span>, edges)
+    <span class="t-k">assert</span> idom[<span class="t-n">1</span>:] == [<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">4</span>], idom
+
+    <span class="t-c"># 测试链: 1-&gt;2-&gt;3-&gt;4, idom为直接前驱</span>
+    edges2 = [(<span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">2</span>, <span class="t-n">3</span>), (<span class="t-n">3</span>, <span class="t-n">4</span>)]
+    idom2 = <span class="t-f">dominator_tree_dag</span>(<span class="t-n">4</span>, <span class="t-n">1</span>, edges2)
+    <span class="t-k">assert</span> idom2[<span class="t-n">1</span>:] == [<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>], idom2
+
+    <span class="t-c"># 测试分支再汇合: 1-&gt;2,1-&gt;3,2-&gt;4,3-&gt;4, 4的前驱2,3的LCA=1</span>
+    edges3 = [(<span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>), (<span class="t-n">3</span>, <span class="t-n">4</span>)]
+    idom3 = <span class="t-f">dominator_tree_dag</span>(<span class="t-n">4</span>, <span class="t-n">1</span>, edges3)
+    <span class="t-k">assert</span> idom3[<span class="t-n">1</span>:] == [<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>], idom3
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;dominator-tree(DAG): ALL TESTS PASSED&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Lengauer-Tarjan的带权并查集需在find时维护&#x27;半支配点最小&#x27;的节点，Python递归find易栈溢出，建议迭代或提升递归限制；竞赛中P5180/P2597多用C++。DAG特例用倍增LCA较Python友好。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>Lengauer-Tarjan: O((E+V)α(V))；结点删除法O(V(V+E))；DAG特例O((E+V)logV)</td></tr><tr><th>空间复杂度</th><td>O(V+E) — 原图+反图+DFS树+并查集</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅对单入口(唯一s)的有向图定义支配树；多个起点需先建超级源点。算法细节多、易错，Python实现带权并查集性能敏感。OI中竞赛题少但ZJOI2012灾难为代表题。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>支配树要求唯一入口，多入口需虚拟超级源点处理</li><li>sdom与idom的修正公式容易记错：先算sdom, 再通过路径上sdom最小节点v判断idom=sdom(u)或idom(v)</li><li>带权并查集find的路径压缩必须维护mn(半支配点最小节点), 不是只维护并查集根</li><li>DAG特例中所有前驱的LCA即为idom，但前提是DAG连通且单源</li><li>图不连通时，无法到达的节点没有支配关系，需单独讨论</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P2597</strong></td><td>5</td><td>ZJOI2012灾难(灭绝树)：DAG上建支配树求子树size，首次将支配树引入OI的题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2597" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2597</a></td></tr><tr><td>Luogu</td><td><strong>P5180</strong></td><td>6</td><td>【模板】支配树：一般有向图，需Lengauer-Tarjan</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5180" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5180</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dominator-tree" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "dfs", "label": "DFS建树记录dfn/fth"}}, {"data": {"id": "sdom", "label": "逆dfn序+带权并查集求半支配点"}}, {"data": {"id": "idom", "label": "由sdom关系求直接支配者idom"}}, {"data": {"id": "build", "label": "连(idom[u],u)构成支配树"}}, {"data": {"id": "dag", "label": "DAG特例: 前驱LCA=idom"}}, {"data": {"id": "edfs->sdom", "source": "dfs", "target": "sdom"}}, {"data": {"id": "esdom->idom", "source": "sdom", "target": "idom"}}, {"data": {"id": "eidom->build", "source": "idom", "target": "build"}}, {"data": {"id": "edfs->dag", "source": "dfs", "target": "dag"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dominator-tree'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/dominator-tree/" target="_blank" rel="noopener">https://oi-wiki.org/graph/dominator-tree/</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Dominator_(graph_theory)" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Dominator_(graph_theory)</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

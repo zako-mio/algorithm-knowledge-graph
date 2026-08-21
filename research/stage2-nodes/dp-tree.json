@@ -1,0 +1,108 @@
+{
+  "id": "dp-tree",
+  "name": "树形DP",
+  "group": "G-A-11",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "树上递归DP，DFS后序传递子树最优解到父节点",
+  "what": "树形DP是在树结构上进行的动态规划。利用树固有的递归性质，通常通过DFS后序遍历：先递归处理所有子树得到子问题的最优解，再将子树结果合并（向上传递）给父节点。典型问题包括没有上司的舞会（最大独立集）、树的直径、换根DP等。",
+  "why": {
+    "intuition": "树上的每个节点都可以看作子树的根。要解决以 u 为根的问题，只需先解决 u 的所有子节点 v 的子问题，再把各子问题的解按某种规则合并到 u。这天然符合DFS后序遍历的顺序——先深入到叶节点（边界），再回溯时合并。",
+    "principle": "基本范式：f(u, state) 表示以 u 为根的子树在某个状态下的最优解。DFS(u) 遍历 u 的所有子节点 v，递归调用 DFS(v) 后，将 f(v, *) 合并到 f(u, *)。转移方程随问题而定：如最大独立集 f(u,0)=sum max(f(v,0),f(v,1)), f(u,1)=sum f(v,0)+val[u]。换根DP(二次扫描)：第一次DFS预处理子树信息，第二次DFS用父节点信息推导换根后的值。",
+    "history": "树形DP是竞赛中的核心DP类型之一。其基本思想源于树的后序遍历——先处理子树再合并到根。换根DP（二次扫描/重新根DP）是树形DP的重要扩展，用于解决「不指定根、根的选择影响答案」的问题。OI Wiki以P1352(没有上司的舞会)为经典教学题。"
+  },
+  "how": {
+    "pseudocode": "dfs(u, parent):\n  f[u][0] = 0; f[u][1] = val[u]\n  for v in children(u):\n    if v == parent: continue\n    dfs(v, u)\n    f[u][0] += max(f[v][0], f[v][1])\n    f[u][1] += f[v][0]\n  # f[u][0] = u不选, f[u][1] = u选\n  answer = max(f[root][0], f[root][1])",
+    "python": "import sys\nfrom collections import defaultdict\n\n\ndef tree_independent_set(n, edges, val):\n    \"\"\"树上最大权独立集 (没有上司的舞会)\n    n: 节点数 (1-indexed)\n    edges: [(u, v), ...] 无向边\n    val: [val_1, val_2, ..., val_n] 各节点权值\n    返回: 最大权独立集的权值和\n    \"\"\"\n    adj = defaultdict(list)\n    for u, v in edges:\n        adj[u].append(v)\n        adj[v].append(u)\n\n    f = [[0, 0] for _ in range(n + 1)]\n    visited = [False] * (n + 1)\n\n    def dfs(u):\n        visited[u] = True\n        f[u][0] = 0       # u 不选\n        f[u][1] = val[u]  # u 选\n        for v in adj[u]:\n            if visited[v]:\n                continue\n            dfs(v)\n            f[u][0] += max(f[v][0], f[v][1])\n            f[u][1] += f[v][0]\n\n    dfs(1)  # 以节点 1 为根\n    return max(f[1][0], f[1][1])\n\n\ndef reroot_dp(n, edges):\n    \"\"\"换根DP: 求使得所有节点深度和最大的根节点 (POI2008 STA)\n    返回: (最佳根节点, 最大深度和)\n    \"\"\"\n    adj = defaultdict(list)\n    for u, v in edges:\n        adj[u].append(v)\n        adj[v].append(u)\n\n    sz = [0] * (n + 1)  # 子树大小\n    f = [0] * (n + 1)   # 以 i 为根时的深度和\n\n    def dfs1(u, fa):\n        sz[u] = 1\n        f[u] = 0\n        for v in adj[u]:\n            if v == fa:\n                continue\n            dfs1(v, u)\n            sz[u] += sz[v]\n            f[u] += f[v] + sz[v]  # v 子树所有点深度+1\n\n    dfs1(1, 0)\n\n    best_node, best_val = 1, f[1]\n\n    def dfs2(u, fa):\n        nonlocal best_node, best_val\n        for v in adj[u]:\n            if v == fa:\n                continue\n            # 换根: u -> v\n            f[v] = f[u] - sz[v] + (n - sz[v])\n            if f[v] > best_val:\n                best_val = f[v]\n                best_node = v\n            dfs2(v, u)\n\n    dfs2(1, 0)\n    return best_node, best_val\n\n\nif __name__ == \"__main__\":\n    sys.setrecursionlimit(10000)\n\n    # P1352 没有上司的舞会 示例\n    # 节点1权值1, 节点2权值1, 节点3权值1\n    # 边: 1-2, 2-3 (链)\n    # 选1和3 -> 权值2\n    n = 3\n    edges = [(1, 2), (2, 3)]\n    val = [0, 1, 1, 1]  # 0号不用, 1-indexed\n    result = tree_independent_set(n, edges, val)\n    assert result == 2, f\"Expected 2, got {result}\"\n\n    # 换根DP测试: 3节点链 1-2-3, 求深度和最大的根\n    # root=1: depths 0,1,2 -> sum=3; root=2: 1,0,1 -> sum=2; root=3: 2,1,0 -> sum=3\n    n2 = 3\n    edges2 = [(1, 2), (2, 3)]\n    root, depth_sum = reroot_dp(n2, edges2)\n    assert depth_sum == 3, f\"Expected depth_sum=3, got {depth_sum}\"\n\n    print(\"All tests passed.\")\n",
+    "pypy_notes": "PyPy递归性能优于CPython但深递归仍需sys.setrecursionlimit。树形DP的Python递归在n>1e5时可能栈溢出，可改用sys.setrecursionlimit(1<<20)或手写栈迭代。PyPy对defaultdict(list)建图效率好。",
+    "complexity": {
+      "time": "O(n) — 每个节点访问一次，转移按度数均摊",
+      "space": "O(n) — 邻接表+DP数组+递归栈"
+    },
+    "limitations": "Python递归深度默认1000，n>1000必须setrecursionlimit。n>1e5的树可能栈溢出。换根DP的第二次DFS需正确传递父节点信息。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1352",
+      "url": "https://www.luogu.com.cn/problem/P1352",
+      "difficulty": 2,
+      "key_point": "没有上司的舞会：树上最大权独立集，树形DP入门模板"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3478",
+      "url": "https://www.luogu.com.cn/problem/P3478",
+      "difficulty": 2,
+      "key_point": "POI2008 STA-Station：换根DP模板，求深度和最大的根"
+    },
+    {
+      "oj": "HDU",
+      "pid": "2196",
+      "url": "https://acm.hdu.edu.cn/showproblem.php?pid=2196",
+      "difficulty": 3,
+      "key_point": "Computer：树形DP求每个节点最远距离，需换根+次远维护"
+    }
+  ],
+  "pitfalls": [
+    "忘记sys.setrecursionlimit导致RecursionError，Python默认仅1000",
+    "建无向图时DFS未跳过父节点(fa)导致死循环",
+    "换根DP第二次DFS时忘记恢复/传递父节点状态，导致答案错误",
+    "树形DP状态设计时遗漏某些维度（如是否选当前节点），导致后效性"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "state",
+        "label": "状态定义 f(u,0/1)"
+      },
+      {
+        "id": "dfs",
+        "label": "DFS后序遍历子树"
+      },
+      {
+        "id": "transition",
+        "label": "子树结果合并到父节点"
+      },
+      {
+        "id": "boundary",
+        "label": "叶节点边界 f(leaf,1)=val"
+      },
+      {
+        "id": "answer",
+        "label": "根节点取最优"
+      }
+    ],
+    "edges": [
+      {
+        "from": "state",
+        "to": "dfs"
+      },
+      {
+        "from": "dfs",
+        "to": "transition"
+      },
+      {
+        "from": "transition",
+        "to": "boundary"
+      },
+      {
+        "from": "boundary",
+        "to": "answer"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/tree/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch10 p105",
+      "verified": true
+    }
+  ]
+}

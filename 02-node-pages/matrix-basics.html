@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>矩阵基础 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-14.html">线性代数族</a> / <span>矩阵基础</span></div>
+  <h1>矩阵基础</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-C-14</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-C-14.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-C-14.html"><span class="dir">组内第 1 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="determinant.html"><span class="dir">下一个 / 组内</span><span class="v">determinant</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">矩阵加减乘与转置，矩阵快速幂O(k^3 log n)，递推加速核心</div><p>矩阵是按行列排列的数表。矩阵乘法遵循&#x27;左行右列&#x27;法则：C[i][j]=ΣA[i][k]*B[k][j]。矩阵乘法满足结合律但不满足交换律。利用结合律和快速幂思想，可在O(n^3 log k)内计算矩阵k次幂，用于加速线性递推（如斐波那契数列）。单位矩阵I是对角线为1其余为0的方阵。特殊矩阵包括对角矩阵、三角矩阵、对称矩阵等。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>矩阵是对数据的&#x27;打包处理&#x27;。线性方程组Ax=b中，A将未知数向量x变换为结果向量b。矩阵乘法是向量内积的推广：结果矩阵的每个元素是左矩阵一行与右矩阵一列的内积。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>矩阵快速幂利用结合律：(A^2)^2=A^4。二进制分解指数k，每次平方矩阵并按需累乘。对于n阶方阵，每次乘法O(n^3)，共O(log k)次，总O(n^3 log k)。线性递推f(n)=c1*f(n-1)+...+ck*f(n-k)可表示为矩阵乘法，用快速幂加速到O(k^3 log n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>矩阵概念源于线性方程组的研究。矩阵快速幂是竞赛中加速线性递推的标准方法。Strassen算法可做到O(n^2.807)但常数大，竞赛中很少使用。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">mat_mul</span>(A, B):
+  C[i][j] = <span class="t-b">sum</span>(A[i][k]*B[k][j])
+
+<span class="t-f">mat_pow</span>(A, p):
+  result = <span class="t-f">I</span> (identity)
+  <span class="t-k">while</span> p &gt; <span class="t-n">0</span>:
+    <span class="t-k">if</span> p &amp; <span class="t-n">1</span>: result = <span class="t-f">mul</span>(result, A)
+    A = <span class="t-f">mul</span>(A, A)
+    p &gt;&gt;= <span class="t-n">1</span>
+  <span class="t-k">return</span> result</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">mat_mul</span>(A, B, mod=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;Multiply matrices A (n x m) and B (m x k), optional mod.&quot;&quot;&quot;</span>
+    n, m = <span class="t-b">len</span>(A), <span class="t-b">len</span>(A[<span class="t-n">0</span>])
+    k = <span class="t-b">len</span>(B[<span class="t-n">0</span>])
+    C = [[<span class="t-n">0</span>] * k <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(k):
+            s = <span class="t-n">0</span>
+            <span class="t-k">for</span> t <span class="t-k">in</span> <span class="t-b">range</span>(m):
+                s += A[i][t] * B[t][j]
+            <span class="t-k">if</span> mod:
+                s %= mod
+            C[i][j] = s
+    <span class="t-k">return</span> C
+
+<span class="t-k">def</span> <span class="t-f">mat_pow</span>(A, p, mod=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;Matrix fast exponentiation A^p using binary exponentiation.&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(A)
+    result = [[<span class="t-n">1</span> <span class="t-k">if</span> i == j <span class="t-k">else</span> <span class="t-n">0</span> <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n)] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">while</span> p &gt; <span class="t-n">0</span>:
+        <span class="t-k">if</span> p &amp; <span class="t-n">1</span>:
+            result = <span class="t-f">mat_mul</span>(result, A, mod)
+        A = <span class="t-f">mat_mul</span>(A, A, mod)
+        p &gt;&gt;= <span class="t-n">1</span>
+    <span class="t-k">return</span> result
+
+<span class="t-k">def</span> <span class="t-f">mat_add</span>(A, B, mod=<span class="t-k">None</span>):
+    n, m = <span class="t-b">len</span>(A), <span class="t-b">len</span>(A[<span class="t-n">0</span>])
+    C = [[<span class="t-n">0</span>] * m <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(m):
+            C[i][j] = A[i][j] + B[i][j]
+            <span class="t-k">if</span> mod:
+                C[i][j] %= mod
+    <span class="t-k">return</span> C
+
+<span class="t-k">def</span> <span class="t-f">mat_transpose</span>(A):
+    n, m = <span class="t-b">len</span>(A), <span class="t-b">len</span>(A[<span class="t-n">0</span>])
+    <span class="t-k">return</span> [[A[i][j] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)] <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(m)]
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># Matrix multiplication</span>
+    A = [[<span class="t-n">1</span>, <span class="t-n">2</span>], [<span class="t-n">3</span>, <span class="t-n">4</span>]]
+    B = [[<span class="t-n">5</span>, <span class="t-n">6</span>], [<span class="t-n">7</span>, <span class="t-n">8</span>]]
+    C = <span class="t-f">mat_mul</span>(A, B)
+    <span class="t-k">assert</span> C == [[<span class="t-n">19</span>, <span class="t-n">22</span>], [<span class="t-n">43</span>, <span class="t-n">50</span>]], <span class="t-s">f&quot;mat mul failed: {C}&quot;</span>
+    <span class="t-c"># Matrix fast power (Fibonacci)</span>
+    F = [[<span class="t-n">1</span>, <span class="t-n">1</span>], [<span class="t-n">1</span>, <span class="t-n">0</span>]]
+    result = <span class="t-f">mat_pow</span>(F, <span class="t-n">9</span>)
+    <span class="t-k">assert</span> result[<span class="t-n">0</span>][<span class="t-n">0</span>] == <span class="t-n">55</span>, <span class="t-s">f&quot;mat pow failed: {result[0][0]}&quot;</span>  <span class="t-c"># F(10)=55</span>
+    <span class="t-c"># With mod</span>
+    result_mod = <span class="t-f">mat_pow</span>([[<span class="t-n">1</span>, <span class="t-n">1</span>], [<span class="t-n">1</span>, <span class="t-n">0</span>]], <span class="t-n">100</span>, <span class="t-n">10</span>**<span class="t-n">9</span> + <span class="t-n">7</span>)
+    <span class="t-k">assert</span> result_mod[<span class="t-n">0</span>][<span class="t-n">0</span>] &gt; <span class="t-n">0</span>
+    <span class="t-c"># Transpose</span>
+    T = <span class="t-f">mat_transpose</span>([[<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>], [<span class="t-n">4</span>, <span class="t-n">5</span>, <span class="t-n">6</span>]])
+    <span class="t-k">assert</span> T == [[<span class="t-n">1</span>, <span class="t-n">4</span>], [<span class="t-n">2</span>, <span class="t-n">5</span>], [<span class="t-n">3</span>, <span class="t-n">6</span>]]
+    <span class="t-b">print</span>(<span class="t-s">&quot;matrix-basics: ALL TESTS PASSED&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy的JIT对三层嵌套循环优化好。纯Python矩阵乘法比numpy慢，但竞赛环境通常无numpy。可手动展开小矩阵乘法减小常数。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>乘法O(n^3)，快速幂O(n^3 log k)</td></tr><tr><th>空间复杂度</th><td>O(n^2)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">纯Python三层循环常数大，大矩阵(&gt;100阶)可能TLE。不支持非方阵快速幂。浮点矩阵可能有精度问题。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>矩阵乘法不满足交换律：AB≠BA</li><li>快速幂结果初始化为单位矩阵I而非全0</li><li>取模运算在累加时进行，防止溢出</li><li>Python大整数乘法不溢出但可能慢，需取模</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1939</strong></td><td>5</td><td>a[k]=a[k-1]+a[k-3] 矩阵快速幂</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1939" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1939</a></td></tr><tr><td>Luogu</td><td><strong>P3390</strong></td><td>4</td><td>模板题：A^k</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3390" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3390</a></td></tr><tr><td>LeetCode</td><td><strong>50</strong></td><td>3</td><td>标量快速幂（矩阵快速幂简化版）</td><td class="u"><a href="https://leetcode.cn/problems/powx-n/" target="_blank" rel="noopener">https://leetcode.cn/problems/powx-n/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-matrix-basics" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "m1", "label": "初始化result=I(单位矩阵)"}}, {"data": {"id": "m2", "label": "p>0?"}}, {"data": {"id": "m3", "label": "p&1? result=mul(result,A)"}}, {"data": {"id": "m4", "label": "A=mul(A,A), p>>=1"}}, {"data": {"id": "m5", "label": "返回result"}}, {"data": {"id": "em1->m2", "source": "m1", "target": "m2"}}, {"data": {"id": "em2->m3", "source": "m2", "target": "m3"}}, {"data": {"id": "em3->m4", "source": "m3", "target": "m4"}}, {"data": {"id": "em4->m2", "source": "m4", "target": "m2"}}, {"data": {"id": "em2->m5", "source": "m2", "target": "m5"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-matrix-basics'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-cooccurrence" href="binary-exponentiation.html" title="矩阵快速幂=快速幂+矩阵乘法，递推加速常用组合">快速幂<span class="etype">共现</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="determinant.html" title="行列式是方阵的标量函数，需矩阵基础">行列式<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="gaussian-elimination.html" title="高斯消元即初等行变换，需矩阵运算基础">高斯消元<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="diagonalization.html" title="对角化A=PDP^{-1}需矩阵乘法与特征值">矩阵对角化<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="char-polynomial.html" title="特征多项式det(λI-A)需矩阵与行列式">特征多项式<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/linear-algebra/matrix/" target="_blank" rel="noopener">https://oi-wiki.org/math/linear-algebra/matrix/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch23 Matrices (p227-234)</span></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/binary-exponentiation/" target="_blank" rel="noopener">https://oi-wiki.org/math/binary-exponentiation/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

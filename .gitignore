@@ -1,0 +1,22 @@
+# ===== 算法知识图谱 .gitignore =====
+
+# --- 版权书籍 PDF（不纳入版本控制）---
+research/sources/books/
+research/sources/extracted/
+
+# --- 中间产物 / 计划文件 ---
+research/stage2-nodes/_batch-plan.json
+research/cross-validation/_gate_audit_raw.json
+07-checkpoint/__pycache__/
+*.pyc
+__pycache__/
+
+# --- 临时/系统文件 ---
+.DS_Store
+Thumbs.db
+*.log
+/tmp/
+
+# --- 编辑器 ---
+.vscode/
+.idea/

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>贝尔数 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-11.html">组合进阶族</a> / <span>贝尔数</span></div>
+  <h1>贝尔数</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-11</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="integer-partition.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">integer-partition</span></a>
+    <a class="nav-index" href="../03-groups/G-C-11.html"><span class="dir">组内第 7 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="eulerian-number.html"><span class="dir">下一个 / 组内</span><span class="v">eulerian-number</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">B(n) 将 n 个不同元素划分为任意个无标号非空子集的方案数，B_{n+1}=ΣC(n,k)B_k，EGF=e^{e^x-1}</div><p>贝尔数 B_n（以 Eric Temple Bell 命名，OEIS A000110）是基数为 n 的集合的划分方法总数：把 n 个两两不同的元素分成任意个（可多个）互不区分的非空子集的方案数。序列：B_0=1,B_1=1,B_2=2,B_3=5,B_4=15,B_5=52,B_6=203,…（如 B_3=5：{{1},{2},{3}},{{1},{2,3}},{{2},{1,3}},{{3},{1,2}},{{1,2,3}}）。关键恒等式：B_{n+1}=Σ_{k=0}^n C(n,k)B_k（考虑元素 n+1 与哪 k 个元素同块）；以及 B_n=Σ_{k=0}^n S(n,k)（第二类斯特林数之和）。指数生成函数 EGF：Σ_n B_n x^n/n! = e^{e^x−1}，据此可用多项式 exp O(n log n) 求前 n 项。贝尔三角形（Bell triangle）给出 O(n²) 递推：a_{n,0}=a_{n−1,n−1}，a_{n,m}=a_{n,m−1}+a_{n−1,m−1}，每行首项即贝尔数。模 p 时贝尔数可由 Touchard 同余 B_{n+p} ≡ B_n+B_{n+1} (mod p) 加速。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>贝尔数 = 把 n 个人分成若干『同组』（组不编号）的总方案，等价于把第二类斯特林数 S(n,k) 对组数 k 全部求和。递推 B_{n+1}=Σ C(n,k)B_k 的思路：让新元素 n+1 挑 k 个旧元素和它同组（C(n,k) 种挑法），剩下 n−k 个旧元素再任意划分（B_{n−k} 种），对 k 求和。EGF e^{e^x−1} 的组合意义：e^{e^x−1} 是『SET(SET≥1(...))』——把集合切成若干非空无序块，正是划分。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① B_n=Σ_k S(n,k) 直接来自第二类斯特林数定义。② 递推证明：B_{n+1} 中元素 n+1 所在的块大小为 k+1（即它和恰好 k 个其他元素同块），选这 k 个元素 C(n,k) 种，剩余 n−k 个元素任意划分 B_{n−k} 种，Σ 即得。③ EGF 推导：B_n 的 EGF 满足 B&#x27;(x)=e^x·B(x)（卷积递推的生成函数形式），解微分方程得 B(x)=exp(e^x+C)，由 B(0)=1 得 C=−1，即 e^{e^x−1}。④ 贝尔三角形每行首项=上一行末项，同行递推 a_{n,m}=a_{n,m−1}+a_{n−1,m−1}，数学归纳可证第 n 行恰为 B_n,…,B_{n+1} 的若干连续值。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>贝尔数以美国数学家 Eric Temple Bell（1883–1960）命名，但他本人并未研究它——该数被称为 Bell numbers 是因为 Bell 著作中系统讨论了这些数（及 Bell 三角形）。数列最早出现在 Ramanujan 的笔记中，此前也有其他人独立发现。OI Wiki《贝尔数》页给出定义、递推、贝尔三角形与 EGF e^{e^x−1}；同页注明可用多项式 exp O(n log n) 求整行。竞赛中贝尔数作为『集合划分数』与第二类斯特林数、多项式 exp 结合出现（如 Luogu P5748）。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># B(n) 贝尔数</span>
+
+<span class="t-k">def</span> <span class="t-f">bell_sum_stirling</span>(n, MOD):
+  <span class="t-c"># 用第二类斯特林数行求和: O(n^2)</span>
+  S = [[<span class="t-n">0</span>]*(n+<span class="t-n">1</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n+<span class="t-n">1</span>)]; S[<span class="t-n">0</span>][<span class="t-n">0</span>]=<span class="t-n">1</span>
+  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n+<span class="t-n">1</span>):
+    <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, i+<span class="t-n">1</span>):
+      S[i][j] = (S[i-<span class="t-n">1</span>][j-<span class="t-n">1</span>] + j*S[i-<span class="t-n">1</span>][j]) % MOD
+  <span class="t-k">return</span> <span class="t-b">sum</span>(S[n]) % MOD
+
+<span class="t-k">def</span> <span class="t-f">bell_triangle</span>(n, MOD):
+  <span class="t-c"># 贝尔三角形 O(n^2)</span>
+  row = [<span class="t-n">1</span>]                       <span class="t-c"># 第0行</span>
+  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n+<span class="t-n">1</span>):
+    nxt = [row[-<span class="t-n">1</span>]]               <span class="t-c"># 首项 = 上行末项</span>
+    <span class="t-k">for</span> m <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, i+<span class="t-n">1</span>):
+      nxt.<span class="t-f">append</span>((nxt[m-<span class="t-n">1</span>] + row[m-<span class="t-n">1</span>]) % MOD)
+    row = nxt
+  <span class="t-k">return</span> row[<span class="t-n">0</span>]                   <span class="t-c"># 每行首项是贝尔数</span>
+
+<span class="t-k">def</span> <span class="t-f">bell_recurrence</span>(n, MOD):
+  <span class="t-c"># B_{n+1}=sum C(n,k) B_k: 需要组合数, O(n^2) 或 O(n)</span></code></pre><h3>Python 实现</h3><pre><code class="python">MOD = <span class="t-n">998244353</span>
+
+
+<span class="t-k">def</span> <span class="t-f">bell_via_stirling</span>(n, mod=MOD):
+    <span class="t-s">&quot;&quot;&quot;B(n) = sum_k S(n,k), 第二类斯特林数 O(n^2).&quot;&quot;&quot;</span>
+    row = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    row[<span class="t-n">0</span>] = <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, <span class="t-n">0</span>, -<span class="t-n">1</span>):
+            row[j] = (row[j - <span class="t-n">1</span>] + j * row[j]) % mod
+        row[<span class="t-n">0</span>] = <span class="t-n">0</span>
+    <span class="t-k">return</span> <span class="t-b">sum</span>(row) % mod
+
+
+<span class="t-k">def</span> <span class="t-f">bell_triangle</span>(n, mod=MOD):
+    <span class="t-s">&quot;&quot;&quot;贝尔三角形 O(n^2), 返回 [B_0..B_n].&quot;&quot;&quot;</span>
+    bell = [<span class="t-n">1</span>]
+    row = [<span class="t-n">1</span>]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        nxt = [row[-<span class="t-n">1</span>]]
+        <span class="t-k">for</span> m <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, i + <span class="t-n">1</span>):
+            nxt.<span class="t-f">append</span>((nxt[m - <span class="t-n">1</span>] + row[m - <span class="t-n">1</span>]) % mod)
+        row = nxt
+        bell.<span class="t-f">append</span>(row[<span class="t-n">0</span>])
+    <span class="t-k">return</span> bell
+
+
+<span class="t-k">def</span> <span class="t-f">bell_recurrence</span>(n, mod=MOD):
+    <span class="t-s">&quot;&quot;&quot;B_{n+1} = sum_k C(n,k) B_k, O(n^2) 预计算组合数.&quot;&quot;&quot;</span>
+    C = [[<span class="t-n">0</span>] * (n + <span class="t-n">1</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>):
+        C[i][<span class="t-n">0</span>] = C[i][i] = <span class="t-n">1</span>
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, i):
+            C[i][j] = (C[i - <span class="t-n">1</span>][j - <span class="t-n">1</span>] + C[i - <span class="t-n">1</span>][j]) % mod
+    b = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    b[<span class="t-n">0</span>] = <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        s = <span class="t-n">0</span>
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>):
+            s = (s + C[i][k] * b[k]) % mod
+        b[i + <span class="t-n">1</span>] = s
+    <span class="t-k">return</span> b[n]
+
+
+<span class="t-k">def</span> <span class="t-f">bell_egf_naive</span>(n, mod=MOD):
+    <span class="t-s">&quot;&quot;&quot;由 EGF e^{e^x-1} 直接按系数递推(形式幂级数 exp) O(n^2):
+    exp(A) 的系数 b_k 满足 k*b_k = sum_{j=0}^{k-1} (j+1)*a_{k-1-j}*b_j,
+    其中 A(x)=e^x-1, a_j = 1/j!.&quot;&quot;&quot;</span>
+    fact = [<span class="t-n">1</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        fact[i] = fact[i - <span class="t-n">1</span>] * i % mod
+    inv = [<span class="t-n">1</span>] * (n + <span class="t-n">1</span>)
+    inv[n] = <span class="t-b">pow</span>(fact[n], mod - <span class="t-n">2</span>, mod)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n, <span class="t-n">0</span>, -<span class="t-n">1</span>):
+        inv[i - <span class="t-n">1</span>] = inv[i] * i % mod
+    a = [inv[i] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]      <span class="t-c"># a_i = 1/i!  (e^x - 1 的非零项)</span>
+    b = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    b[<span class="t-n">0</span>] = <span class="t-n">1</span>
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        s = <span class="t-n">0</span>
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(k):
+            s = (s + (k - j) * a[k - j] * b[j]) % mod   <span class="t-c"># (k-j)*a_{k-j}</span>
+        b[k] = s * <span class="t-b">pow</span>(k, mod - <span class="t-n">2</span>, mod) % mod
+    <span class="t-k">return</span> [b[i] * fact[i] % mod <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]  <span class="t-c"># 还原成 B_n = n! * b_n</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    known = {<span class="t-n">0</span>: <span class="t-n">1</span>, <span class="t-n">1</span>: <span class="t-n">1</span>, <span class="t-n">2</span>: <span class="t-n">2</span>, <span class="t-n">3</span>: <span class="t-n">5</span>, <span class="t-n">4</span>: <span class="t-n">15</span>, <span class="t-n">5</span>: <span class="t-n">52</span>, <span class="t-n">6</span>: <span class="t-n">203</span>}
+    <span class="t-k">for</span> n, v <span class="t-k">in</span> known.<span class="t-f">items</span>():
+        <span class="t-k">assert</span> <span class="t-f">bell_via_stirling</span>(n) % MOD == v, n
+        <span class="t-k">assert</span> <span class="t-f">bell_triangle</span>(n)[n] % MOD == v
+        <span class="t-k">assert</span> <span class="t-f">bell_recurrence</span>(n) % MOD == v
+    egf_list = <span class="t-f">bell_egf_naive</span>(<span class="t-n">6</span>)
+    <span class="t-k">for</span> n, v <span class="t-k">in</span> known.<span class="t-f">items</span>():
+        <span class="t-k">assert</span> egf_list[n] % MOD == v, (n, egf_list[n])
+    <span class="t-k">assert</span> <span class="t-f">bell_triangle</span>(<span class="t-n">6</span>)[<span class="t-n">4</span>] == <span class="t-n">15</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;bell-number: all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">n≤5000 用 O(n²) 递推（贝尔三角形或斯特林行）均可；n 更大需多项式 exp O(n log n)（需 NTT）。贝尔三角形实现简单且只用两行滚动。取模时注意负数与乘法溢出（Python 天然大整数无碍）。Touchard 同余 B_{n+p}≡B_n+B_{n+1} (mod p) 可用于模素数加速大索引。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n²) 递推；O(n log n) 多项式 exp（需 NTT）</td></tr><tr><th>空间复杂度</th><td>O(n) 滚动或 O(n²) 全表</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① B_n 增长超指数（渐近 ~ n^{-1/2}(n/log n)^n / ...），必须取模；② 无现成 NTT 环境时 O(n²) 是上限；③ EGF e^{e^x−1} 与 OGF 不同，还原系数要乘 n!；④ 递推 B_{n+1}=ΣC(n,k)B_k 每次 O(n) 需预计算组合数，整体 O(n²)。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>EGF 系数是 B_n/n!，还原时忘乘 n!</li><li>B_{n+1}=ΣC(n,k)B_k 中求和到 k=n 而非 k=n−1</li><li>贝尔三角形行内递推 a_{n,m}=a_{n,m−1}+a_{n−1,m−1} 的索引写错</li><li>把 B_n 与 p(n)（整数分拆）混淆——贝尔数是集合划分</li><li>模素数用 Touchard 同余时忽略要求 p 为素数</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P5748</strong></td><td>4</td><td>集合划分计数：B(n)=ΣS(n,k)，多项式 exp 求 EGF e^{e^x−1} 前 n 项，OI Wiki 模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5748" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5748</a></td></tr><tr><td>OI Wiki</td><td><strong>bell</strong></td><td>3</td><td>概念页：定义、递推、贝尔三角形与 EGF 完整推导</td><td class="u"><a href="https://oi-wiki.org/math/combinatorics/bell/" target="_blank" rel="noopener">https://oi-wiki.org/math/combinatorics/bell/</a></td></tr><tr><td>UOJ</td><td><strong>540</strong></td><td>6</td><td>联合省选 2020 组合数问题：贝尔数/斯特林数与多项式综合（OI Wiki stirling 习题交叉）</td><td class="u"><a href="https://uoj.ac/problem/540" target="_blank" rel="noopener">https://uoj.ac/problem/540</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-bell-number" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "stirling-number", "label": "stirling-number"}}, {"data": {"id": "bell-number", "label": "bell-number"}}, {"data": {"id": "egf", "label": "egf"}}, {"data": {"id": "symbolic-method", "label": "symbolic-method"}}, {"data": {"id": "estirling-number->bell-number", "source": "stirling-number", "target": "bell-number"}}, {"data": {"id": "eegf->bell-number", "source": "egf", "target": "bell-number"}}, {"data": {"id": "ebell-number->symbolic-method", "source": "bell-number", "target": "symbolic-method"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-bell-number'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-combination" href="stirling-number.html" title="贝尔数B(n)=sum S(n,k)(第二类Stirling数之和)">斯特林数<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/combinatorics/bell/" target="_blank" rel="noopener">https://oi-wiki.org/math/combinatorics/bell/</a></li><li><span class="srctype">oiwiki-raw</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/combinatorics/bell.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/combinatorics/bell.md</a></li><li><span class="srctype">oeis</span><span class="v-ok">&#10003;</span> <a href="https://oeis.org/A000110" target="_blank" rel="noopener">https://oeis.org/A000110</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Bell_number" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Bell_number</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

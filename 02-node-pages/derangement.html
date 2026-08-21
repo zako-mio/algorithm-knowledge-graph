@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>错排问题 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-11.html">组合进阶族</a> / <span>错排问题</span></div>
+  <h1>错排问题</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-11</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="burnside-lemma.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">burnside-lemma</span></a>
+    <a class="nav-index" href="../03-groups/G-C-11.html"><span class="dir">组内第 4 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="stirling-number.html"><span class="dir">下一个 / 组内</span><span class="v">stirling-number</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">D(n)=n!Σ_{k=0}^n (-1)^k/k! ≈ n!/e，无固定点（P_i≠i）排列数，递推 D_n=(n-1)(D_{n-1}+D_{n-2})</div><p>错位排列（derangement）是没有任何元素落在其『有序位置』的排列：1~n 的排列 P 满足 P_i ≠ i 对所有 i。它等价于没有不动点（没有长度 1 的轮换）的排列。记 D_n 为错排数，则有容斥公式 D_n = n!·Σ_{k=0}^n (-1)^k/k! = n! − n!/1! + n!/2! − … + (−1)^n，数列开头为 0,1,2,9,44,265（OEIS A000166）。极限性质：lim D_n/n! = 1/e，且 D_n = ⌊n!/e + 1/2⌋（取整表达式）。常用的两个递推：D_n = (n−1)(D_{n−1}+D_{n−2})（经典信封信纸问题）与 D_n = n·D_{n−1} + (−1)^n。典型应用：错排计数、含错排的组合 DP（如『恰好 k 人拿到自己帽子』= C(n,k)·D_{n−k}）、容斥思想的入门。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>『所有排列 n! 个，减掉至少有一个人在自己位置的』。用容斥：把『P_i=i』视作事件 A_i，被至少一个 A_i 覆盖的排列数 = Σ|A_i| − Σ|A_i∩A_j| + …，而 k 个固定位置共有的排列是 (n−k)! 个，选 k 个位置有 C(n,k) 种，故 D_n = Σ_k (−1)^k C(n,k)(n−k)! = n!Σ(−1)^k/k!。信封信纸版递推：把第 n 封信『先放对』再调整——要么前 n−1 全错排，第 n 封与前 n−1 任一封交换（D_{n−1}·(n−1)）；要么前 n−1 中恰好一封放对、其余错排，把放对的那封与第 n 封交换（D_{n−2}·(n−1)）。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>容斥原理推导：全集 U 为 n! 个排列；S_i 为满足 P_i≠i 的排列。|∩_i S_i| = n! − Σ_k (−1)^{k−1} Σ_{a_1&lt;…&lt;a_k} |∩_i S̄_{a_i}| = n! − n!Σ_k (−1)^{k−1}/k! = n!Σ_{k=0}^n (−1)^k/k!。递推式 D_n=(n−1)(D_{n−1}+D_{n−2}) 的组合证明：构造 n 的错排有两种途径——(a) 取 n−1 的一个错排，把新元素 n 与任一元素 i 交换位置；(b) 取 n−2 的一个错排加一个『固定点 i』的排列，将 n 与 i 交换使其脱固定。每个 n 错排恰好被构造一次，故成立。另一递推 D_n = nD_{n−1} + (−1)^n 可由公式代入验证。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>错排问题源于『关于排列的欧洲传说』（信件放错信封），也被称为 rencontres numbers（相遇数）。早期由 de Montmort（1708）与 Nicolas Bernoulli 研究，Euler 也独立处理过。『全部放错』的概率极限 1/e ≈ 0.3679 是随机排列无固定点的概率。OI Wiki《错位排列》页系统给出容斥推导、两个递推与取整公式；OEIS A000166 收录数列。竞赛中多作为容斥/递推经典题出现，也常见于概率与期望题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># D_n 错排数</span>
+
+<span class="t-k">def</span> <span class="t-f">derangement_inclusion</span>(n):
+  <span class="t-c"># 容斥公式 O(n)</span>
+  D = <span class="t-n">0</span>
+  <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(n+<span class="t-n">1</span>):
+    D += (-<span class="t-n">1</span>)**k * <span class="t-f">fact</span>(n) // <span class="t-f">fact</span>(k)
+  <span class="t-k">return</span> D
+
+<span class="t-k">def</span> <span class="t-f">derangement_recurrence</span>(n):
+  <span class="t-c"># D_n = (n-1)(D_{n-1}+D_{n-2}), O(n)</span>
+  D0, D1 = <span class="t-n">1</span>, <span class="t-n">0</span>       <span class="t-c"># D_0=1, D_1=0</span>
+  <span class="t-k">if</span> n == <span class="t-n">0</span>: <span class="t-k">return</span> D0
+  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n+<span class="t-n">1</span>):
+    D0, D1 = D1, (i-<span class="t-n">1</span>)*(D1+D0)
+  <span class="t-k">return</span> D1
+
+<span class="t-k">def</span> <span class="t-f">derangement_mod</span>(n, MOD):
+  <span class="t-c"># 模意义 O(n)</span>
+  D0, D1 = <span class="t-n">1</span>%MOD, <span class="t-n">0</span>
+  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n+<span class="t-n">1</span>):
+    D0, D1 = D1, (i-<span class="t-n">1</span>)%MOD*(D1+D0)%MOD
+  <span class="t-k">return</span> D1</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> math <span class="t-k">import</span> factorial
+
+
+<span class="t-k">def</span> <span class="t-f">derangement_inclusion</span>(n):
+    <span class="t-s">&quot;&quot;&quot;容斥公式 D(n) = n! * sum_{k=0}^{n} (-1)^k / k!  (精确整数).&quot;&quot;&quot;</span>
+    f = <span class="t-f">factorial</span>(n)
+    D = <span class="t-n">0</span>
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>):
+        D += ((-<span class="t-n">1</span>) ** k) * (f // <span class="t-f">factorial</span>(k))
+    <span class="t-k">return</span> D
+
+
+<span class="t-k">def</span> <span class="t-f">derangement_recurrence</span>(n):
+    <span class="t-s">&quot;&quot;&quot;递推 D(n) = (n-1)(D(n-1)+D(n-2)), D(0)=1, D(1)=0.&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> n == <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-n">1</span>
+    d0, d1 = <span class="t-n">1</span>, <span class="t-n">0</span>  <span class="t-c"># D(0), D(1)</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        d0, d1 = d1, (i - <span class="t-n">1</span>) * (d1 + d0)
+    <span class="t-k">return</span> d1
+
+
+<span class="t-k">def</span> <span class="t-f">derangement_mod</span>(n, MOD=<span class="t-n">1000000007</span>):
+    <span class="t-s">&quot;&quot;&quot;模意义错排数 O(n), 使用 D(n) = n*D(n-1) + (-1)^n 或二阶递推.&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> n == <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-n">1</span> % MOD
+    d0, d1 = <span class="t-n">1</span> % MOD, <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        d0, d1 = d1, (i - <span class="t-n">1</span>) * (d1 + d0) % MOD
+    <span class="t-k">return</span> d1
+
+
+<span class="t-k">def</span> <span class="t-f">exactly_k_fixed</span>(n, k, MOD=<span class="t-n">1000000007</span>):
+    <span class="t-s">&quot;&quot;&quot;恰好 k 个位置不动(其余错排)的方案数 = C(n,k) * D(n-k).&quot;&quot;&quot;</span>
+    num = <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, k + <span class="t-n">1</span>):
+        num = num * (n - k + i) // i  <span class="t-c"># 精确 C(n,k)</span>
+    <span class="t-k">return</span> num * <span class="t-f">derangement_recurrence</span>(n - k)
+
+
+<span class="t-k">def</span> <span class="t-f">brute</span>(n):
+    <span class="t-s">&quot;&quot;&quot;暴力枚举验证.&quot;&quot;&quot;</span>
+    <span class="t-k">from</span> itertools <span class="t-k">import</span> permutations
+    cnt = <span class="t-n">0</span>
+    <span class="t-k">for</span> p <span class="t-k">in</span> <span class="t-f">permutations</span>(<span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>)):
+        <span class="t-k">if</span> <span class="t-b">all</span>(p[i] != i + <span class="t-n">1</span> <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)):
+            cnt += <span class="t-n">1</span>
+    <span class="t-k">return</span> cnt
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    known = {<span class="t-n">0</span>: <span class="t-n">1</span>, <span class="t-n">1</span>: <span class="t-n">0</span>, <span class="t-n">2</span>: <span class="t-n">1</span>, <span class="t-n">3</span>: <span class="t-n">2</span>, <span class="t-n">4</span>: <span class="t-n">9</span>, <span class="t-n">5</span>: <span class="t-n">44</span>, <span class="t-n">6</span>: <span class="t-n">265</span>}  <span class="t-c"># OEIS A000166</span>
+    <span class="t-k">for</span> n, expect <span class="t-k">in</span> known.<span class="t-f">items</span>():
+        <span class="t-k">assert</span> <span class="t-f">derangement_inclusion</span>(n) == expect
+        <span class="t-k">assert</span> <span class="t-f">derangement_recurrence</span>(n) == expect
+        <span class="t-k">assert</span> <span class="t-f">derangement_mod</span>(n) % <span class="t-n">1000000007</span> == expect
+    <span class="t-k">for</span> n <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-n">8</span>):
+        <span class="t-k">assert</span> <span class="t-f">derangement_recurrence</span>(n) == <span class="t-f">brute</span>(n), n
+    <span class="t-k">assert</span> <span class="t-f">exactly_k_fixed</span>(<span class="t-n">4</span>, <span class="t-n">2</span>) == <span class="t-n">6</span>   <span class="t-c"># C(4,2)*D(2) = 6*1</span>
+    <span class="t-k">assert</span> <span class="t-f">exactly_k_fixed</span>(<span class="t-n">5</span>, <span class="t-n">1</span>) == <span class="t-n">5</span> * <span class="t-n">9</span> == <span class="t-n">45</span>   <span class="t-c"># C(5,1)*D(4) = 5*9</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;derangement: all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">O(n) 递推即可；注意 D(0)=1, D(1)=0 的边界。取模时 (i-1)*(d1+d0) 先 mod 再乘。n 大到 1e7 时纯 Python O(n) 循环会慢，可改用容斥公式 + 预计算阶乘逆元（O(n) 但更少乘法）或找规律；竞赛 n 通常 ≤1e6，O(n) 足够。n! 精确整数对 n≤20 用 factorial 即可。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n) 递推/容斥</td></tr><tr><th>空间复杂度</th><td>O(1)（滚动）或 O(n)（表）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① 递推用除法/组合数需精确整数或模逆元；② n! 增长极快，精确计算仅限小 n；③ 『恰好 k 个不动』需组合数，别直接乘；④ D_n 的取整公式 ⌊n!/e+1/2⌋ 只在数学上成立，编程时仍用递推；⑤ 与全排列 n! 差异随 n 增大趋近比例 1/e，直觉上别把 D_n 当 n! 量级。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>D(0)=1、D(1)=0 边界记错</li><li>递推顺序写错（D_n 依赖 D_{n-1} 与 D_{n-2}）</li><li>『恰好 k 个位置不动』忘了乘 C(n,k)</li><li>取模除法直接整除导致错误</li><li>把 D_n 与 n! 混淆（n 个排列中错排比例约 1/e）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1595</strong></td><td>2</td><td>信封问题（入门）：直接求 D(n)，n≤20 可用精确整数，OI Wiki 经典题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1595" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1595</a></td></tr><tr><td>Luogu</td><td><strong>P4071</strong></td><td>3</td><td>SDOI2016 排列计数：恰好 m 个位置不动，答案 C(n,m)·D(n-m)，需预处理阶乘+错排</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4071" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4071</a></td></tr><tr><td>Luogu</td><td><strong>P1655</strong></td><td>3</td><td>小朋友的球：第二类斯特林数与错排结合的综合计数题（高精度）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1655" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1655</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-derangement" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "inclusion-exclusion", "label": "inclusion-exclusion"}}, {"data": {"id": "derangement", "label": "derangement"}}, {"data": {"id": "stirling-number", "label": "stirling-number"}}, {"data": {"id": "einclusion-exclusion->derangement", "source": "inclusion-exclusion", "target": "derangement"}}, {"data": {"id": "ederangement->stirling-number", "source": "derangement", "target": "stirling-number"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-derangement'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/combinatorics/derangement/" target="_blank" rel="noopener">https://oi-wiki.org/math/combinatorics/derangement/</a></li><li><span class="srctype">oiwiki-raw</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/combinatorics/derangement.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/combinatorics/derangement.md</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/combinatorics/derangements.html" target="_blank" rel="noopener">https://cp-algorithms.com/combinatorics/derangements.html</a></li><li><span class="srctype">oeis</span><span class="v-ok">&#10003;</span> <a href="https://oeis.org/A000166" target="_blank" rel="noopener">https://oeis.org/A000166</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

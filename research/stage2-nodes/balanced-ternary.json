@@ -1,0 +1,49 @@
+{
+  "id": "balanced-ternary",
+  "name": "平衡三进制",
+  "group": "G-C-18",
+  "stage": "intermediate",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "用 {-1,0,1} 表示的三进制，负数无需符号位；2 进位成 Z 并高位加 1，用于天平称重等问题",
+  "what": "平衡三进制（balanced/symmetric ternary）：数码为 -1(记 Z)、0、1，基仍为 3。十进制 5=1ZZ, 6=1Z0, 7=1Z1, 8=10Z, 9=100；负数即正数数码翻转（1↔Z），如 -1=Z, -5=Z11。转换：先写成普通三进制，从低位迭代，遇 2 变成 Z 并向高位进 1（即 x+=1 再继续），遇 3 变 0 进 1。反向：按位权 3^i 加权求和。应用：用一套 {1,3,9,...} 砝码称量任意整数质量的问题——称量方案等价于平衡三进制表示。",
+  "why": {
+    "intuition": "普通三进制每位 {0,1,2}，2 与 -1 模 3 同余（2 ≡ -1 mod 3），所以把 2 写成 -1 并进一位，就是「用借位的方式编码负数」，让一个数字本身就能带符号。砝码问题：左盘放物、砝码可放两边，每个 3^k 砝码只有「左/右/不用」三态 → 天然对应 {-1,0,1}。",
+    "principle": "转换算法（普通三进制 → 平衡三进制）：对每个十进制数 x，循环 r=x%3, x//=3；若 r==2 则 r='Z' 且 x+=1；若 r==1 记 '1'；r==0 记 '0'。正确性：2·3^i ≡ -1·3^i (mod 3^(i+1))，把 2 替换为 Z(-1) 后向高位 +1 补偿，数值不变。负数直接翻转所有数码（每位的符号反转）。反向加权：digit·3^i 求和（Z=-1）。",
+    "history": "对称/平衡三进制由数学家及早期计算机实践提出：苏联 1958 年建造的 Setun 计算机即采用平衡三进制。它在「用固定砝码称任意重量」的经典趣题中出现，OI Wiki 与 CP-Alg 均收录。竞赛中直接考的题极少，主要作为数制与构造技巧储备。"
+  },
+  "how": {
+    "pseudocode": "def to_balanced_ternary(x):\n    if x == 0: return '0'\n    neg = x < 0\n    x = abs(x)\n    digits = []\n    while x:\n        r = x % 3; x //= 3\n        if r == 2:\n            digits.append('Z'); x += 1\n        elif r == 1:\n            digits.append('1')\n        else:\n            digits.append('0')\n    s = ''.join(reversed(digits))\n    return s.translate(str.maketrans('1Z', 'Z1')) if neg else s\n\ndef from_balanced_ternary(s):\n    val, p = 0, 1\n    for ch in reversed(s):\n        val += {'0': 0, '1': 1, 'Z': -1}[ch] * p\n        p *= 3\n    return val",
+    "python": "def to_balanced_ternary(x):\n    if x == 0:\n        return '0'\n    neg = x < 0\n    x = abs(x)\n    digits = []\n    while x:\n        r = x % 3\n        x //= 3\n        if r == 2:\n            digits.append('Z')\n            x += 1\n        elif r == 1:\n            digits.append('1')\n        else:\n            digits.append('0')\n    s = ''.join(reversed(digits))\n    if neg:\n        s = s.translate(str.maketrans('1Z', 'Z1'))\n    return s\n\n\ndef from_balanced_ternary(s):\n    val = 0\n    p = 1\n    mp = {'0': 0, '1': 1, 'Z': -1}\n    for ch in reversed(s):\n        val += mp[ch] * p\n        p *= 3\n    return val\n\n\ndef main():\n    table = {0: '0', 1: '1', 2: '1Z', 3: '10', 4: '11', 5: '1ZZ',\n             6: '1Z0', 7: '1Z1', 8: '10Z', 9: '100', -1: 'Z', -2: 'Z1',\n             -3: 'Z0', -4: 'ZZ', -5: 'Z11'}\n    for x, s in table.items():\n        assert to_balanced_ternary(x) == s, (x, to_balanced_ternary(x))\n        assert from_balanced_ternary(s) == x\n    for x in range(-200, 201):\n        assert from_balanced_ternary(to_balanced_ternary(x)) == x\n    print(\"balanced-ternary OK\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "pypy_notes": "转换循环 O(log_3 x) 每步 % 与 //，PyPy 下很快。平衡三进制题极少，如出现多半是构造/数位题，注意 Python int 无符号位困扰。",
+    "complexity": {
+      "time": "双向转换 O(log_3 |x|)",
+      "space": "O(log_3 |x|)"
+    },
+    "limitations": "竞赛中直接考查频率低；砝码称重问题用平衡三进制建模后可能还需组合数学（计数不同称法数）。只支持整数，不处理小数。"
+  },
+  "examples": [],
+  "pitfalls": [
+    "2→Z 后必须向高位进 1，漏加会导致结果偏小",
+    "负数翻转数码前先转绝对值再算，正负两处别弄反",
+    "Z 只是 -1 的书写记号，别当成 ASCII 字符参与数值计算",
+    "循环退出条件：处理完 x==0 后若因进位又产生更高位要自然继续"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "s1", "label": "普通三进制分解，逐位取余"},
+      {"id": "s2", "label": "遇 2 改 Z 并向高位进 1"},
+      {"id": "s3", "label": "负数整体翻转数码 1↔Z"},
+      {"id": "s4", "label": "反向：按 3^i 加权求和验证"}
+    ],
+    "edges": [
+      {"from": "s1", "to": "s2"},
+      {"from": "s2", "to": "s3"},
+      {"from": "s3", "to": "s4"}
+    ]
+  },
+  "sources": [
+    {"type": "oiwiki", "url": "https://oi-wiki.org/math/numeral-sys/balanced-ternary/", "verified": true},
+    {"type": "cpalg", "url": "https://cp-algorithms.com/algebra/balanced-ternary.html", "verified": true}
+  ]
+}

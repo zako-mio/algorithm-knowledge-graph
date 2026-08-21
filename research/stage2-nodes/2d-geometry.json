@@ -1,0 +1,147 @@
+{
+ "id": "2d-geometry",
+ "name": "二维几何基础",
+ "group": "G-D-3",
+ "stage": "basic",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "向量运算/点积叉积/多边形面积/线段相交/直线交点等二维计算几何基础",
+ "what": "二维计算几何基础是用坐标与向量表示点、线、多边形并在此基础上进行几何运算的模板代码族。核心原语包括：点积 dot(a,b)=x1x2+y1y2（衡量投影与垂直），叉积 cross(a,b)=x1y2-x2y1（衡量有向面积与旋转方向，其符号决定三点 (o,a,b) 的转向），多边形面积 S=1/2|Σ v_i×v_{i+1}|（有向面积），线段相交判定（快速排斥实验+跨立实验），两直线交点（叉积比例），以及点在多边形内的射线法/回转数判定。几乎一切计算几何（凸包、旋转卡壳、半平面交、最近点对等）都构建在这一层原语之上。",
+ "why": {
+  "intuition": "叉积的符号就是'手表'：cross(o,a,b)>0 表示从 o→a 看向 o→b 是逆时针（左转），<0 是顺时针（右转），=0 三点共线。点积则回答'它们垂直吗/投影有多长'。面积公式把多边形切成很多小三角形求和，正是'有向面积'的由来——凹多边形也不会算错，因为符号会自动抵消。",
+  "principle": "所有方向判定统一走叉积：线段相交的跨立实验要求两条线段互相'跨立'（各自端点位于对方直线两侧），再加上快速排斥实验（包围盒不交则必不相交）处理共线/退化情况；直线交点用叉积比例：t=(P2-P1)×d2 / (d1×d2)，即在方向 d1 上按平行四边形面积比例取平移量。面积公式来自 Stokes 意义上的格林公式离散化：有向面积 ∮(x dy - y dx)/2 在折线上逐段求和，相邻顶点与原点构成的三角形自动带符号。",
+  "history": "计算几何作为独立学科兴起于 1970 年代（Shamos、Preparata 等），二维基础原语源自解析几何与向量代数，Shamos 1978 的博士论文《Computational Geometry》系统化了点线面的算法表述。OI/CP 圈内经 OI-wiki、e-maxx 等整理为标准模板，是竞赛几何的公共基础设施。"
+ },
+ "how": {
+  "pseudocode": "# 基础原语（假设点 = (x,y) 元组）\ndot(u,v)  = u.x*v.x + u.y*v.y\ncross(u,v)= u.x*v.y - u.y*v.x\n\n# 三点方向判定 (o -> a -> b)\nturn(o,a,b) = cross(a-o, b-o)\n# >0 左转 / <0 右转 / =0 共线\n\n# 多边形有向面积 (p0..pn-1 按序)\narea2 = Σ_i cross(p_i, p_{i+1})   # 结果 = 2*有向面积\narea  = |area2| / 2\n\n# 线段相交判定：快速排斥 + 跨立\nif 快速排斥失败(包围盒不相交): return False\nif cross(a,b,c)*cross(a,b,d) <= 0 and cross(c,d,a)*cross(c,d,b) <= 0:\n    return True   # 注意共线退化要用 on_segment 特判\n\n# 两直线交点: 直线 l1 = p1 + t*d1, l2 = p2 + s*d2\nden = cross(d1, d2); 若 |den|≈0 → 平行\n t  = cross(p2-p1, d2) / den\nreturn p1 + t*d1",
+  "python": "# -*- coding: utf-8 -*-\nimport math\n\n\ndef dot(u, v):\n    return u[0]*v[0] + u[1]*v[1]\n\n\ndef cross_vec(u, v):\n    return u[0]*v[1] - u[1]*v[0]\n\n\ndef turn(o, a, b):\n    return cross_vec((a[0]-o[0], a[1]-o[1]), (b[0]-o[0], b[1]-o[1]))\n\n\ndef polygon_area(poly):\n    s = 0.0\n    n = len(poly)\n    for i in range(n):\n        x1, y1 = poly[i]\n        x2, y2 = poly[(i+1) % n]\n        s += x1*y2 - x2*y1\n    return abs(s) / 2.0\n\n\ndef on_segment(p, a, b):\n    return (min(a[0], b[0])-1e-12 <= p[0] <= max(a[0], b[0])+1e-12 and\n            min(a[1], b[1])-1e-12 <= p[1] <= max(a[1], b[1])+1e-12)\n\n\ndef seg_intersect(a, b, c, d):\n    o1 = turn(a, b, c)\n    o2 = turn(a, b, d)\n    o3 = turn(c, d, a)\n    o4 = turn(c, d, b)\n    if o1*o2 < 0 and o3*o4 < 0:\n        return True\n    if abs(o1) < 1e-12 and on_segment(c, a, b):\n        return True\n    if abs(o2) < 1e-12 and on_segment(d, a, b):\n        return True\n    if abs(o3) < 1e-12 and on_segment(a, c, d):\n        return True\n    if abs(o4) < 1e-12 and on_segment(b, c, d):\n        return True\n    return False\n\n\ndef line_intersect(p1, d1, p2, d2):\n    den = cross_vec(d1, d2)\n    if abs(den) < 1e-15:\n        return None\n    t = cross_vec((p2[0]-p1[0], p2[1]-p1[1]), d2) / den\n    return (p1[0]+t*d1[0], p1[1]+t*d1[1])\n\n\ndef pip_ray(p, poly):\n    x, y = p\n    inside = False\n    n = len(poly)\n    for i in range(n):\n        x1, y1 = poly[i]\n        x2, y2 = poly[(i+1) % n]\n        if (y1 > y) != (y2 > y):\n            xi = x1 + (x2-x1)*(y-y1)/(y2-y1)\n            if x < xi:\n                inside = not inside\n    return inside\n\n\nif __name__ == '__main__':\n    sq = [(0, 0), (4, 0), (4, 4), (0, 4)]\n    assert abs(polygon_area(sq) - 16.0) < 1e-9\n    assert abs(polygon_area(sq[::-1]) - 16.0) < 1e-9\n    assert seg_intersect((0, 0), (4, 4), (0, 4), (4, 0))\n    assert not seg_intersect((0, 0), (1, 0), (2, 0), (3, 0))\n    p = line_intersect((0, 0), (1, 1), (0, 1), (1, 0))\n    assert p and abs(p[0]-1.0) < 1e-9 and abs(p[1]-1.0) < 1e-9\n    p = line_intersect((0, 0), (1, 1), (0, 1), (1, -1))\n    assert p and abs(p[0]-0.5) < 1e-9 and abs(p[1]-0.5) < 1e-9\n    assert pip_ray((2, 2), sq) is True\n    assert pip_ray((5, 2), sq) is False\n    assert turn((0, 0), (1, 0), (1, 1)) > 0\n    assert turn((0, 0), (1, 0), (1, -1)) < 0\n    print('2d-geometry all tests passed')\n",
+  "pypy_notes": "纯 Python 处理 1e5 以上规模时建议：(1) 用元组/列表存点，避免类封装开销；(2) 预先展开叉积计算减少函数调用；(3) 整点问题尽量用整数运算避免浮点误差与慢速 sqrt；(4) 线段相交高频场景可把 turn 写成内联表达式。CPython 3.11+ 的浮点已很快，瓶颈通常是排序与常数项。",
+  "complexity": {
+   "time": "基础原语 O(1)；线段相交判定 O(1)；多边形面积 O(n)；射线法点在多边形内 O(n)；排序/整体结构类问题由上层算法决定",
+   "space": "O(n) 存储点集/多边形，原语操作 O(1)"
+  },
+  "limitations": "浮点运算引入精度误差：判共线/相等需用 eps（如 1e-9）与 sgn 函数，避免直接比较 ==；退化输入（重复点、三点共线、零面积）需特判；射线法不适用自交多边形（应用回转数/winding number）；坐标范围极大（1e18）时浮点可能溢出，尽量用整数有理数。"
+ },
+ "examples": [
+  {
+   "oj": "CSES",
+   "pid": "2189",
+   "url": "https://cses.fi/problemset/task/2189/",
+   "difficulty": 1,
+   "key_point": "Point Location Test：三点叉积判断点在直线左/右/上"
+  },
+  {
+   "oj": "CSES",
+   "pid": "2190",
+   "url": "https://cses.fi/problemset/task/2190/",
+   "difficulty": 2,
+   "key_point": "Line Segment Intersection：线段相交判定模板"
+  },
+  {
+   "oj": "CSES",
+   "pid": "2191",
+   "url": "https://cses.fi/problemset/task/2191/",
+   "difficulty": 2,
+   "key_point": "Polygon Area：有向面积（可为负，需取绝对值）"
+  }
+ ],
+ "pitfalls": [
+  "叉积为 0 是共线而非'不相交'，线段相交必须额外处理三点共线+on_segment",
+  "面积公式结果是有向面积，凹多边形也需取绝对值",
+  "浮点比较不要用 ==，统一 sgn(x)=(-1/0/1) 配合 eps",
+  "射线法遇射线穿过顶点/平行边会出错，用无理数斜率或特殊处理规避",
+  "cross(a,b) 与 cross(o,a,b) 参数形式混用导致方向颠倒",
+  "点坐标大时叉积可能溢出 int，用 long long/Python 大整数"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "repr",
+    "label": "点/向量表示与点积叉积原语"
+   },
+   {
+    "id": "turn",
+    "label": "三点方向判定 turn(o,a,b)"
+   },
+   {
+    "id": "seg",
+    "label": "线段相交：快速排斥+跨立"
+   },
+   {
+    "id": "line",
+    "label": "两直线交点公式"
+   },
+   {
+    "id": "area",
+    "label": "多边形有向面积"
+   },
+   {
+    "id": "pip",
+    "label": "点在多边形内（射线法）"
+   }
+  ],
+  "edges": [
+   {
+    "from": "repr",
+    "to": "turn"
+   },
+   {
+    "from": "repr",
+    "to": "seg"
+   },
+   {
+    "from": "repr",
+    "to": "line"
+   },
+   {
+    "from": "repr",
+    "to": "area"
+   },
+   {
+    "from": "turn",
+    "to": "seg"
+   },
+   {
+    "from": "turn",
+    "to": "line"
+   },
+   {
+    "from": "area",
+    "to": "pip"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/2d.md",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/basic-geometry.html",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/area-of-simple-polygon.html",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/oriented-triangle-area.html",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/segment-to-line.html",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "url": "",
+   "ref": "CPH ch29",
+   "verified": true
+  }
+ ]
+}

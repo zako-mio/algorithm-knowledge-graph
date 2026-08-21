@@ -1,0 +1,432 @@
+{
+  "generated": "2026-08-21T04:05:27.953947",
+  "scope": "normalization fixes applied to stage2-nodes/*.json (audit-driven, cross-validation)",
+  "summary": {
+    "nodes_modified": 104,
+    "subfield_gaps_filled": 29,
+    "blank_urls_fixed": 4,
+    "examples_normalized": 96,
+    "examples_added": 3,
+    "examples_removed_concept": 6,
+    "groups_normalized": 28,
+    "book_sources_fixed": 16,
+    "tier_upgraded": 3,
+    "second_sources_added": 17,
+    "single_source_flagged": 3
+  },
+  "fixes": {
+    "ai-cp-trend": [
+      "how.pseudocode filled",
+      "how.pypy_notes filled"
+    ],
+    "binary-answer": [
+      "example schema normalized: 洛谷 P1873 [COCI 2011/2012#5] EKO/砍树",
+      "example schema normalized: 洛谷 P1182 数列分段 Section II（最大值最小化）"
+    ],
+    "binary-search": [
+      "example schema normalized: 洛谷 P2249 【深基13.例1】查找（lower_bound 模板）",
+      "example schema normalized: 704. 二分查找 / 34. 在排序数组中查找元素的第一个和最后一个位置",
+      "example schema normalized: Binary Search（搜索有序数组）"
+    ],
+    "binary-tree-dp-trick": [
+      "how.pseudocode filled",
+      "how.pypy_notes filled"
+    ],
+    "bitmask-dp-optimization": [
+      "how.pseudocode filled"
+    ],
+    "block-forest": [
+      "second source added: wikipedia https://en.wikipedia.org/wiki/Biconnected_component"
+    ],
+    "boyer-moore": [
+      "group normalized to G-C-1"
+    ],
+    "cdq-divide": [
+      "second source added: cpalg https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html"
+    ],
+    "char-polynomial": [
+      "example removed (concept entry): 概念题",
+      "example schema normalized: Luogu P3939. 数列",
+      "book source url moved to ref: 线性代数教材"
+    ],
+    "chord-graph": [
+      "how.pseudocode filled"
+    ],
+    "common-mistakes": [
+      "single_source flagged (tool-type node)"
+    ],
+    "comparison-sort": [
+      "example schema normalized: OI Wiki 冒泡/选择/插入排序",
+      "example schema normalized: CPH ch3 p35"
+    ],
+    "connected-components": [
+      "example schema normalized: LeetCode 200. Number of Islands",
+      "example schema normalized: LeetCode 547. Number of Provinces",
+      "example schema normalized: Luogu P3916. 图的遍历",
+      "book source url moved to ref: CPH ch16 pp159-166"
+    ],
+    "debug-macro": [
+      "example removed (concept entry): 通用调试技术",
+      "example schema normalized: OI Wiki 调试教程"
+    ],
+    "determinant": [
+      "example schema normalized: Luogu P3313. [SDOI2014] 旅行",
+      "example schema normalized: Luogu P4111. [HEOI2015] 小Z的房间",
+      "example schema normalized: Luogu P4455. [CQOI2018] 交换盒子",
+      "book source url moved to ref: CPH ch23 Matrices (p227-234)"
+    ],
+    "dfs": [
+      "example schema normalized: LeetCode 200. Number of Islands",
+      "example schema normalized: Luogu P3916. 图的遍历",
+      "example schema normalized: AtCoder ABC277 D. Online games",
+      "book source url moved to ref: CPH ch12 pp127-132"
+    ],
+    "diagonalization": [
+      "example removed (concept entry): 概念题",
+      "example schema normalized: Luogu P1939. 矩阵加速数列"
+    ],
+    "discrete": [
+      "second source added: wikipedia https://en.wikipedia.org/wiki/Transitive_reduction"
+    ],
+    "discrete-root": [
+      "depth_tier brief -> standard (P2 upgrade)",
+      "example added (standard-tier): Luogu P5277"
+    ],
+    "divide-conquer": [
+      "example schema normalized: OI Wiki 递归与分治",
+      "example schema normalized: 洛谷 P1226 快速幂（分治乘方）",
+      "example schema normalized: CPH ch3 p35 排序（分治应用）"
+    ],
+    "dmst": [
+      "group normalized to G-B-3"
+    ],
+    "dominator-tree": [
+      "second source added: wikipedia https://en.wikipedia.org/wiki/Dominator_(graph_theory)"
+    ],
+    "dp-basic": [
+      "example schema normalized: Luogu P1216 [IOI1994] 数字三角形",
+      "example schema normalized: Luogu P2782 友好城市（LIS 变体）",
+      "example schema normalized: Luogu P2196 挖地雷（DAG 上 DP）",
+      "group normalized to G-A-11"
+    ],
+    "dp-count": [
+      "second source added: cpalg https://cp-algorithms.com/dynamic_programming/knapsack.html"
+    ],
+    "dp-dag": [
+      "second source added: wikipedia https://en.wikipedia.org/wiki/Directed_acyclic_graph"
+    ],
+    "dp-knapsack-complete": [
+      "example schema normalized: Luogu P1616 疯狂的采药",
+      "example schema normalized: LeetCode 322 零钱兑换",
+      "example schema normalized: LeetCode 518 零钱兑换 II",
+      "group normalized to G-A-11"
+    ],
+    "dp-knapsack-group": [
+      "second source added: cpalg https://cp-algorithms.com/dynamic_programming/knapsack.html"
+    ],
+    "dp-knapsack-multiple": [
+      "second source added: cpalg https://cp-algorithms.com/dynamic_programming/knapsack.html"
+    ],
+    "dp-knapsack01": [
+      "example schema normalized: Luogu P2871 [USACO07DEC]Charm Bracelet",
+      "example schema normalized: Luogu P1048 采药",
+      "example schema normalized: Luogu P1060 开心的金明",
+      "group normalized to G-A-11"
+    ],
+    "dp-memo": [
+      "example schema normalized: Luogu P1048 采药",
+      "example schema normalized: Luogu P2602 [ZJOI2010] 数字计数",
+      "group normalized to G-A-11"
+    ],
+    "dp-number": [
+      "second source added: cpalg https://cp-algorithms.com/dynamic_programming/knapsack.html"
+    ],
+    "dp-probability": [
+      "second source added: cpalg https://cp-algorithms.com/dynamic_programming/knapsack.html"
+    ],
+    "dp-tree-knapsack": [
+      "second source added: cpalg https://cp-algorithms.com/dynamic_programming/knapsack.html"
+    ],
+    "enumerate": [
+      "example schema normalized: OI Wiki 枚举与暴力（两数和经典例）",
+      "example schema normalized: 洛谷 P1706 全排列问题 / P1157 组合的输出",
+      "example schema normalized: CPH ch5 p57（生成子集/排列）"
+    ],
+    "extended-lucas": [
+      "example[0].url filled (audit Q7)"
+    ],
+    "fast-output": [
+      "single_source flagged (tool-type node)"
+    ],
+    "fenwick": [
+      "group normalized to G-A-5"
+    ],
+    "fenwick-extended": [
+      "group normalized to G-A-5"
+    ],
+    "fermat-little-theorem": [
+      "example schema normalized: Luogu P1082 [NOIP2012] 求逆元",
+      "example schema normalized: Luogu P5091 【模板】扩展欧拉定理",
+      "example schema normalized: Codeforces 906D Power Tower",
+      "group normalized to G-C-7"
+    ],
+    "game-graph": [
+      "example[0].url filled (audit Q7)"
+    ],
+    "gaussian-elimination": [
+      "example schema normalized: Luogu P3389. 【模板】高斯消元法",
+      "example schema normalized: Luogu P4452. [国家集训队] 质数分解",
+      "example schema normalized: LeetCode 1030. Matrix Cells in Distance-Order",
+      "book source url moved to ref: CPH ch23 Matrices (p227-234)"
+    ],
+    "geometric-inverse": [
+      "second source added: wikipedia https://en.wikipedia.org/wiki/Inversive_geometry"
+    ],
+    "greedy": [
+      "example schema normalized: 洛谷 P1080 [NOIP2012] 国王游戏（邻项交换）",
+      "example schema normalized: 洛谷 P2949 [USACO09OPEN] Work Scheduling G（后悔法）",
+      "example schema normalized: 洛谷 P1090 [NOIP2004] 合并果子（Huffman/优先队列）"
+    ],
+    "heap-sort": [
+      "example schema normalized: OI Wiki 堆排序（数组实现）",
+      "example schema normalized: CPH ch3 p41"
+    ],
+    "interactive-debug": [
+      "single_source flagged (tool-type node)"
+    ],
+    "interactive-problem-trend": [
+      "how.pseudocode filled",
+      "how.pypy_notes filled"
+    ],
+    "kinetic-tournament-tree": [
+      "why.principle filled",
+      "why.history filled",
+      "how.pseudocode filled",
+      "how.pypy_notes filled"
+    ],
+    "kmp": [
+      "group normalized to G-C-1"
+    ],
+    "lca": [
+      "book source url moved to ref: CPH ch18 pp.173-182"
+    ],
+    "li-chao-tree": [
+      "why.history filled",
+      "how.pypy_notes filled"
+    ],
+    "linear-basis": [
+      "example schema normalized: Luogu P3812. 【模板】线性基",
+      "example schema normalized: Luogu P4151. [WC2011] 最大XOR和路径",
+      "example schema normalized: Luogu P3212. [HNOI2013] 游走"
+    ],
+    "linear-system": [
+      "example schema normalized: Luogu P3389. 【模板】高斯消元法",
+      "example schema normalized: Luogu P2966. [USACO09NOV] 灯Lights",
+      "example schema normalized: LeetCode 1740. Find Distance in a Tree"
+    ],
+    "manacher": [
+      "book source url moved to ref: CPH ch26 String algorithms (p253-260)"
+    ],
+    "matrix-basics": [
+      "example schema normalized: Luogu P1939. 矩阵加速数列",
+      "example schema normalized: Luogu P3390. 矩阵快速幂",
+      "example schema normalized: LeetCode 50. Pow(x, n)",
+      "book source url moved to ref: CPH ch23 Matrices (p227-234)"
+    ],
+    "matrix-rank": [
+      "example removed (concept entry): 概念题",
+      "example schema normalized: Luogu P3389. 高斯消元"
+    ],
+    "matrix-tree": [
+      "group normalized to G-B-3"
+    ],
+    "merge-sort": [
+      "example schema normalized: 洛谷 P1908 逆序对",
+      "example schema normalized: OI Wiki 归并排序（含倍增法）"
+    ],
+    "nested-segment-tree": [
+      "why.principle filled",
+      "why.history filled",
+      "how.pseudocode filled",
+      "how.pypy_notes filled"
+    ],
+    "non-comparison-sort": [
+      "example schema normalized: OI Wiki 计数排序（稳定写法+前缀和）",
+      "example schema normalized: OI Wiki 基数排序 LSD/MSD"
+    ],
+    "numeral-system": [
+      "second source added: wikipedia https://en.wikipedia.org/wiki/Numeral_system"
+    ],
+    "odt": [
+      "second source added: wikipedia https://en.wikipedia.org/wiki/Chtholly_tree"
+    ],
+    "parallel-binsearch": [
+      "second source added: wikipedia https://en.wikipedia.org/wiki/Binary_search"
+    ],
+    "partizan-game": [
+      "depth_tier brief -> standard (P2 upgrade)",
+      "example added (standard-tier): Wikipedia Surreal number"
+    ],
+    "planar-graph": [
+      "how.pseudocode filled"
+    ],
+    "prefix-gcd-optimization": [
+      "how.pseudocode filled",
+      "how.pypy_notes filled"
+    ],
+    "prim": [
+      "group normalized to G-B-3"
+    ],
+    "prime-test-basic": [
+      "example schema normalized: Luogu P5736 【深基7.例2】质数筛",
+      "example schema normalized: Luogu P3912 素数个数",
+      "group normalized to G-C-7"
+    ],
+    "py-2d-array": [
+      "example schema normalized: Luogu P1683 入门级矩阵",
+      "example schema normalized: LeetCode 73 矩阵置零",
+      "group normalized to G-E-3"
+    ],
+    "py-batch-io": [
+      "example schema normalized: Luogu P1001 A+B Problem",
+      "example schema normalized: Luogu P2439 [SDOI2005] 位图",
+      "group normalized to G-E-3"
+    ],
+    "py-bigint": [
+      "example schema normalized: Luogu P1045 麦森数",
+      "example schema normalized: Luogu P1604 星星之子（大数进制）",
+      "example schema normalized: LeetCode 2 两数相加",
+      "group normalized to G-E-3"
+    ],
+    "py-builtin": [
+      "example schema normalized: Luogu P1496 烧饼铺（BFS + deque）",
+      "example schema normalized: Luogu P1093 奖学金（排序+堆）",
+      "example schema normalized: LeetCode 46 全排列",
+      "group normalized to G-E-3"
+    ],
+    "py-list-comp": [
+      "example schema normalized: Luogu P1420 最长连号",
+      "example schema normalized: LeetCode 2239 找到最接近 0 的数字",
+      "group normalized to G-E-3"
+    ],
+    "py-lru-cache": [
+      "example schema normalized: LeetCode 70 爬楼梯",
+      "example schema normalized: Luogu P1048 采药",
+      "group normalized to G-E-3"
+    ],
+    "py-pypy": [
+      "example schema normalized: Luogu P4779 单源最短路径（Python/PyPy 提交）",
+      "example schema normalized: AtCoder ABC（Python3 / PyPy3 双选项）",
+      "group normalized to G-E-3"
+    ],
+    "py-recursion-limit": [
+      "example schema normalized: Luogu P1683 入门级树形 DP（深树 DFS）",
+      "example schema normalized: Luogu P5661 [CSP-J2019] 公交换乘",
+      "group normalized to G-E-3"
+    ],
+    "quadratic-residue": [
+      "depth_tier brief -> standard (P2 upgrade)",
+      "example added (standard-tier): SPOJ MODSQRT"
+    ],
+    "queue": [
+      "book source url moved to ref: CPH ch4 p45"
+    ],
+    "quick-sort": [
+      "example schema normalized: 洛谷 P1177 【模板】排序（需优化否则被卡）",
+      "example schema normalized: OI Wiki 快速排序（含期望复杂度证明）"
+    ],
+    "rabin-karp": [
+      "group normalized to G-C-1"
+    ],
+    "rmq": [
+      "book source url moved to ref: CPH ch9"
+    ],
+    "rmq-linear": [
+      "group normalized to G-A-5"
+    ],
+    "second-best-mst": [
+      "group normalized to G-B-3"
+    ],
+    "seg-beats": [
+      "why.history filled",
+      "how.pypy_notes filled"
+    ],
+    "seg-dynamic": [
+      "why.history filled",
+      "how.pypy_notes filled",
+      "second source added: cpalg https://cp-algorithms.com/data_structures/segment_tree.html"
+    ],
+    "seg-merge": [
+      "why.history filled",
+      "how.pypy_notes filled"
+    ],
+    "segment-tree-offline": [
+      "why.history filled",
+      "how.pypy_notes filled"
+    ],
+    "sg-function": [
+      "example[0].url filled (audit Q7)"
+    ],
+    "sort-intro": [
+      "example schema normalized: OI Wiki basic/sort-intro",
+      "example schema normalized: CPH ch3 排序与复杂度 (p35)"
+    ],
+    "sparse-table": [
+      "group normalized to G-A-5"
+    ],
+    "stack": [
+      "book source url moved to ref: CPH ch4 p45"
+    ],
+    "steiner-tree": [
+      "group normalized to G-B-3"
+    ],
+    "stress-test": [
+      "example removed (concept entry): 通用调试方法",
+      "example schema normalized: OI Wiki 对拍教程"
+    ],
+    "string-hash": [
+      "group normalized to G-C-1"
+    ],
+    "suffix-bst": [
+      "second source added: wikipedia https://en.wikipedia.org/wiki/Suffix_array"
+    ],
+    "ternary-search": [
+      "example schema normalized: 洛谷 P3382 三分（N 次函数求极值）",
+      "example schema normalized: Ternary Search - CP Algorithms"
+    ],
+    "tim-sort": [
+      "example schema normalized: OI Wiki Timsort（含伪代码与归并规则）",
+      "example schema normalized: Tim Peters 原始说明 listsort.txt"
+    ],
+    "topo-sort": [
+      "example schema normalized: LeetCode 207. Course Schedule",
+      "example schema normalized: LeetCode 210. Course Schedule II",
+      "example schema normalized: Luogu P4017. 最大食物链计数",
+      "book source url moved to ref: CPH ch16 pp159-166"
+    ],
+    "tournament-sort": [
+      "example schema normalized: OI Wiki 锦标赛排序",
+      "example schema normalized: Tournament sort - Wikipedia"
+    ],
+    "tree-basics": [
+      "book source url moved to ref: CPH ch14 Tree algorithms, pp.143-150"
+    ],
+    "tree-diameter": [
+      "book source url moved to ref: CPH ch14 pp.143-150"
+    ],
+    "two-pointer": [
+      "book source url moved to ref: CPH ch5 Complete search, pp.57-66"
+    ],
+    "vector-space": [
+      "example removed (concept entry): 概念题",
+      "example schema normalized: Luogu P3812. 线性基",
+      "book source url moved to ref: 线性代数教材"
+    ],
+    "virtual-tree": [
+      "example[0].url filled (audit Q7)"
+    ],
+    "z-function": [
+      "group normalized to G-C-1"
+    ]
+  }
+}

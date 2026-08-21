@@ -1,0 +1,145 @@
+---
+id: catalan-number
+name: 卡特兰数
+group: G-C-10
+stage: intermediate
+priority: P1
+depth_tier: standard
+---
+
+# 卡特兰数
+
+> C_n=C(2n,n)/(n+1)，括号序列/二叉树/出栈序列等计数
+
+<!-- 元信息: id=catalan-number · group=G-C-10 · stage=intermediate · priority=P1 · depth_tier=standard -->
+
+## What · 是什么
+
+卡特兰数（Catalan number，OEIS A000108）是满足递推 C_0=1, C_n = Σ_{i=0}^{n-1} C_i·C_{n-1-i}（n≥1）的数列：1, 1, 2, 5, 14, 42, 132, …。它有统一闭式 C_n = C(2n,n)/(n+1) = C(2n,n) - C(2n,n+1)，其中 C(n,k) 为二项式系数。同一个数列同时计数：n 对括号的合法括号序列数、n 个结点的不同构二叉树数、进栈序列 1..n 的合法出栈序列数、凸多边形三角剖分数、格子路径不越过对角线数等十余类等价问题，是组合计数里『多对象一数列』的典范。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+递推 C_n = Σ C_i·C_{n-1-i} 是『根分割』视角：二叉树取根后左子树 i 个点、右子树 n-1-i 个点；括号序列从第一对括号的闭合位置分左右；出栈序列按第一个出栈元素分内外。任何带递归结构的问题只要按一个分界点拆成两个独立子问题，结果就会冒出卡特兰数。闭式 C(2n,n)/(n+1) 与括号序列的反射原理（reflection principle）绑定：所有 C(2n,n) 条含 n 左 n 右的序列减去非法（前缀右括号多于左括号）的 C(2n,n+1) 条。
+
+### 原理 · Principle
+
+① 递推式 C_n = Σ_{i=0}^{n-1} C_i C_{n-1-i}，C_0=1；② 闭式 C_n = C(2n,n)/(n+1)（对应根的个数是 C(2n,n) 的 n+1 分之一）；③ 生成函数法：设 C(x)=Σ C_n x^n，递推对应 C(x)=1+x·C(x)²，解得 C(x)=(1-√(1-4x))/(2x)，展开 x^n 系数即得闭式；④ 反射原理组合证明：合法序列总数 = 总数 - 非法数，把第一个使右括号数=左括号数+1 的位置之前的左右互换，非法序列与 'n+1 个右括号 n-1 个左括号' 的序列一一对应，故 C_n = C(2n,n)-C(2n,n+1)。
+
+### 历史 · History
+
+18 世纪 30 年代清朝数学家明安图在《割圜密率捷法》中已发现该数列；比利时数学家 Eugène Charles Catalan（1838）在研究括号序列计数时正式提出，数列以他命名。递推与闭式与反射原理的历史可追溯到 André (1887) 与 Bertrand 投票问题（ballot problem）。中文 OI 语境常以『出栈序列 / 括号序列』入门，洛谷 P1044『栈』即模板。
+
+## How · 实现
+
+### 伪代码
+
+```python
+# 递推 O(n^2)
+catalan[n] : C[0]=1
+for n in 1..N:
+  C[n] = sum_{i=0..n-1} C[i]*C[n-1-i]
+
+# 闭式 O(n)（需阶乘/组合数预计算）
+C[n] = C(2n, n) // (n+1)
+
+# 大数场景直接用 Python int（不取模）；要取模用费马小定理求逆元
+```
+
+### Python 实现
+
+```python
+def catalan_dp(n):
+    """递推法: O(n^2) 时间 O(n) 空间, 直接得到 C_0..C_n (Python 大整数)"""
+    C = [0] * (n + 1)
+    C[0] = 1
+    for i in range(1, n + 1):
+        s = 0
+        for j in range(i):
+            s += C[j] * C[i - 1 - j]
+        C[i] = s
+    return C
+
+
+def catalan_closed(n):
+    """闭式: C_n = C(2n,n)//(n+1), O(n) 时间 O(1) 空间"""
+    def comb(n, k):
+        if k < 0 or k > n:
+            return 0
+        k = min(k, n - k)
+        r = 1
+        for i in range(1, k + 1):
+            r = r * (n - k + i) // i
+        return r
+
+    return comb(2 * n, n) // (n + 1)
+
+
+def catalan_mod(n, MOD):
+    """模意义闭式: C_n = C(2n,n)/(n+1) mod MOD (MOD 为质数时用逆元)"""
+    maxk = 2 * n
+    fact = [1] * (maxk + 1)
+    for i in range(1, maxk + 1):
+        fact[i] = fact[i - 1] * i % MOD
+    invfact = [1] * (maxk + 1)
+    invfact[maxk] = pow(fact[maxk], MOD - 2, MOD)
+    for i in range(maxk, 0, -1):
+        invfact[i - 1] = invfact[i] * i % MOD
+
+    def comb(n, k):
+        if k < 0 or k > n:
+            return 0
+        return fact[n] * invfact[k] % MOD * invfact[n - k] % MOD
+
+    return comb(2 * n, n) * pow(n + 1, MOD - 2, MOD) % MOD
+
+
+if __name__ == "__main__":
+    expected = [1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862, 16796]
+    assert catalan_dp(len(expected) - 1) == expected
+    for n in range(len(expected)):
+        assert catalan_closed(n) == expected[n], n
+    MOD = 10**9 + 7
+    for n in range(0, 60):
+        assert catalan_mod(n, MOD) == expected[n] if n < len(expected) else True
+    # 与闭式全量交叉验证
+    for n in range(0, 200):
+        assert catalan_closed(n) % MOD == catalan_mod(n, MOD), n
+    print("All tests passed.")
+```
+
+**PyPy 提示**: 取模题用预计算阶乘+逆元数组 O(n) 一次算出全部 C_n；Python 大整数不取模版本在 n≤5e3 时递推 O(n^2) 也可过，n 更大时改用闭式 O(n) 并逐项整除。需要模数任意（非质）时，C(2n,n)/(n+1) 不能直接除，用高精度除或对 n+1 的每个质因子做阶乘降幂。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | 递推 O(n^2)；闭式单点 O(n)，预处理阶乘后 O(1)/点 |
+| 空间 | 递推 O(n)；闭式 O(1)（或阶乘数组 O(n)） |
+
+### 局限
+
+n 较大且不取模时 C(2n,n) 增长为 O(4^n/√n)，Python 大整数可行但 n≥1e5 会爆内存/时间；取模时要求模数为质数才能用费马小定理求逆元（否则需 exLucas 或对 n+1 做质因子降幂）。递推式 O(n^2) 只适合 n 数千级别。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| Luogu | P1044 | 3 | 【入门】栈：进栈序列 1..n 的合法出栈序列数 = C_n，OI Wiki 官方例题 | [https://www.luogu.com.cn/problem/P1044](https://www.luogu.com.cn/problem/P1044) |
+| Luogu | P2532 | 5 | AHOI2012 树屋阶梯：n 个正方形拼阶梯的覆盖方案 = C_n（需高精度） | [https://www.luogu.com.cn/problem/P2532](https://www.luogu.com.cn/problem/P2532) |
+| Luogu | P1641 | 5 | SCOI2010 生成字符串：+1/-1 序列不越界的计数（反射原理，类卡特兰） | [https://www.luogu.com.cn/problem/P1641](https://www.luogu.com.cn/problem/P1641) |
+
+## Pitfalls · 易错点
+
+- C_0=1 而不是 0，递推与闭式都从 n=0 起；空括号序列/空树算一种
+- 闭式 C(2n,n)/(n+1) 是整除关系，Python 用 // 而非先除后取整；模意义下 n+1 可能整除 MOD 导致逆元不存在
+- 把 n 与 C_n 混淆：C_n 计数的是 n 对括号而非 n 个字符（总长 2n）
+- 递推式在无模取时可能中间值巨大，注意用 Python int（C++ 需高精度或取模）
+- 判断一个计数问题是不是卡特兰数：先验证有无『按分界点拆两半』的递归结构
+
+## Sources · 信源
+
+- OI Wiki ✓ [https://oi-wiki.org/math/combinatorics/catalan/](https://oi-wiki.org/math/combinatorics/catalan/)
+- CP-Algorithms ✓ [https://cp-algorithms.com/combinatorics/catalan-numbers.html](https://cp-algorithms.com/combinatorics/catalan-numbers.html)
+- 书籍 ✓ `CPH ch22 Combinatorics (p217-226)`

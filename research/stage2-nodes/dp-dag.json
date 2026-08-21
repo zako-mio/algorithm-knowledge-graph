@@ -1,0 +1,109 @@
+{
+  "id": "dp-dag",
+  "name": "DAG上的DP",
+  "group": "G-A-11",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "有向无环图上的最长/最短路，拓扑序转移",
+  "what": "DAG上的DP是在有向无环图(DAG)上求最长路或最短路的动态规划。由于DAG天然无环，节点间的依赖关系定义了一个偏序——按拓扑序处理可保证每个节点的状态在处理前已全部就绪。实际问题中的二元依赖关系（如砖块堆叠、任务调度）可建模为DAG，转化为最长/最短路问题。",
+  "why": {
+    "intuition": "DAG没有环，所以从起点到终点的所有路径构成一个偏序结构。按拓扑序处理节点，每个节点的最优值只依赖于「指向它的节点」——这些节点在拓扑序中排在前面，已被处理。这就是DAG上DP无后效性的来源。",
+    "principle": "状态定义：d(u)表示从u出发(或到u结束)的最长/短路。转移：d(u)=max{d(v)+w(u,v) | v是u的后继}（最长路）或min同理。处理顺序：按拓扑序（或逆拓扑序）遍历。记忆化搜索也可：DFS(u)时递归处理所有后继v后取最优。时间O(V+E)。",
+    "history": "DAG上的DP是最自然的DP模型——DP本质上就是在DAG上做最长/短路（如OI Wiki basic页面所述）。巴比伦塔(UVa 437)是经典教学题，将砖块堆叠建模为DAG最长路。关键路径(CPM)调度也是DAG最长路的应用。"
+  },
+  "how": {
+    "pseudocode": "# 方法1: 记忆化搜索\nd(u):\n  if d[u] != -inf: return d[u]\n  d[u] = 0\n  for (v, w) in adj[u]:\n    d[u] = max(d[u], d(v) + w)\n  return d[u]\n\n# 方法2: 拓扑序递推\ntoposort(G)  # 得到拓扑序列\nfor u in reversed(topo):\n  for (v, w) in adj[u]:\n    d[u] = max(d[u], d[v] + w)",
+    "python": "from collections import defaultdict, deque\n\n\ndef dag_longest_path(n, edges, weights=None):\n    \"\"\"DAG最长路 (记忆化搜索)\n    n: 节点数 (0-indexed)\n    edges: [(u, v), ...] 有向边 u->v\n    weights: { (u,v): w } 边权, 默认为1\n    返回: (最长路长度, 最长路起点)\n    \"\"\"\n    if weights is None:\n        weights = {}\n    adj = defaultdict(list)\n    for u, v in edges:\n        w = weights.get((u, v), 1)\n        adj[u].append((v, w))\n\n    memo = {}\n\n    def dfs(u):\n        if u in memo:\n            return memo[u]\n        best = 0\n        for v, w in adj.get(u, []):\n            best = max(best, dfs(v) + w)\n        memo[u] = best\n        return best\n\n    best_len, best_start = 0, -1\n    for u in range(n):\n        val = dfs(u)\n        if val > best_len:\n            best_len = val\n            best_start = u\n    return best_len, best_start\n\n\ndef dag_longest_path_topo(n, edges, weights=None):\n    \"\"\"DAG最长路 (拓扑排序+递推)\"\"\"\n    if weights is None:\n        weights = {}\n    adj = defaultdict(list)\n    in_deg = [0] * n\n    for u, v in edges:\n        w = weights.get((u, v), 1)\n        adj[u].append((v, w))\n        in_deg[v] += 1\n\n    # Kahn拓扑排序\n    q = deque(u for u in range(n) if in_deg[u] == 0)\n    topo = []\n    while q:\n        u = q.popleft()\n        topo.append(u)\n        for v, w in adj[u]:\n            in_deg[v] -= 1\n            if in_deg[v] == 0:\n                q.append(v)\n\n    # 逆拓扑序求最长路: dist[u] = max over v of (dist[v] + w)\n    dist = [0] * n\n    for u in reversed(topo):\n        for v, w in adj[u]:\n            if dist[v] + w > dist[u]:\n                dist[u] = dist[v] + w\n\n    return max(dist), dist.index(max(dist))\n\n\ndef babylon_tower(blocks):\n    \"\"\"UVa 437 巴比伦塔: 每种砖块可3种摆放, 求最大堆叠高度\n    blocks: [(a, b, c), ...] 各砖块三条边\n    返回: 最大塔高\n    \"\"\"\n    # 每个砖块拆为3种摆放方式(选不同边为高)\n    # 底面取较小边作为长, 较大为宽\n    items = []  # (length, width, height)\n    for a, b, c in blocks:\n        for h, (l, w) in [(a, sorted([b, c])), (b, sorted([a, c])), (c, sorted([a, b]))]:\n            items.append((l, w, h))\n\n    n = len(items)\n    # 建DAG: i可放在j上, 当j底面严格大于i底面\n    adj = defaultdict(list)\n    for i in range(n):\n        for j in range(n):\n            if i == j:\n                continue\n            if items[i][0] > items[j][0] and items[i][1] > items[j][1]:\n                # i底面更大, j可放在i上, 边 i->j, 权=j的高度\n                adj[i].append((j, items[j][2]))\n\n    memo = {}\n    def dfs(u):\n        if u in memo:\n            return memo[u]\n        best = items[u][2]  # u本身的高度\n        for v, w in adj.get(u, []):\n            best = max(best, dfs(v) + items[u][2])\n        # 注意: 边权应包含u的高度而非v的\n        memo[u] = best\n        return best\n\n    # 重新计算: d(u) = u为最底时最大高度\n    memo.clear()\n    def dfs2(u):\n        if u in memo:\n            return memo[u]\n        best = 0  # 上面还能堆多高\n        for v, _ in adj.get(u, []):\n            if items[u][0] > items[v][0] and items[u][1] > items[v][1]:\n                best = max(best, dfs2(v))\n        memo[u] = best + items[u][2]  # 加上自身高度\n        return memo[u]\n\n    return max(dfs2(i) for i in range(n))\n\n\nif __name__ == \"__main__\":\n    # DAG最长路测试\n    # 0->1->3, 0->2->3, 1->2\n    # 0->1(w=1)->3(w=1) = 2\n    # 0->2(w=1)->3(w=1) = 2\n    # 最长路: 0->1->2->3 = 3 (边(0,1),(1,2),(2,3))\n    edges = [(0, 1), (1, 3), (0, 2), (2, 3), (1, 2)]\n    weights = {(0,1):1, (1,3):1, (0,2):1, (2,3):1, (1,2):1}\n    length, start = dag_longest_path(4, edges, weights)\n    assert length == 3, f\"Expected 3, got {length}\"\n\n    length2, _ = dag_longest_path_topo(4, edges, weights)\n    assert length2 == 3, f\"Expected 3, got {length2}\"\n\n    # 带权DAG: 0->1(w=3)->2(w=4) = 7\n    edges2 = [(0, 1), (1, 2)]\n    weights2 = {(0,1):3, (1,2):4}\n    length3, _ = dag_longest_path(3, edges2, weights2)\n    assert length3 == 7, f\"Expected 7, got {length3}\"\n\n    # 巴比伦塔: 1个砖块(1,1,1) -> 高度1\n    assert babylon_tower([(1, 1, 1)]) == 1\n    # 2个砖块: (10,10,1)和(5,5,5)\n    # 方案1: 块1竖放(h=10,base=1x10) -> 高10\n    # 方案2: 块1平放(h=1,base=10x10)+块2(h=5,base=5x5) -> 高6\n    # 最优=10\n    assert babylon_tower([(10, 10, 1), (5, 5, 5)]) == 10\n\n    print(\"All tests passed.\")\n",
+    "pypy_notes": "PyPy对记忆化搜索(dict+递归)优化好，V+E=1e6时约0.3s。拓扑排序的Kahn算法用deque高效。注意递归深度需setrecursionlimit。",
+    "complexity": {
+      "time": "O(V+E) — 每个节点和边各处理一次",
+      "space": "O(V+E) — 邻接表+记忆化数组"
+    },
+    "limitations": "DAG上DP需保证图确实无环，否则记忆化搜索会死循环。有环时需先用SCC缩点。Python递归深度限制需注意。"
+  },
+  "examples": [
+    {
+      "oj": "UVa",
+      "pid": "437",
+      "url": "https://onlinejudge.org/external/4/437.pdf",
+      "difficulty": 3,
+      "key_point": "巴比伦塔：DAG最长路经典题，砖块拆解为3种摆放方式"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4017",
+      "url": "https://www.luogu.com.cn/problem/P4017",
+      "difficulty": 2,
+      "key_point": "最大食物链计数：DAG上DP计数，拓扑序"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1137",
+      "url": "https://www.luogu.com.cn/problem/P1137",
+      "difficulty": 2,
+      "key_point": "_STA_旅行计划：DAG最长路，拓扑序递推"
+    }
+  ],
+  "pitfalls": [
+    "记忆化搜索前需确认图无环，否则DFS不会终止",
+    "拓扑序递推时方向：最长路从终点(逆拓扑序)向前推，最短路从起点(拓扑序)向后推",
+    "巴比伦塔中底面边长需排序(小为大)才能正确判断可堆叠",
+    "有多个起点时需对所有起点取最优，不能只从一个起点DFS"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "model",
+        "label": "建模为DAG(依赖关系建边)"
+      },
+      {
+        "id": "topo",
+        "label": "拓扑排序(确定处理顺序)"
+      },
+      {
+        "id": "state",
+        "label": "状态定义 d(u)=最长/短路"
+      },
+      {
+        "id": "transition",
+        "label": "转移 d(u)=max{d(v)+w}"
+      },
+      {
+        "id": "answer",
+        "label": "答案 max(d(u))"
+      }
+    ],
+    "edges": [
+      {
+        "from": "model",
+        "to": "topo"
+      },
+      {
+        "from": "topo",
+        "to": "state"
+      },
+      {
+        "from": "state",
+        "to": "transition"
+      },
+      {
+        "from": "transition",
+        "to": "answer"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/dag/",
+      "verified": true
+    },
+    {
+      "type": "wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Directed_acyclic_graph",
+      "verified": true,
+      "note": "DAG 结构与拓扑排序/最长路背景"
+    }
+  ]
+}

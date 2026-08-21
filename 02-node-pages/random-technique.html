@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>随机化技巧 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-5.html">随机化与元启发式族</a> / <span>随机化技巧</span></div>
+  <h1>随机化技巧</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-5</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-E-5.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-E-5.html"><span class="dir">组内第 1 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="hill-climbing.html"><span class="dir">下一个 / 组内</span><span class="v">hill-climbing</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">随机覆盖目标元素/随机命中目标集合/随机打乱消除最坏情况，概率上界分析</div><p>随机化技巧（randomized techniques）是利用随机性把算法从&#x27;最坏情况&#x27;拉到&#x27;高概率高效&#x27;的一类方法总称。常见模式：(1) 用随机集合覆盖目标元素——重复多次随机撒网，只要一次命中目标解即成功，如随机染色配 2-SAT、随机选边配贪心；(2) 用随机元素命中目标集合——随机选元素期望命中目标集合中的元素，配合重复控制失败率；(3) 随机化输入顺序消除构造数据的最坏情况——如随机增量法（最小圆覆盖）、随机化快排/哈希 base；(4) 随机化用于哈希（随机权值集合哈希、随机模数/基数防卡）。核心是概率分析：重复 k 次后失败率 ≤ (1-p)^k，令其 ≤ ε 得 k = -logε / p。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>很多问题的难点在于&#x27;不知道哪一个是关键对象&#x27;（关键元素/关键边/目标解）。既然无法确定，就随机猜：每次猜中的概率为 p，重复几次后&#x27;全没猜中&#x27;的概率指数下降，从而以极高概率成功。另一种直觉是&#x27;把输入搅乱&#x27;：很多构造数据针对的是固定顺序/固定哈希，随机化后最坏输入出现的概率极低，期望复杂度就是平均复杂度。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>概率上界分析是硬核：若单次成功概率 p&gt;0，独立重复 k 次则失败率 ≤ (1-p)^k，故 k = O(log(1/ε)/p) 次保证 1-ε 正确率。技巧在于构造&#x27;成功事件&#x27;使其概率不太小（如 1/2、1/4 常数级），这样重复次数就是 O(log) 级。随机化哈希的合理性来自：一个固定的集合哈希值在 {0,1}^64 上服从均匀分布（独立随机变量的异或和仍均匀），因此对特定输入出错的概率是 2^-64 量级。注意：随机化算法的正确率是&#x27;对所有输入都能以高概率正确&#x27;，而非&#x27;随机数据上的正确&#x27;——这是它与普通启发式的本质区别。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>随机化算法思想萌芽于 1970s（Rabin 的素性测试、Solovay–Strassen 的随机素性判定），1976 年 Rabin-Miller、1987 年 Adleman 等推动随机化在算法设计中的正式地位；Karp 与 Luby 等奠定了随机化算法的复杂度理论（RP/BPP 类）。在竞赛中，随机增量法（最小圆覆盖，1975 由 Preparata 与 Shamos 的框架内成熟）、随机化快速排序、随机哈希防卡成为标准武器，OI-Wiki 的 rand-technique 一节系统总结了竞赛视角的分类。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 通用模式: 随机覆盖目标</span>
+repeat k 次:
+    s = 随机生成的候选(撒网)
+    <span class="t-k">if</span> s 命中目标解:
+        输出 s, 成功退出
+输出失败 (概率 &lt;= epsilon)
+
+<span class="t-c"># k 的选取: 单次成功概率 p =&gt; k = ceil(-log(eps)/p)</span>
+<span class="t-c"># 通常取 p 尽量大的常数, 使 k = O(log n)</span>
+
+<span class="t-c"># 随机增量法(最小圆覆盖)骨架:</span>
+pts = 随机打乱的输入点
+C = 初始圆(前两点)
+<span class="t-k">for</span> p <span class="t-k">in</span> pts:
+    <span class="t-k">if</span> p 不在 C 内:
+        C = 经过 p 的最小圆 (递归调用, 增量式)
+</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> random
+
+
+<span class="t-k">def</span> <span class="t-f">random_cover_test</span>():
+    <span class="t-s">&quot;&quot;&quot;演示&#x27;随机覆盖目标&#x27;模式: 在 0..N-1 中有一个隐藏的目标元素 x,
+    每次等概率随机猜一个, 猜中即成功. 返回猜中所需的期望轮数近似.&quot;&quot;&quot;</span>
+    N = <span class="t-n">1000</span>
+    target = random.<span class="t-f">randrange</span>(N)
+    rounds = <span class="t-n">0</span>
+    <span class="t-k">while</span> <span class="t-k">True</span>:
+        rounds += <span class="t-n">1</span>
+        <span class="t-k">if</span> random.<span class="t-f">randrange</span>(N) == target:
+            <span class="t-k">return</span> rounds
+
+
+<span class="t-k">def</span> <span class="t-f">k_for_epsilon</span>(p, eps):
+    <span class="t-s">&quot;&quot;&quot;给定单次成功概率 p, 需要重复多少次保证失败率 &lt;= eps&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> math
+    <span class="t-k">return</span> math.<span class="t-f">ceil</span>(math.<span class="t-f">log</span>(eps) / math.<span class="t-f">log</span>(<span class="t-n">1</span> - p))
+
+
+<span class="t-k">def</span> <span class="t-f">min_circle_rand</span>(points):
+    <span class="t-s">&quot;&quot;&quot;随机增量法求最小圆覆盖: O(n) 期望.
+    points: (x,y) 列表, 返回 (cx, cy, r^2)
+    &quot;&quot;&quot;</span>
+    <span class="t-k">import</span> random <span class="t-k">as</span> rnd
+    pts = <span class="t-b">list</span>(points)
+    rnd.<span class="t-f">shuffle</span>(pts)
+
+    <span class="t-k">def</span> <span class="t-f">circle_from_3</span>(a, b, c):
+        (x1, y1), (x2, y2), (x3, y3) = a, b, c
+        d = <span class="t-n">2</span> * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
+        <span class="t-k">if</span> <span class="t-b">abs</span>(d) &lt; <span class="t-n">1e-12</span>:
+            <span class="t-k">return</span> <span class="t-k">None</span>
+        ux = ((x1 * x1 + y1 * y1) * (y2 - y3) + (x2 * x2 + y2 * y2) * (y3 - y1) + (x3 * x3 + y3 * y3) * (y1 - y2)) / d
+        uy = ((x1 * x1 + y1 * y1) * (x3 - x2) + (x2 * x2 + y2 * y2) * (x1 - x3) + (x3 * x3 + y3 * y3) * (x2 - x1)) / d
+        r2 = (ux - x1) ** <span class="t-n">2</span> + (uy - y1) ** <span class="t-n">2</span>
+        <span class="t-k">return</span> (ux, uy, r2)
+
+    <span class="t-k">def</span> <span class="t-f">circle_2</span>(a, b):
+        (x1, y1), (x2, y2) = a, b
+        <span class="t-k">return</span> ((x1 + x2) / <span class="t-n">2</span>, (y1 + y2) / <span class="t-n">2</span>, ((x1 - x2) ** <span class="t-n">2</span> + (y1 - y2) ** <span class="t-n">2</span>) / <span class="t-n">4</span>)
+
+    <span class="t-k">def</span> <span class="t-f">in_circle</span>(p, c):
+        <span class="t-k">if</span> c <span class="t-k">is</span> <span class="t-k">None</span>:
+            <span class="t-k">return</span> <span class="t-k">False</span>
+        cx, cy, r2 = c
+        <span class="t-k">return</span> (p[<span class="t-n">0</span>] - cx) ** <span class="t-n">2</span> + (p[<span class="t-n">1</span>] - cy) ** <span class="t-n">2</span> &lt;= r2 + <span class="t-n">1e-9</span>
+
+    n = <span class="t-b">len</span>(pts)
+    <span class="t-k">if</span> n == <span class="t-n">0</span>:
+        <span class="t-k">return</span> (<span class="t-n">0</span>, <span class="t-n">0</span>, <span class="t-n">0</span>)
+    c = <span class="t-k">None</span>
+    <span class="t-c"># 增量: 外层维护圆, 内部维护&#x27;圆过当前点&#x27;的圆</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">if</span> <span class="t-k">not</span> <span class="t-f">in_circle</span>(pts[i], c):
+            c = <span class="t-f">circle_2</span>(pts[<span class="t-n">0</span>], pts[i]) <span class="t-k">if</span> <span class="t-k">False</span> <span class="t-k">else</span> <span class="t-k">None</span>
+            <span class="t-c"># 圆过 pts[i]: 再扫前面</span>
+            c = (pts[i][<span class="t-n">0</span>], pts[i][<span class="t-n">1</span>], <span class="t-n">0.0</span>)
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i):
+                <span class="t-k">if</span> <span class="t-k">not</span> <span class="t-f">in_circle</span>(pts[j], c):
+                    c = <span class="t-f">circle_2</span>(pts[i], pts[j])
+                    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(j):
+                        <span class="t-k">if</span> <span class="t-k">not</span> <span class="t-f">in_circle</span>(pts[k], c):
+                            c3 = <span class="t-f">circle_from_3</span>(pts[i], pts[j], pts[k])
+                            <span class="t-k">if</span> c3 <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>:
+                                c = c3
+    <span class="t-k">return</span> c
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 期望轮数验证: 单次 1/1000, 期望 1000 轮</span>
+    trials = <span class="t-n">2000</span>
+    total = <span class="t-n">0</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(trials):
+        total += <span class="t-f">random_cover_test</span>()
+    avg = total / trials
+    <span class="t-k">assert</span> <span class="t-n">700</span> &lt; avg &lt; <span class="t-n">1300</span>, avg
+
+    <span class="t-c"># 重复次数: 单次 p=1/2, 要 1e-6 失败率 =&gt; 约 20 次</span>
+    k = <span class="t-f">k_for_epsilon</span>(<span class="t-n">0.5</span>, <span class="t-n">1e-6</span>)
+    <span class="t-k">assert</span> <span class="t-n">18</span> &lt;= k &lt;= <span class="t-n">21</span>, k
+
+    <span class="t-c"># 最小圆覆盖: 3 个点共线/三角形</span>
+    pts = [(<span class="t-n">0</span>, <span class="t-n">0</span>), (<span class="t-n">1</span>, <span class="t-n">0</span>), (<span class="t-n">0.5</span>, <span class="t-n">0.5</span>)]
+    c = <span class="t-f">min_circle_rand</span>(pts)
+    <span class="t-c"># 三点外接圆</span>
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(c[<span class="t-n">0</span>] - <span class="t-n">0.5</span>) &lt; <span class="t-n">1e-6</span> <span class="t-k">and</span> <span class="t-b">abs</span>(c[<span class="t-n">1</span>] - <span class="t-n">0.0</span>) &lt; <span class="t-n">1e-6</span>
+
+    <span class="t-c"># 大点集: 圆内所有点</span>
+    <span class="t-k">import</span> random <span class="t-k">as</span> rnd
+    rnd.<span class="t-f">seed</span>(<span class="t-n">42</span>)
+    pts2 = []
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>):
+        ang = rnd.<span class="t-f">random</span>() * <span class="t-n">6.28318</span>
+        pts2.<span class="t-f">append</span>((<span class="t-n">0.5</span> + <span class="t-n">0.4</span> * ang, <span class="t-n">0.5</span> + <span class="t-n">0.4</span> * ang))  <span class="t-c"># 沿直线(共线)退化</span>
+    c2 = <span class="t-f">min_circle_rand</span>(pts2)
+    <span class="t-k">for</span> p <span class="t-k">in</span> pts2:
+        <span class="t-k">assert</span> (p[<span class="t-n">0</span>] - c2[<span class="t-n">0</span>]) ** <span class="t-n">2</span> + (p[<span class="t-n">1</span>] - c2[<span class="t-n">1</span>]) ** <span class="t-n">2</span> &lt;= c2[<span class="t-n">2</span>] + <span class="t-n">1e-6</span>, p
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;random-technique tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">random 模块在 PyPy 下与 CPython 行为一致但更快。竞赛中随机化常用 time 或随机种子初始化；若需可复现，固定 seed。注意 Python 的 random.shuffle 是就地 O(n)，随机增量法在纯 Python 下 O(n) 期望但常数来自浮点运算，点集 1e5 量级仍可行。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>各模式不同：随机覆盖/命中 O(重复次数 × 单次判定)；随机增量法 O(n) 期望（因打乱后外层点被圆外点约束概率小）；重复次数一般为 O(log(1/ε)/p)</td></tr><tr><th>空间复杂度</th><td>通常 O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">是概率算法：以极小概率出错（一般可接受）；重复次数与时间预算需平衡；某些问题即使随机也无法构造高概率事件（p 太小）；在正式 OI 中随机化方案需要自造大随机数据压测调参。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>随机化≠启发式：必须能给出失败概率上界，否则不叫随机化算法</li><li>重复次数不足导致正确率过低；k=-logε/p 要算对</li><li>种子固定/不随机化（如 srand 忘调用）会让随机算法退化为确定算法且可被构造数据攻击</li><li>随机增量法必须先 shuffle，否则仍保留最坏情况 O(n^2)</li><li>随机哈希值域小（如 mod 1e9+7 单哈希）碰撞率在大量比较时不可忽略，用 2^64/双模</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1742</strong></td><td>3</td><td>最小圆覆盖：随机增量法，O(n) 期望复杂度，随机化消除最坏情况</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1742" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1742</a></td></tr><tr><td>UOJ</td><td><strong>207</strong></td><td>5</td><td>共价大爷游长沙：随机权值哈希 + LCT 维护边必经判定</td><td class="u"><a href="https://uoj.ac/problem/207" target="_blank" rel="noopener">https://uoj.ac/problem/207</a></td></tr><tr><td>CSES</td><td><strong>1685</strong></td><td>4</td><td>New Flight Routes：随机选汇源点对贪心连边构造强连通方案</td><td class="u"><a href="https://cses.fi/problemset/task/1685" target="_blank" rel="noopener">https://cses.fi/problemset/task/1685</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-random-technique" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "model", "label": "识别目标元素/目标集合"}}, {"data": {"id": "probability", "label": "计算单次成功概率 p"}}, {"data": {"id": "repeat", "label": "决定重复次数 k=-logε/p"}}, {"data": {"id": "run", "label": "执行随机化过程并验证"}}, {"data": {"id": "fallback", "label": "失败时重试或报告"}}, {"data": {"id": "emodel->probability", "source": "model", "target": "probability"}}, {"data": {"id": "eprobability->repeat", "source": "probability", "target": "repeat"}}, {"data": {"id": "erepeat->run", "source": "repeat", "target": "run"}}, {"data": {"id": "erun->run", "source": "run", "target": "run"}}, {"data": {"id": "erun->fallback", "source": "run", "target": "fallback"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-random-technique'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="random-gen.html" title="随机化技巧依赖随机数生成">随机数据生成<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="random-shuffle.html" title="随机打乱是随机化技巧的具体应用">随机打乱防hack<span class="etype">前置依赖</span></a><a class="chip e-variant" href="anti-hash.html" title="防卡Hash是随机化在哈希中的特化">防卡Hash随机化<span class="etype">变体</span></a><a class="chip e-prerequisite" href="hill-climbing.html" title="爬山算法依赖随机化基础">爬山算法<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/rand-technique/" target="_blank" rel="noopener">https://oi-wiki.org/misc/rand-technique/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/geometry/random-incremental/" target="_blank" rel="noopener">https://oi-wiki.org/geometry/random-incremental/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CLRS ch5 (随机化算法与概率分析), CPH 附录</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

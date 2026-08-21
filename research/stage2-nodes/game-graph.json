@@ -1,0 +1,108 @@
+{
+  "id": "game-graph",
+  "name": "博弈图与必胜必败态",
+  "group": "G-E-6",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "把公平组合游戏的状态画成有向无环图：无后继态为 P（先手必败）；存在后继为 P 的是 N（必胜）；所有后继都是 N 的才是 P；O(|V|+|E|) 逆拓扑标记",
+  "what": "博弈图：公平组合游戏的所有状态作为顶点，状态 x 到后继 y 连有向边（一次合法操作）。若游戏有限且无平局，博弈图是有向无环图（DAG）。必胜必败态（N/P 态）由归纳规则定义：① 无后继的状态是 P 态（先手无路可走而失败）；② 存在至少一个后继为 P 的状态是 N 态；③ 所有后继都是 N 的状态是 P 态。通过逆拓扑序（从出度为 0 的顶点开始反图 BFS）可在 O(|V|+|E|) 内标记所有状态。该框架是 Nim 定理、SG 函数与有向图游戏的共同基础。",
+  "why": {
+    "intuition": "把整个游戏倒着看：终点状态是'已知输'（P）。一个状态只要有一条通向'已知输'的路，先手走那条路就赢（N）。如果一个状态的所有出口都通向'对手能赢'，那无论先手怎么走都会输（P）。这就成了图上反向传播的标注过程——像在 DAG 上倒着染色。",
+    "principle": "三条规则构成良定义归纳：对 DAG 按拓扑序反向处理，每个状态的后继都已被标好。N/P 互斥且完备：任何非空后继集合要么含 P（则本身 N），要么全 N（则本身 P）。用反图 + 队列实现：初始把出度为 0 的点标 P 入队；弹出 u，对每个前驱 v：若 u 是 P 则 v 直接标 N；若 u 是 N 则给 v 的出度减一，v 的出度归零时（其所有后继都已知为 N）标 P。复杂度 O(V+E)。与 SG 的联系：SG=0 ⟺ P 态，SG≠0 ⟺ N 态。",
+    "history": "N/P 态的归纳刻画是组合博弈论最古老也最基础的结论，可追溯至 Zermelo（1913）关于棋类博弈无平局可判定的思想，Bouton（1901）在 Nim 的证明中已隐含使用，Sprague/Grundy 的 SG 理论将其数值化为 mex。OI Wiki 在 impartial-game 页『博弈图和状态』一节系统介绍，是理解后续所有博弈算法的入口。"
+  },
+  "how": {
+    "pseudocode": "# DAG 上标记 N/P 态（逆拓扑 + 反图队列）\nindeg_out = [len(succ[u]) for u]      # 出度\nstate = [未知] * V                     # -1=P, 1=N\nqueue = [u for u in V if outdeg[u]==0]\nfor u in queue: state[u] = P\nwhile queue:\n  u = queue.pop(0)\n  for v in pred[u]:                   # 反图\n    if state[v] != 未知: continue\n    if state[u] == P: state[v] = N; queue.append(v)\n    else:\n      outdeg[v] -= 1\n      if outdeg[v] == 0: state[v] = P; queue.append(v)",
+    "python": "from collections import deque\n\n\ndef classify_dag(n, graph):\n    \"\"\"在 DAG 上标记全部状态的 N/P 态。\n    graph[u] = u 的后继列表。\n    返回 state: 1=先手必胜(N), -1=先手必败(P)。\n    \"\"\"\n    outdeg = [len(graph[u]) for u in range(n)]\n    pred = [[] for _ in range(n)]\n    for u in range(n):\n        for v in graph[u]:\n            pred[v].append(u)\n\n    state = [0] * n\n    q = deque()\n    for u in range(n):\n        if outdeg[u] == 0:\n            state[u] = -1\n            q.append(u)\n    while q:\n        u = q.popleft()\n        for v in pred[u]:\n            if state[v] != 0:\n                continue\n            if state[u] == -1:\n                state[v] = 1\n                q.append(v)\n            else:\n                outdeg[v] -= 1\n                if outdeg[v] == 0:\n                    state[v] = -1\n                    q.append(v)\n    return state\n\n\nif __name__ == \"__main__\":\n    # 链式博弈 0->1->2->3（终点 3 无后继）\n    g1 = [[1], [2], [3], []]\n    s1 = classify_dag(4, g1)\n    assert s1 == [1, -1, 1, -1], s1\n\n    # 取 1 或 2 个石子的单堆游戏：状态 k 有后继 k-1,k-2\n    g2 = [[], [0], [0, 1], [1, 2], [2, 3], [3, 4]]\n    s2 = classify_dag(6, g2)\n    assert s2 == [-1, 1, 1, -1, 1, 1], s2  # SG: 0,1,2,0,1,2\n\n    # 与 SG 表交叉验证：取 1..K 的游戏 SG(k)=k%(K+1)，N 态 ⟺ SG≠0\n    def sg_win(k, K):\n        return k % (K + 1) != 0\n\n    for K in [1, 2, 3]:\n        g = [[max(0, k - d) for d in range(1, K + 1) if k >= d] for k in range(12)]\n        s = classify_dag(12, g)\n        for k in range(12):\n            assert (s[k] == 1) == sg_win(k, K), (K, k, s[k])\n\n    print(\"All tests passed.\")",
+    "pypy_notes": "DAG 顶点可到 1e6、边 1e6，用 list 存邻接表与反图即可，PyPy 下 BFS O(V+E) 约 1s。state 用 -1/0/1 整数数组省内存。若只需判定单点胜负也可用记忆化 DFS，但逆拓扑 BFS 更稳定无递归深度风险。",
+    "complexity": {
+      "time": "O(|V|+|E|)",
+      "space": "O(|V|+|E|)"
+    },
+    "limitations": "要求博弈图为 DAG（无平局、有限步）。若图有环（存在平局可能），N/P 标记会漏掉平局态，需用 game-on-graph 的三分类算法。状态空间巨大时（如连续量的 Nim 变体）无法显式建图，只能找规律或转 SG。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P2197",
+      "url": "https://www.luogu.com.cn/problem/P2197",
+      "difficulty": 2,
+      "key_point": "Nim 模板：Nim 和判定的背后就是博弈图 P/N 归纳，理解该题即理解本节点"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P6560",
+      "url": "https://www.luogu.com.cn/problem/P6560",
+      "difficulty": 6,
+      "key_point": "[SBCOI2020] 时光的流逝：有环图上带必胜/必败/平局的博弈（game-on-graph 分类的 DAG 简化版前置）"
+    }
+  ],
+  "pitfalls": [
+    "P 态定义是『所有后继都是 N』，不是『存在后继是 N』（后者是 N 态）",
+    "标记过程必须用反图（pred），正图会漏更新",
+    "出度为 0 的顶点初始化为 P 态，别忘了入队",
+    "有环图不能直接跑该算法（会残留未知状态当作 P 导致错误），需三分类",
+    "state 用 0 表示未定，注意与真实 P(-1)/N(1) 区分",
+    "若状态含大量未达态（孤点）要按真实出度处理"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "model",
+        "label": "把游戏建为博弈图（状态→后继）"
+      },
+      {
+        "id": "np_rule",
+        "label": "N/P 归纳规则（三条）"
+      },
+      {
+        "id": "reverse_bfs",
+        "label": "反图 + 出度队列标记全部状态"
+      },
+      {
+        "id": "sg_link",
+        "label": "与 SG 函数联系（SG=0 ⟺ P）"
+      },
+      {
+        "id": "cycle",
+        "label": "延伸: 有环图三分类见 game-on-graph"
+      }
+    ],
+    "edges": [
+      {
+        "from": "model",
+        "to": "np_rule"
+      },
+      {
+        "from": "np_rule",
+        "to": "reverse_bfs"
+      },
+      {
+        "from": "reverse_bfs",
+        "to": "sg_link"
+      },
+      {
+        "from": "reverse_bfs",
+        "to": "cycle"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/game-theory/impartial-game/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/game-theory/intro/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch25 Game theory, pp.245-252",
+      "verified": true
+    }
+  ]
+}

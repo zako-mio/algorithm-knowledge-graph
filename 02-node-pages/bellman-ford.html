@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bellman-Ford算法 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-2.html">最短路族</a> / <span>Bellman-Ford算法</span></div>
+  <h1>Bellman-Ford算法</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-B-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="floyd.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">floyd</span></a>
+    <a class="nav-index" href="../03-groups/G-B-2.html"><span class="dir">组内第 3 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="spfa.html"><span class="dir">下一个 / 组内</span><span class="v">spfa</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">含负权单源最短路，松弛操作O(VE)，可判负环</div><p>Bellman-Ford 算法求解含负权边的单源最短路，并对『从源可达的负环』给出检测。核心是 n-1 轮全边松弛：每轮对所有边 (u,v,w) 尝试 dis[v] = min(dis[v], dis[u]+w)，第 n 轮仍能松弛说明存在可达负环。时间复杂度 O(VE)。它是 Dijkstra（只能非负权）无法覆盖场景的兜底算法，也是 SPFA、差分约束、Johnson 求势能的子程序。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>一条最短路径若存在，其简单路径至多含 n-1 条边（无负环）。第 i 轮松弛保证所有『恰用 ≤i 条边可达』的最短路被算出：因为第 i 条边只有在第 i 轮才会被考虑进路径。类似把信息沿边逐层广播 n-1 轮。若第 n 轮还能松弛，说明存在长度持续变小的环（负环），最短路无界。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 初始化 dis[s]=0，其余 +∞；② 重复 n-1 次：对每条边 (u,v,w) 若 dis[u]+w&lt;dis[v] 则松弛；③ 若某轮无任何松弛可提前终止；④ 再做第 n 轮，若仍松弛则 s 可达负环；⑤ 从 s 出发的判定局限：只有 s 能到达的负环会被发现，全图负环需加超级源点连 0 权边。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>算法由 Richard Bellman (1958) 与 Lester Ford (1956) 独立提出，故得名；Lester Ford 1962 发表。它是动态规划思想用于最短路的最早范例，也是差分约束系统（转化为最短路）的理论基础。OI Wiki 与 CP-Algorithms 均有完整实现与负环判定讨论。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">bellman_ford</span>(n, edges, s):
+  dis[s]=<span class="t-n">0</span>; 其余 INF
+  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+    updated = <span class="t-k">False</span>
+    <span class="t-k">for</span> (u,v,w) <span class="t-k">in</span> edges:
+      <span class="t-k">if</span> dis[u]!=INF <span class="t-k">and</span> dis[u]+w &lt; dis[v]:
+        dis[v] = dis[u]+w; updated=<span class="t-k">True</span>
+    <span class="t-k">if</span> <span class="t-k">not</span> updated: <span class="t-k">break</span>
+  <span class="t-c"># 第 n 轮检测负环</span>
+  <span class="t-k">for</span> (u,v,w) <span class="t-k">in</span> edges:
+    <span class="t-k">if</span> dis[u]!=INF <span class="t-k">and</span> dis[u]+w &lt; dis[v]:
+      <span class="t-k">return</span> <span class="t-s">&#x27;s 可达负环&#x27;</span>
+  <span class="t-k">return</span> dis</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">bellman_ford</span>(n, edges, s):
+    <span class="t-s">&quot;&quot;&quot;含负权单源最短路 + 负环检测.
+    n: 点数; edges: [(u,v,w)]; s: 起点 (0-indexed).
+    返回 (ok, dis); ok=False 表示 s 可达负环, dis 无效.&quot;&quot;&quot;</span>
+    INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    dis = [INF] * n
+    dis[s] = <span class="t-n">0</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n - <span class="t-n">1</span>):
+        updated = <span class="t-k">False</span>
+        <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+            <span class="t-k">if</span> dis[u] != INF <span class="t-k">and</span> dis[u] + w &lt; dis[v]:
+                dis[v] = dis[u] + w
+                updated = <span class="t-k">True</span>
+        <span class="t-k">if</span> <span class="t-k">not</span> updated:
+            <span class="t-k">break</span>
+    <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+        <span class="t-k">if</span> dis[u] != INF <span class="t-k">and</span> dis[u] + w &lt; dis[v]:
+            <span class="t-k">return</span> <span class="t-k">False</span>, dis
+    <span class="t-k">return</span> <span class="t-k">True</span>, dis
+
+
+<span class="t-k">def</span> <span class="t-f">has_negative_cycle_global</span>(n, edges):
+    <span class="t-s">&quot;&quot;&quot;全图负环检测: 加超级源点连 0 权边, 跑 Bellman-Ford&quot;&quot;&quot;</span>
+    super_edges = edges + [(n, i, <span class="t-n">0</span>) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    ok, _ = <span class="t-f">bellman_ford</span>(n + <span class="t-n">1</span>, super_edges, n)
+    <span class="t-k">return</span> <span class="t-k">not</span> ok
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 标准用例</span>
+    edges = [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">6</span>), (<span class="t-n">0</span>, <span class="t-n">2</span>, <span class="t-n">7</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">8</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">5</span>), (<span class="t-n">1</span>, <span class="t-n">4</span>, -<span class="t-n">4</span>), (<span class="t-n">2</span>, <span class="t-n">3</span>, -<span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">9</span>), (<span class="t-n">3</span>, <span class="t-n">1</span>, -<span class="t-n">2</span>), (<span class="t-n">4</span>, <span class="t-n">0</span>, <span class="t-n">2</span>), (<span class="t-n">4</span>, <span class="t-n">3</span>, <span class="t-n">7</span>)]
+    ok, dis = <span class="t-f">bellman_ford</span>(<span class="t-n">5</span>, edges, <span class="t-n">0</span>)
+    <span class="t-k">assert</span> ok <span class="t-k">and</span> dis == [<span class="t-n">0</span>, <span class="t-n">2</span>, <span class="t-n">7</span>, <span class="t-n">4</span>, -<span class="t-n">2</span>], dis
+
+    <span class="t-c"># 负环 (0 可达): 0-&gt;1(1),1-&gt;2(-3),2-&gt;0(1) 总 -1</span>
+    neg = [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, -<span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">0</span>, <span class="t-n">1</span>)]
+    ok, _ = <span class="t-f">bellman_ford</span>(<span class="t-n">3</span>, neg, <span class="t-n">0</span>)
+    <span class="t-k">assert</span> ok <span class="t-k">is</span> <span class="t-k">False</span>
+    <span class="t-c"># 无负环</span>
+    no_neg = [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, -<span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">0</span>, <span class="t-n">5</span>)]
+    ok, dis = <span class="t-f">bellman_ford</span>(<span class="t-n">3</span>, no_neg, <span class="t-n">0</span>)
+    <span class="t-k">assert</span> ok <span class="t-k">and</span> dis == [<span class="t-n">0</span>, <span class="t-n">1</span>, -<span class="t-n">2</span>], dis
+
+    <span class="t-c"># 与 SPFA 交叉验证</span>
+    <span class="t-k">def</span> <span class="t-f">spfa</span>(n, edges, s):
+        <span class="t-k">from</span> collections <span class="t-k">import</span> deque
+        INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+        dis = [INF] * n
+        cnt = [<span class="t-n">0</span>] * n
+        vis = [<span class="t-k">False</span>] * n
+        adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+            adj[u].<span class="t-f">append</span>((v, w))
+        dis[s] = <span class="t-n">0</span>
+        q = <span class="t-f">deque</span>([s])
+        vis[s] = <span class="t-k">True</span>
+        <span class="t-k">while</span> q:
+            u = q.<span class="t-f">popleft</span>()
+            vis[u] = <span class="t-k">False</span>
+            <span class="t-k">for</span> v, w <span class="t-k">in</span> adj[u]:
+                <span class="t-k">if</span> dis[u] + w &lt; dis[v]:
+                    dis[v] = dis[u] + w
+                    cnt[v] = cnt[u] + <span class="t-n">1</span>
+                    <span class="t-k">if</span> cnt[v] &gt;= n:
+                        <span class="t-k">return</span> <span class="t-k">False</span>, <span class="t-k">None</span>
+                    <span class="t-k">if</span> <span class="t-k">not</span> vis[v]:
+                        q.<span class="t-f">append</span>(v)
+                        vis[v] = <span class="t-k">True</span>
+        <span class="t-k">return</span> <span class="t-k">True</span>, dis
+
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">23</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">7</span>)
+        edges = []
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> i != j <span class="t-k">and</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.3</span>:
+                    edges.<span class="t-f">append</span>((i, j, random.<span class="t-f">randint</span>(-<span class="t-n">5</span>, <span class="t-n">8</span>)))
+        s = random.<span class="t-f">randrange</span>(n)
+        ok1, d1 = <span class="t-f">bellman_ford</span>(n, edges, s)
+        ok2, d2 = <span class="t-f">spfa</span>(n, edges, s)
+        <span class="t-k">assert</span> ok1 == ok2, (n, edges, s, ok1, ok2)
+        <span class="t-k">if</span> ok1:
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">assert</span> d1[i] == d2[i], (i, d1[i], d2[i])
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">用列表存边，外层 n-1 次内层遍历 m 条边；加 visited 标记加速（dis 变化过的 u 才参与）。判负环时第 n 轮若更新则直接返回 False。PyPy 下 O(VE) 在 n,m 均 ~2e3 时 4e6 次可过；更大规模应优先 Dijkstra/SPFA。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(VE)（提前终止时通常更优）</td></tr><tr><th>空间复杂度</th><td>O(V+E)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">O(VE) 在稠密图上较慢（n 数千+全边时会超时）。只能检测『源点可达』的负环；若要求全图负环检测需加超级源点。不能输出负环本身（需额外 DFS/拓扑，见 CP-Alg negative cycle 篇）。对无负权图应优先 Dijkstra。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>第 n 轮判定负环时误认为『某边可松弛即全图负环』——只有 s 可达的负环才算</li><li>忘记 dis[u]==INF 时跳过（INF 参与运算会污染结果）</li><li>负环检测与最短路解耦：先判负环再输出 dis，否则 dis 无意义</li><li>边权很大的负值用 Python int 无溢出问题，但 INF 要足够大</li><li>邻接表实现时注意重边与自环；自环负权也是负环</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3385</strong></td><td>3</td><td>【模板】负环：SPFA/Bellman-Ford 判负环模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3385" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3385</a></td></tr><tr><td>CSES</td><td><strong>High Score</strong></td><td>4</td><td>CP-Alg 例题：正权环路/最长路，负环判定+可达性检查</td><td class="u"><a href="https://cses.fi/problemset/task/1673" target="_blank" rel="noopener">https://cses.fi/problemset/task/1673</a></td></tr><tr><td>CSES</td><td><strong>Cycle Finding</strong></td><td>4</td><td>CP-Alg 例题：检测负环并输出环中一个顶点</td><td class="u"><a href="https://cses.fi/problemset/task/1197" target="_blank" rel="noopener">https://cses.fi/problemset/task/1197</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-bellman-ford" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "init", "label": "dis[s]=0 初始化"}}, {"data": {"id": "rounds", "label": "n-1 轮全边松弛"}}, {"data": {"id": "early_exit", "label": "无更新提前终止"}}, {"data": {"id": "neg_check", "label": "第 n 轮判可达负环"}}, {"data": {"id": "super_src", "label": "超级源点做全图负环检测"}}, {"data": {"id": "einit->rounds", "source": "init", "target": "rounds"}}, {"data": {"id": "erounds->early_exit", "source": "rounds", "target": "early_exit"}}, {"data": {"id": "erounds->neg_check", "source": "rounds", "target": "neg_check"}}, {"data": {"id": "eneg_check->super_src", "source": "neg_check", "target": "super_src"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-bellman-ford'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="spfa.html" title="SPFA是Bellman-Ford的队列优化实现">SPFA算法<span class="etype">变体</span></a><a class="chip e-combination" href="johnson.html" title="Johnson用Bellman-Ford求势能h(i)">Johnson算法<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/shortest-path/" target="_blank" rel="noopener">https://oi-wiki.org/graph/shortest-path/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/bellman_ford.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/bellman_ford.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch13 pp133-142</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>链表 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-10.html">哈希与链表族</a> / <span>链表</span></div>
+  <h1>链表</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-10</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="hash-table.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">hash-table</span></a>
+    <a class="nav-index" href="../03-groups/G-A-10.html"><span class="dir">组内第 2 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="skiplist.html"><span class="dir">下一个 / 组内</span><span class="v">skiplist</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">节点指针串联，O(1) 插入删除，O(n) 随机访问，注意边界哨兵</div><p>链表（Linked List）由节点经指针串联而成：单向链表每个节点含数据域与 next 指针；双向链表还有 pre 指针。特点：插入/删除已知节点 O(1)（只需改相邻指针），但随机访问/按值查找 O(n)。与数组互补——数组随机访问 O(1) 而中间插入删除 O(n)。竞赛中常用场景：需要频繁在中间插入删除的模拟（约瑟夫问题、队列安排、双向 BFS 队列）、邻接表实现（前向星/链式前向星本质也是数组链表）、以及链表+其他结构配合（跳表、LRU 缓存）。实现上建议用『哨兵节点』（head/tail 哑节点）避免边界特判；Python 中常用 list 模拟（pre/nxt 两个数组）获得更低常数与更好缓存。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>数组是‘门牌号连续的一排房子’，中间插一间必须把后面全部搬动；链表是‘一串用绳子拴住的箱子’，在任意两箱之间塞新箱只要解两根绳、栓两根绳，其他箱子纹丝不动。代价是找第 k 个箱子得从头数起。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>单向插入 p 后：node.next=p.next; p.next=node。单向删除 p：用 p.next 的值覆盖 p，再跳过 p.next（无头删除技巧，需 p 非尾）。双向删除 p：p.pre.next=p.next; p.next.pre=p.pre。哨兵：head/tail 两个哑节点让首尾操作与普通一致，彻底消灭 if 空表判断。邻接表前向星：以数组存储，e[cnt].next=head[u], head[u]=cnt（头插），遍历 for(i=head[u]; i; i=e[i].next)。复杂度：已知节点插入/删除 O(1)，查找/随机访问 O(n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>链表概念来自 1950 年代早期（Allen Newell/Herbert Simon 的 List Processing，IPL 语言 1956 年由 McCarthy 的 LISP 发扬光大，LISP 以‘list’为核心数据结构）。MIT 人工智能实验室的 LISP 语言让链表成为计算机科学基础数据结构。OI Wiki《链表》页给出单向/双向/循环链表与异或链表的完整实现。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">class</span> Node: val; nxt; pre
+<span class="t-c"># 双向链表 + 哨兵</span>
+head = <span class="t-f">Node</span>(<span class="t-k">None</span>); tail = <span class="t-f">Node</span>(<span class="t-k">None</span>)
+head.nxt = tail; tail.pre = head
+<span class="t-k">def</span> <span class="t-f">insert_after</span>(p, val):
+  new = <span class="t-f">Node</span>(val); new.nxt = p.nxt; p.nxt.pre = new
+  p.nxt = new; new.pre = p; <span class="t-k">return</span> new
+<span class="t-k">def</span> <span class="t-f">remove</span>(p):
+  p.pre.nxt = p.nxt; p.nxt.pre = p.pre  <span class="t-c"># O(1)</span>
+<span class="t-c"># 单向链表的无头删除</span>
+<span class="t-k">def</span> <span class="t-f">delete_node_no_head</span>(p):
+  p.val = p.nxt.val; p.nxt = p.nxt.nxt</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> Node:
+    __slots__ = (<span class="t-s">&#x27;val&#x27;</span>, <span class="t-s">&#x27;nxt&#x27;</span>, <span class="t-s">&#x27;pre&#x27;</span>)
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, val):
+        self.val = val
+        self.nxt = <span class="t-k">None</span>
+        self.pre = <span class="t-k">None</span>
+
+
+<span class="t-k">class</span> DoublyLinkedList:
+    <span class="t-s">&quot;&quot;&quot;双向链表 + 哨兵节点. O(1) 插入删除; 记录链表长度.&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self):
+        self.head = <span class="t-f">Node</span>(<span class="t-k">None</span>)      <span class="t-c"># 哨兵头</span>
+        self.tail = <span class="t-f">Node</span>(<span class="t-k">None</span>)      <span class="t-c"># 哨兵尾</span>
+        self.head.nxt = self.tail
+        self.tail.pre = self.head
+        self._len = <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">__len__</span>(self):
+        <span class="t-k">return</span> self._len
+
+    <span class="t-k">def</span> <span class="t-f">is_empty</span>(self):
+        <span class="t-k">return</span> self._len == <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">_link</span>(self, a, b):
+        a.nxt = b
+        b.pre = a
+
+    <span class="t-k">def</span> <span class="t-f">insert_after</span>(self, node, val):
+        <span class="t-s">&quot;&quot;&quot;在 node 之后插入新节点, 返回新节点.&quot;&quot;&quot;</span>
+        new = <span class="t-f">Node</span>(val)
+        self.<span class="t-f">_link</span>(new, node.nxt)
+        self.<span class="t-f">_link</span>(node, new)
+        self._len += <span class="t-n">1</span>
+        <span class="t-k">return</span> new
+
+    <span class="t-k">def</span> <span class="t-f">insert_before</span>(self, node, val):
+        <span class="t-k">return</span> self.<span class="t-f">insert_after</span>(node.pre, val)
+
+    <span class="t-k">def</span> <span class="t-f">push_back</span>(self, val):
+        <span class="t-k">return</span> self.<span class="t-f">insert_before</span>(self.tail, val)
+
+    <span class="t-k">def</span> <span class="t-f">push_front</span>(self, val):
+        <span class="t-k">return</span> self.<span class="t-f">insert_after</span>(self.head, val)
+
+    <span class="t-k">def</span> <span class="t-f">remove</span>(self, node):
+        <span class="t-s">&quot;&quot;&quot;删除节点. O(1), 无需前驱指针(双向链表).&quot;&quot;&quot;</span>
+        self.<span class="t-f">_link</span>(node.pre, node.nxt)
+        node.nxt = node.pre = <span class="t-k">None</span>
+        self._len -= <span class="t-n">1</span>
+        <span class="t-k">return</span> node.val
+
+    <span class="t-k">def</span> <span class="t-f">to_list</span>(self):
+        res, p = [], self.head.nxt
+        <span class="t-k">while</span> p <span class="t-k">is</span> <span class="t-k">not</span> self.tail:
+            res.<span class="t-f">append</span>(p.val)
+            p = p.nxt
+        <span class="t-k">return</span> res
+
+    <span class="t-k">def</span> <span class="t-f">__iter__</span>(self):
+        p = self.head.nxt
+        <span class="t-k">while</span> p <span class="t-k">is</span> <span class="t-k">not</span> self.tail:
+            <span class="t-k">yield</span> p
+            p = p.nxt
+
+
+<span class="t-k">def</span> <span class="t-f">delete_node_no_head</span>(node):
+    <span class="t-s">&quot;&quot;</span><span class="t-s">&quot;单向链表&quot;</span>无头删除&quot;技巧: 用下一个节点的值覆盖当前节点, 再删下一个.
+    注意: 只能用于非尾节点.<span class="t-s">&quot;&quot;</span>&quot;
+    node.val = node.nxt.val
+    node.nxt = node.nxt.nxt
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    ll = <span class="t-f">DoublyLinkedList</span>()
+    a = ll.<span class="t-f">push_back</span>(<span class="t-n">10</span>)
+    b = ll.<span class="t-f">push_back</span>(<span class="t-n">20</span>)
+    c = ll.<span class="t-f">push_back</span>(<span class="t-n">30</span>)
+    <span class="t-k">assert</span> ll.<span class="t-f">to_list</span>() == [<span class="t-n">10</span>, <span class="t-n">20</span>, <span class="t-n">30</span>]
+    ll.<span class="t-f">insert_after</span>(a, <span class="t-n">15</span>)
+    <span class="t-k">assert</span> ll.<span class="t-f">to_list</span>() == [<span class="t-n">10</span>, <span class="t-n">15</span>, <span class="t-n">20</span>, <span class="t-n">30</span>]
+    ll.<span class="t-f">remove</span>(b)
+    <span class="t-k">assert</span> ll.<span class="t-f">to_list</span>() == [<span class="t-n">10</span>, <span class="t-n">15</span>, <span class="t-n">30</span>]
+    ll.<span class="t-f">push_front</span>(<span class="t-n">5</span>)
+    <span class="t-k">assert</span> ll.<span class="t-f">to_list</span>() == [<span class="t-n">5</span>, <span class="t-n">10</span>, <span class="t-n">15</span>, <span class="t-n">30</span>]
+    <span class="t-k">assert</span> <span class="t-b">len</span>(ll) == <span class="t-n">4</span>
+
+    <span class="t-c"># 与 Python list 模拟对比 (随机验证)</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">3</span>)
+    l2 = <span class="t-f">DoublyLinkedList</span>()
+    ref = []
+    nodes = []
+    <span class="t-k">for</span> step <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">5000</span>):
+        r = random.<span class="t-f">random</span>()
+        <span class="t-k">if</span> r &lt; <span class="t-n">0.35</span> <span class="t-k">or</span> <span class="t-k">not</span> ref:
+            v = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">1000</span>)
+            <span class="t-k">if</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.5</span>:
+                nodes.<span class="t-f">append</span>(l2.<span class="t-f">push_back</span>(v)); ref.<span class="t-f">append</span>(v)
+            <span class="t-k">else</span>:
+                nodes.<span class="t-f">insert</span>(<span class="t-n">0</span>, l2.<span class="t-f">push_front</span>(v)); ref.<span class="t-f">insert</span>(<span class="t-n">0</span>, v)
+        <span class="t-k">elif</span> r &lt; <span class="t-n">0.7</span>:
+            i = random.<span class="t-f">randrange</span>(<span class="t-b">len</span>(ref))
+            l2.<span class="t-f">remove</span>(nodes[i]); <span class="t-k">del</span> nodes[i]; <span class="t-k">del</span> ref[i]
+        <span class="t-k">else</span>:
+            i = random.<span class="t-f">randrange</span>(<span class="t-b">len</span>(ref))
+            v = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">1000</span>)
+            nodes.<span class="t-f">insert</span>(i + <span class="t-n">1</span>, l2.<span class="t-f">insert_after</span>(nodes[i], v)); ref.<span class="t-f">insert</span>(i + <span class="t-n">1</span>, v)
+        <span class="t-k">if</span> l2.<span class="t-f">to_list</span>() != ref:
+            <span class="t-b">print</span>(<span class="t-s">&quot;MISMATCH at&quot;</span>, step); <span class="t-k">break</span>
+    <span class="t-k">else</span>:
+        <span class="t-k">assert</span> l2.<span class="t-f">to_list</span>() == ref <span class="t-k">and</span> <span class="t-b">len</span>(l2) == <span class="t-b">len</span>(ref)
+        <span class="t-b">print</span>(<span class="t-s">&quot;linked-list: all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 对象式链表每个节点一个对象，开销大；竞赛大输入推荐用 list 模拟双向链表（pre/nxt/val 三个平行数组，下标即节点 id），常数是对象式的数倍。实现时要小心 0 下标哨兵，用 -1 表示空指针。删除时注意 list 数组中节点 id 复用问题（用 free list 或标 unused）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>插入/删除(已知位置) O(1)；查找/随机访问 O(n)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① 随机访问慢（无下标）；② 对象式 Python 链表内存/常数大，大数据用数组模拟；③ 单向链表删除已知节点需要前驱，否则用‘覆盖下一个’技巧（不能删尾）；④ 循环/双向链表的边界（空表、单节点）易错；⑤ 慎用 Python 的 id() 做指针（GC 不稳定），用索引模拟。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>删除单链表节点无前驱（覆盖技巧不能用于尾节点）</li><li>空表/单节点时哨兵指针处理错导致悬垂</li><li>对象式链表 GC/内存开销大，大数据用数组模拟</li><li>双向链表修改指针时顺序错（先断后连的顺序）</li><li>循环链表遍历忘记判环 / 死循环</li><li>删除后重复释放/复用节点导致链表断裂</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1160</strong></td><td>3</td><td>队列安排：链表模拟班级排座，支持中间插入删除，经典链表模拟题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1160" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1160</a></td></tr><tr><td>Luogu</td><td><strong>P1996</strong></td><td>1</td><td>约瑟夫问题：循环链表/模拟出队顺序</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1996" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1996</a></td></tr><tr><td>LeetCode.cn</td><td><strong>146</strong></td><td>3</td><td>LRU 缓存：哈希表+双向链表，O(1) 访问与淘汰</td><td class="u"><a href="https://leetcode.cn/problems/lru-cache/" target="_blank" rel="noopener">https://leetcode.cn/problems/lru-cache/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-linked-list" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "init", "label": "节点结构 + 哨兵 head/tail"}}, {"data": {"id": "insert", "label": "插入: 接 next 再接 pre (O(1))"}}, {"data": {"id": "delete", "label": "删除: 前驱后驱互接 (O(1))"}}, {"data": {"id": "traverse", "label": "遍历/查找 O(n)"}}, {"data": {"id": "ext", "label": "扩展: 循环链表/异或链表/邻接表/哈希+链表(LRU)/跳表"}}, {"data": {"id": "einit->insert", "source": "init", "target": "insert"}}, {"data": {"id": "einit->delete", "source": "init", "target": "delete"}}, {"data": {"id": "einsert->traverse", "source": "insert", "target": "traverse"}}, {"data": {"id": "edelete->traverse", "source": "delete", "target": "traverse"}}, {"data": {"id": "etraverse->ext", "source": "traverse", "target": "ext"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-linked-list'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/linked-list/" target="_blank" rel="noopener">https://oi-wiki.org/ds/linked-list/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch2.1 (动态数组/链表)</span></li><li><span class="srctype">article</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Linked_list" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Linked_list</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

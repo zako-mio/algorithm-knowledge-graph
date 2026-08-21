@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>点在多边形内判定 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-1.html">凸包族</a> / <span>点在多边形内判定</span></div>
+  <h1>点在多边形内判定</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-1</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="minkowski-sum.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">minkowski-sum</span></a>
+    <a class="nav-index" href="../03-groups/G-D-1.html"><span class="dir">组内第 6 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="enclosing-circle.html"><span class="dir">下一个 / 组内</span><span class="v">enclosing-circle</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">射线法判一般多边形，凸多边形用有序二分 O(logn)</div><p>点在多边形内判定（Point-in-Polygon, PIP）有两类主流方法：① 射线法（ray casting / even-odd rule）：从点向右作水平射线，统计与多边形边的交点数，奇数在内部，偶数在外部，适用于任意简单多边形（含凹），O(n)/次；② 凸多边形二分法：凸多边形按逆时针存储时，以最左点 p0 为极把所有点按极角排序，先判 p 是否在 p0p1 与 p0p_{n-1} 两侧夹角的扇形内，再二分定位 p 落在三角形 p0,p_i,p_{i+1} 中，O(log n)/次，适合大规模查询。回转数（winding number）算法可处理自交多边形但竞赛中少用。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>射线法：从点发射一条射线，每穿过一次边界就内外切换一次（Jordan 曲线定理），穿奇数次就是起点在内部。凸二分：凸多边形以 p0 为中心呈&#x27;扇形&#x27;排列，先用叉积夹出 p 所在的两条辐射边 p0p_i、p0p_{i+1}，再判 p 是否在扇形底边 p_i p_{i+1} 内侧——整个扇形区域被 p0 与凸包的&#x27;锥角&#x27;覆盖。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>射线法实现要点：只统计与水平射线严格相交（端点跨立）的边，y 用 &gt; 严格比较避免顶点被算两次；交点 x 在点右侧才计数。凸二分：选最小 x 的点 p0（并列取最小 y），其余点按逆时针排好后极角严格递增。先特判 p 在 p0p1 或 p0p_{n-1} 直线上；然后二分找到最后一个使叉积 (p_i-p0)×(p-p0) ≥ 0 的 i（即 p 在 p0p_i 左侧的最后一个），最后检查 p 是否在三角形 p0,p_i,p_{i+1} 内（叉积 (p_i-p)×(p_{i+1}-p) ≥ 0）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>射线法（pnpoly）源自经典的奇偶规则，W. R. Franklin 的 pnpoly 算法（1980s）是流传最广的单行实现；回转数概念来自拓扑学（winding number）。凸多边形对数查询由 Preparata &amp; Shamos 在计算几何早期工作（1978 博士论文）中给出，e-maxx 与 cp-algorithms 收录了标准实现，OI-wiki 的 misc 页也整理过射线法。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 射线法（任意简单多边形，O(n)）</span>
+<span class="t-k">def</span> <span class="t-f">pip_ray</span>(p, poly):
+    inside = <span class="t-k">False</span>
+    <span class="t-k">for</span> each <span class="t-f">edge</span> (p_i, p_{i+<span class="t-n">1</span>}):
+        <span class="t-k">if</span> (p_i.y &gt; p.y) != (p_{i+<span class="t-n">1</span>}.y &gt; p.y):   <span class="t-c"># 严格跨立</span>
+            x_cross = p_i.x + (p_{i+<span class="t-n">1</span>}.x - p_i.x) * (p.y - p_i.y) / (p_{i+<span class="t-n">1</span>}.y - p_i.y)
+            <span class="t-k">if</span> p.x &lt; x_cross: inside = <span class="t-k">not</span> inside
+    <span class="t-k">return</span> inside
+
+<span class="t-c"># 凸多边形二分（逆时针、首尾不重复，O(log n)）</span>
+p0 = 多边形中 x 最小（次小 y）的点，其余点极角有序
+<span class="t-k">if</span> 叉积(p0,p1,p) &lt; <span class="t-n">0</span> <span class="t-k">or</span> 叉积(p0,p_{n-<span class="t-n">1</span>},p) &gt; <span class="t-n">0</span>: <span class="t-k">return</span> <span class="t-k">False</span>   <span class="t-c"># 扇形外</span>
+<span class="t-k">if</span> 叉积(p0,p1,p) == <span class="t-n">0</span>: <span class="t-k">return</span> p 在 p0p1 上（含端点）
+lo, hi = <span class="t-n">1</span>, n-<span class="t-n">1</span>
+<span class="t-k">while</span> hi - lo &gt; <span class="t-n">1</span>:
+    mid = (lo+hi)//<span class="t-n">2</span>
+    <span class="t-k">if</span> 叉积(p0, poly[mid], p) &gt;= <span class="t-n">0</span>: lo = mid
+    <span class="t-k">else</span>: hi = mid
+<span class="t-k">return</span> 叉积(poly[lo], poly[hi], p) &gt;= <span class="t-n">0</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+
+
+<span class="t-k">def</span> <span class="t-f">cross</span>(o, a, b):
+    <span class="t-k">return</span> (a[<span class="t-n">0</span>]-o[<span class="t-n">0</span>])*(b[<span class="t-n">1</span>]-o[<span class="t-n">1</span>]) - (a[<span class="t-n">1</span>]-o[<span class="t-n">1</span>])*(b[<span class="t-n">0</span>]-o[<span class="t-n">0</span>])
+
+
+<span class="t-k">def</span> <span class="t-f">pip_ray</span>(p, poly):
+    <span class="t-s">&quot;&quot;&quot;射线法：任意简单多边形，O(n)。含边界时边界点可能判为内部/外部，需另行特判。&quot;&quot;&quot;</span>
+    x, y = p
+    inside = <span class="t-k">False</span>
+    n = <span class="t-b">len</span>(poly)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        x1, y1 = poly[i]
+        x2, y2 = poly[(i+<span class="t-n">1</span>) % n]
+        <span class="t-k">if</span> (y1 &gt; y) != (y2 &gt; y):
+            xi = x1 + (x2 - x1) * (y - y1) / (y2 - y1)
+            <span class="t-k">if</span> x &lt; xi:
+                inside = <span class="t-k">not</span> inside
+    <span class="t-k">return</span> inside
+
+
+<span class="t-k">def</span> <span class="t-f">in_convex</span>(p, poly):
+    <span class="t-s">&quot;&quot;&quot;凸多边形（逆时针、首尾不重复）O(log n) 判定，含边界。&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(poly)
+    p0 = poly[<span class="t-n">0</span>]
+    c1 = <span class="t-f">cross</span>(p0, poly[<span class="t-n">1</span>], p)
+    <span class="t-k">if</span> c1 &lt; <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-k">False</span>
+    <span class="t-k">if</span> <span class="t-f">cross</span>(p0, poly[-<span class="t-n">1</span>], p) &gt; <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-k">False</span>
+    <span class="t-k">if</span> c1 == <span class="t-n">0</span>:
+        <span class="t-k">return</span> (p[<span class="t-n">0</span>]-p0[<span class="t-n">0</span>])*(p[<span class="t-n">0</span>]-poly[<span class="t-n">1</span>][<span class="t-n">0</span>]) + (p[<span class="t-n">1</span>]-p0[<span class="t-n">1</span>])*(p[<span class="t-n">1</span>]-poly[<span class="t-n">1</span>][<span class="t-n">1</span>]) &lt;= <span class="t-n">0</span>
+    lo, hi = <span class="t-n">1</span>, n - <span class="t-n">1</span>
+    <span class="t-k">while</span> hi - lo &gt; <span class="t-n">1</span>:
+        mid = (lo + hi) // <span class="t-n">2</span>
+        <span class="t-k">if</span> <span class="t-f">cross</span>(p0, poly[mid], p) &gt;= <span class="t-n">0</span>:
+            lo = mid
+        <span class="t-k">else</span>:
+            hi = mid
+    <span class="t-k">return</span> <span class="t-f">cross</span>(poly[lo], poly[hi], p) &gt;= <span class="t-n">0</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    sq = [(<span class="t-n">0</span>, <span class="t-n">0</span>), (<span class="t-n">4</span>, <span class="t-n">0</span>), (<span class="t-n">4</span>, <span class="t-n">4</span>), (<span class="t-n">0</span>, <span class="t-n">4</span>)]
+    <span class="t-k">assert</span> <span class="t-f">pip_ray</span>((<span class="t-n">2</span>, <span class="t-n">2</span>), sq) <span class="t-k">is</span> <span class="t-k">True</span>
+    <span class="t-k">assert</span> <span class="t-f">pip_ray</span>((<span class="t-n">5</span>, <span class="t-n">2</span>), sq) <span class="t-k">is</span> <span class="t-k">False</span>
+    <span class="t-k">assert</span> <span class="t-f">in_convex</span>((<span class="t-n">2</span>, <span class="t-n">2</span>), sq) <span class="t-k">is</span> <span class="t-k">True</span>
+    <span class="t-k">assert</span> <span class="t-f">in_convex</span>((<span class="t-n">5</span>, <span class="t-n">5</span>), sq) <span class="t-k">is</span> <span class="t-k">False</span>
+    <span class="t-k">assert</span> <span class="t-f">in_convex</span>((<span class="t-n">0</span>, <span class="t-n">2</span>), sq) <span class="t-k">is</span> <span class="t-k">True</span>    <span class="t-c"># 边界</span>
+    <span class="t-k">assert</span> <span class="t-f">in_convex</span>((<span class="t-n">4</span>, <span class="t-n">4</span>), sq) <span class="t-k">is</span> <span class="t-k">True</span>    <span class="t-c"># 顶点</span>
+    <span class="t-c"># 凸多边形随机对拍：in_convex == pip_ray（严格内外一致，边界统一按 pip 计）</span>
+    <span class="t-k">import</span> random, math
+    <span class="t-k">def</span> <span class="t-f">rnd_convex</span>():
+        angs = <span class="t-b">sorted</span>(random.<span class="t-f">random</span>()*<span class="t-n">2</span>*math.pi <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">6</span>))
+        <span class="t-k">return</span> [(math.<span class="t-f">cos</span>(a)*<span class="t-n">5</span>, math.<span class="t-f">sin</span>(a)*<span class="t-n">5</span>) <span class="t-k">for</span> a <span class="t-k">in</span> angs]
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">100</span>):
+        cp = <span class="t-f">rnd_convex</span>()
+        <span class="t-c"># 保证 p0 是最左点（凸多边形旋转即可，构造时让 p0 为最左下）</span>
+        k = <span class="t-b">min</span>(<span class="t-b">range</span>(<span class="t-b">len</span>(cp)), key=<span class="t-k">lambda</span> i: (cp[i][<span class="t-n">0</span>], cp[i][<span class="t-n">1</span>]))
+        cp = cp[k:] + cp[:k]
+        <span class="t-k">for</span> _2 <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">40</span>):
+            q = (random.<span class="t-f">uniform</span>(-<span class="t-n">8</span>, <span class="t-n">8</span>), random.<span class="t-f">uniform</span>(-<span class="t-n">8</span>, <span class="t-n">8</span>))
+            a = <span class="t-f">in_convex</span>(q, cp)
+            b = <span class="t-f">pip_ray</span>(q, cp)
+            <span class="t-c"># 边界点在射线法下可能偏差，仅当 q 明显不在边界时要求一致</span>
+            onb = <span class="t-k">False</span>
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(cp)):
+                x1, y1 = cp[i]
+                x2, y2 = cp[(i+<span class="t-n">1</span>) % <span class="t-b">len</span>(cp)]
+                <span class="t-k">if</span> <span class="t-f">cross</span>(cp[i], cp[(i+<span class="t-n">1</span>) % <span class="t-b">len</span>(cp)], q) == <span class="t-n">0</span> <span class="t-k">and</span> <span class="t-b">min</span>(x1,x2)-<span class="t-n">1e-9</span> &lt;= q[<span class="t-n">0</span>] &lt;= <span class="t-b">max</span>(x1,x2)+<span class="t-n">1e-9</span> <span class="t-k">and</span> <span class="t-b">min</span>(y1,y2)-<span class="t-n">1e-9</span> &lt;= q[<span class="t-n">1</span>] &lt;= <span class="t-b">max</span>(y1,y2)+<span class="t-n">1e-9</span>:
+                    onb = <span class="t-k">True</span>
+            <span class="t-k">if</span> <span class="t-k">not</span> onb:
+                <span class="t-k">assert</span> a == b, (q, a, b)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;point-in-polygon all tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">射线法每次 O(n)，n 大且查询多时先凸包再二分；in_convex 用二分 O(log n)，Python 处理 1e5 查询轻松。射线法内部循环是纯算术，可把叉积/交点内联。整数坐标射线法可用整数交点比较避免浮点。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>射线法 O(n)/次；凸二分 O(log n)/次（凸包/预处理需 O(n) 或 O(n log n)）</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">射线法只适用简单多边形，自交多边形需回转数；射线穿过顶点/与边重合要用严格跨立处理；凸二分要求 p0 为最左点且其余点严格极角有序（凸多边形天然满足），输入若含重复点或退化需预处理；边界归属（在边上算内还是外）要按题目约定。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>射线法 y 比较必须用严格 &gt; 避免顶点被计两次</li><li>射线水平穿过边时该边不计数（用跨立条件排除）</li><li>凸二分时 p0 必须取最左下点，且多边形逆时针</li><li>边界归属：在边上时两个算法可能给出不同答案，需统一约定</li><li>射线法对自交多边形失效</li><li>浮点：叉积判 0 用 eps，否则边界点误判</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>CSES</td><td><strong>2192</strong></td><td>3</td><td>Point in Polygon：射线法判点在任意多边形内（含边界）</td><td class="u"><a href="https://cses.fi/problemset/task/2192/" target="_blank" rel="noopener">https://cses.fi/problemset/task/2192/</a></td></tr><tr><td>Luogu</td><td><strong>P1452</strong></td><td>3</td><td>凸包题目中常与凸多边形二分 PIP 配合（直径/包含判定）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1452" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1452</a></td></tr><tr><td>CP-Algorithms</td><td><strong>point-in-convex-polygon</strong></td><td>3</td><td>凸多边形 O(log n) 二分判定的标准实现</td><td class="u"><a href="https://cp-algorithms.com/geometry/point-in-convex-polygon.html" target="_blank" rel="noopener">https://cp-algorithms.com/geometry/point-in-convex-polygon.html</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-point-in-polygon" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "ray", "label": "射线法：严格跨立计数交点奇偶"}}, {"data": {"id": "conv", "label": "凸多边形：p0 极角扇形预判"}}, {"data": {"id": "bsearch", "label": "二分定位三角形 p0,p_i,p_{i+1}"}}, {"data": {"id": "tri", "label": "叉积判点在三角形内"}}, {"data": {"id": "boundary", "label": "边界/顶点特判"}}, {"data": {"id": "eray->boundary", "source": "ray", "target": "boundary"}}, {"data": {"id": "econv->bsearch", "source": "conv", "target": "bsearch"}}, {"data": {"id": "ebsearch->tri", "source": "bsearch", "target": "tri"}}, {"data": {"id": "etri->boundary", "source": "tri", "target": "boundary"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-point-in-polygon'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="convex-hull.html" title="凸多边形内点判定基于凸包有序性">凸包(Andrew/Graham)<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/geometry/point-in-convex-polygon.html" target="_blank" rel="noopener">https://cp-algorithms.com/geometry/point-in-convex-polygon.html</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/geometry/point-location.html" target="_blank" rel="noopener">https://cp-algorithms.com/geometry/point-location.html</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/2d.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/2d.md</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

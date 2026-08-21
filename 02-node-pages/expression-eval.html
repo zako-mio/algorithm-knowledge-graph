@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>表达式求值 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-7.html">离线与杂项技巧族</a> / <span>表达式求值</span></div>
+  <h1>表达式求值</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="frac-programming.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">frac-programming</span></a>
+    <a class="nav-index" href="../03-groups/G-E-7.html"><span class="dir">组内第 8 / 18</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="josephus.html"><span class="dir">下一个 / 组内</span><span class="v">josephus</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">中缀→后缀(逆波兰)→栈求值；双栈法O(n)；含一元/右结合运算符扩展</div><p>表达式求值指读入字符串表达式输出其值。核心思路：中缀表达式对人直观但需处理优先级与括号，计算机更适合后缀(逆波兰)表达式。方法有 ①表达式树(递归语法分析后自底向上求值) ②双栈法(数字栈+运算符栈，隐式转后缀边扫边算) ③直接转后缀再求值。所有方法在 O(n) 时间内完成。扩展情形含一元运算符(+/-)与右结合运算符(^)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>中缀的难点在&#x27;先算谁&#x27;由优先级决定。双栈法把&#x27;优先级高的运算符先执行&#x27;编码进扫描过程：遇到低优先级/右括号时把栈内优先级不低于它的运算符先弹掉运算，等价于把中缀转成了后缀再算。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>双栈法规则：遇到数字直接入数字栈；左括号入运算符栈；右括号弹运算符栈直到左括号并逐次运算；普通运算符弹出所有优先级&gt;=当前运算符的栈顶后入栈；扫描完把剩余运算符全部弹出运算。一元运算符需用 may_be_unary 标志区分(运算符/左括号/串首后的一元优先；右结合时等优先级不弹)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>逆波兰表达式由波兰逻辑学家 Jan Łukasiewicz(1920s)提出，反向的记法被称为 Reverse Polish Notation。双栈法即 Dijkstra 调车场算法(Shunting-yard algorithm)的变形。OI Wiki 表达式求值页(译自 e-maxx.ru / CP-Algorithms)给出含一元与右结合运算符的完整实现，并列出 NOIP2013 普及组表达式求值等经典习题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">priority</span>(op):
+  <span class="t-k">if</span> op <span class="t-k">in</span> <span class="t-s">&#x27;+-&#x27;</span>: <span class="t-k">return</span> <span class="t-n">1</span>
+  <span class="t-k">if</span> op <span class="t-k">in</span> <span class="t-s">&#x27;*/&#x27;</span>: <span class="t-k">return</span> <span class="t-n">2</span>
+  <span class="t-k">return</span> <span class="t-n">0</span>
+
+<span class="t-k">def</span> <span class="t-f">process</span>(st, op):
+  r = st.<span class="t-f">pop</span>(); l = st.<span class="t-f">pop</span>()
+  按 op 计算 <span class="t-f">l</span> (op) r 压回
+
+<span class="t-k">def</span> <span class="t-f">evaluate</span>(s):
+  st, ops = [], []
+  <span class="t-k">for</span> ch <span class="t-k">in</span> s:
+    <span class="t-k">if</span> ch.<span class="t-f">isdigit</span>(): st.<span class="t-f">push</span>(<span class="t-b">int</span>(ch))
+    <span class="t-k">elif</span> ch == <span class="t-s">&#x27;(&#x27;</span>: ops.<span class="t-f">push</span>(ch)
+    <span class="t-k">elif</span> ch == <span class="t-s">&#x27;)&#x27;</span>:
+      <span class="t-k">while</span> ops.<span class="t-f">top</span>() != <span class="t-s">&#x27;(&#x27;</span>: <span class="t-f">process</span>(st, ops.<span class="t-f">pop</span>())
+      ops.<span class="t-f">pop</span>()  <span class="t-c"># 丢弃左括号</span>
+    <span class="t-k">else</span>:
+      <span class="t-k">while</span> ops <span class="t-k">and</span> <span class="t-f">priority</span>(ops.<span class="t-f">top</span>()) &gt;= <span class="t-f">priority</span>(ch):
+        <span class="t-f">process</span>(st, ops.<span class="t-f">pop</span>())
+      ops.<span class="t-f">push</span>(ch)
+  <span class="t-k">while</span> ops: <span class="t-f">process</span>(st, ops.<span class="t-f">pop</span>())
+  <span class="t-k">return</span> st.<span class="t-f">top</span>()</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">evaluate</span>(expr):
+    <span class="t-s">&quot;&quot;&quot;双栈法求中缀表达式值, 支持 + - * / 与括号。
+    数字可为多位数; 除法为向下取整(竞赛常用)。
+    &quot;&quot;&quot;</span>
+    st = []
+    ops = []
+    prec = {<span class="t-s">&#x27;+&#x27;</span>: <span class="t-n">1</span>, <span class="t-s">&#x27;-&#x27;</span>: <span class="t-n">1</span>, <span class="t-s">&#x27;*&#x27;</span>: <span class="t-n">2</span>, <span class="t-s">&#x27;/&#x27;</span>: <span class="t-n">2</span>}
+
+    <span class="t-k">def</span> <span class="t-f">apply</span>(op):
+        r = st.<span class="t-f">pop</span>()
+        l = st.<span class="t-f">pop</span>()
+        <span class="t-k">if</span> op == <span class="t-s">&#x27;+&#x27;</span>:
+            st.<span class="t-f">append</span>(l + r)
+        <span class="t-k">elif</span> op == <span class="t-s">&#x27;-&#x27;</span>:
+            st.<span class="t-f">append</span>(l - r)
+        <span class="t-k">elif</span> op == <span class="t-s">&#x27;*&#x27;</span>:
+            st.<span class="t-f">append</span>(l * r)
+        <span class="t-k">elif</span> op == <span class="t-s">&#x27;/&#x27;</span>:
+            st.<span class="t-f">append</span>(l // r)
+
+    i = <span class="t-n">0</span>
+    n = <span class="t-b">len</span>(expr)
+    <span class="t-k">while</span> i &lt; n:
+        c = expr[i]
+        <span class="t-k">if</span> c == <span class="t-s">&#x27; &#x27;</span>:
+            i += <span class="t-n">1</span>
+            <span class="t-k">continue</span>
+        <span class="t-k">if</span> c.<span class="t-f">isdigit</span>():
+            num = <span class="t-n">0</span>
+            <span class="t-k">while</span> i &lt; n <span class="t-k">and</span> expr[i].<span class="t-f">isdigit</span>():
+                num = num * <span class="t-n">10</span> + <span class="t-b">int</span>(expr[i])
+                i += <span class="t-n">1</span>
+            st.<span class="t-f">append</span>(num)
+            <span class="t-k">continue</span>
+        <span class="t-k">if</span> c == <span class="t-s">&#x27;(&#x27;</span>:
+            ops.<span class="t-f">append</span>(c)
+        <span class="t-k">elif</span> c == <span class="t-s">&#x27;)&#x27;</span>:
+            <span class="t-k">while</span> ops <span class="t-k">and</span> ops[-<span class="t-n">1</span>] != <span class="t-s">&#x27;(&#x27;</span>:
+                <span class="t-f">apply</span>(ops.<span class="t-f">pop</span>())
+            ops.<span class="t-f">pop</span>()  <span class="t-c"># 移除 &#x27;(&#x27;</span>
+        <span class="t-k">elif</span> c <span class="t-k">in</span> prec:
+            <span class="t-k">while</span> ops <span class="t-k">and</span> ops[-<span class="t-n">1</span>] != <span class="t-s">&#x27;(&#x27;</span> <span class="t-k">and</span> prec[ops[-<span class="t-n">1</span>]] &gt;= prec[c]:
+                <span class="t-f">apply</span>(ops.<span class="t-f">pop</span>())
+            ops.<span class="t-f">append</span>(c)
+        <span class="t-k">else</span>:
+            <span class="t-k">raise</span> <span class="t-b">ValueError</span>(<span class="t-s">f&#x27;未知字符: {c}&#x27;</span>)
+        i += <span class="t-n">1</span>
+    <span class="t-k">while</span> ops:
+        <span class="t-f">apply</span>(ops.<span class="t-f">pop</span>())
+    <span class="t-k">return</span> st[-<span class="t-n">1</span>]
+
+
+<span class="t-k">def</span> <span class="t-f">to_rpn</span>(expr):
+    <span class="t-s">&quot;&quot;&quot;中缀转后缀(逆波兰), 演示转换过程。&quot;&quot;&quot;</span>
+    out = []
+    ops = []
+    prec = {<span class="t-s">&#x27;+&#x27;</span>: <span class="t-n">1</span>, <span class="t-s">&#x27;-&#x27;</span>: <span class="t-n">1</span>, <span class="t-s">&#x27;*&#x27;</span>: <span class="t-n">2</span>, <span class="t-s">&#x27;/&#x27;</span>: <span class="t-n">2</span>}
+    <span class="t-k">for</span> c <span class="t-k">in</span> expr:
+        <span class="t-k">if</span> c == <span class="t-s">&#x27; &#x27;</span>:
+            <span class="t-k">continue</span>
+        <span class="t-k">if</span> c.<span class="t-f">isdigit</span>():
+            out.<span class="t-f">append</span>(c)
+        <span class="t-k">elif</span> c == <span class="t-s">&#x27;(&#x27;</span>:
+            ops.<span class="t-f">append</span>(c)
+        <span class="t-k">elif</span> c == <span class="t-s">&#x27;)&#x27;</span>:
+            <span class="t-k">while</span> ops <span class="t-k">and</span> ops[-<span class="t-n">1</span>] != <span class="t-s">&#x27;(&#x27;</span>:
+                out.<span class="t-f">append</span>(ops.<span class="t-f">pop</span>())
+            ops.<span class="t-f">pop</span>()
+        <span class="t-k">else</span>:
+            <span class="t-k">while</span> ops <span class="t-k">and</span> ops[-<span class="t-n">1</span>] != <span class="t-s">&#x27;(&#x27;</span> <span class="t-k">and</span> prec[ops[-<span class="t-n">1</span>]] &gt;= prec[c]:
+                out.<span class="t-f">append</span>(ops.<span class="t-f">pop</span>())
+            ops.<span class="t-f">append</span>(c)
+    <span class="t-k">while</span> ops:
+        out.<span class="t-f">append</span>(ops.<span class="t-f">pop</span>())
+    <span class="t-k">return</span> <span class="t-s">&#x27;&#x27;</span>.<span class="t-f">join</span>(out)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-k">assert</span> <span class="t-f">evaluate</span>(<span class="t-s">&#x27;3+2*2&#x27;</span>) == <span class="t-n">7</span>
+    <span class="t-k">assert</span> <span class="t-f">evaluate</span>(<span class="t-s">&#x27;(1+2)*3&#x27;</span>) == <span class="t-n">9</span>
+    <span class="t-k">assert</span> <span class="t-f">evaluate</span>(<span class="t-s">&#x27;20/(4+1)&#x27;</span>) == <span class="t-n">4</span>          <span class="t-c"># 20//5</span>
+    <span class="t-k">assert</span> <span class="t-f">evaluate</span>(<span class="t-s">&#x27;1+2+3&#x27;</span>) == <span class="t-n">6</span>
+    <span class="t-k">assert</span> <span class="t-f">evaluate</span>(<span class="t-s">&#x27;2*(3+4)-5&#x27;</span>) == <span class="t-n">9</span>
+
+
+    <span class="t-k">assert</span> <span class="t-f">to_rpn</span>(<span class="t-s">&#x27;3+2*2&#x27;</span>) == <span class="t-s">&#x27;322*+&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-f">to_rpn</span>(<span class="t-s">&#x27;(1+2)*3&#x27;</span>) == <span class="t-s">&#x27;12+3*&#x27;</span>
+
+    <span class="t-c"># 与 Python 结果对照的复杂表达式(非负整除场景)</span>
+    <span class="t-k">for</span> s <span class="t-k">in</span> [<span class="t-s">&#x27;2+3*4-6/2&#x27;</span>, <span class="t-s">&#x27;10-2-3&#x27;</span>, <span class="t-s">&#x27;4/(2)+6&#x27;</span>]:
+        <span class="t-k">assert</span> <span class="t-f">evaluate</span>(s) == <span class="t-b">eval</span>(s.<span class="t-f">replace</span>(<span class="t-s">&#x27;/&#x27;</span>, <span class="t-s">&#x27;//&#x27;</span>)), s
+
+    <span class="t-b">print</span>(<span class="t-s">&#x27;evaluate(3+2*2)  =&#x27;</span>, <span class="t-f">evaluate</span>(<span class="t-s">&#x27;3+2*2&#x27;</span>))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;evaluate((1+2)*3) =&#x27;</span>, <span class="t-f">evaluate</span>(<span class="t-s">&#x27;(1+2)*3&#x27;</span>))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;evaluate(20/(4+1))=&#x27;</span>, <span class="t-f">evaluate</span>(<span class="t-s">&#x27;20/(4+1)&#x27;</span>))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;RPN of 3+2*2     =&#x27;</span>, <span class="t-f">to_rpn</span>(<span class="t-s">&#x27;3+2*2&#x27;</span>))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;RPN of (1+2)*3   =&#x27;</span>, <span class="t-f">to_rpn</span>(<span class="t-s">&#x27;(1+2)*3&#x27;</span>))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;All expression-eval tests passed!&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">双栈法对 Python 完全是线性开销, PyPy 直接跑即可; 大数据量用 list 当栈, 避免自定义类; 竞赛中遇到取模表达式(如 NOIP P1981 结果对 10000 取模)可在 apply 内同步取模防溢出(CPP 需 long long)。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(N) — 每个字符至多进出栈各一次</td></tr><tr><th>空间复杂度</th><td>O(N) — 两个栈总长度 O(N)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">双栈法默认运算符左结合; 处理右结合(如幂^)或一元运算符需扩展 may_be_unary 与优先级规则; 除法/取模语义需按题目确认(整除/真除法/模负数); 括号不匹配或非法字符需自行判错。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>出栈顺序: 先弹的是右操作数, process(op) 里 l=st[-2], r=st[-1], 顺序反了减法/除法错</li><li>右括号处理时要确保栈非空且最终把左括号丢弃, 漏丢会死循环</li><li>多位数输入需 while isdigit 连读, 只取单字符会在 20 这类数上出错</li><li>除法语义: 竞赛中常用向下取整, 但 Python 的 // 对负数向负无穷, 与 C++ 向零截断不同, 需按题确认</li><li>运算符优先级数组别漏 ( 的特判(它只起分隔作用, 不参与比较优先级)</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1981</strong></td><td>2</td><td>NOIP2013普及组 表达式求值: 中缀转后缀+取模, 标准双栈模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1981" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1981</a></td></tr><tr><td>Luogu</td><td><strong>P1449</strong></td><td>2</td><td>后缀表达式: 直接数字栈求值, 逆波兰入门</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1449" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1449</a></td></tr><tr><td>SPOJ</td><td><strong>ONP</strong></td><td>2</td><td>Transform the Expression: 中缀转后缀经典题</td><td class="u"><a href="https://www.spoj.com/problems/ONP/" target="_blank" rel="noopener">https://www.spoj.com/problems/ONP/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-expression-eval" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "token", "label": "扫描: 区分数字/左括号/右括号/运算符"}}, {"data": {"id": "num", "label": "数字(可多位数)入数字栈"}}, {"data": {"id": "lparen", "label": "左括号入运算符栈"}}, {"data": {"id": "rparen", "label": "右括号: 弹运算符直到左括号"}}, {"data": {"id": "op", "label": "普通运算符: 弹出优先级>=当前者后入栈"}}, {"data": {"id": "finish", "label": "扫描完弹空运算符栈, 栈顶为结果"}}, {"data": {"id": "etoken->num", "source": "token", "target": "num"}}, {"data": {"id": "etoken->lparen", "source": "token", "target": "lparen"}}, {"data": {"id": "etoken->rparen", "source": "token", "target": "rparen"}}, {"data": {"id": "etoken->op", "source": "token", "target": "op"}}, {"data": {"id": "erparen->finish", "source": "rparen", "target": "finish"}}, {"data": {"id": "eop->finish", "source": "op", "target": "finish"}}, {"data": {"id": "enum->finish", "source": "num", "target": "finish"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-expression-eval'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/expression/" target="_blank" rel="noopener">https://oi-wiki.org/misc/expression/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/expression.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/expression.md</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/string/expression_parsing.html" target="_blank" rel="noopener">https://cp-algorithms.com/string/expression_parsing.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

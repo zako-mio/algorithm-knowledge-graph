@@ -1,0 +1,65 @@
+{
+  "id": "random-shuffle",
+  "name": "随机打乱防hack",
+  "group": "G-E-5",
+  "stage": "intermediate",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "shuffle打乱输入顺序防止构造数据卡哈希/快排；CF hack常见反制手段",
+  "what": "随机打乱（random shuffle）是一种'防 hack'预处理：在算法执行前用随机数生成器打乱输入顺序，使确定性构造的'最坏数据'（针对固定顺序/固定哈希/固定枢纽的快排、固定 base 的字符串哈希、固定遍历顺序的算法）失效。在 Codeforces 的 hack 机制下，选手代码若对输入顺序、哈希 base、随机种子敏感，就会被构造数据卡掉；shuffle 或随机化参数能让攻击者无法预知代码行为。经典场景：随机化快速排序（随机选枢纽避免 O(n²) 退化）、随机 base/模数的字符串哈希（防碰撞构造）、随机增量法（见 random-technique）、std::random_shuffle 防止按特定顺序触发的退化分支。",
+  "why": {
+    "intuition": "构造数据之所以能卡掉算法，是因为攻击者知道你代码里的固定行为（如快排总是取第一个元素、哈希 base 固定为 131）。如果把顺序或参数随机化，攻击者针对'你的固定行为'构造的数据就不再有针对性——他无法预知哪个顺序/哪个 base 会让程序退化。本质是把'固定输入上的最坏情况'转化为'概率很小的随机事件'。",
+    "principle": "正确性来自概率分析：对任意固定的输入序列，随机打乱后落在'使算法退化'的那一小撮排列上的概率很低（例如随机化快排，任给输入，坏枢纽出现的概率被控制在某个常数以下，期望 O(n log n)）。关键要求：①随机种子必须每次运行不同（用系统时间/随机设备），否则攻击者可复现；②shuffle 必须均匀（Fisher–Yates），否则仍可预测；③随机范围要足够（如 base 从大范围随机选）。注意 shuffle 只对'对顺序敏感'的算法有效，不改变算法本身的正确性。",
+    "history": "随机化排序的研究可追溯到 1960s（Hoare 的快速排序随机化建议，1975 后正式分析）；Fisher–Yates shuffle 于 1938 年提出，是现代均匀随机排列的标准方法。'防 hack'实践随 Codeforces 的 hack 机制（2009+）而流行，成为 OI/ICPC 社区的反构造技巧。"
+  },
+  "how": {
+    "pseudocode": "import random\nrandom.seed()  # 默认系统熵\narr = [...]\nrandom.shuffle(arr)  # Fisher-Yates 均匀洗牌\n# 或固定种子便于复现: random.seed(1234)\n\n# 随机化快排: 每次随机选 pivot 或先 shuffle\n# 随机哈希 base: base = random.randrange(2**20, 2**30)\n# 注意: 防 hack 需每轮不同种子",
+    "python": "import random\n\n\ndef randomized_quicksort_median(a):\n    \"\"\"随机化快排: 随机选枢纽避免最坏情况\"\"\"\n    if len(a) <= 1:\n        return a[:]\n    pivot = a[random.randrange(len(a))]\n    lo = [x for x in a if x < pivot]\n    eq = [x for x in a if x == pivot]\n    hi = [x for x in a if x > pivot]\n    return randomized_quicksort_median(lo) + eq + randomized_quicksort_median(hi)\n\n\ndef fisher_yates_shuffle(arr):\n    \"\"\"手动 Fisher-Yates: 验证均匀性\"\"\"\n    a = arr[:]\n    for i in range(len(a) - 1, 0, -1):\n        j = random.randrange(i + 1)\n        a[i], a[j] = a[j], a[i]\n    return a\n\n\ndef sort_with_shuffle(arr, seed=None):\n    \"\"\"防 hack: 先 shuffle 再排序 (快排类算法消除最坏情况)\"\"\"\n    rng = random.Random(seed)\n    a = arr[:]\n    rng.shuffle(a)\n    a.sort()\n    return a\n\n\nif __name__ == \"__main__\":\n    random.seed(42)\n\n    # 随机化快排正确性\n    for _ in range(200):\n        n = random.randrange(1, 40)\n        a = [random.randrange(10) for _ in range(n)]\n        assert randomized_quicksort_median(a) == sorted(a)\n\n    # shuffle+sort 与排序一致\n    for _ in range(100):\n        n = random.randrange(1, 50)\n        a = [random.randrange(100) for _ in range(n)]\n        assert sort_with_shuffle(a, seed=7) == sorted(a)\n\n    # Fisher-Yates 均匀性: 统计每个元素到各位置频率近似均匀\n    n = 6\n    cnt = [[0] * n for _ in range(n)]\n    trials = 20000\n    for _ in range(trials):\n        p = fisher_yates_shuffle(list(range(n)))\n        for pos, val in enumerate(p):\n            cnt[val][pos] += 1\n    for v in range(n):\n        for pos in range(n):\n            assert abs(cnt[v][pos] / trials - 1.0 / n) < 0.02, (v, pos)\n\n    # 不同种子结果不同(防 hack 的关键)\n    a = list(range(50))\n    s1 = sort_with_shuffle(a, seed=1)\n    s2 = sort_with_shuffle(a, seed=2)\n    assert s1 == s2 == sorted(a)  # 排序结果相同但执行顺序不同\n\n    print(\"random-shuffle tests passed\")\n",
+    "pypy_notes": "Python 内置 random.shuffle 已是 Fisher–Yates 均匀洗牌，直接用即可。若需复现性，用 random.Random(seed) 实例或 random.seed()。PyPy 下 random 与 CPython 行为一致。注意：防 hack 要每次运行换种子（不要固定 seed，否则可被针对）。",
+    "complexity": {
+      "time": "shuffle O(n)；洗牌后算法复杂度同原算法（随机化快排期望 O(n log n)）",
+      "space": "O(1) 额外（原地 shuffle）"
+    },
+    "limitations": "只对顺序/参数敏感的算法有效；不改变算法正确性，只是降低最坏情况的概率；若攻击者能复现你的种子（如固定 seed），仍可被卡；对不依赖顺序的算法无意义。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3809",
+      "url": "https://www.luogu.com.cn/problem/P3809",
+      "difficulty": 3,
+      "key_point": "后缀排序模板：可配合随机哈希/随机化实践，但标准题主考 SA 倍增"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "U461211",
+      "url": "https://www.luogu.com.cn/problem/U461211",
+      "difficulty": 4,
+      "key_point": "字符串 Hash（数据加强）：随机 base/双哈希防卡，直接对应 anti-hash"
+    }
+  ],
+  "pitfalls": [
+    "固定种子/忘调 srand => 随机化名存实亡，可被 hack",
+    "random_shuffle 在旧标准下不是均匀的，用 std::shuffle 或 Fisher-Yates",
+    "shuffle 不能'修复'算法本身的逻辑错误",
+    "对内存/缓存敏感问题，shuffle 反而可能使局部性变差",
+    "OI/ICPC 正式赛一般不 hack，但防构造仍是稳健习惯"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "seed", "label": "初始化随机种子(不固定)" },
+      { "id": "shuffle", "label": "Fisher-Yates 均匀打乱输入" },
+      { "id": "algorithm", "label": "在打乱后数据上运行原算法" },
+      { "id": "verify", "label": "验证结果正确(复杂度期望可控)" }
+    ],
+    "edges": [
+      { "from": "seed", "to": "shuffle" },
+      { "from": "shuffle", "to": "algorithm" },
+      { "from": "algorithm", "to": "verify" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/misc/random/", "verified": true },
+    { "type": "wikipedia", "url": "https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle", "verified": true }
+  ]
+}

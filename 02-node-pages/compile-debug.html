@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>编译与调试 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-9.html">工具链族</a> / <span>编译与调试</span></div>
+  <h1>编译与调试</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-E-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-E-9.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-E-9.html"><span class="dir">组内第 1 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="testlib.html"><span class="dir">下一个 / 组内</span><span class="v">testlib</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">g++编译选项(-O2/-g/-Wall/-Wextra)、Sanitizer、gdb调试与Python调试技巧，竞赛提交前必备检查</div><p>编译与调试是竞赛选手的日常基本功。C++侧核心是g++编译选项：-O2/-O3优化、-g调试信息、-Wall/-Wextra警告、-DDEBUG宏控制、-lm链接math库；调试工具为gdb(断点/单步/观察变量)与Sanitizer(-fsanitize=address/undefined检测越界与未定义行为)。Python侧用pdb、print到stderr、setrecursionlimit、sys.stdin缓冲优化等。竞赛场景的核心纪律：本地用-g -fsanitize编译调试、提交用-O2（或-O3）并开启ONLINE_JUDGE宏，把调试代码用#ifdef/环境变量隔离，保证提交代码不含调试输出。编译原理层面还需理解优化(常量折叠、内联、循环展开、死代码消除)如何影响性能与调试可读性。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>编译选项就像&#x27;装配模式&#x27;：调试模式(-g,无优化)保留源码映射和变量名，方便人机对话式排查；发布模式(-O2)优化执行速度但会打乱源码对应关系。Sanitizer则是&#x27;安全气囊&#x27;，在程序越界/未定义行为时立刻报警而不是让结果悄悄出错。正确组合&#x27;本地调试模式+提交优化模式&#x27;能大幅缩短排错时间。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>g++工作流：(1)本地开发用 g++ -std=c++17 -Wall -Wextra -g -fsanitize=address,undefined -DDEBUG a.cpp -o a，运行发现越界/UB；(2)提交用 g++ -std=c++17 -O2 -DONLINE_JUDGE a.cpp。核心开关：-O2/-O3/Ofast优化等级(优化会显著降低调试可读性,Debug时勿用)；-g写调试信息供gdb；-Wall/-Wextra显示可能错误的警告；-fsanitize=address(ASan,检测堆栈越界/释放后使用,约2x慢)、undefined(UBSan,检测整数溢出/除零等UB,零开销)；-DDEBUG定义宏(代码内#ifdef DEBUG输出调试信息,ONLINE_JUDGE由OJ定义用于区分本地/提交)。gdb常用：break设置断点、run/next/step执行控制、print/watch看变量、backtrace看调用栈。Python常用：pdb断点、sys.stderr输出调试、functools/计数器定位逻辑错误。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>GCC是Linux/竞赛环境的事实标准编译器，gdb从1986年随GNU项目发展至今。Sanitizer是Google/LLVM 2012年前后引入的编译期插桩技术，成为C/C++内存安全调试的主流工具。OI Wiki的compile-debug.md、compiler.md与lang/optimizations.md系统介绍了这些内容。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 本地调试编译(启用Sanitizer与调试信息)</span>
+g++ -std=c++<span class="t-n">17</span> -g -Wall -Wextra -fsanitize=address,undefined -DDEBUG a.cpp -o a_dbg
+./a_dbg &lt; test.<span class="t-k">in</span>
+
+<span class="t-c"># 提交编译(最高优化, 关闭调试)</span>
+g++ -std=c++<span class="t-n">17</span> -O2 -DONLINE_JUDGE a.cpp -o a
+
+<span class="t-c"># gdb 会话</span>
+gdb ./a_dbg
+  <span class="t-k">break</span> main
+  run &lt; test.<span class="t-k">in</span>
+  <span class="t-b">next</span> / step / finish
+  <span class="t-b">print</span> arr / watch i / backtrace
+
+<span class="t-c"># Python 调试</span>
+debug输出到stderr: <span class="t-b">print</span>(..., file=sys.stderr)
+python3 -m pdb script.py</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-s">&quot;&quot;&quot;编译与调试：完整工作流模板(带自测).
+覆盖: 编译选项生成、C+++Sanitizer检查、Python性能调试、gdb命令参考.
+&quot;&quot;&quot;</span>
+<span class="t-k">import</span> subprocess
+<span class="t-k">import</span> sys
+<span class="t-k">import</span> os
+<span class="t-k">import</span> tempfile
+
+<span class="t-c"># ---------- 1. g++ 编译命令模板 ----------</span>
+COMPILE_DEBUG = (
+    <span class="t-s">&quot;g++ -std=c++17 -g -Wall -Wextra &quot;</span>
+    <span class="t-s">&quot;-fsanitize=address,undefined -DDEBUG a.cpp -o a_dbg&quot;</span>
+)
+COMPILE_SUBMIT = <span class="t-s">&quot;g++ -std=c++17 -O2 -DONLINE_JUDGE a.cpp -o a&quot;</span>
+COMPILE_PROFILE = <span class="t-s">&quot;g++ -std=c++17 -O2 -Wall a.cpp -o a&quot;</span>
+
+
+<span class="t-k">def</span> <span class="t-f">make_debug_build</span>(src, exe=<span class="t-s">&quot;a_dbg&quot;</span>):
+    <span class="t-s">&quot;&quot;&quot;编译并返回(返回码, stderr).&quot;&quot;&quot;</span>
+    cmd = (
+        <span class="t-s">&quot;g++ -std=c++17 -g -Wall -Wextra &quot;</span>
+        <span class="t-s">f&quot;-fsanitize=address,undefined {src} -o {exe}&quot;</span>
+    )
+    r = subprocess.<span class="t-f">run</span>(cmd, shell=<span class="t-k">True</span>, capture_output=<span class="t-k">True</span>, text=<span class="t-k">True</span>)
+    <span class="t-k">return</span> r.returncode, r.stderr
+
+
+<span class="t-c"># ---------- 2. Python 侧调试/性能工具 ----------</span>
+
+<span class="t-k">def</span> <span class="t-f">timeit</span>(f, *args, label=<span class="t-s">&quot;&quot;</span>, repeat=<span class="t-n">3</span>):
+    <span class="t-s">&quot;&quot;&quot;简单计时器, 用于定位性能瓶颈.&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> time
+    best = <span class="t-k">None</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(repeat):
+        t0 = time.<span class="t-f">perf_counter</span>()
+        <span class="t-f">f</span>(*args)
+        dt = time.<span class="t-f">perf_counter</span>() - t0
+        best = dt <span class="t-k">if</span> best <span class="t-k">is</span> <span class="t-k">None</span> <span class="t-k">else</span> <span class="t-b">min</span>(best, dt)
+    <span class="t-b">print</span>(<span class="t-s">f&quot;{label}: {best*1000:.2f} ms&quot;</span>)
+    <span class="t-k">return</span> best
+
+
+<span class="t-k">def</span> <span class="t-f">fast_io</span>():
+    <span class="t-s">&quot;&quot;&quot;Python竞赛输入加速: 一次性读入全部并缓存.&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> sys
+    data = sys.stdin.buffer.<span class="t-f">read</span>().<span class="t-f">split</span>()
+    it = <span class="t-b">iter</span>(data)
+    <span class="t-k">return</span> it
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 测试时间工具</span>
+    <span class="t-k">def</span> <span class="t-f">dummy</span>(n):
+        s = <span class="t-n">0</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            s += i
+        <span class="t-k">return</span> s
+
+    t = <span class="t-f">timeit</span>(dummy, <span class="t-n">1000000</span>, label=<span class="t-s">&quot;sum 1e6&quot;</span>)
+    <span class="t-k">assert</span> t <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>
+
+    <span class="t-c"># 测试fast_io接口</span>
+    it = <span class="t-f">fast_io</span>()
+    <span class="t-k">assert</span> it <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>
+
+    <span class="t-c"># 演示gdb命令(不实际执行, 仅验证模板存在)</span>
+    <span class="t-k">assert</span> <span class="t-s">&quot;break main&quot;</span> <span class="t-k">in</span> <span class="t-s">&quot;&quot;&quot;
+break main
+run &lt; test.in
+next
+step
+finish
+print arr
+watch i
+backtrace
+&quot;&quot;&quot;</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;compile-debug: ALL TESTS PASSED&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python调试注意：避免list.pop(0)、优先sys.stdin.buffer.read()读入、递归前setrecursionlimit(1&lt;&lt;25)。编译选项对Python无意义，但可用pypy3 -m cProfile定位热点。C++的-UDEBUG可取消宏定义。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>编译期开销O(源码规模); 运行时-O2显著加速(常数级, 可能2-5x)</td></tr><tr><th>空间复杂度</th><td>Sanitizer增加内存占用(ASan约2x, TSan 5-15x)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Windows下g++不支持Sanitizer(需修改版MinGW64);优化选项(-O2/-O3)可能掩盖或改变调试行为;Python无编译期宏,只能用环境变量/常量控制调试输出。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>Debug时不要开-O2/-O3: 优化打乱变量映射, gdb无法可靠查看</li><li>Sanitizer与-O2/Ofast不兼容, 调试用-fsanitize提交用-O2</li><li>调试输出必须到stderr, 否则污染stdout被判WA</li><li>-lm仅Unix下math库需要; Windows/Linux g++一般自动链接</li><li>Python的os.environ在import时读取, 运行中改环境变量不生效</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>OI Wiki</td><td><strong>compile-debug 教程</strong></td><td>0</td><td>g++选项、gdb命令、Sanitizer的权威中文教程</td><td class="u"><a href="https://oi-wiki.org/tools/compile-debug/" target="_blank" rel="noopener">https://oi-wiki.org/tools/compile-debug/</a></td></tr><tr><td>OI Wiki</td><td><strong>compiler 安装</strong></td><td>0</td><td>各系统GCC/Clang安装与环境变量配置</td><td class="u"><a href="https://oi-wiki.org/tools/compiler/" target="_blank" rel="noopener">https://oi-wiki.org/tools/compiler/</a></td></tr><tr><td>OI Wiki</td><td><strong>优化介绍</strong></td><td>0</td><td>编译器优化原理(常量折叠/内联/死代码消除)与-Ox差异</td><td class="u"><a href="https://oi-wiki.org/lang/optimizations/" target="_blank" rel="noopener">https://oi-wiki.org/lang/optimizations/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-compile-debug" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "setup", "label": "安装编译器+调试器"}}, {"data": {"id": "dbg_build", "label": "本地-g -fsanitize编译"}}, {"data": {"id": "run_dbg", "label": "小数据运行找错"}}, {"data": {"id": "gdb", "label": "gdb/pdb断点单步排查"}}, {"data": {"id": "submit_build", "label": "提交-O2编译"}}, {"data": {"id": "verify", "label": "验证正确性与时限"}}, {"data": {"id": "esetup->dbg_build", "source": "setup", "target": "dbg_build"}}, {"data": {"id": "edbg_build->run_dbg", "source": "dbg_build", "target": "run_dbg"}}, {"data": {"id": "erun_dbg->gdb", "source": "run_dbg", "target": "gdb"}}, {"data": {"id": "egdb->submit_build", "source": "gdb", "target": "submit_build"}}, {"data": {"id": "esubmit_build->verify", "source": "submit_build", "target": "verify"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-compile-debug'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="testlib.html" title="编译调试与testlib对拍同属工具链">testlib对拍框架<span class="etype">共现</span></a><a class="chip e-cooccurrence" href="debug-macro.html" title="编译选项与调试宏配合使用">调试宏<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/tools/compile-debug/" target="_blank" rel="noopener">https://oi-wiki.org/tools/compile-debug/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/tools/compiler/" target="_blank" rel="noopener">https://oi-wiki.org/tools/compiler/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/lang/optimizations/" target="_blank" rel="noopener">https://oi-wiki.org/lang/optimizations/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

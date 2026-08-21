@@ -1,0 +1,115 @@
+{
+  "id": "dmst",
+  "name": "最小树形图(DMST)",
+  "group": "G-B-3",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "有向图最小生成树，朱刘算法(Edmonds) O(VE)，缩环+入边修正",
+  "what": "最小树形图(Directed MST)问题：给有向图 G 和根 r，求一棵以 r 为根、能到达所有点的最小权『根向树形图』(每条非根点恰有一条入边，且从 r 出发可达)。经典算法是朱刘算法(Edmonds 算法)：每轮为每个非根点选最小入边，若不成环则已得最优；否则把选边形成的环缩成超级点，并把进入环的边权减去其终点原入边权(做修正)，再递归，直到无环。朴素实现 O(VE)，每轮收缩至少减少一个点。",
+  "why": {
+    "intuition": "对每个点来说，最优解里它一定选了入边中最小的一条(入度约束独立)。但如果这样选边后出现了环，说明环内没有根，环上每点各选了一条入边——此时必须『破环』：放弃环上一条边。破环的代价就是进入环的替代边与环内被顶掉边的差值。朱刘算法把这个代价直接算在边权上(减 in[v])，使环缩成超级点后问题规模缩小，反复执行。",
+    "principle": "每轮：① 选每个非根点的最小入边 in[v]；② 若无环则 ∑in 即答案(根可达性检查)；③ 否则对每个环，把环内点缩成超级点；对每条跨环边 (u,v)，权修正为 w(u,v)−in[v](即『替换进入环的最小入边所需代价』)；④ 重复直到无环。正确性由『环内必弃一条边，弃边可等效为权修正』的交换论证保证。实现需注意根的处理与最终按缩点结构展开。",
+    "history": "由朱永津和刘振宏于 1965 年(中国)独立提出，同年 J. Edmonds 也在西方发表同一算法，故称朱刘算法(Chu–Liu/Edmonds 算法)。1977 年 Tarjan 给出 O(m+n log n) 的堆优化版本(结合左偏树/并查集)。"
+  },
+  "how": {
+    "pseudocode": "function chu_liu(n, edges, root):\n  ans = 0\n  while True:\n    in_w[v]=INF, pre[v]=-1 for all v\n    for (u,v,w) in edges: if u!=v and w<in_w[v]: in_w[v]=w, pre[v]=u\n    in_w[root]=0\n    if any i!=root and in_w[i]==INF: return None   # 根不可达\n    find cycles via pre[] links (vis/id arrays)\n    ans += sum(in_w)\n    if no cycle: break\n    assign new ids to super-nodes (环内同号)\n    for (u,v,w) in edges:\n      if u!=v:\n        nu,nv = id[u],id[v]\n        if nu!=nv: new_edges.add((nu,nv, w - in_w[v]))\n    edges=new_edges; n=cnt; root=id[root]\n  return ans",
+    "python": "INF = 10**18\n\n\ndef chu_liu_edmonds(n, edges, root):\n    \"\"\"朱刘算法求最小树形图 (有向图, 从 root 出发可达所有点的最小生成树)。\n    edges: list of (u, v, w)。返回最小总权或 None(不可达)\"\"\"\n    ans = 0\n    e = [(u, v, w) for u, v, w in edges]\n    while True:\n        in_w = [INF] * n\n        pre = [-1] * n\n        for u, v, w in e:\n            if u != v and w < in_w[v]:\n                in_w[v] = w\n                pre[v] = u\n        in_w[root] = 0\n        for i in range(n):\n            if i != root and in_w[i] == INF:\n                return None\n        cnt = 0\n        id_arr = [-1] * n\n        vis = [-1] * n\n        for i in range(n):\n            ans += in_w[i]\n            v = i\n            while vis[v] != i and id_arr[v] == -1 and v != root:\n                vis[v] = i\n                v = pre[v]\n            if v != root and id_arr[v] == -1:\n                u = pre[v]\n                while u != v:\n                    id_arr[u] = cnt\n                    u = pre[u]\n                id_arr[v] = cnt\n                cnt += 1\n        if cnt == 0:\n            break\n        for i in range(n):\n            if id_arr[i] == -1:\n                id_arr[i] = cnt\n                cnt += 1\n        new_edges = []\n        for u, v, w in e:\n            if u != v:\n                nu, nv = id_arr[u], id_arr[v]\n                if nu != nv:\n                    new_edges.append((nu, nv, w - in_w[v]))\n        e = new_edges\n        n = cnt\n        root = id_arr[root]\n    return ans\n\n\nif __name__ == \"__main__\":\n    e = [(0, 1, 5), (1, 2, 3), (2, 0, 4)]  # 有向三角, root=0: 5+3=8\n    assert chu_liu_edmonds(3, e, 0) == 8\n    e2 = [(0, 1, 1), (0, 2, 2), (1, 2, 10)]  # 星形: 1+2=3\n    assert chu_liu_edmonds(3, e2, 0) == 3\n    e3 = [(0, 1, 1)]  # 2 不可达\n    assert chu_liu_edmonds(3, e3, 0) is None\n    e5 = [(0, 1, 5), (0, 2, 6), (1, 2, 1), (2, 1, 1)]  # 需缩环: 最小=6\n    assert chu_liu_edmonds(3, e5, 0) == 6, chu_liu_edmonds(3, e5, 0)\n    print(\"dmst OK\")\n",
+    "pypy_notes": "朴素朱刘 O(VE) 每轮重建边表，适合 n≤300, m≤n^2 的小数据；大规模(n≤1e5)须用 Tarjan 的堆优化版(左偏树+并查集)，实现复杂，竞赛一般只用到朴素版。注意 Python 中 INF 用 1e18 足够。缩环后 n 缩小，root 需映射为 id[root]，否则越界。",
+    "complexity": {
+      "time": "O(VE)，每轮找最小入边 O(E)、缩环至多 n 轮",
+      "space": "O(V+E)"
+    },
+    "limitations": "1) 必须指定根，且根需能到达所有点，否则无解；2) 朴素版 O(VE) 只适合小数据(n≤500)，大数据需 Tarjan O(m+n log n) 堆优化(难写)；3) 边权修正 w−in[v] 依赖 in[v] 是本轮选中的入边权，实现中注意只对跨环边修正；4) 有重边时取最小入边自然处理。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4716",
+      "url": "https://www.luogu.com.cn/problem/P4716",
+      "difficulty": 4,
+      "key_point": "【模板】最小树形图：朱刘算法标准模板题"
+    },
+    {
+      "oj": "HDU",
+      "pid": "2121",
+      "url": "http://acm.hdu.edu.cn/showproblem.php?pid=2121",
+      "difficulty": 4,
+      "key_point": "Ice_cream's world II：虚根技巧求不定根最小树形图(超级源连 INF 边)"
+    },
+    {
+      "oj": "SPOJ",
+      "pid": "ADAMOLD",
+      "url": "https://www.spoj.com/problems/ADAMOLD/",
+      "difficulty": 4,
+      "key_point": "最小树形图综合应用：构图后直接朱刘"
+    }
+  ],
+  "pitfalls": [
+    "根不可达时误输出 0 而非无解，必须检查 in_w[i]==INF",
+    "缩环后忘记更新 root=id[root]，导致新图根越界",
+    "边权修正 w−in[v] 只对跨环边做，环内边已无效却未过滤导致重复计权",
+    "自环 (u==u) 在选最小入边时应跳过，否则破坏 in[v] 语义",
+    "用并查集/哈希标记超级点时与缩环 id 分配混淆"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "pick",
+        "label": "每非根点选最小入边 (in/pre)"
+      },
+      {
+        "id": "reach",
+        "label": "检查根可达性"
+      },
+      {
+        "id": "cycle",
+        "label": "沿 pre 找环，缩环分配 id"
+      },
+      {
+        "id": "fix",
+        "label": "跨环边权修正 w−in[v]，重建边表"
+      },
+      {
+        "id": "repeat",
+        "label": "无环则退出返回 ans"
+      }
+    ],
+    "edges": [
+      {
+        "from": "pick",
+        "to": "reach"
+      },
+      {
+        "from": "reach",
+        "to": "cycle",
+        "cond": "存在环"
+      },
+      {
+        "from": "reach",
+        "to": "repeat",
+        "cond": "无环"
+      },
+      {
+        "from": "cycle",
+        "to": "fix"
+      },
+      {
+        "from": "fix",
+        "to": "pick"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/dmst/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/graph/dmst.html",
+      "verified": false
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+ "id": "treap",
+ "name": "Treap(树堆)",
+ "group": "G-A-8",
+ "stage": "advanced",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "BST+堆随机优先级，旋转维护平衡，期望O(log n)",
+ "what": "Treap（Tree + Heap，树堆）是一种弱平衡二叉搜索树。每个节点除权值 val 外附带随机优先级 priority：val 满足二叉搜索树性质（左小右大），priority 满足堆性质（小根/大根）。若 val 与 priority 都用同一值则退化成链，故 priority 必须随机。旋转版（旋转 Treap）通过左旋/右旋在插入删除时维持堆性质，所有操作期望 O(log n)。",
+ "why": {
+  "intuition": "把「插入顺序」这个导致 BST 退化的因素，用随机优先级彻底打乱：树的结构等价于按 priority 从小到大的插入序列，而这等价于随机排列插入顺序，几乎必然接近理想平衡。priority 最小的节点永远是根。",
+  "principle": "期望深度证明：对权值升序第 i 个节点 x_i，其深度 = 祖先个数。定义指示变量 Y_{k,i}=1 当 x_k 是 x_i 祖先。引理：x_k 是 x_i 的祖先 ⇔ x_k 的 priority 是集合 X_{min(i,k)..max(i,k)} 中最小的，概率 = 1/(|i-k|+1)。由期望线性性 E(dep(x_i)) = Σ_{k≠i} 1/(|i-k|+1) = H_i + H_{n-i+1} - 2 ≤ 2 ln n = O(log n)。插入：先按 BST 规则下探插入叶子，再沿路比较 priority 左/右旋转上浮至堆性质恢复；删除：把节点旋转到叶子后剪除，或直接 BST 删除后调整。",
+  "history": "Treap 由 Raimund Seidel 和 Cecilia Aragon 于 1989 年独立提出（1989 年论文 Randomized Search Trees）。1990s 随 C++ STL 等生态普及，是竞赛中期望平衡树的首选之一。旋转版强调简单，无旋版（FHQ）另成一支，见 fhq-treap。"
+ },
+ "how": {
+  "pseudocode": "rotate_right(p):            # 右旋：p 的左儿子 q 上浮\n  q = p.left; p.left = q.right; q.right = p; 更新size; return q\nrotate_left(p):             # 左旋对称\n  q = p.right; p.right = q.left; q.left = p; 更新size; return q\n\ninsert(p, val):\n  if p 为空: return 新节点(priority=random())\n  if val < p.val:\n    p.left = insert(p.left, val)\n    if p.left.pri < p.pri: p = rotate_right(p)\n  else:\n    p.right = insert(p.right, val)\n    if p.right.pri < p.pri: p = rotate_left(p)\n  更新 size; return p\n\ndelete(p, val):\n  if val == p.val:\n    if 左/右空: return 另一侧\n    if p.left.pri < p.right.pri: p = rotate_right(p); p.right=delete(p.right,val)\n    else: p = rotate_left(p); p.left=delete(p.left,val)\n  elif val < p.val: p.left = delete(p.left,val)\n  else: p.right = delete(p.right,val)\n  更新 size; return p",
+  "python": "import random\n\nclass Node:\n    __slots__ = ('val', 'pri', 'left', 'right', 'size')\n    def __init__(self, val, pri=None):\n        self.val = val\n        self.pri = pri if pri is not None else random.random()\n        self.left = None\n        self.right = None\n        self.size = 1\n\nclass Treap:\n    def __init__(self):\n        self.root = None\n        self.rng = random.Random(42)\n\n    def _sz(self, n):\n        return n.size if n else 0\n\n    def _pull(self, n):\n        n.size = 1 + self._sz(n.left) + self._sz(n.right)\n\n    def _rotate_right(self, p):\n        q = p.left\n        p.left = q.right\n        q.right = p\n        self._pull(p)\n        self._pull(q)\n        return q\n\n    def _rotate_left(self, p):\n        q = p.right\n        p.right = q.left\n        q.left = p\n        self._pull(p)\n        self._pull(q)\n        return q\n\n    def _insert(self, p, val):\n        if p is None:\n            return Node(val, self.rng.random())\n        if val < p.val:\n            p.left = self._insert(p.left, val)\n            if p.left.pri < p.pri:\n                p = self._rotate_right(p)\n        else:\n            p.right = self._insert(p.right, val)\n            if p.right.pri < p.pri:\n                p = self._rotate_left(p)\n        self._pull(p)\n        return p\n\n    def insert(self, val):\n        self.root = self._insert(self.root, val)\n\n    def _delete(self, p, val):\n        if p is None:\n            return None\n        if val == p.val:\n            if p.left is None:\n                return p.right\n            if p.right is None:\n                return p.left\n            if p.left.pri < p.right.pri:\n                p = self._rotate_right(p)\n                p.right = self._delete(p.right, val)\n            else:\n                p = self._rotate_left(p)\n                p.left = self._delete(p.left, val)\n        elif val < p.val:\n            p.left = self._delete(p.left, val)\n        else:\n            p.right = self._delete(p.right, val)\n        self._pull(p)\n        return p\n\n    def delete(self, val):\n        self.root = self._delete(self.root, val)\n\n    def search(self, val):\n        n = self.root\n        while n and n.val != val:\n            n = n.left if val < n.val else n.right\n        return n is not None\n\n    def inorder(self):\n        out = []\n        def dfs(n):\n            if n is None:\n                return\n            dfs(n.left)\n            out.append(n.val)\n            dfs(n.right)\n        dfs(self.root)\n        return out\n\n    def height(self):\n        def go(n):\n            if n is None:\n                return 0\n            return 1 + max(go(n.left), go(n.right))\n        return go(self.root)\n\n\ndef _is_heap(n, lo=-float('inf')):\n    if n is None:\n        return True\n    if not lo <= n.pri:\n        return False\n    return _is_heap(n.left, n.pri) and _is_heap(n.right, n.pri)  # 小根堆：子 >= 父\n\n\ndef _is_bst(n, lo=-float('inf'), hi=float('inf')):\n    if n is None:\n        return True\n    if not (lo < n.val < hi):\n        return False\n    return _is_bst(n.left, lo, n.val) and _is_bst(n.right, n.val, hi)\n\n\nif __name__ == \"__main__\":\n    t = Treap()\n    n = 1000\n    for _ in range(n):\n        t.insert(random.randint(0, 100000))\n    vals = t.inorder()\n    assert vals == sorted(vals)\n    assert _is_heap(t.root)\n    assert t.height() <= 60, t.height()  # 期望 O(log n)\n    s = set(vals)\n    for v in list(s)[:len(s) // 2]:\n        while t.search(v):\n            t.delete(v)\n        assert not t.search(v)\n    assert _is_heap(t.root)\n    assert t.inorder() == sorted(t.inorder())\n    t2 = Treap()\n    for i in range(10000):\n        t2.insert(i)  # 有序插入也不退化\n    assert t2.height() < 80, t2.height()\n    assert t2.inorder() == list(range(10000))\n    print(\"All tests passed.\")",
+  "pypy_notes": "rotation treap 常数小但需维护父指针或按引用返回，Python 递归写法在随机树高 ~40 内安全；priority 用 random.random() 即可，避免 random.randint 开销。PyPy 下递归深度限制默认小，大规模可 sys.setrecursionlimit。实际比赛中 Python 更常用 FHQ-Treap（见 fhq-treap 节点）。",
+  "complexity": {
+   "time": "所有操作期望 O(log n)（随机优先级下节点期望深度 2ln n）；最坏 O(n) 概率极小",
+   "space": "O(n)"
+  },
+  "limitations": "期望复杂度依赖随机数质量；最坏情形（priority 恰好单调）概率虽小仍非严格保证。不支持区间操作（区间翻转/区间加）——需无旋 Treap 或 Splay。重复元素需约定处理。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P3369",
+   "url": "https://www.luogu.com.cn/problem/P3369",
+   "difficulty": 4,
+   "key_point": "普通平衡树模板：插入/删除/排名/前驱后继全操作"
+  },
+  {
+   "oj": "LOJ",
+   "pid": "104",
+   "url": "https://loj.ac/problem/104",
+   "difficulty": 4,
+   "key_point": "普通平衡树（旋转 Treap 模板题）"
+  },
+  {
+   "oj": "LOJ",
+   "pid": "105",
+   "url": "https://loj.ac/problem/105",
+   "difficulty": 5,
+   "key_point": "文艺平衡树：区间翻转需无旋 Treap 分裂合并"
+  }
+ ],
+ "pitfalls": [
+  "priority 用固定值（如直接取 val）导致退化成链",
+  "旋转后忘记更新两个节点的 size，导致排名错误",
+  "删除双子节点时优先旋转左/右儿子顺序写反，破坏堆性质",
+  "把期望 O(log n) 当最坏 O(log n)，追求确定性请用替罪羊树"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "node",
+    "label": "节点结构：val+随机priority+size"
+   },
+   {
+    "id": "rotate",
+    "label": "左旋/右旋与size更新"
+   },
+   {
+    "id": "insert",
+    "label": "BST插入后按priority上浮"
+   },
+   {
+    "id": "delete",
+    "label": "旋至叶子删除或BST删除调整"
+   },
+   {
+    "id": "query",
+    "label": "排名/前驱后继/第k小"
+   }
+  ],
+  "edges": [
+   {
+    "from": "node",
+    "to": "rotate"
+   },
+   {
+    "from": "rotate",
+    "to": "insert"
+   },
+   {
+    "from": "insert",
+    "to": "delete"
+   },
+   {
+    "from": "rotate",
+    "to": "query"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/treap/",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/data_structures/treap.html",
+   "verified": true
+  },
+  {
+   "type": "paper",
+   "ref": "Seidel & Aragon, Randomized Search Trees (1989)",
+   "verified": true
+  }
+ ]
+}

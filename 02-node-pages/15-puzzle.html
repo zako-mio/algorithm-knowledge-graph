@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15谜题可解性判定 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-7.html">离线与杂项技巧族</a> / <span>15谜题可解性判定</span></div>
+  <h1>15谜题可解性判定</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="space-optimization.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">space-optimization</span></a>
+    <a class="nav-index" href="../03-groups/G-E-7.html"><span class="dir">组内第 13 / 18</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="fsm.html"><span class="dir">下一个 / 组内</span><span class="v">fsm</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">N-puzzle可解性判定：逆序对数奇偶性+空格行距，不可解则无解</div><p>15-puzzle(数字滑块谜题, N-puzzle) 是 4x4 方盘放 15 个编号方块加一个空格的滑块游戏，每步将空格与相邻方块交换，目标按序排列。求解可判定性问题：给定一个盘面能否还原？判定法则：奇数阶(m 为奇数)盘面可解 ⇔ 逆序对数为偶数；偶数阶(m 为偶数)盘面可解 ⇔ 逆序对奇偶性与(空格所在行距底行的距离)奇偶性相同。最优解为 NP 困难，可解性判定与搜索(如 A*)是两个不同层面的问题。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>每交换一次空格与相邻方块，逆序对奇偶性必翻转，而空格移动改变了其在网格中的行列。把盘面状态看成排列，还原目标排列的逆序对数为 0(偶)。对所有可还原状态，&#x27;逆序对奇偶性&#x27;与&#x27;空格位置奇偶性&#x27;存在不变量，判据正是检查两个不变量是否匹配。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>Johnson &amp; Story(1879)证明 m,n≥2 的 m×n 滑块盘可解性：构造可还原盘面的生成集合，论证所有偶数排列可解。Archer(1999)用哈密顿路径给出另一证明。判据实现：把方块按行主序读成序列(忽略空格)，数逆序对数；对偶数阶盘，再加空格所在行距底行的距离(从 1 数起)贡献的奇偶。奇偶匹配则可解。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>15-puzzle 由 Noyes Chapman 发明，1880s 风靡一时，是最古老的滑块类游戏。可解性由 Johnson &amp; Story 于 1879 年证明，群理论角度可证其状态组为交错群 A_15。OI Wiki 与 CP-Algorithms 均收录其可解性判定与 A* 搜索解法，是最优解(至多 80 步)与 NP 困难性研究的经典对象。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 判定 m 行 n 列 N-puzzle 是否可解</span>
+board = 二维数组(空格=<span class="t-n">0</span>)
+seq = 行主序读入所有非零数字
+inv = 数 seq 逆序对数
+<span class="t-k">if</span> n 为奇数:          <span class="t-c"># 列数(空格所在行横向移动不改变奇偶)</span>
+  <span class="t-k">return</span> inv % <span class="t-n">2</span> == <span class="t-n">0</span>
+<span class="t-k">else</span>:                 <span class="t-c"># 偶数阶</span>
+  blank_row = 空格所在行(<span class="t-n">0</span>-index, 距底= m-<span class="t-n">1</span>-blank_row)
+  <span class="t-k">return</span> (inv + (m - <span class="t-n">1</span> - blank_row)) % <span class="t-n">2</span> == <span class="t-n">0</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">inversions</span>(seq):
+    <span class="t-s">&quot;&quot;&quot;归并排序求逆序对数。&quot;&quot;&quot;</span>
+    seq = <span class="t-b">list</span>(seq)
+    n = <span class="t-b">len</span>(seq)
+    tmp = [<span class="t-n">0</span>] * n
+
+    <span class="t-k">def</span> <span class="t-f">merge_sort</span>(l, r):
+        <span class="t-k">if</span> r - l &lt;= <span class="t-n">1</span>:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        mid = (l + r) // <span class="t-n">2</span>
+        cnt = <span class="t-f">merge_sort</span>(l, mid) + <span class="t-f">merge_sort</span>(mid, r)
+        i, j, k = l, mid, l
+        <span class="t-k">while</span> i &lt; mid <span class="t-k">and</span> j &lt; r:
+            <span class="t-k">if</span> seq[i] &lt;= seq[j]:
+                tmp[k] = seq[i]
+                i += <span class="t-n">1</span>
+            <span class="t-k">else</span>:
+                tmp[k] = seq[j]
+                cnt += mid - i
+                j += <span class="t-n">1</span>
+            k += <span class="t-n">1</span>
+        <span class="t-k">while</span> i &lt; mid:
+            tmp[k] = seq[i]
+            i += <span class="t-n">1</span>
+            k += <span class="t-n">1</span>
+        <span class="t-k">while</span> j &lt; r:
+            tmp[k] = seq[j]
+            j += <span class="t-n">1</span>
+            k += <span class="t-n">1</span>
+        seq[l:r] = tmp[l:r]
+        <span class="t-k">return</span> cnt
+
+    <span class="t-k">return</span> <span class="t-f">merge_sort</span>(<span class="t-n">0</span>, n)
+
+
+<span class="t-k">def</span> <span class="t-f">is_solvable</span>(board):
+    <span class="t-s">&quot;&quot;&quot;判断 m 行 n 列 N-puzzle 是否可解。
+    board: list[list[int]], 0 表示空格。
+    &quot;&quot;&quot;</span>
+    m = <span class="t-b">len</span>(board)
+    n = <span class="t-b">len</span>(board[<span class="t-n">0</span>])
+    seq = []
+    blank_row = -<span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(m):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> board[i][j] == <span class="t-n">0</span>:
+                blank_row = i
+            <span class="t-k">else</span>:
+                seq.<span class="t-f">append</span>(board[i][j])
+    inv = <span class="t-f">inversions</span>(seq)
+    <span class="t-k">if</span> n % <span class="t-n">2</span> == <span class="t-n">1</span>:
+        <span class="t-k">return</span> inv % <span class="t-n">2</span> == <span class="t-n">0</span>
+    <span class="t-c"># 偶数阶: 逆序对奇偶性 与 空格距底行距离奇偶性 相同</span>
+    dist_from_bottom = m - <span class="t-n">1</span> - blank_row
+    <span class="t-k">return</span> (inv + dist_from_bottom) % <span class="t-n">2</span> == <span class="t-n">0</span>
+
+
+<span class="t-k">def</span> <span class="t-f">solved_board</span>(m, n):
+    <span class="t-s">&quot;&quot;&quot;生成目标盘面(空格在右下)。&quot;&quot;&quot;</span>
+    b = [[(i * n + j + <span class="t-n">1</span>) % (m * n) <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n)] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(m)]
+    <span class="t-k">return</span> b
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 目标盘面必可解</span>
+    <span class="t-k">assert</span> <span class="t-f">is_solvable</span>(<span class="t-f">solved_board</span>(<span class="t-n">4</span>, <span class="t-n">4</span>)) <span class="t-k">is</span> <span class="t-k">True</span>
+    <span class="t-k">assert</span> <span class="t-f">is_solvable</span>(<span class="t-f">solved_board</span>(<span class="t-n">3</span>, <span class="t-n">3</span>)) <span class="t-k">is</span> <span class="t-k">True</span>
+
+    <span class="t-c"># 3x3 已知可解盘</span>
+    ok33 = [[<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>], [<span class="t-n">4</span>, <span class="t-n">5</span>, <span class="t-n">6</span>], [<span class="t-n">7</span>, <span class="t-n">8</span>, <span class="t-n">0</span>]]
+    <span class="t-k">assert</span> <span class="t-f">is_solvable</span>(ok33) <span class="t-k">is</span> <span class="t-k">True</span>
+    <span class="t-c"># 3x3 已知不可解盘(交换1和2)</span>
+    bad33 = [[<span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">3</span>], [<span class="t-n">4</span>, <span class="t-n">5</span>, <span class="t-n">6</span>], [<span class="t-n">7</span>, <span class="t-n">8</span>, <span class="t-n">0</span>]]
+    <span class="t-k">assert</span> <span class="t-f">is_solvable</span>(bad33) <span class="t-k">is</span> <span class="t-k">False</span>
+
+    <span class="t-c"># 4x4 目标盘</span>
+    ok44 = <span class="t-f">solved_board</span>(<span class="t-n">4</span>, <span class="t-n">4</span>)
+    <span class="t-k">assert</span> <span class="t-f">is_solvable</span>(ok44) <span class="t-k">is</span> <span class="t-k">True</span>
+    <span class="t-c"># 4x4 交换两个非空格数字应不可解(逆序奇偶变化)</span>
+    bad44 = [row[:] <span class="t-k">for</span> row <span class="t-k">in</span> ok44]
+    bad44[<span class="t-n">0</span>][<span class="t-n">0</span>], bad44[<span class="t-n">0</span>][<span class="t-n">1</span>] = bad44[<span class="t-n">0</span>][<span class="t-n">1</span>], bad44[<span class="t-n">0</span>][<span class="t-n">0</span>]
+    <span class="t-k">assert</span> <span class="t-f">is_solvable</span>(bad44) <span class="t-k">is</span> <span class="t-k">False</span>
+
+    <span class="t-c"># 空格位置对偶数阶有影响: 目标盘移动空格到第0行</span>
+    moved = [row[:] <span class="t-k">for</span> row <span class="t-k">in</span> ok44]
+    <span class="t-c"># 把空格从(3,3)移到(0,0), 其余数字循环移位保持合法</span>
+    vals = [v <span class="t-k">for</span> row <span class="t-k">in</span> ok44 <span class="t-k">for</span> v <span class="t-k">in</span> row <span class="t-k">if</span> v != <span class="t-n">0</span>]
+    it = <span class="t-b">iter</span>(vals)
+    newb = [[<span class="t-n">0</span>] * <span class="t-n">4</span> <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">4</span>)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">4</span>):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">4</span>):
+            <span class="t-k">if</span> (i, j) == (<span class="t-n">0</span>, <span class="t-n">0</span>):
+                <span class="t-k">continue</span>
+            newb[i][j] = <span class="t-b">next</span>(it)
+    <span class="t-c"># 这种整盘平移不改变逆序数, 但空格行距变了 -&gt; 奇偶可能改变</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;3x3 ok=&#x27;</span>, <span class="t-f">is_solvable</span>(ok33), <span class="t-s">&#x27; bad=&#x27;</span>, <span class="t-f">is_solvable</span>(bad33))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;4x4 ok=&#x27;</span>, <span class="t-f">is_solvable</span>(ok44), <span class="t-s">&#x27; bad=&#x27;</span>, <span class="t-f">is_solvable</span>(bad44))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;4x4 moved blank to top-left:&#x27;</span>, <span class="t-f">is_solvable</span>(newb))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;All 15-puzzle solvability tests passed!&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">逆序对用归并排序 O(n log n) 最稳; 若方盘数字序列很短(如 8-puzzle)直接用冒泡计数也可; 判定本身只关心奇偶, 可仅累计奇偶省时间。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(M*N) 读取 + O(M*N log(M*N)) 逆序对(归并)</td></tr><tr><th>空间复杂度</th><td>O(M*N)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅判定可解性, 不给出还原方案; 求最少步数是 NP 困难(15-puzzle 最优解至多 80 步); 判定公式依赖盘面尺寸奇偶, 混用会判错; 部分题目(如 POJ 1077 Eight)要求输出方案, 需 A*/IDA* 搜索。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>逆序对计算要跳过空格(0), 把空格算进去会得到错误奇偶</li><li>奇偶阶判据不同: 奇数阶只看逆序对, 偶数阶要加空格行距(距底行)奇偶</li><li>行主序读盘面: 空格不参与逆序, 但位置要单独记录</li><li>把空格放到正确位置不算入逆序(空格不是数字), 读入时 if val != 0 才 append</li><li>判可解≠可解路径, 别在判定题里用 BFS 全状态(4x4 状态空间 16!/2 巨大)</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>HackerRank</td><td><strong>n-puzzle</strong></td><td>4</td><td>N Puzzle: A* 搜索求解 15-puzzle, 需要可解性判定+启发式</td><td class="u"><a href="https://www.hackerrank.com/challenges/n-puzzle" target="_blank" rel="noopener">https://www.hackerrank.com/challenges/n-puzzle</a></td></tr><tr><td>POJ</td><td><strong>1077</strong></td><td>4</td><td>Eight: 8-puzzle 搜索, 可解性判定(3x3 逆序对奇偶)必备</td><td class="u"><a href="http://poj.org/problem?id=1077" target="_blank" rel="noopener">http://poj.org/problem?id=1077</a></td></tr><tr><td>Codeforces</td><td><strong>645A</strong></td><td>3</td><td>Amity Assessment: 3x3 滑块可解性判定(小规模奇偶性)</td><td class="u"><a href="https://codeforces.com/problemset/problem/645/A" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/645/A</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-15-puzzle" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "read", "label": "读入盘面, 记录空格位置与数字序列"}}, {"data": {"id": "inv", "label": "行主序数逆序对(忽略空格)"}}, {"data": {"id": "parity", "label": "按行列奇偶选择判据(奇数阶/偶数阶)"}}, {"data": {"id": "judge", "label": "计算奇偶匹配并返回可解性"}}, {"data": {"id": "search", "label": "(可选) 可解时用 A*/IDA* 求最少步方案"}}, {"data": {"id": "eread->inv", "source": "read", "target": "inv"}}, {"data": {"id": "einv->parity", "source": "inv", "target": "parity"}}, {"data": {"id": "eparity->judge", "source": "parity", "target": "judge"}}, {"data": {"id": "ejudge->search", "source": "judge", "target": "search"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-15-puzzle'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/15-puzzle/" target="_blank" rel="noopener">https://oi-wiki.org/misc/15-puzzle/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/15-puzzle.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/15-puzzle.md</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/others/15-puzzle.html" target="_blank" rel="noopener">https://cp-algorithms.com/others/15-puzzle.html</a></li><li><span class="srctype">web</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/15_puzzle" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/15_puzzle</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

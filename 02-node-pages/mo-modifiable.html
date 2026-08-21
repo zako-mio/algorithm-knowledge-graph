@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>带修莫队 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-7.html">莫队算法族</a> / <span>带修莫队</span></div>
+  <h1>带修莫队</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="mo-algo-with-bitset.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">mo-algo-with-bitset</span></a>
+    <a class="nav-index" href="../03-groups/G-D-7.html"><span class="dir">组内第 3 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="mo-on-tree.html"><span class="dir">下一个 / 组内</span><span class="v">mo-on-tree</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">给莫队加时间维，询问变三元组 (l,r,t)，块长 n^(2/3)，O(n^(5/3)) 支持单点修改的区间询问。</div><p>带修莫队（Mo&#x27;s algorithm with modifications / modifiable Mo）在普通莫队的基础上增加一维时间 t，把询问记作 (l, r, t)，其中 t 表示「该询问前已经执行了多少次修改」。状态由 (l, r, t) 三元组构成，双指针从二维变成三维：除 l、r 外，还要在时间轴上前进/回退，即应用或撤销第 t 个修改。适用于「区间询问 + 单点修改」的离线问题，例如区间不同数个数（带改）、区间 k 小（带改）等。块长取 n^(2/3) 时左右端点在块间移动与时间轴移动的代价平衡，总复杂度 O(n^(5/3))。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>普通莫队没法处理修改，因为指针只在一个维度上摆动。强行加一维时间后，把修改也当成指针的一次移动：从时间 t 到 t+1 等价于「把当前序列上第 t+1 次修改的位置的值更新」，代价也是 O(1)（仅当被修改位置在当前区间内时需要同步更新答案）。问题是时间维的移动次数不好控制——块长必须让「左右端点块内摆动代价」与「时间维乱序代价」同时被摊还。若把块长定为 n^(2/3)，则左右端点在块内摆动 O(n^(2/3))，块间换块时时间维最多单调扫 O(t)（每对块一次），总代价 O(n·(n^(2/3)) + (n/n^(2/3))²·t) = O(n^(5/3))（n,m,t 同阶）。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 分块：块长 s=n^(2/3)，共 n^(1/3) 块；② 排序：第一关键字 l 所在块、第二关键字 r 所在块、第三关键字 t（可奇偶化）；③ 三维指针：先调整时间维（应用/回退修改），再调整 l、r 的普通莫队四 while；④ 修改应用：若修改位置 pos 在当前区间内，则先删除旧值再加入新值并同步答案，最后更新序列快照 cur[pos]=new；⑤ 回退同理反向。关键：必须先记录每个修改位置的旧值（change=(pos, old, new)），回退时才能正确还原。时间维移动与区间移动的前后顺序保持一致，否则旧值/新值与当前区间不匹配。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>带修莫队是 OIer 对普通莫队的经典扩展，把莫涛算法与「时间戳」思想结合，最早流行于国内 OI 圈子（典型例题为「国家集训队」P1903 数颜色/维护队列）。其最优块长 n^(2/3) 与复杂度 O(n^(5/3)) 的证明由 OI Wiki 完整给出（对 f(s)=ms+n²t/s² 求导取极值）。与之类似的三维莫队思想也出现在「带修改树上莫队」（如 WC2013 糖果公园）中。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">block = <span class="t-b">int</span>(<span class="t-b">pow</span>(n, <span class="t-n">2.0</span>/<span class="t-n">3</span>))
+qs.<span class="t-f">sort</span>(key=<span class="t-k">lambda</span> q: (q.l//block, q.r//block, q.t))
+changes = <span class="t-f">build_changes</span>(arr, changes)   <span class="t-c"># 每个修改记 (pos, old, new)</span>
+cur = arr[:]        <span class="t-c"># 序列快照</span>
+l, r, tm = <span class="t-n">0</span>, -<span class="t-n">1</span>, <span class="t-n">0</span>
+<span class="t-k">for</span> q <span class="t-k">in</span> qs:
+    <span class="t-k">while</span> tm &lt; q.t:            <span class="t-c"># 应用修改</span>
+        pos,old,new = changes[tm]
+        <span class="t-k">if</span> l&lt;=pos&lt;=r: <span class="t-f">remove</span>(old); <span class="t-f">add</span>(new)
+        cur[pos] = new; tm += <span class="t-n">1</span>
+    <span class="t-k">while</span> tm &gt; q.t:            <span class="t-c"># 回退修改</span>
+        tm -= <span class="t-n">1</span>; pos,old,new = changes[tm]
+        <span class="t-k">if</span> l&lt;=pos&lt;=r: <span class="t-f">remove</span>(new); <span class="t-f">add</span>(old)
+        cur[pos] = old
+    <span class="t-k">while</span> l &gt; q.l: <span class="t-f">add</span>(cur[--l])       <span class="t-c"># 普通莫队四 while</span>
+    <span class="t-k">while</span> r &lt; q.r: <span class="t-f">add</span>(cur[++r])
+    <span class="t-k">while</span> l &lt; q.l: <span class="t-f">remove</span>(cur[l++])
+    <span class="t-k">while</span> r &gt; q.r: <span class="t-f">remove</span>(cur[r--])
+    ans[q.<span class="t-b">id</span>] = ans_now</code></pre><h3>Python 实现</h3><pre><code class="python">
+
+<span class="t-k">def</span> <span class="t-f">build_changes</span>(arr, changes):
+    <span class="t-s">&quot;&quot;&quot;为每个修改记录 (pos, old, new)，old=应用前该位置的值.&quot;&quot;&quot;</span>
+    cur = <span class="t-b">list</span>(arr)
+    res = []
+    <span class="t-k">for</span> pos, newv <span class="t-k">in</span> changes:
+        res.<span class="t-f">append</span>((pos, cur[pos], newv))
+        cur[pos] = newv
+    <span class="t-k">return</span> res
+
+<span class="t-k">def</span> <span class="t-f">mo_modifiable</span>(n, arr, queries, changes):
+    changes = <span class="t-f">build_changes</span>(arr, changes)  <span class="t-c"># 记录每个修改位置的旧值</span>
+    <span class="t-s">&quot;&quot;&quot;带修莫队：区间不同数字个数（支持单点修改）.
+    arr: 初始序列; queries: [(l,r,t,id)] 闭区间, t=该询问前已执行的修改数;
+    changes: [(pos, new_val)] 修改操作（顺序执行）. 返回 ans 数组.&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> math
+    block = <span class="t-b">max</span>(<span class="t-n">1</span>, <span class="t-b">int</span>(<span class="t-b">pow</span>(n, <span class="t-n">2.0</span> / <span class="t-n">3</span>)))
+    qs = <span class="t-b">sorted</span>(queries, key=<span class="t-k">lambda</span> q: (q[<span class="t-n">0</span>] // block, q[<span class="t-n">1</span>] // block, q[<span class="t-n">2</span>] <span class="t-k">if</span> (q[<span class="t-n">1</span>]//block) % <span class="t-n">2</span> == <span class="t-n">0</span> <span class="t-k">else</span> -q[<span class="t-n">2</span>]))
+    cur = <span class="t-b">list</span>(arr)
+    cnt = [<span class="t-n">0</span>] * (<span class="t-b">max</span>(cur) + <span class="t-n">1</span> <span class="t-k">if</span> cur <span class="t-k">else</span> <span class="t-n">1</span>)
+    <span class="t-k">def</span> <span class="t-f">ensure_size</span>(v):
+        <span class="t-k">while</span> <span class="t-b">len</span>(cnt) &lt;= v: cnt.<span class="t-f">append</span>(<span class="t-n">0</span>)
+    <span class="t-k">def</span> <span class="t-f">add_val</span>(v):
+        <span class="t-k">nonlocal</span> ans_now
+        <span class="t-f">ensure_size</span>(v)
+        <span class="t-k">if</span> cnt[v] == <span class="t-n">0</span>: ans_now += <span class="t-n">1</span>
+        cnt[v] += <span class="t-n">1</span>
+    <span class="t-k">def</span> <span class="t-f">del_val</span>(v):
+        <span class="t-k">nonlocal</span> ans_now
+        cnt[v] -= <span class="t-n">1</span>
+        <span class="t-k">if</span> cnt[v] == <span class="t-n">0</span>: ans_now -= <span class="t-n">1</span>
+    l, r, tm = <span class="t-n">0</span>, -<span class="t-n">1</span>, <span class="t-n">0</span>
+    ans_now = <span class="t-n">0</span>
+    ans = [<span class="t-n">0</span>] * <span class="t-b">len</span>(queries)
+    <span class="t-k">for</span> ql, qr, qt, idx <span class="t-k">in</span> qs:
+        <span class="t-k">while</span> tm &lt; qt:
+            pos, oldv, newv = changes[tm]
+            <span class="t-k">if</span> l &lt;= pos &lt;= r:
+                <span class="t-f">del_val</span>(oldv); <span class="t-f">add_val</span>(newv)
+            cur[pos] = newv
+            tm += <span class="t-n">1</span>
+        <span class="t-k">while</span> tm &gt; qt:
+            tm -= <span class="t-n">1</span>
+            pos, oldv, newv = changes[tm]
+            <span class="t-k">if</span> l &lt;= pos &lt;= r:
+                <span class="t-f">del_val</span>(newv); <span class="t-f">add_val</span>(oldv)
+            cur[pos] = oldv
+        <span class="t-k">while</span> l &gt; ql:
+            l -= <span class="t-n">1</span>; <span class="t-f">add_val</span>(cur[l])
+        <span class="t-k">while</span> r &lt; qr:
+            r += <span class="t-n">1</span>; <span class="t-f">add_val</span>(cur[r])
+        <span class="t-k">while</span> l &lt; ql:
+            <span class="t-f">del_val</span>(cur[l]); l += <span class="t-n">1</span>
+        <span class="t-k">while</span> r &gt; qr:
+            <span class="t-f">del_val</span>(cur[r]); r -= <span class="t-n">1</span>
+        ans[idx] = ans_now
+    <span class="t-k">return</span> ans
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    arr = [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">5</span>]
+    changes = [(<span class="t-n">2</span>, <span class="t-n">9</span>), (<span class="t-n">0</span>, <span class="t-n">7</span>)]
+    <span class="t-c"># 询问: id0 在0次修改后查[0,4]; id1 在2次修改后查[0,4]; id2 在1次修改后查[1,3]</span>
+    queries = [(<span class="t-n">0</span>, <span class="t-n">4</span>, <span class="t-n">0</span>, <span class="t-n">0</span>), (<span class="t-n">0</span>, <span class="t-n">4</span>, <span class="t-n">2</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">1</span>, <span class="t-n">2</span>)]
+    res = <span class="t-f">mo_modifiable</span>(<span class="t-n">5</span>, arr, queries, changes)
+    <span class="t-k">assert</span> res == [<span class="t-n">5</span>, <span class="t-n">5</span>, <span class="t-n">3</span>], res
+    <span class="t-c"># 交叉验证: 对每个询问按时间快照暴力</span>
+    <span class="t-k">import</span> random, copy
+    random.<span class="t-f">seed</span>(<span class="t-n">11</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">150</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">10</span>)
+        a = [random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">4</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        t_cnt = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">5</span>)
+        ch = [(random.<span class="t-f">randrange</span>(n), random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">6</span>)) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(t_cnt)]
+        m = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">12</span>)
+        qs = []
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(m):
+            l = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, n - <span class="t-n">1</span>); r = random.<span class="t-f">randint</span>(l, n - <span class="t-n">1</span>)
+            t = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, t_cnt)
+            qs.<span class="t-f">append</span>((l, r, t, i))
+        got = <span class="t-f">mo_modifiable</span>(n, a, qs, ch)
+        <span class="t-k">for</span> (l, r, t, i) <span class="t-k">in</span> qs:
+            snap = <span class="t-b">list</span>(a)
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(t): snap[ch[j][<span class="t-n">0</span>]] = ch[j][<span class="t-n">1</span>]
+            expect = <span class="t-b">len</span>(<span class="t-b">set</span>(snap[l:r + <span class="t-n">1</span>]))
+            <span class="t-k">assert</span> got[i] == expect, (a, ch, l, r, t, got[i], expect)
+    <span class="t-b">print</span>(<span class="t-s">&quot;mo_modifiable OK&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">cnt 用 list + 离散化；add/del 函数尽量内联；排序第三关键字对 r 所在块奇偶化可优化时间维移动。注意把查询与修改分开存储，修改按下标直接顺序应用。O(n^(5/3)) 在纯 Python 下 n=1e5 时较吃力，建议 PyPy + 块长微调。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n^(5/3))（n,m,t 同阶；一般形式 O(n^(2/3)·m^(2/3)·t^(1/3))）</td></tr><tr><th>空间复杂度</th><td>O(n+m)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅离线；修改必须可逆/可重放（回退时需要知道每个修改位置的旧值）；n,m,t 达 1e6 时 O(n^(5/3)) 无法承受（需更高级做法如回滚+分块或值域分块）。每个修改必须维护「位置是否在当前区间」判断，否则会污染答案。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>修改应用/回退顺序与区间调整顺序必须固定一致，否则旧值/新值与当前区间不匹配</li><li>回退修改时必须还原为「该位置应用前的旧值」，因此建 changes 时要记录 (pos, old, new)，不能只存 new</li><li>块长误用 √n 会导致时间维乱序代价 O(n²)，必须用 n^(2/3)</li><li>排序第三关键字不奇偶化时时间维在块间可能来回扫，常数大；若 m 远小于 n 块长应微调</li><li>cnt 值域大时必须离散化；修改引入的新值也要能容纳（动态扩容或预离散化）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1903</strong></td><td>4</td><td>【模板】数颜色/维护队列：带修莫队区间不同数个数，OI Wiki 例题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1903" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1903</a></td></tr><tr><td>BZOJ</td><td><strong>2120</strong></td><td>4</td><td>数颜色 原题（BZOJ 2120），P1903 同题</td><td class="u"><a href="https://hydro.ac/p/bzoj-P2120" target="_blank" rel="noopener">https://hydro.ac/p/bzoj-P2120</a></td></tr><tr><td>Luogu</td><td><strong>P2464</strong></td><td>4</td><td>[SDOI2008] 郁闷的小 J：区间内某值出现次数 + 单点改值，带修莫队维护每个值计数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2464" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2464</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-mo-modifiable" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "split", "label": "离线拆分查询与修改"}}, {"data": {"id": "build_changes", "label": "记录每个修改位置的旧值 (pos,old,new)"}}, {"data": {"id": "block_sort3", "label": "(l块, r块, t) 三元组排序"}}, {"data": {"id": "time_apply", "label": "时间前进：应用修改并同步区间答案"}}, {"data": {"id": "time_revert", "label": "时间回退：撤销修改"}}, {"data": {"id": "ptr_move", "label": "普通莫队四 while 移动 l,r"}}, {"data": {"id": "record", "label": "记录答案"}}, {"data": {"id": "esplit->build_changes", "source": "split", "target": "build_changes"}}, {"data": {"id": "ebuild_changes->block_sort3", "source": "build_changes", "target": "block_sort3"}}, {"data": {"id": "eblock_sort3->time_apply", "source": "block_sort3", "target": "time_apply"}}, {"data": {"id": "etime_apply->time_revert", "source": "time_apply", "target": "time_revert"}}, {"data": {"id": "etime_revert->ptr_move", "source": "time_revert", "target": "ptr_move"}}, {"data": {"id": "eptr_move->record", "source": "ptr_move", "target": "record"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-mo-modifiable'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="mo-algorithm.html" title="带修莫队增加时间维">莫队算法<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/modifiable-mo-algo.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/modifiable-mo-algo.md</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/modifiable-mo-algo/" target="_blank" rel="noopener">https://oi-wiki.org/misc/modifiable-mo-algo/</a></li><li><span class="srctype">书籍</span><span class="v-warn">&#9651;</span> <span class="ref">CPH ch27（莫队变体概述）</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

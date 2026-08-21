@@ -1,0 +1,75 @@
+{
+  "id": "gaussian-elimination",
+  "name": "高斯消元",
+  "group": "G-C-14",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "O(n^3)解线性方程组/求秩/求行列式，线性代数核心算法",
+  "what": "高斯消元法通过初等行变换将矩阵化为行简化阶梯形（RREF）。三种初等变换：倍乘（某行乘非零数k）、对换（交换两行）、倍加（某行k倍加到另一行）。初等变换对应左乘初等矩阵。消元后矩阵的非零行数即为秩。增广矩阵可用于解线性方程组Ax=b。竞赛中常需模质数消元（用逆元替代除法）。",
+  "why": {
+    "intuition": "解方程组的消元过程：把方程组的系数排成矩阵，通过行变换把矩阵化简到'一目了然'的阶梯形，然后回代求解。",
+    "principle": "逐列处理：对每列找非零主元，交换到当前行，用倍加消去该列其他行的元素。主元归一化后消去上下行，得到行简化阶梯形。非零行数=矩阵秩。",
+    "history": "高斯消元法以Carl Friedrich Gauss命名，但其方法更早由中国古代《九章算术》中已有记载。是线性代数最基本的算法。"
+  },
+  "how": {
+    "pseudocode": "row = 0\nfor col in 0..m-1:\n  find pivot (nonzero) in rows row..n-1\n  if none: continue\n  swap to row\n  normalize pivot row (divide by pivot)\n  eliminate other rows\n  row++\nreturn rank = row",
+    "python": "def gauss_eliminate(A, b=None):\n    \"\"\"Gaussian elimination with partial pivoting.\n    A: n x m matrix, b: optional RHS vector.\n    Returns (augmented_matrix, rank).\n    \"\"\"\n    n = len(A)\n    m = len(A[0])\n    aug = [row[:] for row in A]\n    if b is not None:\n        for i in range(n):\n            aug[i] = aug[i] + [b[i]]\n    m2 = len(aug[0])\n    row = 0\n    for col in range(m):\n        if row >= n:\n            break\n        pivot = -1\n        for r in range(row, n):\n            if aug[r][col] != 0:\n                pivot = r\n                break\n        if pivot == -1:\n            continue\n        aug[row], aug[pivot] = aug[pivot], aug[row]\n        piv = aug[row][col]\n        for j in range(m2):\n            aug[row][j] /= piv\n        for r in range(n):\n            if r != row and aug[r][col] != 0:\n                factor = aug[r][col]\n                for j in range(m2):\n                    aug[r][j] -= factor * aug[row][j]\n        row += 1\n    return aug, row\n\ndef gauss_mod(A, mod):\n    \"\"\"Gaussian elimination under modular arithmetic (mod must be prime).\"\"\"\n    n = len(A)\n    m = len(A[0])\n    aug = [row[:] for row in A]\n    row = 0\n    for col in range(m):\n        if row >= n:\n            break\n        pivot = -1\n        for r in range(row, n):\n            if aug[r][col] % mod != 0:\n                pivot = r\n                break\n        if pivot == -1:\n            continue\n        aug[row], aug[pivot] = aug[pivot], aug[row]\n        inv = pow(aug[row][col] % mod, mod - 2, mod)\n        for j in range(m):\n            aug[row][j] = aug[row][j] * inv % mod\n        for r in range(n):\n            if r != row and aug[r][col] % mod != 0:\n                factor = aug[r][col]\n                for j in range(m):\n                    aug[r][j] = (aug[r][j] - factor * aug[row][j]) % mod\n        row += 1\n    return aug, row\n\nif __name__ == \"__main__\":\n    aug, rank = gauss_eliminate([[1, 1], [1, 0]])\n    assert rank == 2\n    aug2, rank2 = gauss_eliminate([[1, 2, 3], [2, 4, 6], [1, 1, 1]])\n    assert rank2 == 2\n    # With RHS\n    aug3, rank3 = gauss_eliminate([[2, 1], [1, 3]], b=[3, 5])\n    assert rank3 == 2\n    assert abs(aug3[0][2] - 0.8) < 1e-6\n    assert abs(aug3[1][2] - 1.4) < 1e-6\n    # Modular\n    aug4, rank4 = gauss_mod([[1, 1], [1, 0]], 10**9 + 7)\n    assert rank4 == 2\n    print(\"gaussian-elimination: ALL TESTS PASSED\")\n",
+    "pypy_notes": "模质数时用pow(pivot,mod-2,mod)求逆元。浮点消元需注意精度，模运算无精度问题。三层循环Python慢，n>100建议PyPy。",
+    "complexity": {
+      "time": "O(n^3)",
+      "space": "O(n^2)"
+    },
+    "limitations": "浮点数精度问题（可改用分数运算）。模非质数时需辗转相消法。高消不能直接处理异或方程组（需bitset优化）。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3389",
+      "url": "https://www.luogu.com.cn/problem/P3389",
+      "difficulty": 4,
+      "key_point": "高斯消元解线性方程组模板题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4452",
+      "url": "https://www.luogu.com.cn/problem/P4452",
+      "difficulty": 6,
+      "key_point": "高斯消元在计数中的应用"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "1030",
+      "url": "https://leetcode.cn/problems/matrix-cells-in-distance-order/",
+      "difficulty": 3,
+      "key_point": "简单矩阵距离排序（入门）"
+    }
+  ],
+  "pitfalls": [
+    "浮点精度：abs(x)<1e-9判断零而非==0",
+    "模质数消元中逆元计算需mod为质数",
+    "自由变量处理：秩<变量数时有无穷多解",
+    "部分主元选择可减少浮点误差"
+  ],
+  "step_dag": {
+    "nodes": [],
+    "edges": []
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/linear-algebra/elementary-operations/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/linear_algebra/linear-system-gauss.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch23 Matrices (p227-234)"
+    }
+  ]
+}

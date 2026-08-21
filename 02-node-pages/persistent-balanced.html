@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>可持久化平衡树 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-5.html">可持久化数据结构</a> / <span>可持久化平衡树</span></div>
+  <h1>可持久化平衡树</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-5</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="persistent-trie.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">persistent-trie</span></a>
+    <a class="nav-index" href="../03-groups/G-D-5.html"><span class="dir">组内第 3 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="persistent-heap.html"><span class="dir">下一个 / 组内</span><span class="v">persistent-heap</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">可持久化无旋转Treap，函数式节点复用实现历史版本</div><p>可持久化平衡树在 OI 中最常用的是可持久化无旋转 Treap（FHQ Treap）：利用其 Split/Merge 过程只修改路径上节点、且天然适合『复制沿途节点（path copying）』的特点，把每个操作（插入/删除/查询）都作用在某个历史版本上并产生新版本。因无旋转、无指针改动旧版本，Split/Merge 中每次新建节点即可保留全部历史。支持任意历史版本的插入/删除/求排名/求 k 小/前驱/后继。经典模板：Luogu P3835（可持久化平衡树）、P3919（可持久化数组）、P5055（可持久化文艺平衡树）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>旋转 Treap（Splay/Treap）会物理改写树的形状，想持久化要复制大量受旋转影响的节点；而无旋转 FHQ Treap 的 merge/split 是『自顶向下』的，一次只沿一条路径走。仿照主席树的 path copying：split 过程中每经过一个节点就新建它的副本（拷贝 val/prio/左右儿子），再把修改后的儿子挂到副本上，旧版本节点分毫不动。于是每个版本就是一组节点引用，历史天然保留。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① FHQ Treap：节点存 val（键）、prio（随机优先级）、size；核心 split(x,k) 按键 k 把树裂成 &lt;k 与 ≥k 两棵，merge(a,b) 按 prio 合并（prio 小的在上）；② 可持久化要点：split/merge 中每个『修改到』的节点都新建副本——split(x,k) 返回 (a,b) 且 a/b 中的路径节点全部是新建的；merge 同理，被改变儿子指针的节点要复制；③ 插入 = split → 新建单点 → merge；删除 = split → split → 抛弃要删的 → merge；排名/前驱/后继 = 沿树走（不修改无需复制）；④ 每个操作产生新根（append 到根数组），历史版本独立查询。空间 O(m log n)，时间 O(m log n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>无旋转 Treap（FHQ Treap）由范浩强（2006 年冬令营论文《范浩强谈数据结构》）提出并在 OI 中普及，其『split/merge 自顶向下』特性天然适配可持久化。可持久化平衡树（特别是无旋 Treap 版本）成为 OI 处理历史版本有序集合的标配，OI Wiki 与洛谷模板 P3835 将其标准化。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">split</span>(x, k):            <span class="t-c"># 返回 (&lt;k 的树, &gt;=k 的树)；路径节点全部新建</span>
+  <span class="t-k">if</span> x 为空: <span class="t-k">return</span> (<span class="t-n">0</span>, <span class="t-n">0</span>)
+  nw = 复制节点 x
+  <span class="t-k">if</span> val[x] &lt; k:
+    a, b = <span class="t-f">split</span>(r[x], k)
+    r[nw] = a; <span class="t-f">pull</span>(nw); <span class="t-k">return</span> (nw, b)
+  <span class="t-k">else</span>:
+    a, b = <span class="t-f">split</span>(l[x], k)
+    l[nw] = b; <span class="t-f">pull</span>(nw); <span class="t-k">return</span> (a, nw)
+<span class="t-f">merge</span>(a, b):             <span class="t-c"># 按 prio 合并；被改儿子指针的节点要复制</span>
+  <span class="t-k">if</span> a 空: <span class="t-k">return</span> b
+  <span class="t-k">if</span> b 空: <span class="t-k">return</span> a
+  <span class="t-k">if</span> prio[a] &lt; prio[b]: nw=复制a; r[nw]=<span class="t-f">merge</span>(r[a], b); <span class="t-f">pull</span>(nw); <span class="t-k">return</span> nw
+  <span class="t-k">else</span>:                  nw=复制b; l[nw]=<span class="t-f">merge</span>(a, l[b]); <span class="t-f">pull</span>(nw); <span class="t-k">return</span> nw
+<span class="t-f">insert</span>(ver, k): a,b=<span class="t-f">split</span>(root[ver],k); <span class="t-k">return</span> <span class="t-f">merge</span>(<span class="t-f">merge</span>(a,<span class="t-f">newnode</span>(k)),b)
+<span class="t-f">erase</span>(ver, k):  a,b=<span class="t-f">split</span>(root[ver],k); c,d=<span class="t-f">split</span>(b,k+<span class="t-n">1</span>); <span class="t-k">return</span> <span class="t-f">merge</span>(a,<span class="t-f">merge</span>(l[c],d))</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> random
+
+
+<span class="t-k">class</span> PersistentTreap:
+    <span class="t-s">&quot;&quot;&quot;可持久化无旋转 Treap（FHQ）。支持基于任意历史版本做插入/删除/排名/k小/前驱/后继。
+    所有数组 0 号均为空节点哨兵。ver 从 0 开始（空树）。&quot;&quot;&quot;</span>
+
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self):
+        self.l = [<span class="t-n">0</span>]; self.r = [<span class="t-n">0</span>]; self.key = [<span class="t-n">0</span>]
+        self.prio = [<span class="t-n">0</span>]; self.size = [<span class="t-n">0</span>]
+        self.vers = [<span class="t-n">0</span>]
+
+    <span class="t-k">def</span> <span class="t-f">_newnode</span>(self, k):
+        idx = <span class="t-b">len</span>(self.key)
+        self.l.<span class="t-f">append</span>(<span class="t-n">0</span>); self.r.<span class="t-f">append</span>(<span class="t-n">0</span>); self.key.<span class="t-f">append</span>(k)
+        self.prio.<span class="t-f">append</span>(random.<span class="t-f">random</span>()); self.size.<span class="t-f">append</span>(<span class="t-n">1</span>)
+        <span class="t-k">return</span> idx
+
+    <span class="t-k">def</span> <span class="t-f">_pull</span>(self, x):
+        self.size[x] = self.size[self.l[x]] + self.size[self.r[x]] + <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">_split</span>(self, x, k):
+        <span class="t-s">&quot;&quot;&quot;返回 (a, b): a 的键全部 &lt; k, b 的键全部 &gt;= k。路径节点新建。&quot;&quot;&quot;</span>
+        <span class="t-k">if</span> x == <span class="t-n">0</span>:
+            <span class="t-k">return</span> <span class="t-n">0</span>, <span class="t-n">0</span>
+        <span class="t-k">if</span> self.key[x] &lt; k:
+            a, b = self.<span class="t-f">_split</span>(self.r[x], k)
+            nw = self.<span class="t-f">_newnode</span>(self.key[x])
+            self.l[nw] = self.l[x]; self.r[nw] = a
+            self.<span class="t-f">_pull</span>(nw)
+            <span class="t-k">return</span> nw, b
+        <span class="t-k">else</span>:
+            a, b = self.<span class="t-f">_split</span>(self.l[x], k)
+            nw = self.<span class="t-f">_newnode</span>(self.key[x])
+            self.l[nw] = b; self.r[nw] = self.r[x]
+            self.<span class="t-f">_pull</span>(nw)
+            <span class="t-k">return</span> a, nw
+
+    <span class="t-k">def</span> <span class="t-f">_merge</span>(self, a, b):
+        <span class="t-k">if</span> a == <span class="t-n">0</span>:
+            <span class="t-k">return</span> b
+        <span class="t-k">if</span> b == <span class="t-n">0</span>:
+            <span class="t-k">return</span> a
+        <span class="t-k">if</span> self.prio[a] &lt; self.prio[b]:
+            nw = self.<span class="t-f">_newnode</span>(self.key[a])
+            self.l[nw] = self.l[a]; self.r[nw] = self.<span class="t-f">_merge</span>(self.r[a], b)
+            self.<span class="t-f">_pull</span>(nw)
+            <span class="t-k">return</span> nw
+        <span class="t-k">else</span>:
+            nw = self.<span class="t-f">_newnode</span>(self.key[b])
+            self.r[nw] = self.r[b]; self.l[nw] = self.<span class="t-f">_merge</span>(a, self.l[b])
+            self.<span class="t-f">_pull</span>(nw)
+            <span class="t-k">return</span> nw
+
+    <span class="t-k">def</span> <span class="t-f">insert</span>(self, ver, k):
+        a, b = self.<span class="t-f">_split</span>(self.vers[ver], k)
+        root = self.<span class="t-f">_merge</span>(self.<span class="t-f">_merge</span>(a, self.<span class="t-f">_newnode</span>(k)), b)
+        self.vers.<span class="t-f">append</span>(root)
+        <span class="t-k">return</span> root
+
+    <span class="t-k">def</span> <span class="t-f">erase</span>(self, ver, k):
+        a, b = self.<span class="t-f">_split</span>(self.vers[ver], k)
+        c, d = self.<span class="t-f">_split</span>(b, k + <span class="t-n">1</span>)
+        <span class="t-k">if</span> c:
+            c = self.<span class="t-f">_merge</span>(self.l[c], self.r[c])
+        root = self.<span class="t-f">_merge</span>(a, self.<span class="t-f">_merge</span>(c, d))
+        self.vers.<span class="t-f">append</span>(root)
+        <span class="t-k">return</span> root
+
+    <span class="t-k">def</span> <span class="t-f">rank</span>(self, ver, k):
+        <span class="t-s">&quot;&quot;&quot;返回 &lt; k 的元素个数 + 1&quot;&quot;&quot;</span>
+        x = self.vers[ver]; r = <span class="t-n">0</span>
+        <span class="t-k">while</span> x:
+            <span class="t-k">if</span> self.key[x] &lt; k:
+                r += self.size[self.l[x]] + <span class="t-n">1</span>
+                x = self.r[x]
+            <span class="t-k">else</span>:
+                x = self.l[x]
+        <span class="t-k">return</span> r + <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">kth</span>(self, ver, k):
+        x = self.vers[ver]
+        <span class="t-k">while</span> <span class="t-k">True</span>:
+            lsz = self.size[self.l[x]]
+            <span class="t-k">if</span> k &lt;= lsz:
+                x = self.l[x]
+            <span class="t-k">elif</span> k == lsz + <span class="t-n">1</span>:
+                <span class="t-k">return</span> self.key[x]
+            <span class="t-k">else</span>:
+                k -= lsz + <span class="t-n">1</span>
+                x = self.r[x]
+
+    <span class="t-k">def</span> <span class="t-f">pred</span>(self, ver, k):
+        r = self.<span class="t-f">rank</span>(ver, k)
+        <span class="t-k">return</span> self.<span class="t-f">kth</span>(ver, r - <span class="t-n">1</span>) <span class="t-k">if</span> r &gt;= <span class="t-n">2</span> <span class="t-k">else</span> <span class="t-k">None</span>
+
+    <span class="t-k">def</span> <span class="t-f">succ</span>(self, ver, k):
+        r = self.<span class="t-f">rank</span>(ver, k + <span class="t-n">1</span>)
+        <span class="t-k">return</span> self.<span class="t-f">kth</span>(ver, r) <span class="t-k">if</span> r &lt;= self.size[self.vers[ver]] <span class="t-k">else</span> <span class="t-k">None</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    random.<span class="t-f">seed</span>(<span class="t-n">23</span>)
+    pt = <span class="t-f">PersistentTreap</span>()
+    hist = [[]]  <span class="t-c"># hist[v] = 第 v 个版本的已排序元素列表（暴力参照）</span>
+    <span class="t-k">for</span> step <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>):
+        cur = hist[-<span class="t-n">1</span>]
+        <span class="t-k">if</span> <span class="t-k">not</span> cur <span class="t-k">or</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.6</span>:
+            k = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">15</span>)
+            pt.<span class="t-f">insert</span>(<span class="t-b">len</span>(hist) - <span class="t-n">1</span>, k)
+            nv = <span class="t-b">sorted</span>(cur + [k])
+        <span class="t-k">else</span>:
+            k = random.<span class="t-f">choice</span>(cur)
+            pt.<span class="t-f">erase</span>(<span class="t-b">len</span>(hist) - <span class="t-n">1</span>, k)
+            nv = <span class="t-b">list</span>(cur); nv.<span class="t-f">remove</span>(k)
+        hist.<span class="t-f">append</span>(nv)
+    <span class="t-c"># 验证所有历史版本均正确且互不影响</span>
+    <span class="t-k">for</span> vv <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(hist)):
+        lst = hist[vv]
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-n">16</span>):
+            <span class="t-k">assert</span> pt.<span class="t-f">rank</span>(vv, k) == <span class="t-n">1</span> + <span class="t-b">sum</span>(<span class="t-n">1</span> <span class="t-k">for</span> x <span class="t-k">in</span> lst <span class="t-k">if</span> x &lt; k), (vv, k)
+        <span class="t-k">for</span> idx <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-b">len</span>(lst) + <span class="t-n">1</span>):
+            <span class="t-k">assert</span> pt.<span class="t-f">kth</span>(vv, idx) == lst[idx - <span class="t-n">1</span>], (vv, idx)
+        <span class="t-c"># 前驱=小于 k 的最大值；后继=大于 k 的最小值（严格）</span>
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-n">16</span>):
+            smallers = [x <span class="t-k">for</span> x <span class="t-k">in</span> lst <span class="t-k">if</span> x &lt; k]
+            <span class="t-k">assert</span> pt.<span class="t-f">pred</span>(vv, k) == (smallers[-<span class="t-n">1</span>] <span class="t-k">if</span> smallers <span class="t-k">else</span> <span class="t-k">None</span>), (vv, k)
+            biggers = [x <span class="t-k">for</span> x <span class="t-k">in</span> lst <span class="t-k">if</span> x &gt; k]
+            <span class="t-k">assert</span> pt.<span class="t-f">succ</span>(vv, k) == (biggers[<span class="t-n">0</span>] <span class="t-k">if</span> biggers <span class="t-k">else</span> <span class="t-k">None</span>), (vv, k)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;persistent-balanced: All tests passed.&#x27;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">全部用数组（l/r/key/prio/size 五列 + vers 根数组）实现，PyPy 下 2e5 次操作可过。随机优先级用 random.random()（Python 自带）即可；可改用随机整数减少浮点比较。注意版本号=操作次数，需保证每次操作 append 一个根。查询操作（rank/kth/pred/succ）不建新版本（P3835 语义下查询不产生新版本）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>插入/删除/排名/kth/前驱/后继均 O(log n)（split/merge 深度期望 log n）</td></tr><tr><th>空间复杂度</th><td>O(m log n) 节点（m 为操作次数；split 每次新建 O(log n)、merge 同）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">随机化期望复杂度（prio 用真随机），最坏概率退化可忽略。每个操作都会新建 O(log n) 节点，m 大时空间压力明显（m=1e6 约 2e7 节点）。查询类操作不产生新版本——若题面要求『查询也算新版本』（如 P5055 文艺平衡树翻转）需按语义处理。区间操作（翻转/合并）需文艺平衡树版 split by size。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>split/merge 中必须『先复制节点再修改』，直接改原节点会破坏旧版本</li><li>复制节点时左右儿子指针要带过来（拷贝旧值），漏拷贝导致新版本缺子树</li><li>版本索引：insert/erase 各产生一个新版本（append 一次根），查询不 append；P3835 的版本编号=操作序号</li><li>merge 后要 pull(size) 更新，遗忘会破坏 kth/rank</li><li>delete 语义：split(b,k+1) 取恰等于 k 的中段，多键时只删一个；写成 split by k 边界错</li><li>prio 比较方向与 merge 分支写反会破坏堆性质（小根堆 prio 在上）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3835</strong></td><td>5</td><td>【模板】可持久化平衡树：基于历史版本插入/删除/排名/k小/前驱/后继，最标准模板，OI Wiki 例题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3835" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3835</a></td></tr><tr><td>Luogu</td><td><strong>P3919</strong></td><td>3</td><td>【模板】可持久化线段树1（可持久化数组）：可持久化入门，理解版本与 path copying</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3919" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3919</a></td></tr><tr><td>Luogu</td><td><strong>P5055</strong></td><td>6</td><td>可持久化文艺平衡树：按 size split 的可持久化 FHQ，支持历史版本区间翻转，OI Wiki 练手题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5055" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5055</a></td></tr><tr><td>Codeforces</td><td><strong>702F</strong></td><td>6</td><td>T-shirt：可持久化平衡树/线段树分治优化 DP，OI Wiki 练手题</td><td class="u"><a href="https://codeforces.com/problemset/problem/702/F" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/702/F</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-persistent-balanced" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "fhq", "label": "FHQ Treap：split/merge 自顶向下"}}, {"data": {"id": "pcopy", "label": "path copying：split/merge 沿途节点全部新建"}}, {"data": {"id": "ops", "label": "insert/erase 由 split+merge 组合"}}, {"data": {"id": "query", "label": "rank/kth/pred/succ 只读不建版本"}}, {"data": {"id": "vers", "label": "版本根数组 vers[]，操作产生新版本"}}, {"data": {"id": "efhq->pcopy", "source": "fhq", "target": "pcopy"}}, {"data": {"id": "epcopy->ops", "source": "pcopy", "target": "ops"}}, {"data": {"id": "epcopy->query", "source": "pcopy", "target": "query"}}, {"data": {"id": "eops->vers", "source": "ops", "target": "vers"}}, {"data": {"id": "equery->vers", "source": "query", "target": "vers"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-persistent-balanced'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="fhq-treap.html" title="可持久化平衡树通常基于无旋Treap实现">无旋Treap(FHQ Treap)<span class="etype">前置依赖</span></a><a class="chip e-variant" href="persistent-seg.html" title="可持久化平衡树共享函数式节点复用">可持久化线段树(主席树)<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/persistent-balanced/" target="_blank" rel="noopener">https://oi-wiki.org/ds/persistent-balanced/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-balanced.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-balanced.md</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">范浩强《范浩强谈数据结构》（无旋 Treap）</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

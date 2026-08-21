@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>李超线段树 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-8.html">高级线段树与离线</a> / <span>李超线段树</span></div>
+  <h1>李超线段树</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="seg-beats.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">seg-beats</span></a>
+    <a class="nav-index" href="../03-groups/G-D-8.html"><span class="dir">组内第 2 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="kinetic-tournament-tree.html"><span class="dir">下一个 / 组内</span><span class="v">kinetic-tournament-tree</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">线段树维护线段/直线集合，标记永久化求横坐标处最值</div><p>李超线段树把「线段/直线集合」存进线段树：每个节点存一条当前区间内「最优」线段作永久化标记，插入新线段时在中点比较、把较优者留下、较劣者递归下传到唯一可能更优的子区间，查询时沿路径取所有标记的 max。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>两条直线最多在一个子区间相交，所以在某一半区间内哪条更优是确定的——可把较劣的那条只在它可能赢的那一半继续下传，另一条留在当前节点当标记。这保证每条线段每次只会递归到一个子区间。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>节点 p 存直线 f_p。插入直线 g 到区间 [cl,cr]，比中点 m 处值：若 g(m)&gt;f_p(m) 则交换 g 与 f_p(让 g 留下当标记)。再比端点：若 g 在左端点更优则 g 只可能在左半赢，递归左儿子；若在右端点更优则递归右儿子；左右端点 f_p 都更优则 g 无需下传。标记永久化——查询时沿根到叶路径对所有标记取 max，无需 pushdown。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>李超线段树由李超在 2013-2014 年竞赛中提出并传播（CF 讨论与《算法竞赛进阶指南》收录），核心「中点比较+单侧递归」思想在 OI 社区成熟。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">upd</span>(p,cl,cr,k,b): m=(cl+cr)/<span class="t-n">2</span>; 若 <span class="t-f">g</span>(m)&gt;<span class="t-f">f</span>(m) 交换 g,f; 若 <span class="t-f">g</span>(左端)&gt;<span class="t-f">f</span>(左端) 递归左; 若 <span class="t-f">g</span>(右端)&gt;<span class="t-f">f</span>(右端) 递归右
+query: 沿路径对所有节点标记取 <span class="t-b">max</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+<span class="t-c"># 李超线段树: 维护线段集合, 查询某横坐标处纵坐标最大值</span>
+INF = <span class="t-b">float</span>(<span class="t-s">&quot;inf&quot;</span>)
+K = [<span class="t-n">0</span>]     <span class="t-c"># 斜率 (1-indexed, 下标 0 为占位)</span>
+B = [<span class="t-n">0</span>]     <span class="t-c"># 截距</span>
+lc = [<span class="t-n">0</span>]    <span class="t-c"># 左儿子</span>
+rc = [<span class="t-n">0</span>]    <span class="t-c"># 右儿子</span>
+tot = <span class="t-n">0</span>
+
+
+<span class="t-k">def</span> <span class="t-f">new_node</span>():
+    <span class="t-k">global</span> tot
+    tot += <span class="t-n">1</span>
+    K.<span class="t-f">append</span>(<span class="t-n">0</span>); B.<span class="t-f">append</span>(-INF)
+    lc.<span class="t-f">append</span>(<span class="t-n">0</span>); rc.<span class="t-f">append</span>(<span class="t-n">0</span>)
+    <span class="t-k">return</span> tot
+
+
+<span class="t-k">def</span> <span class="t-f">f</span>(k, b, x):
+    <span class="t-k">return</span> k * x + b
+
+
+<span class="t-k">def</span> <span class="t-f">upd</span>(p, cl, cr, k, b):
+    <span class="t-c"># 在区间 [cl,cr] 插入直线 y=kx+b</span>
+    m = (cl + cr) &gt;&gt; <span class="t-n">1</span>
+    <span class="t-k">if</span> <span class="t-k">not</span> lc[p]:
+        lc[p] = <span class="t-f">new_node</span>()
+    <span class="t-k">if</span> <span class="t-k">not</span> rc[p]:
+        rc[p] = <span class="t-f">new_node</span>()
+    <span class="t-k">if</span> <span class="t-f">f</span>(k, b, m) &gt; <span class="t-f">f</span>(K[p], B[p], m):
+        k, K[p] = K[p], k
+        b, B[p] = B[p], b
+    <span class="t-k">if</span> <span class="t-f">f</span>(k, b, cl) &gt; <span class="t-f">f</span>(K[p], B[p], cl):
+        <span class="t-f">upd</span>(lc[p], cl, m, k, b)
+    <span class="t-k">if</span> <span class="t-f">f</span>(k, b, cr) &gt; <span class="t-f">f</span>(K[p], B[p], cr):
+        <span class="t-f">upd</span>(rc[p], m + <span class="t-n">1</span>, cr, k, b)
+
+
+<span class="t-k">def</span> <span class="t-f">upd_seg</span>(p, cl, cr, l, r, k, b):
+    <span class="t-c"># 插入线段 y=kx+b, 定义域 [l,r]</span>
+    <span class="t-k">if</span> l &lt;= cl <span class="t-k">and</span> cr &lt;= r:
+        <span class="t-f">upd</span>(p, cl, cr, k, b)
+        <span class="t-k">return</span>
+    m = (cl + cr) &gt;&gt; <span class="t-n">1</span>
+    <span class="t-k">if</span> l &lt;= m:
+        <span class="t-k">if</span> <span class="t-k">not</span> lc[p]:
+            lc[p] = <span class="t-f">new_node</span>()
+        <span class="t-f">upd_seg</span>(lc[p], cl, m, l, r, k, b)
+    <span class="t-k">if</span> r &gt; m:
+        <span class="t-k">if</span> <span class="t-k">not</span> rc[p]:
+            rc[p] = <span class="t-f">new_node</span>()
+        <span class="t-f">upd_seg</span>(rc[p], m + <span class="t-n">1</span>, cr, l, r, k, b)
+
+
+<span class="t-k">def</span> <span class="t-f">query</span>(p, cl, cr, x):
+    <span class="t-c"># 查询横坐标 x 处最大纵坐标</span>
+    res = <span class="t-f">f</span>(K[p], B[p], x)
+    m = (cl + cr) &gt;&gt; <span class="t-n">1</span>
+    <span class="t-k">if</span> x &lt;= m <span class="t-k">and</span> lc[p]:
+        res = <span class="t-b">max</span>(res, <span class="t-f">query</span>(lc[p], cl, m, x))
+    <span class="t-k">if</span> x &gt; m <span class="t-k">and</span> rc[p]:
+        res = <span class="t-b">max</span>(res, <span class="t-f">query</span>(rc[p], m + <span class="t-n">1</span>, cr, x))
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">1</span> &lt;&lt; <span class="t-n">20</span>)
+    root = <span class="t-f">new_node</span>()
+    XR = <span class="t-n">1</span> &lt;&lt; <span class="t-n">18</span>
+    <span class="t-f">upd_seg</span>(root, <span class="t-n">1</span>, XR, <span class="t-n">1</span>, XR, <span class="t-n">1</span>, <span class="t-n">0</span>)        <span class="t-c"># y = x</span>
+    <span class="t-f">upd_seg</span>(root, <span class="t-n">1</span>, XR, <span class="t-n">1</span>, XR, -<span class="t-n">1</span>, <span class="t-n">100</span>)     <span class="t-c"># y = -x + 100</span>
+    <span class="t-b">print</span>(<span class="t-f">query</span>(root, <span class="t-n">1</span>, XR, <span class="t-n">50</span>))            <span class="t-c"># 50  (y=x 与 y=-x+100 交于 x=50)</span>
+    <span class="t-b">print</span>(<span class="t-f">query</span>(root, <span class="t-n">1</span>, XR, <span class="t-n">1</span>))             <span class="t-c"># 99</span>
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">标记永久化+单链递归 PyPy 常数小；斜率/截距用列表存。整数斜率建议交叉乘法避免浮点误差。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>插入直线 O(log C)；插入线段(定义域跨多区间)O(log² C)；查询 O(log C)。C 为横坐标值域</td></tr><tr><th>空间复杂度</th><td>O(Q log C) — 动态开点按需建</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Python 浮点比较易出精度问题，整数斜率建议用分数/交叉乘法避免 eps；垂直线段(x0==x1)会除零，需特殊处理为定义域 [x,x] 的一次函数 f(x)=0·x+y1；查询横坐标超出已插入范围时返回 -INF 需判空。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>垂直线段(x0==x1)除零，必须特判为定义域单点的一次函数</li><li>浮点斜率用 eps 比较精度不足，整数场景改交叉乘法</li><li>多条线段交点纵坐标相同时要按编号取较小者(题目要求)</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4097</strong></td><td>5</td><td>HEOI2013 Segment：插入线段+查询某 x 处纵坐标最大的线段编号，李超树模板</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4097" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4097</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-li-chao-tree" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "locate", "label": "定位线段覆盖到的线段树区间"}}, {"data": {"id": "mid_cmp", "label": "中点比较新线段与旧标记"}}, {"data": {"id": "swap", "label": "较优者留下当标记,较劣者递归"}}, {"data": {"id": "recur", "label": "递归到唯一可能更优的子区间"}}, {"data": {"id": "query", "label": "查询:沿路径取所有标记max"}}, {"data": {"id": "elocate->mid_cmp", "source": "locate", "target": "mid_cmp"}}, {"data": {"id": "emid_cmp->swap", "source": "mid_cmp", "target": "swap"}}, {"data": {"id": "eswap->recur", "source": "swap", "target": "recur"}}, {"data": {"id": "erecur->query", "source": "recur", "target": "query"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-li-chao-tree'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="seg-basic.html" title="李超树是线段树维护线段/一次函数的变体">线段树基础<span class="etype">变体</span></a><a class="chip e-variant" href="convex-hull-trick.html" title="两者都维护直线集合取最值，李超树为线段树实现">凸包优化(CHT)<span class="etype">变体</span></a><a class="chip e-cooccurrence" href="seg-beats.html" title="均为近年高频进阶数据结构，常在同一赛题集出现">吉司机线段树(Segment Beats)<span class="etype">共现</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="kinetic-tournament-tree.html" title="Kinetic Tournament是李超树的动态凸壳扩展">Kinetic Tournament Tree<span class="etype">变体</span></a><a class="chip e-combination" href="dp-opt-slope.html" title="李超线段树可替代凸壳维护实现斜率优化DP">斜率优化DP<span class="etype">组合</span></a><a class="chip e-combination" href="seg-beats.html" title="均为线段树区间高级维护的推广">吉司机线段树(Segment Beats)<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/li-chao-tree.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/li-chao-tree.md</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/li-chao-tree/" target="_blank" rel="noopener">https://oi-wiki.org/ds/li-chao-tree/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/geometry/convex_hull_trick.html" target="_blank" rel="noopener">https://cp-algorithms.com/geometry/convex_hull_trick.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

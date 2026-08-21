@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stern-Brocot 树与 Farey 序列 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-10.html">调度与其他专题</a> / <span>Stern-Brocot 树与 Farey 序列</span></div>
+  <h1>Stern-Brocot 树与 Farey 序列</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-10</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="schedule-deadline-duration.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">schedule-deadline-duration</span></a>
+    <a class="nav-index" href="../03-groups/G-D-10.html"><span class="dir">组内第 4 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-D-10.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">生成所有既约正有理数的二叉搜索树：相邻分数插入中位分数 (a+c)/(b+d)，支持二分定位任意有理数与最优有理逼近，关联连分数与 Farey 序列</div><p>Stern-Brocot 树是一棵以 0/1、1/0（表示 +∞）为边界、通过反复插入相邻分数中位分数 (a+c)/(b+d) 构造的无限二叉搜索树，包含全部正的最简有理数且每个恰好出现一次。每个节点对应一个三元组 ((a/b),(p/q),(c/d))，实际存储的分数是中间元素 p/q。三条基本性质：①单调性——第 k 阶 Stern-Brocot 序列单调递增；②最简性——相邻分数满足 bc−ad=1（因此由裴蜀定理所有分数互素）；③完全性——任意正有理数都在树上（否则搜索无限长，可证明每一步 a+b+c+d 严格增大而 p+q 有界，矛盾）。Stern-Brocot 树同时是分子分母的二叉搜索树、堆与笛卡尔树。每个分数 p/q 可由连分数 [t0;t1;…;tn;1] 表示，连分数系数恰好编码从根到该节点的路径（偶数项向右、奇数项向左）。Farey 序列 F(n) 是分母不超过 n 的 0..1 间既约分数按序排列，可从 Stern-Brocot 树裁剪得到，长度 L(n)=1+Σ_{k=1}^n φ(k)。矩阵视角：左/右子节点移动分别对应乘以 L=[[1,1],[0,1]] 与 R=[[1,0],[1,1]]。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把分数看成实数轴上的点，每次在相邻两个分数之间插入一个中位分数，得到的序列单调且越来越密。如果把它组织成树（每个插入的分数作为两个边界的共同子节点），就成了一棵二叉搜索树：要找一个分数，比较当前分数与目标的大小，大往左小往右。关键洞察是相邻分数 a/b 与 c/d 之间一定满足 bc−ad=1（行列式为 1），这个性质在中位分数插入后保持，既保证最简性，也让&#x27;存在性&#x27;证明可行。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>构造：第 0 阶序列为 0/1, 1/0；第 k+1 阶在相邻 (a/b,c/d) 间插入 (a+c)/(b+d)。单调性由 a/b &lt; (a+c)/(b+d) &lt; c/d（消分母即得）归纳保持。最简性：相邻分数行列式 bc−ad=1，中位数插入后 b(a+c)−a(b+d)=bc−ad=1 与 c(b+d)−d(a+c)=bc−ad=1 仍成立，故所有分数互素。完全性：任意 p/q 的搜索若无限，则每步 bx−ay≥1、cy−dx≥1，乘 (c+d)、(a+b) 相加并利用 bc−ad=1 得 p+q≥a+b+c+d，而每深入一层右侧严格增大，矛盾，故必有限步命中。快速查找：连续向右 t 次等价于左边界从 a/b 变为 (a+tc)/(b+td)，连续向左 t 次右边界变为 (ta+c)/(tb+d)，用连分数辗转相除 O(log min(p,q)) 得到路径的游程编码。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>1858 年德国数学家 Moritz Stern 与 1861 年法国钟表匠 Achille Brocot 独立发现（Brocot 用于设计齿轮传动比的钟表领域；有些资料将更早的发现归于古希腊 Eratosthenes）。1816 年英国地质学家 John Farey 猜想 Farey 序列中每个分数都是邻居的中位分数，随后被 Cauchy 证明，但 Haros 于 1802 年已得出几乎相同的结论。CP-Algorithms 指出序列 [a1;a2;…;an;1] 的连分数表示中，渐近分数列即搜索边界序列。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 朴素查找: O(p+q), 每步一次中位数比较</span>
+bounds = (<span class="t-n">0</span>/<span class="t-n">1</span>, <span class="t-n">1</span>/<span class="t-n">0</span>)
+<span class="t-k">while</span> <span class="t-k">True</span>:
+    m = <span class="t-f">mediant</span>(l, r)
+    <span class="t-k">if</span> m == target: <span class="t-k">break</span>
+    <span class="t-k">if</span> target &lt; m: r = m; path += <span class="t-s">&#x27;L&#x27;</span>
+    <span class="t-k">else</span>:          l = m; path += <span class="t-s">&#x27;R&#x27;</span>
+
+<span class="t-c"># 快速查找(目标分数已知): O(log min(p,q)), 连分数/辗转相除</span>
+res = []
+right = <span class="t-k">True</span>
+<span class="t-k">while</span> q:
+    res.<span class="t-f">append</span>((p // q, <span class="t-s">&#x27;R&#x27;</span> <span class="t-k">if</span> right <span class="t-k">else</span> <span class="t-s">&#x27;L&#x27;</span>))
+    p, q = q, p % q
+    right ^= <span class="t-n">1</span>
+res[-<span class="t-n">1</span>].first -= <span class="t-n">1</span>   <span class="t-c"># 最后一个系数减 1</span>
+
+<span class="t-c"># Farey 序列长度: L(n) = 1 + sum phi(k)</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+<span class="t-c"># Stern-Brocot 树：朴素查找（O(p+q) 路径串）</span>
+<span class="t-k">def</span> <span class="t-f">stern_naive</span>(p, q):
+    <span class="t-s">&quot;&quot;&quot;返回从根到 p/q 的路径串（&#x27;L&#x27;/&#x27;R&#x27;）。&quot;&quot;&quot;</span>
+    <span class="t-c"># 边界 (pa/pb, qa/qb) = (0/1, 1/0)</span>
+    pa, pb, qa, qb = <span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">0</span>
+    res = []
+    <span class="t-k">while</span> <span class="t-k">True</span>:
+        pm, qm = pa + qa, pb + qb
+        <span class="t-k">if</span> pm == p <span class="t-k">and</span> qm == q:
+            <span class="t-k">break</span>
+        <span class="t-k">if</span> p * qm &lt; pm * q:          <span class="t-c"># p/q &lt; pm/qm -&gt; 向左</span>
+            qa, qb = pm, qm
+            res.<span class="t-f">append</span>(<span class="t-s">&#x27;L&#x27;</span>)
+        <span class="t-k">else</span>:                        <span class="t-c"># 否则向右</span>
+            pa, pb = pm, qm
+            res.<span class="t-f">append</span>(<span class="t-s">&#x27;R&#x27;</span>)
+    <span class="t-k">return</span> <span class="t-s">&#x27;&#x27;</span>.<span class="t-f">join</span>(res)
+
+
+<span class="t-c"># 快速查找：连分数/辗转相除得到游程编码（目标分数已知）</span>
+<span class="t-k">def</span> <span class="t-f">stern_fast</span>(p, q):
+    <span class="t-s">&quot;&quot;&quot;返回 [(次数, 方向)]，方向交替，复杂度 O(log min(p,q))。&quot;&quot;&quot;</span>
+    res = []
+    right = <span class="t-k">True</span>
+    <span class="t-k">while</span> q:
+        res.<span class="t-f">append</span>((p // q, <span class="t-s">&#x27;R&#x27;</span> <span class="t-k">if</span> right <span class="t-k">else</span> <span class="t-s">&#x27;L&#x27;</span>))
+        p, q = q, p % q
+        right ^= <span class="t-n">1</span>
+    res[-<span class="t-n">1</span>] = (res[-<span class="t-n">1</span>][<span class="t-n">0</span>] - <span class="t-n">1</span>, res[-<span class="t-n">1</span>][<span class="t-n">1</span>])   <span class="t-c"># 最后一个系数减 1</span>
+    <span class="t-k">return</span> res
+
+
+<span class="t-c"># Farey 序列长度 L(n) = 1 + sum_{k=1}^n phi(k)</span>
+<span class="t-k">def</span> <span class="t-f">farey_len</span>(n):
+    phi = <span class="t-b">list</span>(<span class="t-b">range</span>(n + <span class="t-n">1</span>))
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">if</span> phi[i] == i:
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, n + <span class="t-n">1</span>, i):
+                phi[j] -= phi[j] // i
+    <span class="t-k">return</span> <span class="t-n">1</span> + <span class="t-b">sum</span>(phi[<span class="t-n">1</span>:])
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 朴素与快速查找在随机互素小数据上对拍</span>
+    <span class="t-k">import</span> random
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>):
+        p = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">40</span>)
+        q = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">40</span>)
+        g = <span class="t-f">__import__</span>(<span class="t-s">&#x27;math&#x27;</span>).<span class="t-f">gcd</span>(p, q)
+        p, q = p // g, q // g          <span class="t-c"># 只有最简分数在树上</span>
+        a = <span class="t-f">stern_naive</span>(p, q)
+        b = []
+        <span class="t-k">for</span> cnt, dd <span class="t-k">in</span> <span class="t-f">stern_fast</span>(p, q):
+            b.<span class="t-f">extend</span>(dd * cnt)
+        <span class="t-k">assert</span> <span class="t-s">&#x27;&#x27;</span>.<span class="t-f">join</span>(b) == a, (p, q, b, a)
+    <span class="t-c"># 已知小例子</span>
+    <span class="t-k">assert</span> <span class="t-f">stern_naive</span>(<span class="t-n">1</span>, <span class="t-n">2</span>) == <span class="t-s">&#x27;L&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-f">stern_naive</span>(<span class="t-n">2</span>, <span class="t-n">1</span>) == <span class="t-s">&#x27;R&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-f">stern_naive</span>(<span class="t-n">1</span>, <span class="t-n">1</span>) == <span class="t-s">&#x27;&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-f">stern_naive</span>(<span class="t-n">3</span>, <span class="t-n">5</span>) == <span class="t-s">&#x27;LRL&#x27;</span>
+    <span class="t-c"># Farey 序列长度 F(5)=11, F(6)=13, F(10)=33</span>
+    <span class="t-k">assert</span> <span class="t-f">farey_len</span>(<span class="t-n">5</span>) == <span class="t-n">11</span>, <span class="t-f">farey_len</span>(<span class="t-n">5</span>)
+    <span class="t-k">assert</span> <span class="t-f">farey_len</span>(<span class="t-n">6</span>) == <span class="t-n">13</span>
+    <span class="t-k">assert</span> <span class="t-f">farey_len</span>(<span class="t-n">10</span>) == <span class="t-n">33</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;stern-brocot tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">朴素查找 O(p+q) 在 p,q 大时不可用；快速查找用整数除法无大整数开销，PyPy 下直接可跑。注意 Python 大整数乘法做分数比较时用交叉相乘 p*qm &lt; pm*q 可避免浮点误差。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>朴素查找 O(p+q)；快速查找（连分数/辗转相除）O(log min(p,q))；未知目标需二分次数时 O(log²(p+q))；建前 n 层树 O(n²)</td></tr><tr><th>空间复杂度</th><td>O(1)（迭代）/ O(路径长)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Stern-Brocot 树在竞赛中多为数论背景或隐含考点（与连分数、Farey 序列、丢番图逼近联动）。朴素查找只能处理小分数；对无理数的有理逼近需注意左右端点距目标的距离比较（逼近误差并非严格递减）。完全性证明要求分数为正。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>1/0 不是分数而是 +∞ 的记号，作为右边界参与中位数计算但不能输出</li><li>中位分数 (a+c)/(b+d) 的分子分母分别相加即可，不必约分（行列式性质保证互素）</li><li>朴素查找路径长度可达 O(p+q)（如 1/n 的情形），大分数必须用连分数快速查找</li><li>连分数编码最后一项系数要减 1（[t0;t1;…;tn;1] 中末尾的 1），漏掉会错位</li><li>对无理数逼近时近似序列误差不是严格递减的，结尾要比较左右端点距目标的距离</li><li>Farey 序列含 0/1 与 1/1 两个端点，长度公式 1+Σφ 的 1 是端点 0/1</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>UVa</td><td><strong>12995</strong></td><td>3</td><td>Farey Sequence 长度公式 L(n)=1+Σφ(k)，欧拉函数前缀和</td><td class="u"><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=4386" target="_blank" rel="noopener">https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=4386</a></td></tr><tr><td>AtCoder</td><td><strong>ABC333-F</strong></td><td>5</td><td>题名 Bomb Game 2，涉及分数区间均分，可用 Stern-Brocot/分数序列思想辅助构造</td><td class="u"><a href="https://atcoder.jp/contests/abc333/tasks/abc333_f" target="_blank" rel="noopener">https://atcoder.jp/contests/abc333/tasks/abc333_f</a></td></tr><tr><td>Luogu</td><td><strong>P1966</strong></td><td>4</td><td>火柴排队：排序序数与逆序对，排序思想与分数排序同源</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1966" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1966</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-stern-brocot-tree" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "construct", "label": "中位分数迭代构造 Stern-Brocot 树/序列"}}, {"data": {"id": "properties", "label": "单调性 / bc-ad=1 最简性 / 完全性"}}, {"data": {"id": "search", "label": "分数定位（朴素→连分数快速查找）"}}, {"data": {"id": "farey", "label": "Farey 序列：裁剪 + 长度公式 L(n)=1+Σφ(k)"}}, {"data": {"id": "approx", "label": "有理逼近与应用（连分数联动）"}}, {"data": {"id": "econstruct->properties", "source": "construct", "target": "properties"}}, {"data": {"id": "eproperties->search", "source": "properties", "target": "search"}}, {"data": {"id": "esearch->farey", "source": "search", "target": "farey"}}, {"data": {"id": "efarey->approx", "source": "farey", "target": "approx"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-stern-brocot-tree'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/stern-brocot/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/stern-brocot/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/others/stern_brocot_tree_farey_sequences.html" target="_blank" rel="noopener">https://cp-algorithms.com/others/stern_brocot_tree_farey_sequences.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

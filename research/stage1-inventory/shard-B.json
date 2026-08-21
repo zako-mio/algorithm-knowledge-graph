@@ -1,0 +1,1622 @@
+{
+  "shard": "B",
+  "shard_name": "图论",
+  "groups": [
+    {
+      "id": "G-B-1",
+      "name": "图基础与遍历",
+      "domain": "图论",
+      "stage_range": [
+        "basic"
+      ],
+      "node_ids": [
+        "graph-basics",
+        "graph-storage",
+        "bfs",
+        "dfs",
+        "topo-sort",
+        "connected-components"
+      ]
+    },
+    {
+      "id": "G-B-2",
+      "name": "最短路族",
+      "domain": "图论",
+      "stage_range": [
+        "basic",
+        "advanced"
+      ],
+      "node_ids": [
+        "dijkstra",
+        "floyd",
+        "bellman-ford",
+        "spfa",
+        "johnson",
+        "bfs-01",
+        "kth-shortest-path",
+        "mod-shortest-path"
+      ]
+    },
+    {
+      "id": "G-B-3",
+      "name": "生成树族",
+      "domain": "图论",
+      "stage_range": [
+        "basic",
+        "advanced"
+      ],
+      "node_ids": [
+        "kruskal",
+        "prim",
+        "second-best-mst",
+        "dmst",
+        "steiner-tree",
+        "matrix-tree"
+      ]
+    },
+    {
+      "id": "G-B-4",
+      "name": "连通性族",
+      "domain": "图论",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "tarjan-scc",
+        "cut-vertex",
+        "bridge",
+        "bcc",
+        "two-sat",
+        "dominator-tree",
+        "block-forest"
+      ]
+    },
+    {
+      "id": "G-B-5",
+      "name": "网络流族",
+      "domain": "图论",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "max-flow",
+        "dinic",
+        "min-cut",
+        "min-cost-flow",
+        "bounded-flow",
+        "stoer-wagner"
+      ]
+    },
+    {
+      "id": "G-B-6",
+      "name": "二分图与匹配族",
+      "domain": "图论",
+      "stage_range": [
+        "basic",
+        "advanced"
+      ],
+      "node_ids": [
+        "bipartite-check",
+        "hungarian",
+        "km-algorithm",
+        "hopcroft-karp",
+        "general-match"
+      ]
+    },
+    {
+      "id": "G-B-7",
+      "name": "树算法族",
+      "domain": "图论",
+      "stage_range": [
+        "basic",
+        "advanced"
+      ],
+      "node_ids": [
+        "tree-basics",
+        "lca",
+        "tree-diameter",
+        "tree-centroid",
+        "hld",
+        "dsu-on-tree",
+        "centroid-decomposition",
+        "virtual-tree",
+        "prufer-code",
+        "tree-hash"
+      ]
+    },
+    {
+      "id": "G-B-8",
+      "name": "欧拉与哈密顿族",
+      "domain": "图论",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "euler-path",
+        "hamilton-path",
+        "min-cycle"
+      ]
+    },
+    {
+      "id": "G-B-9",
+      "name": "图论高级专题",
+      "domain": "图论",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "dag-dp",
+        "chord-graph",
+        "planar-graph",
+        "max-clique",
+        "lgv-lemma"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "graph-basics",
+      "name": "图论基础概念",
+      "group_id": "G-B-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "图的基本概念：点、边、有向/无向图、度、路径、环、子图",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/concept.md",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch11 pp119-126",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "graph-storage",
+      "name": "图的存储",
+      "group_id": "G-B-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "邻接矩阵、邻接表、链式前向星等存图方式",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/save.md",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch11 pp119-126",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "bfs",
+      "name": "BFS广度优先搜索",
+      "group_id": "G-B-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "按层遍历图，队列实现O(V+E)，可求无权最短路",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/bfs.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/breadth-first-search.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch12 pp127-132",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dfs",
+      "name": "DFS深度优先搜索",
+      "group_id": "G-B-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "递归深入遍历O(V+E)，连通性判定与DFS生成树基础",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/dfs.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/depth-first-search.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch12 pp127-132",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "topo-sort",
+      "name": "拓扑排序",
+      "group_id": "G-B-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "DAG节点线性排序，Kahn算法(入度BFS)或DFS逆序O(V+E)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/topo.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/topological-sort.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch16 pp159-166",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "connected-components",
+      "name": "连通分量",
+      "group_id": "G-B-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "无向图连通块，BFS/DFS遍历标记O(V+E)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/connectivity.md",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/search-for-connected-components.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch16 pp159-166",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dijkstra",
+      "name": "Dijkstra算法",
+      "group_id": "G-B-2",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "非负权单源最短路，堆优化O((V+E)logV)，贪心松弛",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/shortest-path.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/dijkstra.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch13 pp133-142",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "floyd",
+      "name": "Floyd-Warshall算法",
+      "group_id": "G-B-2",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "全源最短路，DP三重循环O(V³)，可处理负权",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/shortest-path.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/all-pair-shortest-path-floyd-warshall.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch13 pp133-142",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "bellman-ford",
+      "name": "Bellman-Ford算法",
+      "group_id": "G-B-2",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "含负权单源最短路，松弛操作O(VE)，可判负环",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/shortest-path.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/bellman_ford.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch13 pp133-142",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "spfa",
+      "name": "SPFA算法",
+      "group_id": "G-B-2",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "Bellman-Ford队列优化，均摊快但最坏O(VE)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/shortest-path.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/desopo_pape.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch13 pp133-142",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "johnson",
+      "name": "Johnson算法",
+      "group_id": "G-B-2",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "全源最短路，势能法处理负权，n次Dijkstra O(VElogV)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/shortest-path.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch13 pp133-142",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "bfs-01",
+      "name": "0-1 BFS",
+      "group_id": "G-B-2",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "双端队列处理0/1权边最短路O(V+E)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/bfs.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/01_bfs.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch13 pp133-142",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "kth-shortest-path",
+      "name": "k短路",
+      "group_id": "G-B-2",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "第k短路径，A*或可并堆方法",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/kth-path.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "mod-shortest-path",
+      "name": "同余最短路",
+      "group_id": "G-B-2",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "利用同余类建图求最小权值，模数优化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/mod-shortest-path.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "kruskal",
+      "name": "Kruskal算法",
+      "group_id": "G-B-3",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "最小生成树，贪心排序+并查集O(ElogE)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/mst.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/mst_kruskal.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch15 pp151-158",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "prim",
+      "name": "Prim算法",
+      "group_id": "G-B-3",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "最小生成树，贪心+堆O(ElogV)，适合稠密图",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/mst.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/mst_prim.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch15 pp151-158",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "second-best-mst",
+      "name": "次小生成树",
+      "group_id": "G-B-3",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "严格次小生成树，树链最大边替换法",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/second_best_mst.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch15 pp151-158",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dmst",
+      "name": "最小树形图(DMST)",
+      "group_id": "G-B-3",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "有向图最小生成树，朱刘算法O(VE)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/dmst.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "steiner-tree",
+      "name": "Steiner树",
+      "group_id": "G-B-3",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "给定关键点集最小连通子图，NP-hard，状压DP",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/steiner-tree.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "matrix-tree",
+      "name": "矩阵树定理",
+      "group_id": "G-B-3",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "Laplace矩阵行列式求生成树计数",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/matrix-tree.md",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/kirchhoff-theorem.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "tarjan-scc",
+      "name": "Tarjan强连通分量",
+      "group_id": "G-B-4",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "有向图强连通分量，DFS+dfn/low O(V+E)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/scc.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/strongly-connected-components.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch17 pp167-172",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "cut-vertex",
+      "name": "割点(关节点)",
+      "group_id": "G-B-4",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "删除后使图不连通的点，DFS+low判定O(V+E)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/cut.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/cutpoints.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch17 pp167-172",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "bridge",
+      "name": "割边(桥)",
+      "group_id": "G-B-4",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "删除后使图不连通的边，DFS+low判定O(V+E)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/cut.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/bridge-searching.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch17 pp167-172",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "bcc",
+      "name": "双连通分量(BCC)",
+      "group_id": "G-B-4",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "点双/边双连通分量，DFS缩点分解",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/bcc.md",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/cut.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch17 pp167-172",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "two-sat",
+      "name": "2-SAT",
+      "group_id": "G-B-4",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "2-适定性问题，建图+SCC判定可行性与拓扑逆序",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/2-sat.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/2SAT.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch20 pp191-204",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dominator-tree",
+      "name": "支配树",
+      "group_id": "G-B-4",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "支配关系树结构，Lengauer-Tarjan算法O(Eα(V))",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/dominator-tree.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "block-forest",
+      "name": "圆方树",
+      "group_id": "G-B-4",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "点双连通缩点为圆方树结构，树上路径查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/block-forest.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "max-flow",
+      "name": "最大流(Edmonds-Karp)",
+      "group_id": "G-B-5",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "Ford-Fulkerson增广路+EK BFS找路O(VE²)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/flow/max-flow.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/edmonds_karp.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch20 pp191-204",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dinic",
+      "name": "Dinic最大流",
+      "group_id": "G-B-5",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "分层图+多路增广O(V²E)，二分图O(E√V)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/flow/max-flow.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/dinic.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch20 pp191-204",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "min-cut",
+      "name": "最小割",
+      "group_id": "G-B-5",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "最大流最小割定理转化，s-t最小割=最大流",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/flow/min-cut.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch20 pp191-204",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "min-cost-flow",
+      "name": "最小费用最大流",
+      "group_id": "G-B-5",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "SSP算法，SPFA/Dijkstra找最短增广路",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/flow/min-cost.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/min_cost_flow.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch20 pp191-204",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "bounded-flow",
+      "name": "上下界网络流",
+      "group_id": "G-B-5",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "有容量上下界的可行流/最大流/最小流转化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/flow/bound.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/flow_with_demands.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "stoer-wagner",
+      "name": "Stoer-Wagner全局最小割",
+      "group_id": "G-B-5",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "无向图全局最小割，贪心合并O(V³)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/stoer-wagner.md",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/stoer_wagner_mincut.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "bipartite-check",
+      "name": "二分图判定",
+      "group_id": "G-B-6",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "BFS/DFS染色法判定二分图O(V+E)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/bi-graph.md",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/bipartite-check.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch16 pp159-166",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "hungarian",
+      "name": "匈牙利算法(Kuhn)",
+      "group_id": "G-B-6",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "二分图最大匹配，增广路O(VE)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/graph-matching/bigraph-match.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/kuhn_maximum_bipartite_matching.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch20 pp191-204",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "km-algorithm",
+      "name": "KM算法",
+      "group_id": "G-B-6",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "二分图最大权匹配(Kuhn-Munkres)O(V³)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/graph-matching/bigraph-weight-match.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/hungarian-algorithm.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch20 pp191-204",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "hopcroft-karp",
+      "name": "Hopcroft-Karp算法",
+      "group_id": "G-B-6",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "二分图匹配，多增广路O(E√V)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/graph-matching/bigraph-match.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "general-match",
+      "name": "一般图匹配",
+      "group_id": "G-B-6",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "带花树算法(Blossom)，一般图最大匹配O(V³)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/graph-matching/general-match.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "tree-basics",
+      "name": "树基础",
+      "group_id": "G-B-7",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "树的基本概念：根、叶、深度、子树、父亲",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/tree-basic.md",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch14 pp143-150",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "lca",
+      "name": "最近公共祖先(LCA)",
+      "group_id": "G-B-7",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "倍增预处理O(VlogV)查询O(logV)，或Tarjan离线O(α)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/lca.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/lca_binary_lifting.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch18 pp173-182",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "tree-diameter",
+      "name": "树的直径",
+      "group_id": "G-B-7",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "树上最长路径，两次DFS或树形DPO(V)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/tree-diameter.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch14 pp143-150",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "tree-centroid",
+      "name": "树的重心",
+      "group_id": "G-B-7",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "删除后最大子树最小的节点，分治基础",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/tree-centroid.md",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch14 pp143-150",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "hld",
+      "name": "树链剖分(HLD)",
+      "group_id": "G-B-7",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "重链剖分，路径查询/修改O(log²V)，可求LCA",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/hld.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/hld.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch18 pp173-182",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dsu-on-tree",
+      "name": "启发式合并(dsu on tree)",
+      "group_id": "G-B-7",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "轻儿子贡献清空+重儿子保留，离线子树查询O(nlogn)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/dsu-on-tree.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch18 pp173-182",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "centroid-decomposition",
+      "name": "点分治",
+      "group_id": "G-B-7",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "重心递归分解，路径统计O(nlogn)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/tree-divide.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/centroid_decomposition.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "virtual-tree",
+      "name": "虚树",
+      "group_id": "G-B-7",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "关键点集压缩树结构O(klogk)，配合DP",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/virtual-tree.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "prufer-code",
+      "name": "Prüfer序列",
+      "group_id": "G-B-7",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "树与序列双射，标号树计数Cayley公式",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/prufer.md",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/pruefer_code.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "tree-hash",
+      "name": "树哈希",
+      "group_id": "G-B-7",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "树同构判定，哈希递归子树",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/tree-hash.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "euler-path",
+      "name": "欧拉路/回路",
+      "group_id": "G-B-8",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "判定(度数条件)+Hierholzer算法O(V+E)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/euler.md",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/euler_path.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch19 pp183-190",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "hamilton-path",
+      "name": "哈密顿路",
+      "group_id": "G-B-8",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "NP-hard，状压DP O(2ⁿn²)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/hamilton.md",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch19 pp183-190",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "min-cycle",
+      "name": "最小环",
+      "group_id": "G-B-8",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "图中权值和最小的环，Floyd扩展或无向图方法",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/min-cycle.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "dag-dp",
+      "name": "差分约束/DAG最短路",
+      "group_id": "G-B-9",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "差分约束系统建图+最短路，DAG上拓扑序DP",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/diff-constraints.md",
+          "verified": false
+        },
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/dag.md",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch16 pp159-166",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "chord-graph",
+      "name": "弦图",
+      "group_id": "G-B-9",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "完美消除序列(PES)，极大团与色数",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/chord.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "planar-graph",
+      "name": "平面图",
+      "group_id": "G-B-9",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "欧拉公式V-E+F=2，对偶图与面着色",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/planar.md",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/planar.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "max-clique",
+      "name": "最大团",
+      "group_id": "G-B-9",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "NP-hard，Bron-Kerbosch回溯或状压DP",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/max-clique.md",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "lgv-lemma",
+      "name": "LGV行列式引理",
+      "group_id": "G-B-9",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "Lindström-Gessel-Viennot引理，不相交路径计数",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "docs/graph/lgv.md",
+          "verified": false
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "graph-basics",
+      "to": "bfs",
+      "type": "prerequisite",
+      "evidence": "理解图概念后方可学习BFS遍历"
+    },
+    {
+      "from": "graph-basics",
+      "to": "dfs",
+      "type": "prerequisite",
+      "evidence": "理解图概念后方可学习DFS遍历"
+    },
+    {
+      "from": "graph-storage",
+      "to": "bfs",
+      "type": "prerequisite",
+      "evidence": "BFS依赖邻接表/链式前向星存图"
+    },
+    {
+      "from": "bfs",
+      "to": "dijkstra",
+      "type": "prerequisite",
+      "evidence": "Dijkstra是BFS在带权图上的推广"
+    },
+    {
+      "from": "bfs",
+      "to": "bfs-01",
+      "type": "variant",
+      "evidence": "0-1 BFS用双端队列替代普通队列处理0/1权边"
+    },
+    {
+      "from": "bfs",
+      "to": "connected-components",
+      "type": "combination",
+      "evidence": "BFS遍历标记求无向图连通块"
+    },
+    {
+      "from": "dfs",
+      "to": "tarjan-scc",
+      "type": "prerequisite",
+      "evidence": "Tarjan算法基于DFS生成树与dfn/low"
+    },
+    {
+      "from": "dfs",
+      "to": "cut-vertex",
+      "type": "prerequisite",
+      "evidence": "割点判定基于DFS生成树"
+    },
+    {
+      "from": "dfs",
+      "to": "bridge",
+      "type": "prerequisite",
+      "evidence": "桥判定基于DFS生成树"
+    },
+    {
+      "from": "cut-vertex",
+      "to": "bcc",
+      "type": "prerequisite",
+      "evidence": "点双连通分量建立在割点概念上"
+    },
+    {
+      "from": "bridge",
+      "to": "bcc",
+      "type": "prerequisite",
+      "evidence": "边双连通分量建立在桥概念上"
+    },
+    {
+      "from": "dijkstra",
+      "to": "floyd",
+      "type": "variant",
+      "evidence": "同为最短路算法，Dijkstra单源Floyd全源"
+    },
+    {
+      "from": "dijkstra",
+      "to": "johnson",
+      "type": "combination",
+      "evidence": "Johnson用势能法转化后以Dijkstra为子程序"
+    },
+    {
+      "from": "bellman-ford",
+      "to": "spfa",
+      "type": "variant",
+      "evidence": "SPFA是Bellman-Ford的队列优化实现"
+    },
+    {
+      "from": "bellman-ford",
+      "to": "johnson",
+      "type": "combination",
+      "evidence": "Johnson用Bellman-Ford求势能h(i)"
+    },
+    {
+      "from": "floyd",
+      "to": "min-cycle",
+      "type": "combination",
+      "evidence": "最小环可在Floyd过程中枚举最大编号节点"
+    },
+    {
+      "from": "kruskal",
+      "to": "prim",
+      "type": "variant",
+      "evidence": "同为最小生成树算法，Kruskal基于边Prim基于点"
+    },
+    {
+      "from": "kruskal",
+      "to": "second-best-mst",
+      "type": "prerequisite",
+      "evidence": "次小生成树在MST基础上做边替换"
+    },
+    {
+      "from": "kruskal",
+      "to": "matrix-tree",
+      "type": "cooccurrence",
+      "evidence": "MST与矩阵树定理同属生成树计数/构造"
+    },
+    {
+      "from": "prufer-code",
+      "to": "matrix-tree",
+      "type": "cooccurrence",
+      "evidence": "Prüfer序列与矩阵树定理同属树枚举/计数"
+    },
+    {
+      "from": "tarjan-scc",
+      "to": "two-sat",
+      "type": "combination",
+      "evidence": "2-SAT建图后用SCC判定可行性与拓扑逆序"
+    },
+    {
+      "from": "tarjan-scc",
+      "to": "dag-dp",
+      "type": "combination",
+      "evidence": "SCC缩点后形成DAG，在DAG上做DP"
+    },
+    {
+      "from": "tarjan-scc",
+      "to": "topo-sort",
+      "type": "cooccurrence",
+      "evidence": "SCC缩点后需对DAG拓扑排序"
+    },
+    {
+      "from": "topo-sort",
+      "to": "dag-dp",
+      "type": "combination",
+      "evidence": "DAG上的DP依赖拓扑序保证无后效性"
+    },
+    {
+      "from": "max-flow",
+      "to": "dinic",
+      "type": "variant",
+      "evidence": "Dinic是EK的分层图优化版本"
+    },
+    {
+      "from": "max-flow",
+      "to": "min-cut",
+      "type": "combination",
+      "evidence": "最大流最小割定理：s-t最小割=最大流"
+    },
+    {
+      "from": "dinic",
+      "to": "min-cost-flow",
+      "type": "combination",
+      "evidence": "MCMF在Dinic框架上加费用最短路找增广路"
+    },
+    {
+      "from": "dinic",
+      "to": "bounded-flow",
+      "type": "combination",
+      "evidence": "上下界流通过附加边转化为普通最大流"
+    },
+    {
+      "from": "min-cut",
+      "to": "stoer-wagner",
+      "type": "variant",
+      "evidence": "Stoer-Wagner求全局最小割，与s-t最小割不同"
+    },
+    {
+      "from": "bipartite-check",
+      "to": "hungarian",
+      "type": "prerequisite",
+      "evidence": "二分图匹配需先判定二分图结构"
+    },
+    {
+      "from": "hungarian",
+      "to": "km-algorithm",
+      "type": "variant",
+      "evidence": "KM是匈牙利算法的带权扩展"
+    },
+    {
+      "from": "hungarian",
+      "to": "hopcroft-karp",
+      "type": "variant",
+      "evidence": "同为二分图匹配，HK多路增广更优O(E√V)"
+    },
+    {
+      "from": "km-algorithm",
+      "to": "max-flow",
+      "type": "combination",
+      "evidence": "二分图最大权匹配可转化为最小费用最大流"
+    },
+    {
+      "from": "tree-basics",
+      "to": "lca",
+      "type": "prerequisite",
+      "evidence": "LCA需要理解树的祖先/深度关系"
+    },
+    {
+      "from": "tree-basics",
+      "to": "tree-diameter",
+      "type": "prerequisite",
+      "evidence": "树的直径需要理解树的路径概念"
+    },
+    {
+      "from": "tree-basics",
+      "to": "tree-centroid",
+      "type": "prerequisite",
+      "evidence": "树的重心需要理解子树大小概念"
+    },
+    {
+      "from": "lca",
+      "to": "tree-diameter",
+      "type": "combination",
+      "evidence": "树上两点距离可经LCA求得，直径为最大距离"
+    },
+    {
+      "from": "lca",
+      "to": "hld",
+      "type": "prerequisite",
+      "evidence": "树链剖分重链跳转需理解LCA思想"
+    },
+    {
+      "from": "lca",
+      "to": "virtual-tree",
+      "type": "prerequisite",
+      "evidence": "虚树构建需LCA排序去重"
+    },
+    {
+      "from": "hld",
+      "to": "lca",
+      "type": "variant",
+      "evidence": "重链剖分可O(logV)回答LCA查询"
+    },
+    {
+      "from": "tree-centroid",
+      "to": "centroid-decomposition",
+      "type": "prerequisite",
+      "evidence": "点分治递归选重心分解子树"
+    },
+    {
+      "from": "dsu-on-tree",
+      "to": "centroid-decomposition",
+      "type": "variant",
+      "evidence": "同为子树离线处理技术，dsu on tree基于轻重链，点分治基于重心"
+    },
+    {
+      "from": "centroid-decomposition",
+      "to": "virtual-tree",
+      "type": "cooccurrence",
+      "evidence": "树上路径统计常组合使用点分治与虚树"
+    },
+    {
+      "from": "euler-path",
+      "to": "hamilton-path",
+      "type": "variant",
+      "evidence": "同为图上特殊路径问题，欧拉路多项式可解，哈密顿路NP-hard"
+    },
+    {
+      "from": "dijkstra",
+      "to": "min-cost-flow",
+      "type": "combination",
+      "evidence": "SSP算法求MCMF时可用Dijkstra(Johnson势能)找最短增广路"
+    }
+  ],
+  "unresolved": [
+    "OI Wiki graph-random-walk.md与tree-random-walk.md归入图论域还是概率域待主Agent裁决",
+    "OI Wiki tree-ahu.md(树同构AHU算法)与tree-hash.md是否合并为一个节点待主Agent裁决",
+    "OI Wiki mdst.md(最小直径生成树)归入生成树族还是树算法族待主Agent裁决",
+    "CP-Algorithms push-relabel.html(推流重标号)与mpm.html是否单列为最大流变体节点待主Agent裁决",
+    "OI Wiki graph-matching/stable-match.md(稳定匹配)归入二分图匹配族还是单独成组待主Agent裁决",
+    "OI Wiki rings-count.md(环计数)归入图论高级专题还是组合计数域待主Agent裁决"
+  ]
+}

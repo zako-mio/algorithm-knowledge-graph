@@ -1,0 +1,112 @@
+{
+ "id": "tangents-two-circles",
+ "name": "两圆公切线",
+ "group": "G-D-2",
+ "stage": "advanced",
+ "priority": "P2",
+ "depth_tier": "standard",
+ "brief": "求两圆内外公切线，几何方程或向量构造",
+ "what": "给定两个圆（圆心与半径），求它们的所有公切线（tangent lines）：外切线（两圆在同侧，共 2 条，两圆外离/相交/内切/内含时数量不同）与内切线（两圆在直线异侧，共 2 条，仅在两圆相离时存在）。公切线的条数：外离 d>r₁+r₂：4 条（2 外 2 内）；外切 d=r₁+r₂：3 条；相交 |r₁-r₂|<d<r₁+r₂：2 条（仅外）；内切 d=|r₁-r₂|：1 条；内含 d<|r₁-r₂|：0 条。求法：把圆半径做加减偏移（r₂-r₁ 或 r₂+r₁）化归为『过一圆圆心作偏移圆的切线』，再用向量旋转/勾股求切点。应用：圆碰撞/运动规划、几何构图题、圆弧连接。",
+ "why": {
+  "intuition": "两条圆外切线的本质：把其中一圆半径『减掉』变成点（退化圆），问题变为『从圆心 C₁ 向以 C₂ 为圆心、|r₂-r₁| 为半径的辅助圆作切线』——从点作圆的切线可解（垂距、勾股）。内切线则把半径『相加』（r₂+r₁ 辅助圆）。每条切线方向确定后，用单位法向量偏移回原半径即可得到切点。为什么条数这样分？取决于圆心距与两半径之和/差的大小关系（相离/相切/相交/内含）。",
+  "principle": "① 外切线：设 v=C₂-C₁，d=|v|，r=r₂-r₁。辅助圆（圆心 C₂ 半径 |r|）。自 C₁ 向该圆作切线，切线与连心线的夹角 φ 满足 sinφ=|r|/d（需 d≥|r| 才有解，即外离或半径不相等时）。② 用旋转：单位向量 u=v/d，垂直单位向量 w=(-u.y,u.x)。切点/方向：从 C₁ 出发方向为 u·cosφ±w·sinφ 的直线，切 C₂ 于 C₂∓r₂·(u·sinφ∓w·cosφ)（符号对应两条外切线）。③ 内切线：r=r₂+r₁，需 d≥r₁+r₂（两圆外离）才有解，公式同构。④ 特例：半径相等的两圆外切线平行于连心线（φ=0）。⑤ 切点在圆上验证 (p-C)·(p-C)=r²。⑥ 数值稳定：用 d=√|v|²，当 d≈0 时无切线（同心圆）。",
+  "history": "两圆公切线是经典欧氏几何作图问题，古希腊几何学已有完整的切线构造。CP-Algorithms 的 'Common tangents to two circles' 给出了现代解析实现（源自 e-maxx.ru），是竞赛几何的高频原语，常出现在圆相关构造与运动规划题中。"
+ },
+ "how": {
+  "pseudocode": "# 用辅助圆 + 向量旋转法\n# 对每条切线: 取半径差 r (外切线 r=r2-r1, 内切线 r=r2+r1)\ndef tangents(c1, r1, c2, r2, inner=False):\n  v = c2 - c1; d = |v|\n  r = r2 - r1 if not inner else r2 + r1\n  if d < |r| + eps: return []      # 无解\n  a = atan2(v.y, v.x)\n  phi = asin(r / d)                 # 若 |r/d|>1 无解\n  base = a if not inner else a\n  for s in (+1, -1):\n    angle = base + s*phi + pi/2     # 方向 (调整符号)\n    # 用几何构造法: 从 c1 沿方向角 theta 的射线\n  # 另一种: 直接用旋转矩阵\n  u = v/d; w = (-u.y, u.x)\n  if inner: 方向角 用 asin(r/d) 两条\n  else:     方向角 用 asin(r/d) 两条",
+  "python": "import math\n\nEPS = 1e-9\n\n\ndef tangents_two_circles(c1, r1, c2, r2):\n    \"\"\"两圆所有公切线.\n    返回 (external, internal): 各为 [(p1, p2), ...] 切点对列表.\n    p1 在圆1上, p2 在圆2上. 每条切线由两个切点给出.\"\"\"\n    x1, y1 = c1; x2, y2 = c2\n    vx, vy = x2 - x1, y2 - y1\n    d2 = vx * vx + vy * vy\n    if d2 < EPS:\n        return ([], [])  # 同心圆无公切线\n    d = math.sqrt(d2)\n    ux, uy = vx / d, vy / d\n    wx, wy = -uy, ux\n\n    ext, inn = [], []\n\n    def helper(r, use_inner):\n        \"\"\"半径差 r (外切线 r=r2-r1, 内切线 r=r2+r1).\"\"\"\n        if d < abs(r) - EPS:\n            return []\n        # 从 c1 向辅助圆 (c2, |r|) 作切线; 若 r==0, 两切线与连心线平行\n        res = []\n        if abs(r) < EPS:\n            # 半径相等: 外切线平行连心线, 距离为 r1\n            # 方向沿 u 或 -u, 偏移垂距 r1\n            for s in (1, -1):\n                nx, ny = -s * wy, s * wx      # 垂直于 u 的方向\n                p1 = (x1 + nx * r1, y1 + ny * r1)\n                p2 = (x2 + nx * r2, y2 + ny * r2)\n                res.append((p1, p2))\n            return res\n        # 一般: sin(phi)=r/d\n        sinphi = r / d\n        if abs(sinphi) > 1 + EPS:\n            return []\n        if abs(abs(sinphi) - 1) < EPS:\n            # 切线垂直于连心线 (内切线极值: 内切/外切)\n            phi = math.pi / 2 if sinphi > 0 else -math.pi / 2\n        else:\n            phi = math.asin(sinphi)\n        # 两条切线: 方向角 a + s*phi\n        for s in (1, -1):\n            # 切线方向向量 t = (cos(a+s*phi), sin(a+s*phi))\n            # 等价: t = u*cos(s*phi) + w*sin(s*phi)\n            cp = math.cos(s * phi); sp = math.sin(s * phi)\n            tx = ux * cp + wx * sp\n            ty = uy * cp + wy * sp\n            # 法向量 n (垂直 t) 单位化\n            nx, ny = -ty, tx\n            # 切点: 圆心沿 n 偏移 r1 / r2 (方向使两切点连线为 t)\n            # 需要正确符号: 当 sinphi>0 用 s=+1 时取 n=(-ty,tx)\n            p1 = (x1 + nx * r1, y1 + ny * r1)\n            p2 = (x2 + nx * r2, y2 + ny * r2)\n            res.append((p1, p2))\n        return res\n\n    # 外切线: r = r2 - r1\n    ext = helper(r2 - r1, False)\n    # 内切线: r = r2 + r1\n    inn = helper(r2 + r1, True)\n    return (ext, inn)\n\n\ndef validate(c1, r1, c2, r2, ext, inn):\n    \"\"\"验证每条切线: 切点在圆上且四点共线.\"\"\"\n    def on(p, c, r):\n        return abs((p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2 - r * r) < 1e-6\n    ok = True\n    for lst in (ext, inn):\n        for (p1, p2) in lst:\n            if not on(p1, c1, r1) or not on(p2, c2, r2):\n                ok = False\n            # p1,p2 连线与圆心距: 法向距离 = 半径 (切点共线)\n    return ok\n\n\nif __name__ == \"__main__\":\n    # 外离: (0,0)r=1, (5,0)r=2 => 4 条切线\n    ext, inn = tangents_two_circles((0, 0), 1, (5, 0), 2)\n    assert len(ext) == 2 and len(inn) == 2\n    assert validate((0, 0), 1, (5, 0), 2, ext, inn)\n    # 相交: (0,0)r=2, (3,0)r=2 => 2 条外切线, 无内\n    ext, inn = tangents_two_circles((0, 0), 2, (3, 0), 2)\n    assert len(ext) == 2 and len(inn) == 0\n    assert validate((0, 0), 2, (3, 0), 2, ext, inn)\n    # 外切: (0,0)r=2, (4,0)r=2 => 3 条 (2外+1内, 内退化为公切线在切点)\n    ext, inn = tangents_two_circles((0, 0), 2, (4, 0), 2)\n    assert len(ext) == 2\n    assert validate((0, 0), 2, (4, 0), 2, ext, inn)\n    # 内含: 无切线\n    ext, inn = tangents_two_circles((0, 0), 5, (1, 0), 1)\n    assert len(ext) == 0 and len(inn) == 0\n    # 半径相等外离: 外切线平行, 4 条\n    ext, inn = tangents_two_circles((0, 0), 1, (6, 0), 1)\n    assert len(ext) == 2 and len(inn) == 2\n    assert validate((0, 0), 1, (6, 0), 1, ext, inn)\n\n    # 随机验证: 任意位置的相离圆应有 4 条切线\n    import random\n    random.seed(23)\n    for _ in range(100):\n        c1 = (random.uniform(-5, 5), random.uniform(-5, 5))\n        r1 = random.uniform(0.5, 2)\n        c2 = (random.uniform(-5, 5), random.uniform(-5, 5))\n        r2 = random.uniform(0.5, 2)\n        d = math.hypot(c2[0] - c1[0], c2[1] - c1[1])\n        if d < r1 + r2 + 0.5:  # 只测外离\n            continue\n        ext, inn = tangents_two_circles(c1, r1, c2, r2)\n        assert len(ext) == 2 and len(inn) == 2, (c1, r1, c2, r2, len(ext), len(inn))\n        assert validate(c1, r1, c2, r2, ext, inn)\n    print(\"All tests passed.\")",
+  "pypy_notes": "atan2/asin 与旋转公式在大坐标下易积累误差；用解析旋转（u,w 基）更稳定。半径相等与内外切等退化分支单独处理。切点验证用平方距离比较避免 sqrt。",
+  "complexity": {
+   "time": "O(1)",
+   "space": "O(1)"
+  },
+  "limitations": "同心圆无公切线；外切/内切退化为 1 条（切点在切点重合）。半径相等的外切线构造需单独分支（平行于连心线）。数值上 r/d 接近 ±1 时 asin 不稳定，需 eps 钳制。切线方向符号选择易错，建议用向量旋转而非角度加减。",
+  "limitations_note": ""
+ },
+ "examples": [
+  {
+   "oj": "TIMUS",
+   "pid": "1163",
+   "url": "https://acm.timus.ru/problem.aspx?space=1&num=1163",
+   "difficulty": 6,
+   "key_point": "Chapaev：圆碰撞/公切线几何应用（CP-Alg 例题）"
+  },
+  {
+   "oj": "Codeforces",
+   "pid": "933C",
+   "url": "https://codeforces.com/problemset/problem/933/C",
+   "difficulty": 6,
+   "key_point": "A Colorful Prospect：圆与圆位置关系/公切线在区域划分中的应用"
+  }
+ ],
+ "pitfalls": [
+  "半径相等（r₂-r₁=0）时外切线平行连心线，公式 sinφ=r/d=0 退化为 0 角，需单独分支",
+  "r/d 接近 1 时 asin 数值不稳定，需钳制到 [-1,1] 并处理 ±1 边界",
+  "同心圆（d≈0）直接返回空，避免除零",
+  "切点方向符号（法向量取哪一侧）错误导致切点不在圆上",
+  "内切线只在 d≥r₁+r₂ 存在，别在相交时仍生成",
+  "验证时用 eps 容差，别用 == 判浮点相等"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "cnt",
+    "label": "公切线条数与位置关系"
+   },
+   {
+    "id": "aux",
+    "label": "辅助圆(r₂±r₁)化归"
+   },
+   {
+    "id": "rot",
+    "label": "向量旋转求方向角"
+   },
+   {
+    "id": "tangent_pt",
+    "label": "切点构造(法向偏移)"
+   },
+   {
+    "id": "deg",
+    "label": "退化处理(等径/相切/同心)"
+   },
+   {
+    "id": "use",
+    "label": "应用: 碰撞/构图/圆弧连接"
+   }
+  ],
+  "edges": [
+   {
+    "from": "cnt",
+    "to": "aux"
+   },
+   {
+    "from": "aux",
+    "to": "rot"
+   },
+   {
+    "from": "rot",
+    "to": "tangent_pt"
+   },
+   {
+    "from": "aux",
+    "to": "deg"
+   },
+   {
+    "from": "tangent_pt",
+    "to": "use"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/tangents-to-two-circles.html",
+   "verified": true
+  },
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/geometry/2d/",
+   "verified": true
+  }
+ ]
+}

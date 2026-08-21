@@ -1,0 +1,109 @@
+{
+  "id": "berlekamp-massey",
+  "name": "Berlekamp-Massey",
+  "group": "G-C-12",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "O(n^2)求序列最短线性递推式，配合NTT加速求第n项",
+  "what": "Berlekamp-Massey（BM）算法输入长为 n 的序列 a_0..a_{n-1}，输出最短线性递推式（阶数 m），满足 Σ_{j=0}^m r_j a_{i-j}=0（r_0=1）对所有 i>=m 成立。算法增量式：从左到右扫描，当前递推对 a_i 预测失败时，用'上次失败点'构造修正项调整系数。复杂度 O(n·m)，最坏 O(n²)。BM 是'黑盒线性递推'的前半：任给一个可由低阶递推生成的序列（如矩阵快速幂某分量的前 2d 项），BM 求出递推式后，配合 Fiduccia/Bostan-Mori 在 O(m log m log k) 内求出任意第 k 项，从而绕过矩阵幂。也用于矩阵最小多项式、稀疏矩阵秩/行列式/解方程组（配合随机投影+Schwartz-Zippel）。",
+  "why": {
+    "intuition": "维护一个'当前最短递推'。每看到新项，若预测准就继续；预测错了，就记下这次误差，用历史上某次失败的信息拼出一个修正递推，加进去。和'在线纠错'一样。",
+    "principle": "设当前递推 F 对前 i-1 项成立，预测 a_i 得 tmp，误差 Δ=a_i-tmp。若 Δ≠0：找到上次失败位置 k 及其误差 Δ_k（当时用了递推 G 的记录 last），构造 G'=(0..0, Δ/Δ_k, -(Δ/Δ_k)·last)（前面 i-k-1 个 0），则 F+G' 对新点误差为零且阶数合适。若 F 阶数可以更小则保留更新 last=k。数学上保证最终得到最短递推。",
+    "history": "Berlekamp(1968) 为 BCH 码译码提出，Massey(1969) 联系到 LFSR 并命名，故称 Berlekamp-Massey。后进入 OI/ACM 作为线性递推黑盒的核心。OI Wiki 的 math/berlekamp-massey 页面给出参考实现与矩阵应用。"
+  },
+  "how": {
+    "pseudocode": "v=[]; last=[]; k=-1; delta=0\nfor i in range(n):\n    tmp = sum(v[j]*a[i-j-1])\n    if a[i]==tmp: continue\n    if k<0: k=i; delta=a[i]-tmp; v=[0]*(i+1); continue\n    u=v[:]; val=(a[i]-tmp)/delta\n    if len(v)<len(last)+i-k: v.extend(zeros)\n    v[i-k-1]+=val\n    for j: v[i-k+j]-=val*last[j]\n    if len(u)-i<len(last)-k: last=u; k=i; delta=a[i]-tmp\nr = [1] + [-v[j]]\nreturn r   # sum r_j a_{i-j}=0",
+    "python": "MOD = 998244353\n\n\ndef berlekamp_massey(a, mod=MOD):\n    \"\"\"求序列 a 的最短线性递推式.\n    返回 r[0..m], 满足 sum_{j=0}^m r_j a_{i-j} = 0 (r_0=1), 即 a_i = -sum_{j=1}^m r_j a_{i-j}.\"\"\"\n    v = []  # 当前递推系数(长度 m)\n    last = []  # 上次调整时的系数\n    k = -1\n    delta = 0\n    for i in range(len(a)):\n        tmp = 0\n        for j in range(len(v)):\n            tmp = (tmp + a[i - j - 1] * v[j]) % mod\n        if a[i] == tmp:\n            continue\n        if k < 0:\n            k = i\n            delta = (a[i] - tmp) % mod\n            v = [0] * (i + 1)\n            continue\n        u = v[:]\n        val = (a[i] - tmp) * pow(delta, mod - 2, mod) % mod\n        if len(v) < len(last) + i - k:\n            v += [0] * (len(last) + i - k - len(v))\n        v[i - k - 1] = (v[i - k - 1] + val) % mod\n        for j in range(len(last)):\n            v[i - k + j] = (v[i - k + j] - val * last[j]) % mod\n            if v[i - k + j] < 0:\n                v[i - k + j] += mod\n        if len(u) - i < len(last) - k:\n            last = u\n            k = i\n            delta = (a[i] - tmp) % mod\n    # 转成 r_0=1 的形式\n    v = [(mod - x) % mod for x in v]\n    r = [1] + v\n    return r\n\n\ndef verify_recurrence(a, r, mod=MOD):\n    \"\"\"验证递推 r 对序列 a 成立: sum r_j a_{i-j} = 0 对 i>=len(r)-1.\"\"\"\n    m = len(r) - 1\n    for i in range(m, len(a)):\n        s = 0\n        for j in range(len(r)):\n            s = (s + r[j] * a[i - j]) % mod\n        if s != 0:\n            return False\n    return True\n\n\ndef gen_fib(n):\n    a = [0, 1]\n    for i in range(2, n):\n        a.append((a[i - 1] + a[i - 2]) % MOD)\n    return a\n\n\nif __name__ == \"__main__\":\n    import random\n    # Fibonacci\n    fib = gen_fib(30)\n    r = berlekamp_massey(fib)\n    assert r == [1, MOD - 1, MOD - 1], r  # F_n = F_{n-1} + F_{n-2}\n    assert verify_recurrence(fib, r)\n    # 常数序列\n    const = [7] * 10\n    r2 = berlekamp_massey(const)\n    assert verify_recurrence(const, r2)\n    # 随机序列: 递推阶数 m 不会超过 len(a)\n    for _ in range(30):\n        n = random.randint(4, 25)\n        a = [random.randint(0, MOD - 1) for _ in range(n)]\n        r = berlekamp_massey(a)\n        assert verify_recurrence(a, r), (a, r)\n    # 手工: a_n = 2*a_{n-1} + 3*a_{n-2}, a0=1,a1=2\n    a = [1, 2]\n    for i in range(2, 20):\n        a.append((2 * a[i - 1] + 3 * a[i - 2]) % MOD)\n    r3 = berlekamp_massey(a)\n    assert verify_recurrence(a, r3)\n    assert r3[1] == MOD - 2 and r3[2] == MOD - 3, r3\n    print(\"Berlekamp-Massey tests passed\")\n",
+    "pypy_notes": "朴素 O(n²) 内层是 Python 列表循环, n=1e5 且阶数大时慢; 若序列确实有低阶递推, BM 会在得到足够项后稳定, 可用截断(只处理前 2m 项)。",
+    "complexity": {
+      "time": "O(n·m), 最坏 O(n²)",
+      "space": "O(n)"
+    },
+    "limitations": "数值不稳定(实数下误差放大), 通常只在模素数下使用; 需要足够多项(至少 2m, 一般给 2d 项)才能恢复递推; 若序列无低阶递推, BM 会输出阶数接近 n 的'假递推'(能 fit 但不真)。配合黑盒求第 k 项需再连 Fiduccia/Bostan-Mori。"
+  },
+  "examples": [
+    {
+      "oj": "Library Checker",
+      "pid": "find_linear_recurrence",
+      "url": "https://judge.yosupo.jp/problem/find_linear_recurrence",
+      "difficulty": 4,
+      "key_point": "BM 模板题, 权威验证"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P5487",
+      "url": "https://www.luogu.com.cn/problem/P5487",
+      "difficulty": 5,
+      "key_point": "BM 求递推+线性递推求第 k 项完整链路"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "1102E",
+      "url": "https://codeforces.com/problemset/problem/1102E",
+      "difficulty": 3,
+      "key_point": "较简单的递推/序列类: 配合 BM 思想入门"
+    }
+  ],
+  "pitfalls": [
+    "随机序列也输出递推式(可能阶数=n, 需意识到不是真递推)",
+    "模数下除法要用逆元(费马小定理)",
+    "更新 last 的条件比较搞反(何时替换旧失败点)",
+    "输出 r 前忘记把 v 取反/补 r0=1",
+    "项数不足 2m 时恢复的递推不可靠"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "gen_terms",
+        "label": "生成/收集足够项(>=2m)"
+      },
+      {
+        "id": "scan",
+        "label": "增量扫描: 预测 a_i 并记录误差 Δ"
+      },
+      {
+        "id": "correct",
+        "label": "失败时用上次失败点构造修正项"
+      },
+      {
+        "id": "recover",
+        "label": "输出最短递推 r(补 r0=1)"
+      },
+      {
+        "id": "link",
+        "label": "配合线性递推算法求任意第 k 项"
+      }
+    ],
+    "edges": [
+      {
+        "from": "gen_terms",
+        "to": "scan"
+      },
+      {
+        "from": "scan",
+        "to": "correct"
+      },
+      {
+        "from": "correct",
+        "to": "recover"
+      },
+      {
+        "from": "recover",
+        "to": "link"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/berlekamp-massey/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/berlekamp-massey.md",
+      "verified": true
+    }
+  ]
+}

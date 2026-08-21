@@ -1,0 +1,136 @@
+{
+  "id": "determinant",
+  "name": "行列式",
+  "group": "G-C-14",
+  "stage": "advanced",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "O(n^3)高斯消元法求行列式，矩阵树定理与计数应用基础",
+  "what": "行列式是方阵的一种标量运算，记det(A)或|A|。三种等价定义：全排列定义（n!项代数和）、归纳定义（按行/列展开递归）、公理化定义（满足倍乘、对换、倍加性质+单位阵行列式为1）。高斯消元法将矩阵化为上三角矩阵，行列式=对角线元素乘积（考虑行交换的符号变化）。竞赛中常需模质数求行列式（如矩阵树定理求生成树计数）。",
+  "why": {
+    "intuition": "行列式的几何意义是矩阵变换对空间的缩放因子（体积/面积的有向变化比）。行列式为0表示矩阵不可逆（空间被压缩降维）。",
+    "principle": "高斯消元法：用倍加操作消去下三角部分（行列式不变），行交换改变符号。最终行列式=上三角对角线乘积×符号。模意义下用费马小定理求逆元替代除法。",
+    "history": "行列式概念由日本数学家关孝和（17世纪）和莱布尼茨（1693年）独立提出。高斯消元法由Gauss命名。矩阵树定理（Kirchhoff定理）将行列式与图论生成树计数关联。"
+  },
+  "how": {
+    "pseudocode": "det = 1\nfor col in 0..n-1:\n  find pivot row with A[row][col]!=0\n  if none: return 0\n  swap rows if needed, flip det sign\n  for row in col+1..n-1:\n    eliminate A[row][col] using row operations\nfor i: det *= A[i][i]\nreturn det",
+    "python": "def determinant(mat, mod=None):\n    \"\"\"Compute determinant via Gaussian elimination. O(n^3).\"\"\"\n    n = len(mat)\n    A = [row[:] for row in mat]\n    det = 1\n    for col in range(n):\n        pivot = -1\n        for row in range(col, n):\n            if A[row][col] != 0:\n                pivot = row\n                break\n        if pivot == -1:\n            return 0\n        if pivot != col:\n            A[col], A[pivot] = A[pivot], A[col]\n            det = -det\n        for row in range(col + 1, n):\n            if A[row][col] != 0:\n                if mod:\n                    ratio = A[row][col] * pow(A[col][col], mod - 2, mod) % mod\n                    for j in range(col, n):\n                        A[row][j] = (A[row][j] - ratio * A[col][j]) % mod\n                else:\n                    factor = A[row][col] / A[col][col]\n                    for j in range(col, n):\n                        A[row][j] -= factor * A[col][j]\n    for i in range(n):\n        if mod:\n            det = det * A[i][i] % mod\n        else:\n            det *= A[i][i]\n    if mod:\n        det = (det % mod + mod) % mod\n    return det\n\ndef determinant_naive(mat):\n    \"\"\"Naive recursive determinant via cofactor expansion. O(n!).\"\"\"\n    n = len(mat)\n    if n == 1:\n        return mat[0][0]\n    if n == 2:\n        return mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]\n    det = 0\n    for j in range(n):\n        minor = [row[:j] + row[j+1:] for row in mat[1:]]\n        det += ((-1) ** j) * mat[0][j] * determinant_naive(minor)\n    return det\n\nif __name__ == \"__main__\":\n    assert abs(determinant([[1, 2], [3, 4]]) - (-2)) < 1e-6\n    assert abs(determinant([[1, 2, 3], [4, 5, 6], [7, 8, 10]]) - (-3)) < 1e-6\n    assert determinant([[1, 0], [0, 1]]) == 1\n    assert determinant([[0, 0], [0, 0]]) == 0\n    # Mod arithmetic\n    assert determinant([[1, 2], [3, 4]], mod=10**9 + 7) == (10**9 + 7 - 2)\n    # Naive comparison\n    assert abs(determinant([[2, 1, 0], [1, 2, 1], [0, 1, 2]]) - 4) < 1e-6\n    assert determinant_naive([[2, 1, 0], [1, 2, 1], [0, 1, 2]]) == 4\n    print(\"determinant: ALL TESTS PASSED\")\n",
+    "pypy_notes": "模质数时用pow(x,mod-2,mod)求逆元。非质数模需用辗转相减或扩展GCD。纯Python三层循环n>200可能慢。",
+    "complexity": {
+      "time": "O(n^3)",
+      "space": "O(n^2)"
+    },
+    "limitations": "模非质数时需特殊处理（辗转相消法）。浮点数有精度问题。朴素展开O(n!)不可行。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3313",
+      "url": "https://www.luogu.com.cn/problem/P3313",
+      "difficulty": 6,
+      "key_point": "树链剖分+线段树综合（行列式相关应用）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4111",
+      "url": "https://www.luogu.com.cn/problem/P4111",
+      "difficulty": 5,
+      "key_point": "矩阵树定理求生成树计数（行列式）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4455",
+      "url": "https://www.luogu.com.cn/problem/P4455",
+      "difficulty": 6,
+      "key_point": "行列式在计数中的应用"
+    }
+  ],
+  "pitfalls": [
+    "行交换时需翻转det符号",
+    "模非质数时不能直接用费马小定理求逆元",
+    "浮点消元有精度问题，建议用分数或模运算",
+    "对角线出现0不一定行列式为0（需先消元）"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "d1",
+        "label": "对每列col找非零主元"
+      },
+      {
+        "id": "d2",
+        "label": "无主元→返回0"
+      },
+      {
+        "id": "d3",
+        "label": "行交换→翻转det符号"
+      },
+      {
+        "id": "d4",
+        "label": "消去下方行的col列元素"
+      },
+      {
+        "id": "d5",
+        "label": "所有列处理完"
+      },
+      {
+        "id": "d6",
+        "label": "det=对角线乘积×符号"
+      }
+    ],
+    "edges": [
+      {
+        "from": "d1",
+        "to": "d2",
+        "type": "none"
+      },
+      {
+        "from": "d1",
+        "to": "d3",
+        "type": "found"
+      },
+      {
+        "from": "d2",
+        "to": "d6",
+        "type": "zero"
+      },
+      {
+        "from": "d3",
+        "to": "d4",
+        "type": "next"
+      },
+      {
+        "from": "d4",
+        "to": "d1",
+        "type": "next_col"
+      },
+      {
+        "from": "d1",
+        "to": "d5",
+        "type": "done"
+      },
+      {
+        "from": "d5",
+        "to": "d6",
+        "type": "next"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/linear-algebra/determinant/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/linear_algebra/determinant-gauss.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch23 Matrices (p227-234)"
+    }
+  ]
+}

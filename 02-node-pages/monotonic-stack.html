@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>单调栈 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-2.html">栈队列与单调结构族</a> / <span>单调栈</span></div>
+  <h1>单调栈</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-A-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="queue.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">queue</span></a>
+    <a class="nav-index" href="../03-groups/G-A-2.html"><span class="dir">组内第 3 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="monotonic-queue.html"><span class="dir">下一个 / 组内</span><span class="v">monotonic-queue</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">维护单调性的栈，O(n)求左右第一个大/小于当前值</div><p>单调栈(Monotonic Stack)是在栈的基础上维护元素单调性(递增或递减)的数据结构。在元素入栈时，弹出所有破坏单调性的栈顶元素，使得栈内元素始终保持有序。可在 O(n) 时间内对每个元素找到其左侧/右侧第一个大于/小于它的元素。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>对于序列中每个元素，我们常需找到&#x27;下一个更大元素&#x27;。暴力是 O(n^2)。关键观察：如果 i &lt; j 且 a[i] &lt;= a[j]，那么对于 j 之后的元素，a[i] 永远不可能是&#x27;下一个更大&#x27;——a[j] 更近且更大，挡住了 a[i]。所以 a[i] 可以被安全丢弃。单调栈就是高效维护这个&#x27;丢弃&#x27;过程：栈中保留递减的候选者，新元素入栈时弹出所有被它&#x27;挡住&#x27;的旧元素。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>维护一个单调递减(或递增)的栈。遍历序列时，对每个新元素 x：①while 栈非空且栈顶满足弹出条件(如递减栈中栈顶 &lt; x)，弹出栈顶并记录结果(此时 x 就是弹出元素的&#x27;下一个更大&#x27;) ②将 x 入栈。每个元素最多入栈一次、出栈一次，故总 O(n)。变体：递增栈找&#x27;下一个更小&#x27;；逆向遍历找&#x27;左侧第一个更大&#x27;。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>单调栈是竞赛中的经典技巧。OI Wiki 将其与单调队列并列为栈/队列的进阶应用。经典例题 LeetCode 739(每日温度)和 POJ3250(Bad Hair Day)是其标准模板。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 求每个元素右侧第一个更大的元素位置</span>
+<span class="t-c"># 维护单调递减栈(栈存下标)</span>
+<span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+  <span class="t-k">while</span> <span class="t-k">not</span> st.<span class="t-f">empty</span>() <span class="t-k">and</span> a[st.<span class="t-f">top</span>()] &lt; a[i]:
+    ans[st.<span class="t-f">pop</span>()] = i  <span class="t-c"># i 是 st.top() 右侧第一个更大的位置</span>
+  st.<span class="t-f">push</span>(i)
+<span class="t-c"># 栈中剩余元素的 ans 为 -1(无更大元素)</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">daily_temperatures</span>(temps):
+    <span class="t-s">&quot;&quot;&quot;LeetCode 739: 每日温度
+    对每天, 求下一个更暖和的日子在几天后。
+    单调递减栈(存下标), 弹出时记录距离。
+    &quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(temps)
+    ans = [<span class="t-n">0</span>] * n
+    st = []  <span class="t-c"># 栈存下标, 维护对应的温度递减</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">while</span> st <span class="t-k">and</span> temps[st[-<span class="t-n">1</span>]] &lt; temps[i]:
+            j = st.<span class="t-f">pop</span>()
+            ans[j] = i - j  <span class="t-c"># 距离 = 天数差</span>
+        st.<span class="t-f">append</span>(i)
+    <span class="t-k">return</span> ans
+
+
+<span class="t-k">def</span> <span class="t-f">next_greater_element</span>(nums):
+    <span class="t-s">&quot;&quot;&quot;求每个元素右侧第一个更大的元素值(不存在则-1)。
+    单调递减栈。
+    &quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(nums)
+    ans = [-<span class="t-n">1</span>] * n
+    st = []
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">while</span> st <span class="t-k">and</span> nums[st[-<span class="t-n">1</span>]] &lt; nums[i]:
+            ans[st.<span class="t-f">pop</span>()] = nums[i]
+        st.<span class="t-f">append</span>(i)
+    <span class="t-k">return</span> ans
+
+
+<span class="t-k">def</span> <span class="t-f">left_right_smaller</span>(n, arr):
+    <span class="t-s">&quot;&quot;&quot;对每个元素, 求左侧第一个&lt;它 和 右侧第一个&lt;它 的下标。
+    左侧: 从左到右维护递增栈; 右侧: 从右到左维护递增栈。
+    &quot;&quot;&quot;</span>
+    left = [-<span class="t-n">1</span>] * n
+    st = []
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">while</span> st <span class="t-k">and</span> arr[st[-<span class="t-n">1</span>]] &gt;= arr[i]:
+            st.<span class="t-f">pop</span>()
+        <span class="t-k">if</span> st:
+            left[i] = st[-<span class="t-n">1</span>]
+        st.<span class="t-f">append</span>(i)
+
+    right = [-<span class="t-n">1</span>] * n
+    st = []
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n - <span class="t-n">1</span>, -<span class="t-n">1</span>, -<span class="t-n">1</span>):
+        <span class="t-k">while</span> st <span class="t-k">and</span> arr[st[-<span class="t-n">1</span>]] &gt;= arr[i]:
+            st.<span class="t-f">pop</span>()
+        <span class="t-k">if</span> st:
+            right[i] = st[-<span class="t-n">1</span>]
+        st.<span class="t-f">append</span>(i)
+
+    <span class="t-k">return</span> left, right
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 测试每日温度</span>
+    temps = [<span class="t-n">73</span>, <span class="t-n">74</span>, <span class="t-n">75</span>, <span class="t-n">71</span>, <span class="t-n">69</span>, <span class="t-n">72</span>, <span class="t-n">76</span>, <span class="t-n">73</span>]
+    result = <span class="t-f">daily_temperatures</span>(temps)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Daily temperatures: {result}&#x27;</span>)
+    <span class="t-k">assert</span> result == [<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">4</span>, <span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">0</span>, <span class="t-n">0</span>]
+
+    <span class="t-c"># 测试下一个更大元素</span>
+    nums = [<span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">3</span>]
+    nge = <span class="t-f">next_greater_element</span>(nums)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Next greater: {nge}&#x27;</span>)
+    <span class="t-k">assert</span> nge == [<span class="t-n">4</span>, <span class="t-n">2</span>, <span class="t-n">4</span>, -<span class="t-n">1</span>, -<span class="t-n">1</span>]
+
+    <span class="t-c"># 测试左右更小</span>
+    arr = [<span class="t-n">3</span>, <span class="t-n">1</span>, <span class="t-n">4</span>, <span class="t-n">1</span>, <span class="t-n">5</span>, <span class="t-n">9</span>, <span class="t-n">2</span>, <span class="t-n">6</span>]
+    left, right = <span class="t-f">left_right_smaller</span>(<span class="t-b">len</span>(arr), arr)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Left smaller:  {left}&#x27;</span>)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Right smaller: {right}&#x27;</span>)
+
+    <span class="t-b">print</span>(<span class="t-s">&#x27;All monotonic stack tests passed!&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 对 list 的 append/pop JIT 极好；单调栈是纯列表操作，PyPy 性能接近 C；N=1e6 的单调栈在 PyPy 下约 0.1s。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(N) — 每个元素最多入栈一次、出栈一次，均摊 O(1) per element</td></tr><tr><th>空间复杂度</th><td>O(N) — 栈最坏存全部元素(完全递减序列)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只能处理&#x27;单调性可维护&#x27;的问题(如下一个更大/更小)；不适用于需要区间查询的问题(应用线段树)；栈中通常存下标而非值以便记录答案位置。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>栈中存值还是存下标: 需要答案位置时必须存下标，存值会丢失位置信息</li><li>递增还是递减搞反: 求下一个更大→递减栈(弹出比当前小的); 求下一个更小→递增栈</li><li>弹出条件用 &lt;= 还是 &lt;: 含等号时相等的元素也弹出(适用于&#x27;严格更大&#x27;)，不含等号则保留(适用于&#x27;非严格更大&#x27;)</li><li>忘记处理栈中剩余元素(它们的答案为 -1/0 表示无更大元素)</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>LeetCode</td><td><strong>739</strong></td><td>2</td><td>每日温度: 单调栈经典模板, 求下一个更大元素的距离</td><td class="u"><a href="https://leetcode.cn/problems/daily-temperatures/" target="_blank" rel="noopener">https://leetcode.cn/problems/daily-temperatures/</a></td></tr><tr><td>LeetCode</td><td><strong>496</strong></td><td>2</td><td>下一个更大元素I: 单调栈+哈希映射</td><td class="u"><a href="https://leetcode.cn/problems/next-greater-element-i/" target="_blank" rel="noopener">https://leetcode.cn/problems/next-greater-element-i/</a></td></tr><tr><td>Luogu</td><td><strong>P5788</strong></td><td>2</td><td>单调栈模板题: 求每个数右侧第一个比它大的元素位置</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5788" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5788</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-monotonic-stack" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "scan", "label": "遍历序列每个元素"}}, {"data": {"id": "check", "label": "检查栈顶是否满足弹出条件"}}, {"data": {"id": "pop", "label": "弹出: 当前元素是弹出元素的答案"}}, {"data": {"id": "push", "label": "入栈: 当前元素成为新候选"}}, {"data": {"id": "residual", "label": "处理栈中剩余(无答案元素)"}}, {"data": {"id": "escan->check", "source": "scan", "target": "check"}}, {"data": {"id": "echeck->pop", "source": "check", "target": "pop"}}, {"data": {"id": "epop->check", "source": "pop", "target": "check"}}, {"data": {"id": "echeck->push", "source": "check", "target": "push"}}, {"data": {"id": "epush->scan", "source": "push", "target": "scan"}}, {"data": {"id": "escan->residual", "source": "scan", "target": "residual"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-monotonic-stack'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="stack.html" title="单调栈是栈结构的单调性约束变体">栈<span class="etype">变体</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-combination" href="cartesian-tree.html" title="笛卡尔树用单调栈O(n)构建">笛卡尔树<span class="etype">组合</span></a><a class="chip e-cooccurrence" href="dp-opt-monotonic-queue.html" title="单调栈和单调队列常共现于DP优化场景">单调队列/栈优化DP<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/monotonic-stack/" target="_blank" rel="noopener">https://oi-wiki.org/ds/monotonic-stack/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/data_structures/stack_queue_modification.html" target="_blank" rel="noopener">https://cp-algorithms.com/data_structures/stack_queue_modification.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>树链剖分(HLD) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-7.html">树算法族</a> / <span>树链剖分(HLD)</span></div>
+  <h1>树链剖分(HLD)</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-B-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="tree-centroid.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">tree-centroid</span></a>
+    <a class="nav-index" href="../03-groups/G-B-7.html"><span class="dir">组内第 5 / 10</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dsu-on-tree.html"><span class="dir">下一个 / 组内</span><span class="v">dsu-on-tree</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">重链剖分把树剖为若干重链，配合线段树 O(log^2 n) 维护路径/子树信息，亦可 O(log n) 求 LCA</div><p>重链剖分（Heavy-Light Decomposition）是一种把树线性化的技术：为每个节点选出子树最大的儿子作为「重儿子」（重子结点），到重儿子的边为「重边」，其余为「轻边」；若干首尾相接的重边组成一条「重链」。两遍 DFS 后每个节点获得 dfn（DFS 序，重边优先）与 top（所在链顶端），使得：同一重链上 dfn 连续（可用线段树维护区间）、任意节点到根至多经过 O(log n) 条轻边（即 O(log n) 条重链）。于是「树上两点路径」可拆成 O(log n) 个连续 dfn 区间，「子树」恰为一个连续区间，都能交给线段树处理。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>树上的路径是「弯的」，线段树只能处理「直的」区间。重链剖分的聪明之处：专门挑出那些最大的分支（重儿子）连成粗链，保证从任意叶子爬到根只需要切换 O(log n) 次链——每次都跳过一整条连续段。这样把一条曲折路径切成几段直线，每段在 dfs 序上连续，就能用线段树批量改查。轻边的「每走一条子树至少减半」性质正是 O(log n) 的来源。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>第一次 DFS 记录 fa/dep/siz/重儿子 son（siz 最大的儿子）；第二次 DFS 沿重儿子优先分配 dfn 并记录 top（重儿子继承父亲 top，轻儿子开新链）。性质：①任意路径到根的轻边数 &lt;= log n（走轻边子树至少减半）；②一条重链在 dfn 上连续。路径查询 (u,v)：若 top[u]!=top[v]，取较深的链顶跳到其父节点并处理 [dfn[top], dfn[u]] 区间，重复至同链后处理 [dfn[u], dfn[v]] 的直区间。共 O(log n) 段 × 线段树 O(log n) = O(log^2 n)。子树修改/查询即直接操作 [dfn[u], dfn[u]+siz[u]-1] 单区间 O(log n)。重链剖分的 LCA 也自然可得：反复跳深链顶直到两节点同链，取较浅者。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>HLD 由 Sleator 与 Tarjan 引入（与 Splay/LCT 同源思想），是静态树上路径问题最常用的处理框架。OI Wiki 将其列为图论-树上算法核心条目，CP-Algorithms 给出路径最大值/和/染色三种典型应用，均以「最多 O(log n) 条重链」为核心证明。其地位类似树状数组之于序列：不是最强的（LCT 更强），但实现简单、常数小、无需修改形态，是竞赛最常用工具之一。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">dfs1</span>(u,f): fa[u]=f; dep[u]=dep[f]+<span class="t-n">1</span>; siz[u]=<span class="t-n">1</span>
+  <span class="t-k">for</span> v <span class="t-k">in</span> G[u], v!=f: <span class="t-f">dfs1</span>(v,u); siz[u]+=siz[v]; <span class="t-k">if</span> siz[v]&gt;siz[son[u]]: son[u]=v
+<span class="t-f">dfs2</span>(u,ftop): top[u]=ftop; dfn[u]=++idx; rnk[idx]=u
+  <span class="t-k">if</span> son[u]: <span class="t-f">dfs2</span>(son[u],ftop)
+  <span class="t-k">for</span> v <span class="t-k">in</span> G[u], v!=fa[u] <span class="t-k">and</span> v!=son[u]: <span class="t-f">dfs2</span>(v,v)
+<span class="t-f">path_update</span>(u,v,val): 线段树区间加
+  <span class="t-k">while</span> top[u]!=top[v]:
+    <span class="t-k">if</span> dep[top[u]]&lt;dep[top[v]]: <span class="t-f">swap</span>(u,v)
+    <span class="t-f">seg_update</span>(dfn[top[u]], dfn[u], val); u=fa[top[u]]
+  <span class="t-k">if</span> dep[u]&gt;dep[v]: <span class="t-f">swap</span>(u,v)
+  <span class="t-f">seg_update</span>(dfn[u], dfn[v], val)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">1</span> &lt;&lt; <span class="t-n">22</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">dfs1</span>(u, f, G, fa, dep, siz, son):
+    fa[u] = f
+    dep[u] = dep[f] + <span class="t-n">1</span>
+    siz[u] = <span class="t-n">1</span>
+    <span class="t-k">for</span> v <span class="t-k">in</span> G[u]:
+        <span class="t-k">if</span> v == f:
+            <span class="t-k">continue</span>
+        <span class="t-f">dfs1</span>(v, u, G, fa, dep, siz, son)
+        siz[u] += siz[v]
+        <span class="t-k">if</span> son[u] == <span class="t-n">0</span> <span class="t-k">or</span> siz[v] &gt; siz[son[u]]:
+            son[u] = v
+
+
+idx = <span class="t-n">0</span>
+
+
+<span class="t-k">def</span> <span class="t-f">dfs2</span>(u, ftop, G, fa, son, top, dfn, rnk):
+    <span class="t-k">global</span> idx
+    idx += <span class="t-n">1</span>
+    top[u] = ftop
+    dfn[u] = idx
+    rnk[idx] = u
+    <span class="t-k">if</span> son[u]:
+        <span class="t-f">dfs2</span>(son[u], ftop, G, fa, son, top, dfn, rnk)
+    <span class="t-k">for</span> v <span class="t-k">in</span> G[u]:
+        <span class="t-k">if</span> v != fa[u] <span class="t-k">and</span> v != son[u]:
+            <span class="t-f">dfs2</span>(v, v, G, fa, son, top, dfn, rnk)
+
+
+<span class="t-k">def</span> <span class="t-f">build</span>(o, l, r, a, dfn, rnk, sumv, addv):
+    <span class="t-k">if</span> l == r:
+        sumv[o] = a[rnk[l]]
+        <span class="t-k">return</span>
+    m = (l + r) &gt;&gt; <span class="t-n">1</span>
+    <span class="t-f">build</span>(o * <span class="t-n">2</span>, l, m, a, dfn, rnk, sumv, addv)
+    <span class="t-f">build</span>(o * <span class="t-n">2</span> + <span class="t-n">1</span>, m + <span class="t-n">1</span>, r, a, dfn, rnk, sumv, addv)
+    sumv[o] = sumv[o * <span class="t-n">2</span>] + sumv[o * <span class="t-n">2</span> + <span class="t-n">1</span>]
+
+
+<span class="t-k">def</span> <span class="t-f">pushdown</span>(o, l, r, sumv, addv):
+    <span class="t-k">if</span> addv[o]:
+        m = (l + r) &gt;&gt; <span class="t-n">1</span>
+        lc, rc = o * <span class="t-n">2</span>, o * <span class="t-n">2</span> + <span class="t-n">1</span>
+        addv[lc] += addv[o]
+        addv[rc] += addv[o]
+        sumv[lc] += addv[o] * (m - l + <span class="t-n">1</span>)
+        sumv[rc] += addv[o] * (r - m)
+        addv[o] = <span class="t-n">0</span>
+
+
+<span class="t-k">def</span> <span class="t-f">update</span>(o, l, r, ql, qr, val, sumv, addv):
+    <span class="t-k">if</span> ql &lt;= l <span class="t-k">and</span> r &lt;= qr:
+        addv[o] += val
+        sumv[o] += val * (r - l + <span class="t-n">1</span>)
+        <span class="t-k">return</span>
+    <span class="t-f">pushdown</span>(o, l, r, sumv, addv)
+    m = (l + r) &gt;&gt; <span class="t-n">1</span>
+    <span class="t-k">if</span> ql &lt;= m:
+        <span class="t-f">update</span>(o * <span class="t-n">2</span>, l, m, ql, qr, val, sumv, addv)
+    <span class="t-k">if</span> qr &gt; m:
+        <span class="t-f">update</span>(o * <span class="t-n">2</span> + <span class="t-n">1</span>, m + <span class="t-n">1</span>, r, ql, qr, val, sumv, addv)
+    sumv[o] = sumv[o * <span class="t-n">2</span>] + sumv[o * <span class="t-n">2</span> + <span class="t-n">1</span>]
+
+
+<span class="t-k">def</span> <span class="t-f">query</span>(o, l, r, ql, qr, sumv, addv):
+    <span class="t-k">if</span> ql &lt;= l <span class="t-k">and</span> r &lt;= qr:
+        <span class="t-k">return</span> sumv[o]
+    <span class="t-f">pushdown</span>(o, l, r, sumv, addv)
+    m = (l + r) &gt;&gt; <span class="t-n">1</span>
+    res = <span class="t-n">0</span>
+    <span class="t-k">if</span> ql &lt;= m:
+        res += <span class="t-f">query</span>(o * <span class="t-n">2</span>, l, m, ql, qr, sumv, addv)
+    <span class="t-k">if</span> qr &gt; m:
+        res += <span class="t-f">query</span>(o * <span class="t-n">2</span> + <span class="t-n">1</span>, m + <span class="t-n">1</span>, r, ql, qr, sumv, addv)
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">path_add</span>(u, v, val, n, G, fa, dep, siz, son, top, dfn, sumv, addv):
+    <span class="t-k">while</span> top[u] != top[v]:
+        <span class="t-k">if</span> dep[top[u]] &lt; dep[top[v]]:
+            u, v = v, u
+        <span class="t-f">update</span>(<span class="t-n">1</span>, <span class="t-n">1</span>, n, dfn[top[u]], dfn[u], val, sumv, addv)
+        u = fa[top[u]]
+    <span class="t-k">if</span> dep[u] &gt; dep[v]:
+        u, v = v, u
+    <span class="t-f">update</span>(<span class="t-n">1</span>, <span class="t-n">1</span>, n, dfn[u], dfn[v], val, sumv, addv)
+
+
+<span class="t-k">def</span> <span class="t-f">path_sum</span>(u, v, n, fa, dep, top, dfn, sumv, addv):
+    res = <span class="t-n">0</span>
+    <span class="t-k">while</span> top[u] != top[v]:
+        <span class="t-k">if</span> dep[top[u]] &lt; dep[top[v]]:
+            u, v = v, u
+        res += <span class="t-f">query</span>(<span class="t-n">1</span>, <span class="t-n">1</span>, n, dfn[top[u]], dfn[u], sumv, addv)
+        u = fa[top[u]]
+    <span class="t-k">if</span> dep[u] &gt; dep[v]:
+        u, v = v, u
+    res += <span class="t-f">query</span>(<span class="t-n">1</span>, <span class="t-n">1</span>, n, dfn[u], dfn[v], sumv, addv)
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    n = <span class="t-n">6</span>
+    edges = [(<span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>), (<span class="t-n">2</span>, <span class="t-n">5</span>), (<span class="t-n">3</span>, <span class="t-n">6</span>)]
+    G = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    <span class="t-k">for</span> a, b <span class="t-k">in</span> edges:
+        G[a].<span class="t-f">append</span>(b)
+        G[b].<span class="t-f">append</span>(a)
+    fa = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    dep = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    siz = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    son = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    top = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    dfn = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    rnk = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-f">dfs1</span>(<span class="t-n">1</span>, <span class="t-n">0</span>, G, fa, dep, siz, son)
+    <span class="t-f">dfs2</span>(<span class="t-n">1</span>, <span class="t-n">1</span>, G, fa, son, top, dfn, rnk)
+    a = [<span class="t-n">0</span>] + [<span class="t-n">10</span>] * n
+    sumv = [<span class="t-n">0</span>] * (<span class="t-n">4</span> * n + <span class="t-n">4</span>)
+    addv = [<span class="t-n">0</span>] * (<span class="t-n">4</span> * n + <span class="t-n">4</span>)
+    <span class="t-f">build</span>(<span class="t-n">1</span>, <span class="t-n">1</span>, n, a, dfn, rnk, sumv, addv)
+    <span class="t-f">path_add</span>(<span class="t-n">2</span>, <span class="t-n">6</span>, <span class="t-n">5</span>, n, G, fa, dep, siz, son, top, dfn, sumv, addv)
+    <span class="t-c"># 路径 2-1-3-6：节点 2,1,3,6 各 +5</span>
+    s = <span class="t-f">path_sum</span>(<span class="t-n">2</span>, <span class="t-n">6</span>, n, fa, dep, top, dfn, sumv, addv)
+    <span class="t-b">print</span>(<span class="t-s">&quot;path sum 2-&gt;6 =&quot;</span>, s)
+    <span class="t-k">assert</span> s == <span class="t-n">4</span> * (<span class="t-n">10</span> + <span class="t-n">5</span>), <span class="t-s">&quot;wrong!&quot;</span>
+    <span class="t-c"># 子树 2 (节点2,4,5) 之和</span>
+    sub = <span class="t-f">query</span>(<span class="t-n">1</span>, <span class="t-n">1</span>, n, dfn[<span class="t-n">2</span>], dfn[<span class="t-n">2</span>] + siz[<span class="t-n">2</span>] - <span class="t-n">1</span>, sumv, addv)
+    <span class="t-b">print</span>(<span class="t-s">&quot;subtree sum of 2 =&quot;</span>, sub)
+    <span class="t-k">assert</span> sub == <span class="t-n">10</span> * <span class="t-n">3</span> + <span class="t-n">5</span>, <span class="t-s">&quot;wrong!&quot;</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">递归 dfs1/dfs2 深度可达 n，PyPy 下务必 sys.setrecursionlimit(1&lt;&lt;22) 或用迭代；路径操作 while 循环的每一跳都调用递归线段树，PyPy JIT 对两层递归栈热循环友好，但纯 Python 的 O(log^2 n) 常数约为 C++ 的 10 倍以上，n=q=1e5 时限 2s 的题在 CPython 容易 TLE，建议 PyPy + 全部 sys.stdin.buffer 读入。线段树可用数组迭代版进一步减常数。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O((n+q) log n) 建树+预处理；单次路径修改/查询 O(log^2 n)（两跳 O(log n) × 线段树 O(log n)）；单次子树修改/查询 O(log n)；求 LCA O(log n)</td></tr><tr><th>空间复杂度</th><td>O(n) 树结构 + O(n) 线段树数组(4n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅支持静态树（无形态修改），有动态加边/换根需 LCT。路径上维护的信息需可在线段树区间上合并（和/最大/最小/gcd 等半群量）；若信息与方向有关（如边权路径最小值需先转点权）要仔细处理 dfn 区间端点。Python 常数大，是 O(log^2 n) 结构里最容易 TLE 的一类题。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>两遍 DFS 忘把 siz 较大的儿子选为重儿子时重边定义错误，复杂度退化为 O(n^2) 路径</li><li>path_add/path_sum 的 while 循环中比较的是 dep[top[u]] 而非 dep[u]，写错会导致死循环</li><li>处理同一条链的最后一段时注意区间端点 u&lt;=v（按 dep 交换后再 update）</li><li>子树操作区间是 [dfn[u], dfn[u]+siz[u]-1]，漏了 -1 会多算/少算一个节点</li><li>线段树 pushdown 时乘的区间长度写错（左右子区间长度分别为 m-l+1 与 r-m）</li><li>递归层数深：Python 默认 recursionlimit=1000 在链树上必爆栈</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3384</strong></td><td>3</td><td>【模板】轻重链剖分：路径/子树 加+求和，四合一模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3384" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3384</a></td></tr><tr><td>Luogu</td><td><strong>P3178</strong></td><td>3</td><td>【模板】树链剖分：单点改/子树加/路径和，无懒标记简化版</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3178" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3178</a></td></tr><tr><td>SPOJ</td><td><strong>QTREE</strong></td><td>4</td><td>Query on a tree：边权转点权 + 路径最大值，经典入门题</td><td class="u"><a href="https://www.spoj.com/problems/QTREE/" target="_blank" rel="noopener">https://www.spoj.com/problems/QTREE/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-hld" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "dfs1", "label": "第一遍DFS: fa/dep/siz/重儿子"}}, {"data": {"id": "dfs2", "label": "第二遍DFS: top/dfn/rnk"}}, {"data": {"id": "build", "label": "按 dfn 建线段树"}}, {"data": {"id": "path_op", "label": "路径修改/查询(while跳链+区间操作)"}}, {"data": {"id": "subtree_op", "label": "子树修改/查询(单区间)"}}, {"data": {"id": "lca", "label": "求LCA(同链取浅者)"}}, {"data": {"id": "edfs1->dfs2", "source": "dfs1", "target": "dfs2"}}, {"data": {"id": "edfs2->build", "source": "dfs2", "target": "build"}}, {"data": {"id": "ebuild->path_op", "source": "build", "target": "path_op"}}, {"data": {"id": "ebuild->subtree_op", "source": "build", "target": "subtree_op"}}, {"data": {"id": "edfs2->lca", "source": "dfs2", "target": "lca"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-hld'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="lca.html" title="树链剖分重链跳转需理解LCA思想">最近公共祖先(LCA)<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="lca.html" title="重链剖分可O(logV)回答LCA查询">最近公共祖先(LCA)<span class="etype">变体</span></a><a class="chip e-variant" href="lct.html" title="均维护树链，LCT 支持动态连断边">Link-Cut Tree<span class="etype">变体</span></a><a class="chip e-variant" href="euler-tour-tree.html" title="ETT 以欧拉序+平衡树维护动态树，与树剖同为链维护">Euler Tour Tree<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/hld/" target="_blank" rel="noopener">https://oi-wiki.org/graph/hld/</a></li><li><span class="srctype">oiwiki_raw</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/hld.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/hld.md</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/hld.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/hld.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch18 pp173-182 (Tree algorithms: tree queries)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,119 @@
+{
+  "id": "extended-lucas",
+  "name": "扩展卢卡斯(exLucas)",
+  "group": "G-C-8",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "C(n,m) mod p 当 p 为合数时：分解 p=∏p_i^α_i，对每个素因子幂用『去 p 因子阶乘+Legendre 公式』求余，CRT 合并；处理任意模数组合数",
+  "what": "扩展卢卡斯算法（exLucas）解决 Lucas 定理无法处理的合数模情形：求 C(n,m) mod P（P 任意正整数）。步骤：(1) 分解 P=∏ p_i^α_i；(2) 对每个素数幂 p^α，把 n! 写成 n! = p^ν_p(n!) · (n!)_p（(n!)_p 为去掉全部 p 因子后的互素部分），用 Legendre 公式算指数 ν_p，用『素数幂模下的阶乘递推』算 (n!)_p 及其逆元，得余数；(3) 中国剩余定理合并各余数。算法并不使用 Lucas 定理本身，只是名字沿袭。",
+  "why": {
+    "intuition": "合数模下 0 不能求逆、阶乘不总可逆，Lucas 按 p 进制拆位失效。于是换个思路：C(n,m)=n!/(m!(n−m)!)，把 n! 里的所有 p 因子全部抽出来单独算指数（Legendre 公式），剩下的『互素部分』在 p^α 下可求逆（扩展欧几里得）。每个素因子 p 处理完得到一条同余，最后 CRT 拼回模 P。",
+    "principle": "记 (n!)_p = n! / p^ν_p(n!)。组合数 = p^[ν_p(n!)−ν_p(m!)−ν_p((n−m)!)] · (n!)_p / ((m!)_p (n−m)!)_p。指数部分若 ≥α 则余数直接为 0；否则 p^e 单独算（pow(p,e,pk)）。互素部分：对 n! 的 p 幂模，用周期分解——把 1..pk 中非 p 倍数乘积记为 cycle，则 (n!)_p = cycle^(⌊n/pk⌋) · (⌊n/pk⌋)!_p · ∏(1..n mod pk 中非 p 倍数)。递归算 (⌊n/pk⌋)!_p，深度 O(log_p n)。分母部分乘逆元（扩展欧几里得或 pow(x,−1,pk)）。",
+    "history": "Lucas 定理仅适用于素数模；Andrew Granville 于 1997 年在《The Arithmetic of Binomial Coefficients》中给出素数幂模 C(n,m) 的完整推广（含指数项与互素部分）。竞赛中的『exLucas』实现（LOJ 181、洛谷 P4720）即按上述素数幂分解+CRT 流程，OI Wiki 将其单列于 Lucas 页面下。"
+  },
+  "how": {
+    "pseudocode": "# 对素数幂 p^a:\ndef legendre(n, p):       # ν_p(n!)\n  s = 0\n  while n: n //= p; s += n\n  return s\ndef fact_mod(n, p, pk):   # (n!)_p mod pk\n  if n == 0: return 1\n  cycle = prod(1..pk 中非 p 倍数的数) % pk\n  res = pow(cycle, n // pk, pk)\n  res = res * prod(1..n%pk 中非 p 倍数) % pk\n  res = res * fact_mod(n // p, p, pk) % pk\n  return res\ndef comb_ppow(n, m, p, a):\n  pk = p**a\n  e = legendre(n,p) - legendre(m,p) - legendre(n-m,p)\n  if e >= a: return 0\n  return p**e * fact_mod(n,p,pk) % pk * inv(fact_mod(m,p,pk)*fact_mod(n-m,p,pk)) % pk\n# 主流程\nexlucas(n, m, P):\n  分解 P = ∏ p_i^α_i\n  对每个 p_i^α_i 求 r_i = comb_ppow(n,m,p_i,α_i)\n  return CRT(r_i, p_i^α_i)",
+    "python": "import math\nfrom math import gcd\n\n\ndef legendre_p(n, p):\n    \"\"\"ν_p(n!) = n//p + n//p^2 + ...\"\"\"\n    res = 0\n    while n:\n        n //= p\n        res += n\n    return res\n\n\ndef fact_without_p(n, p, pk):\n    \"\"\"返回 (n!)_p mod pk，即去掉全部 p 因子后的余数。\"\"\"\n    if n == 0:\n        return 1\n    cycle = 1\n    for i in range(1, pk + 1):\n        if i % p:\n            cycle = cycle * i % pk\n    res = pow(cycle, n // pk, pk)\n    for i in range(1, n % pk + 1):\n        if i % p:\n            res = res * i % pk\n    res = res * fact_without_p(n // p, p, pk) % pk\n    return res\n\n\ndef comb_mod_prime_power(n, m, p, a):\n    \"\"\"C(n,m) mod p^a\"\"\"\n    pk = p ** a\n    e = legendre_p(n, p) - legendre_p(m, p) - legendre_p(n - m, p)\n    if e >= a:\n        return 0\n    numer = fact_without_p(n, p, pk)\n    denom = fact_without_p(m, p, pk) * fact_without_p(n - m, p, pk) % pk\n    res = pow(p, e, pk) * numer % pk * pow(denom, -1, pk) % pk\n    return res\n\n\ndef exlucas(n, m, mod):\n    \"\"\"C(n,m) mod mod（mod 为任意正整数）。\"\"\"\n    if m < 0 or m > n:\n        return 0\n    if mod == 1:\n        return 0\n    mm = mod\n    factors = []\n    d = 2\n    while d * d <= mm:\n        if mm % d == 0:\n            a = 0\n            while mm % d == 0:\n                mm //= d\n                a += 1\n            factors.append((d, a))\n        d += 1\n    if mm > 1:\n        factors.append((mm, 1))\n\n    rs = []\n    mods = []\n    for p, a in factors:\n        rs.append(comb_mod_prime_power(n, m, p, a))\n        mods.append(p ** a)\n    total = 1\n    for mi in mods:\n        total *= mi\n    x = 0\n    for r, mi in zip(rs, mods):\n        t = total // mi\n        x = (x + r * t * pow(t, -1, mi)) % total\n    return x\n\n\nif __name__ == \"__main__\":\n    # 全范围交叉验证（模数含平方因子）\n    for mod in range(2, 42):\n        for n in range(0, 28):\n            for m in range(0, n + 1):\n                assert exlucas(n, m, mod) == math.comb(n, m) % mod, (n, m, mod)\n\n    # 经典样例\n    assert exlucas(5, 2, 6) == 4\n    assert exlucas(7, 3, 10) == 5\n    assert exlucas(100, 50, 999999999) == math.comb(100, 50) % 999999999\n    # n 较大、模数含素因子高次幂（n 足够大，结果仍精确）\n    n = 200000\n    assert exlucas(n, n // 3, 2**5 * 3**3) == math.comb(n, n // 3) % (2**5 * 3**3)\n    # n 巨大（>1e18）时只做自洽性检查：结果在 [0, mod) 内且 mod 各因子幂同余一致\n    big = 10**18\n    r = exlucas(big, big // 3, 2**5 * 3**3)\n    assert 0 <= r < 2**5 * 3**3\n    for pk in (2**5, 3**3):\n        assert r % pk == exlucas(big, big // 3, pk)\n\n    print(\"All tests passed.\")",
+    "pypy_notes": "fact_without_p 中每次枚举 1..pk（pk=p^α）与递归 log_p n 层，单次 comb 的复杂度约 O(p^α + log_p n·p^α/2 的枚举)——注意 cycle 与余数枚举均 O(pk)，所以 p^α 很大时（如 >1e6）单次查询退化。可用前缀积数组优化 cycle。递归深度 O(log_p n)，Python 默认递归限制 1000 足够（log_p(1e18)≈60）。",
+    "complexity": {
+      "time": "分解 P O(√P)；对每个素因子幂预处理 O(p^α)；单次查询 O(∑(p^α log) + log_p n 递归)；总计 O(√P + ∑p_i^α_i + ∑log_{p_i} n)",
+      "space": "O(∑ p_i^α_i)（cycle 可 O(1) 但需预处理则 O(pk)）"
+    },
+    "limitations": "fact_without_p 的 cycle 若每次重建（循环 1..pk）则每层 O(pk)，pk 大时慢，应预处理为全局表。逆元 pow(x,-1,pk) 要求 x 与 pk 互素——已去掉 p 因子故必然成立。P 可能含重复素数幂（如 8=2^3），分解时聚合幂次。n 巨大（>1e18 也无碍，Python 大整数）。Lucas 不适合大素数模（p 本身 >1e7 时 O(p) 预处理不行，若 p 是极大素数则回到组合数单点算法）。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4720",
+      "url": "https://www.luogu.com.cn/problem/P4720",
+      "difficulty": 5,
+      "key_point": "【模板】扩展卢卡斯：任意模数 P，n,m≤1e18，直接套 exLucas 全流程"
+    },
+    {
+      "oj": "LibreOJ",
+      "pid": "LOJ 181",
+      "url": "https://loj.ac/p/181",
+      "difficulty": 5,
+      "key_point": "【模板】二项式系数：OI Wiki 官方模板题，素数幂分解+CRT 合并"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "Gym 100633 J (Ceizenpok's formula)",
+      "url": "http://codeforces.com/gym/100633/problem/J",
+      "difficulty": 6,
+      "key_point": "Ceizenpok's formula：n 可达 1e18 的 exLucas 变形（OI Wiki 习题引用）"
+    }
+  ],
+  "pitfalls": [
+    "指数 e=ν_p(n!)−ν_p(m!)−ν_p((n−m)!)≥α 时结果必为 0，必须先判再算（否则 p^e mod pk=0 但后面分母不可逆）",
+    "fact_without_p 里 cycle 枚举到 pk（含端点），若 i%p 为 0 要跳过",
+    "递归时参数是 n//p 而非 n//pk——Lucas 递归取 p 进制高位的直觉在 exLucas 里是每层除一次 p",
+    "CRT 合并时各 mod 必须互素（素因子幂天然互素），用 pow(t,-1,mi) 需 Python3.8+；旧版本手写扩展欧几里得",
+    "P=1 时 C(n,m) mod 1=0，特判返回 0",
+    "分解 P 时用 mm 变量累除，别污染原 mod；合数分解后 mm>1 的剩余是最大素因子"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "factor",
+        "label": "分解模数 P=∏p_i^α_i"
+      },
+      {
+        "id": "legendre",
+        "label": "Legendre 公式算 ν_p(n!)"
+      },
+      {
+        "id": "fact_mod",
+        "label": "去 p 因子阶乘 (n!)_p mod p^α"
+      },
+      {
+        "id": "comb_pp",
+        "label": "素数幂模组合数 C(n,m) mod p^α"
+      },
+      {
+        "id": "crt",
+        "label": "CRT 合并各素因子幂的余数"
+      }
+    ],
+    "edges": [
+      {
+        "from": "factor",
+        "to": "legendre"
+      },
+      {
+        "from": "factor",
+        "to": "fact_mod"
+      },
+      {
+        "from": "legendre",
+        "to": "comb_pp"
+      },
+      {
+        "from": "fact_mod",
+        "to": "comb_pp"
+      },
+      {
+        "from": "comb_pp",
+        "to": "crt"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/number-theory/lucas/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/algebra/factorial-modulo.html",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/algebra/crt.html",
+      "verified": true
+    }
+  ]
+}

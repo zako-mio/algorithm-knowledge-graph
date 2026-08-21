@@ -1,0 +1,74 @@
+{
+  "id": "construction",
+  "name": "构造题",
+  "group": "G-A-1",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "构造满足条件的解，需洞察问题结构",
+  "what": "构造题（Construction）要求你构造出一个满足若干给定条件的解——可能是一个排列、一个图、一组数或一个操作序列。与「求解」类问题不同，构造题通常保证解一定存在，难点在于找到一个简洁、可证明正确、可编码实现的构造方案。构造题无通用套路，常依赖对问题结构的洞察与数学归纳。",
+  "why": {
+    "intuition": "构造题的核心直觉是「找规律」：解往往具有某种周期、对称或递推结构。观察小规模数据（n=3,4,5）的可行构造，归纳出随 n 增长的推广规律，是破解构造题的最常用入口。",
+    "principle": "常见构造范式：(1) 归纳构造——小规模有解则按固定增量扩展到大 n；(2) 数论构造——利用互素/逆元/前缀和的模性质构造排列（如 CF 743C 的 1/x+1/y+1/z=2/n 用 n,n+1,n(n+1)）；(3) 对称/配对构造——图论中前后配对使各点度数和相等；(4) 自由变量法——题面自由度越高越容易找到简单构造。关键要求是构造必须带证明，不能只靠猜测。",
+    "history": "构造题是各大竞赛的常客，Codeforces 的构造专场、AtCoder Grand Contest 的构造题、NOI 系列比赛的构造题屡见不鲜。OI Wiki 专门开设构造专题，强调其「高自由度、形式灵活、无通用解法」三大特点，并指出解题要思考问题规模增长对答案的影响。"
+  },
+  "how": {
+    "pseudocode": "construct(n):\n  # 找出规律（观察小规模解）\n  if pattern_found(n):\n    return build_by_pattern(n)\n  else:\n    return build_by_induction(n)  # 归纳扩展示例\n  # 最后必须验证构造满足所有条件",
+    "python": "def cf743c(n):\n    \"\"\"CF 743C Vladik and fractions: 构造 x,y,z 使 1/x+1/y+1/z = 2/n。\n    经典构造: x=n, y=n+1, z=n*(n+1)。\n    因为 1/n + 1/(n+1) + 1/(n*(n+1)) = (n+1+n+1)/(n*(n+1)) = 2(n+1)/(n(n+1)) = 2/n。\n    注意 n=1 时无解（此时 y==z）。\n    \"\"\"\n    if n == 1:\n        return None\n    return (n, n + 1, n * (n + 1))\n\n\ndef construct_prefix_sum_perm(n):\n    \"\"\"OI Wiki 例题（P3599 Task1 思路）:\n    构造 1..n 的排列，使 n 个前缀和在模 n 意义下互不相同（n 为偶数时可行）。\n    采用前缀和序列 0,1,-1,2,-2,... 反推排列。\n    返回原排列（1-indexed 值）。\n    \"\"\"\n    if n % 2 == 1:\n        return None\n    # 前缀和序列（模 n）: 0, 1, n-1, 2, n-2, ...\n    pref = [0]\n    for k in range(1, n // 2 + 1):\n        pref.append(k)\n        if n - k > 0:\n            pref.append(n - k)\n    pref = pref[:n]\n    arr = [(pref[i + 1] - pref[i]) % n for i in range(n - 1)]\n    arr.insert(0, n)  # 第一位固定为 n\n    return arr\n\n\ndef verify_pref_perm(arr, n):\n    \"\"\"验证: 前 n 个前缀和模 n 互不相同, 且 arr 是 1..n 的排列\"\"\"\n    assert sorted(arr) == list(range(1, n + 1)), \"not a permutation\"\n    s, seen = 0, set()\n    for x in arr:\n        s = (s + x) % n\n        seen.add(s)\n    assert len(seen) == n, f\"prefix sums not distinct: {len(seen)}\"\n\n\nif __name__ == \"__main__\":\n    assert cf743c(2) == (2, 3, 6)\n    assert cf743c(1) is None\n    # 验证 1/2+1/3+1/6 == 2/2 == 1\n    import fractions as fr\n    assert fr.Fraction(1, 2) + fr.Fraction(1, 3) + fr.Fraction(1, 6) == 1\n\n    for n in [4, 6, 8]:\n        arr = construct_prefix_sum_perm(n)\n        verify_pref_perm(arr, n)\n    assert construct_prefix_sum_perm(5) is None\n\n    print(\"All tests passed.\")",
+    "pypy_notes": "构造题的代码通常很短，PyPy/CPython 无差异。重点在于正确性证明与边界（如 n=1、n=4 等特例），写完后应自造小数据逐一验证所有条件。",
+    "complexity": {
+      "time": "构造本身通常 O(n) 或 O(n log n)，与验证解需遍历解空间一致",
+      "space": "O(n) — 存放构造出的解"
+    },
+    "limitations": "构造题无统一算法，必须具体问题具体分析；构造方案若未经证明，存在隐藏反例风险。当构造空间极小时需特别注意无解判定（如 CF 743C 的 n=1）。"
+  },
+  "examples": [
+    {
+      "oj": "Codeforces",
+      "pid": "743C",
+      "url": "https://codeforces.com/problemset/problem/743/C",
+      "difficulty": 1600,
+      "key_point": "Vladik and fractions：数论型构造 1/x+1/y+1/z=2/n，标准答案 n,n+1,n(n+1)，n=1 无解"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3599",
+      "url": "https://www.luogu.com.cn/problem/P3599",
+      "difficulty": 7,
+      "key_point": "Koishi Loves Construction：前缀和/前缀积模 n 互异的排列构造，OI Wiki 官方例题"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "AGC032B",
+      "url": "https://atcoder.jp/contests/agc032/tasks/agc032_b",
+      "difficulty": 1200,
+      "key_point": "Balanced Neighbors：构造使每个点邻点编号和相等的图，前后配对（对称构造）"
+    }
+  ],
+  "pitfalls": [
+    "构造方案缺乏证明，被隐藏样例/反例卡住——务必先证明再写码",
+    "忽略无解判定（如 n=1 时 y==z 非法）",
+    "归纳构造未处理规模跳变时的特例（如奇偶、合数/质数分界）",
+    "小规模观察规律后未验证推广到大 n 时是否仍成立"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "observe", "label": "观察小规模解，寻找规律" },
+      { "id": "hypo", "label": "提出构造猜想" },
+      { "id": "prove", "label": "证明构造满足全部条件" },
+      { "id": "code", "label": "按构造编码实现" },
+      { "id": "verify", "label": "小数据验证所有约束" }
+    ],
+    "edges": [
+      { "from": "observe", "to": "hypo" },
+      { "from": "hypo", "to": "prove" },
+      { "from": "prove", "to": "code" },
+      { "from": "code", "to": "verify" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/basic/construction/", "verified": true },
+    { "type": "codeforces", "url": "https://codeforces.com/problemset/problem/743/C", "verified": true },
+    { "type": "atcoder", "url": "https://atcoder.jp/contests/agc032/tasks/agc032_b", "verified": true }
+  ]
+}

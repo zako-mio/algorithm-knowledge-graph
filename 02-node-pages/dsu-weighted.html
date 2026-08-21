@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>带权/扩展域并查集 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-4.html">并查集族</a> / <span>带权/扩展域并查集</span></div>
+  <h1>带权/扩展域并查集</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-4</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="dsu-basic.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">dsu-basic</span></a>
+    <a class="nav-index" href="../03-groups/G-A-4.html"><span class="dir">组内第 2 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="persistent-dsu.html"><span class="dir">下一个 / 组内</span><span class="v">persistent-dsu</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">在并查集边上维护权值/种类关系，支持相对距离查询与冲突判定，O(α(n))</div><p>带权并查集（weighted union-find）在普通并查集的每个节点上额外记录一个『到父节点的边权』weight[x]，使每条树边承载任意可结合代数结构（模 3 加法群、异或、普通整数距离等）。经典应用：食物链式『种类关系』（模 3 群：x 与 y 同类/吃/被吃），以及扩展域并查集（把每个元素拆成多个状态点，用普通并查集维护状态集合）。二者等效：模数小的种类关系常用扩展域（好写、不易错），一般关系用带权。注意：路径压缩时需沿路径累加边权；按秩/大小合并时需推导新连边的权值。与普通并查集复杂度同为近似 O(1)/操作（路径压缩+启发式合并，反阿克曼 O(α(n))）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把每个集合当成一棵‘势能树’：根是参照物，weight[x] 表示 x 相对根的势差。想知道 x,y 的关系，先让它们都找到自己的根，用根对齐两个势差即可相减；合并时只要算准新加的那条边的势差，使两棵树的势能标尺对齐。扩展域视角：把每个物体的全部可能状态（如 A/B/C 三类）拆成独立节点，『在同一集合』即『处于同一种关系』。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>带权并查集满足不变式：对集合内任意 x，weight[x] 恒等于从 x 到当前根的势差（find 时先递归得到根的势差并累加到自身，即路径压缩维护）。查询关系 diff(x,y)=weight[x]-weight[y]；合并 x,y（声称差为 d）时，设 rx,ry 为根，需解 weight[rx&#x27;] 使 (wx + w_rx&#x27;) - wy ≡ d，其中 w_rx&#x27; 是新连边权；若 rx,ry 已同根则检查 (wx-wy)%M==d 判断是否冲突。模 M 下全部运算取模。正确性依赖模运算下『差恒定』与并查集的传递性；路径压缩只改结构不改相对差。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>并查集由 Galler 与 Fisher 1964 年提出；带权/种类并查集是 OI 圈的常见改造，食物链（NOI2001）使它成为经典模板题。OI Wiki 在《并查集》页『拓展操作』一节系统给出带权并查集（Unionfind with Potential 模板）与扩展域并查集两种做法，并强调『可持久化并查集、线段树分治+并查集』中只用启发式合并不做路径压缩的取舍。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">class</span> WeightedDSU:
+  <span class="t-c"># weight[x]: x 到根(势差), 模 MOD</span>
+  <span class="t-k">def</span> <span class="t-f">find</span>(x):
+    <span class="t-k">if</span> parent[x] != x:
+      r, w = <span class="t-f">find</span>(parent[x])
+      weight[x] = (weight[x] + w) % MOD
+      parent[x] = r
+    <span class="t-k">return</span> parent[x], weight[x]
+  <span class="t-k">def</span> <span class="t-f">diff</span>(x, y):  <span class="t-c"># 需同根</span>
+    <span class="t-k">return</span> (weight[x] - weight[y]) % MOD
+  <span class="t-k">def</span> <span class="t-f">merge</span>(x, y, d):  <span class="t-c"># 声明 x 相对 y 差为 d</span>
+    rx, wx = <span class="t-f">find</span>(x); ry, wy = <span class="t-f">find</span>(y)
+    <span class="t-k">if</span> rx == ry: <span class="t-k">return</span> (wx - wy) % MOD == d % MOD  <span class="t-c"># 冲突?</span>
+    <span class="t-c"># 把 rx 挂到 ry: 新边权 w 使 wx + w - wy = d =&gt; w = d + wy - wx</span>
+    parent[rx] = ry; weight[rx] = (d + wy - wx) % MOD
+    <span class="t-k">return</span> <span class="t-k">True</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> WeightedDSU:
+    <span class="t-s">&quot;&quot;</span>&quot;带权并查集：维护每个节点到其根的距离/相对关系.
+    weight[x] = 从 x 到 root 的<span class="t-s">&quot;势差&quot;</span>(自定义运算, 例如模 MOD 意义下的差/异或/距离).
+    这里默认支持模 MOD 加法群 (食物链式 种类关系), 也支持普通距离.
+    <span class="t-s">&quot;&quot;&quot;
+    def __init__(self, n, MOD=1):
+        self.parent = list(range(n))
+        self.weight = [0] * n   # 到根节点的权值(取模 MOD 或普通)
+        self.size = [1] * n
+        self.MOD = MOD
+
+    def find(self, x):
+        # 路径压缩: 递归累加权值
+        if self.parent[x] != x:
+            r, w = self.find(self.parent[x])
+            self.weight[x] = (self.weight[x] + w) % self.MOD
+            self.parent[x] = r
+        return self.parent[x], self.weight[x]
+
+    def related(self, x, y):
+        return self.find(x)[0] == self.find(y)[0]
+
+    def diff(self, x, y):
+        &quot;&quot;&quot;</span>x 相对 y 的差(带权值), 要求 x,y 同根. 返回 weight[x] - weight[y] (mod MOD)<span class="t-s">&quot;&quot;&quot;
+        rx, wx = self.find(x)
+        ry, wy = self.find(y)
+        assert rx == ry
+        return (wx - wy) % self.MOD
+
+    def merge(self, x, y, d):
+        &quot;&quot;&quot;</span>声明: x 相对 y 的差为 d, 即 weight[x] - weight[y] == <span class="t-f">d</span> (mod MOD).
+        若 x,y 已同根则返回 <span class="t-k">False</span>(冲突), 否则合并返回 <span class="t-k">True</span>.<span class="t-s">&quot;&quot;</span>&quot;
+        rx, wx = self.<span class="t-f">find</span>(x)
+        ry, wy = self.<span class="t-f">find</span>(y)
+        <span class="t-k">if</span> rx == ry:
+            <span class="t-k">return</span> (wx - wy) % self.MOD == d % self.MOD
+        <span class="t-c"># 把 rx 的根接到 ry 的根.  需要: weight[rx] = wx&#x27; 使 wx&#x27;+wx - wy == d</span>
+        <span class="t-c"># =&gt; 从 x 走: weight[x]=wx 相对 rx, 若令 rx 相对 ry 为 w, 则 x 相对 y = wx + w - wy = d</span>
+        <span class="t-c"># =&gt; w = d + wy - wx</span>
+        w = (d + wy - wx) % self.MOD
+        <span class="t-k">if</span> self.size[rx] &lt; self.size[ry]:
+            self.parent[rx] = ry
+            self.weight[rx] = w
+            self.size[ry] += self.size[rx]
+        <span class="t-k">else</span>:
+            self.parent[ry] = rx
+            <span class="t-c"># 此时 ry 接到 rx: 需要 y 相对 rx 的权 = wy&#x27;, 使 wx - (wy&#x27;+wy)=d =&gt; wy&#x27; = wx - wy - d</span>
+            self.weight[ry] = (wx - wy - d) % self.MOD
+            self.size[rx] += self.size[ry]
+        <span class="t-k">return</span> <span class="t-k">True</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 测试 1: 模 3 食物链式关系 (P2024 风格)</span>
+    dsu = <span class="t-f">WeightedDSU</span>(<span class="t-n">6</span>, MOD=<span class="t-n">3</span>)
+    <span class="t-c"># 1 吃 2 (x相对y差为1), 2 吃 3, 则 1 吃 3 (差2 = -1)</span>
+    <span class="t-k">assert</span> dsu.<span class="t-f">merge</span>(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>)
+    <span class="t-k">assert</span> dsu.<span class="t-f">merge</span>(<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">1</span>)
+    <span class="t-k">assert</span> dsu.<span class="t-f">diff</span>(<span class="t-n">0</span>, <span class="t-n">2</span>) == <span class="t-n">2</span>   <span class="t-c"># 1 吃 3</span>
+    <span class="t-c"># 3 与 1 同类? 1-3差=2 ≠0, 冲突</span>
+    <span class="t-k">assert</span> dsu.<span class="t-f">diff</span>(<span class="t-n">0</span>, <span class="t-n">2</span>) != <span class="t-n">0</span>
+    <span class="t-c"># 声明 3 与 0 同类 -&gt; 冲突(已经 0 吃 3)</span>
+    <span class="t-k">assert</span> <span class="t-k">not</span> dsu.<span class="t-f">merge</span>(<span class="t-n">0</span>, <span class="t-n">2</span>, <span class="t-n">0</span>)
+    <span class="t-c"># 测试 2: 普通距离 (银河英雄传说式, MOD=1 无取模)</span>
+    d2 = <span class="t-f">WeightedDSU</span>(<span class="t-n">4</span>, MOD=<span class="t-n">1</span> &lt;&lt; <span class="t-n">60</span>)
+    <span class="t-k">assert</span> d2.<span class="t-f">merge</span>(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">5</span>)      <span class="t-c"># weight[0]-weight[1]=5</span>
+    <span class="t-k">assert</span> d2.<span class="t-f">diff</span>(<span class="t-n">0</span>, <span class="t-n">1</span>) == <span class="t-n">5</span>
+    <span class="t-k">assert</span> d2.<span class="t-f">merge</span>(<span class="t-n">2</span>, <span class="t-n">0</span>, <span class="t-n">3</span>)      <span class="t-c"># weight[2]-weight[0]=3</span>
+    <span class="t-k">assert</span> d2.<span class="t-f">diff</span>(<span class="t-n">2</span>, <span class="t-n">1</span>) == <span class="t-n">8</span>
+    <span class="t-c"># 测试 3: 随机与暴力交叉验证</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">42</span>)
+    <span class="t-k">for</span> trial <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">400</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">10</span>)
+        d = <span class="t-f">WeightedDSU</span>(n, MOD=<span class="t-n">1009</span>)
+        val = [random.<span class="t-f">randrange</span>(<span class="t-n">1009</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">for</span> step <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">150</span>):
+            x, y = random.<span class="t-f">randrange</span>(n), random.<span class="t-f">randrange</span>(n)
+            dd = random.<span class="t-f">randrange</span>(<span class="t-n">1009</span>)
+            related = d.<span class="t-f">related</span>(x, y)
+            <span class="t-k">if</span> <span class="t-k">not</span> related:
+                rx = d.<span class="t-f">find</span>(x)[<span class="t-n">0</span>]
+                comp = [j <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n) <span class="t-k">if</span> d.<span class="t-f">find</span>(j)[<span class="t-n">0</span>] == rx]
+            got = d.<span class="t-f">merge</span>(x, y, dd)
+            <span class="t-k">if</span> related:
+                <span class="t-k">assert</span> got == ((val[x] - val[y]) % <span class="t-n">1009</span> == dd)
+            <span class="t-k">else</span>:
+                <span class="t-k">assert</span> got == <span class="t-k">True</span>
+                delta = (dd - ((val[x] - val[y]) % <span class="t-n">1009</span>)) % <span class="t-n">1009</span>
+                <span class="t-k">for</span> j <span class="t-k">in</span> comp:
+                    val[j] = (val[j] + delta) % <span class="t-n">1009</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> d.<span class="t-f">related</span>(i, j):
+                    <span class="t-k">assert</span> d.<span class="t-f">diff</span>(i, j) == (val[i] - val[j]) % <span class="t-n">1009</span>, (trial, i, j)
+    <span class="t-b">print</span>(<span class="t-s">&quot;dsu-weighted: all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">递归 find 在深层链上可能 RecursionError，PyPy 递归深度默认 ~1000；链深≈集合大小，路径压缩后均摊极小。可在 find 内改写成 while+栈的迭代版，或直接用 sys.setrecursionlimit(1e6)。模 M 的运算尽量用整型取模；若 MOD=0 表示普通整数差（不取模），注意 Python 负号取模结果为负，需 (wx-wy) 直接比较即可。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>均摊 O(α(n)) 每次操作（路径压缩+按大小合并）；无启发式合并时 O(log n)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① 只能维护『可合并的势差』（群/半群运算），不支持按位拆分外的复杂运算；② 扩展域空间为状态数×n（食物链需 3n）；③ 合并方向需细心，反向挂边时权值符号易错，建议固定『小挂大』并现场推导权值；④ 冲突判定仅在同根时有效，非同根合并永远成功（即使直觉上‘矛盾’——因为尚未建立关系）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>路径压缩时忘记把父节点到根的权累加到自己身上</li><li>合并时新连边权计算符号反了（要现场从 diff 定义推导，别背公式）</li><li>模 M 下 diff 取负需 %M 归一化；Python 负数取模与数学意义一致但直接减可能为负</li><li>扩展域并查集要把每个元素拆成 n*k 个状态并正确映射合并对</li><li>只按秩/大小合并时，若忽略 weight 的更新会导致后续查询全错</li><li>find 递归过深在极端数据下爆栈（用迭代或调大递归上限）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P2024</strong></td><td>3</td><td>NOI2001 食物链：带权(模3) 或 扩展域(3n) 双解法，种类关系冲突判定</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2024" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2024</a></td></tr><tr><td>Luogu</td><td><strong>P1196</strong></td><td>3</td><td>NOI2002 银河英雄传说：维护到根的距离与列大小，带权并查集典型</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1196" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1196</a></td></tr><tr><td>AtCoder</td><td><strong>ABC396 E</strong></td><td>3</td><td>Min of Restricted Sum：异或关系逐位拆成带权并查集，求最小和</td><td class="u"><a href="https://atcoder.jp/contests/abc396/tasks/abc396_e" target="_blank" rel="noopener">https://atcoder.jp/contests/abc396/tasks/abc396_e</a></td></tr><tr><td>Library Checker</td><td><strong>Unionfind with Potential</strong></td><td>3</td><td>带权并查集模板（Library Checker 平台），OI Wiki 参考实现来源</td><td class="u"><a href="https://judge.yosupo.jp/problem/unionfind_with_potential" target="_blank" rel="noopener">https://judge.yosupo.jp/problem/unionfind_with_potential</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dsu-weighted" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "init", "label": "parent[i]=i, weight[i]=0, size[i]=1"}}, {"data": {"id": "find", "label": "路径压缩 + 沿路累加权值到根"}}, {"data": {"id": "merge", "label": "按大小合并, 推导并设置新边权, 返回是否冲突"}}, {"data": {"id": "query", "label": "diff(x,y) 相减得关系 / 同根判断"}}, {"data": {"id": "ext", "label": "扩展: 模3种类/异或/距离/线段树分治结合"}}, {"data": {"id": "einit->find", "source": "init", "target": "find"}}, {"data": {"id": "efind->merge", "source": "find", "target": "merge"}}, {"data": {"id": "emerge->query", "source": "merge", "target": "query"}}, {"data": {"id": "equery->ext", "source": "query", "target": "ext"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dsu-weighted'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="dsu-basic.html" title="带权并查集在基础并查集上增加权值维护">并查集(路径压缩+按秩合并)<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/dsu/" target="_blank" rel="noopener">https://oi-wiki.org/ds/dsu/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/dsu/#带权并查集" target="_blank" rel="noopener">https://oi-wiki.org/ds/dsu/#带权并查集</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch15.2 Disjoint Set Union</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

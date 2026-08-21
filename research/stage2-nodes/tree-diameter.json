@@ -1,0 +1,118 @@
+{
+  "id": "tree-diameter",
+  "name": "树的直径",
+  "group": "G-B-7",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "树上最长简单路径，两次DFS或树形DP O(V)，负权边只能树形DP",
+  "what": "树的直径指树上任意两结点间最长简单路径的长度(或该路径本身)。无负权边时可用两次 DFS/BFS：任选起点 y 找最远点 z，再从 z 找最远点 z'，dist(z,z') 即直径。有负权边时两次 DFS 失效，必须用树形 DP：记录每点向下最长与次长链，直径=max(d1[u]+d2[u])。正权树的所有直径中点重合。",
+  "why": {
+    "intuition": "两次 DFS 的正确性基于'从任意点出发的最远点必是某条直径的端点'这一性质。树形 DP 则直接把'经过每个点的两条链之和'取最大：以 u 为根的子树中，直径要么在某个子树内部，要么是从 u 出发向下两条不共用首条边的链拼起来。",
+    "principle": "两次 DFS：反证法证明定理'从任意结点 y 出发 DFS 到达的最远结点 z 必为直径一端'。设直径 δ(s,t)，若 y 在直径上则 dist(y,z)>dist(y,t) ⇒ dist(s,z)>dist(s,t) 矛盾；y 不在直径上分两情形同理矛盾。因此第一次 DFS 得到直径端点 z，第二次从 z 得到另一端 z'。树形 DP：dp[u]=从 u 出发向下的最长链(方法2)，遍历子结点 v 时先用 d=max(d, dp[u]+dp[v]+w(u,v)) 更新答案再用 dp[v]+w 更新 dp[u]，保证两条链来自不同子树。",
+    "history": "树直径问题是树上路径最优化最基础的模型。OI Wiki 明确'两次 DFS 或树形 DP 在 O(n) 求出直径'，并特别提醒负权边情形两次 DFS 的证明失效。直径性质(中点重合)源自树的凸性，广泛应用于树的中心/消防站选址(如 NOIP2007 树网的核)、直径上枚举优化等问题。"
+  },
+  "how": {
+    "pseudocode": "# 两次 DFS (边权非负)\ndef dfs_farthest(u, parent):\n  返回最远距离 dist 与结点 far\n  for v in adj[u]:\n    if v != parent:\n      (d, f) = dfs_farthest(v, u)\n      取 dist(u->v)+d 的最大者\n\nz, _ = dfs_farthest(any_root, -1)\nz2, diam = dfs_farthest(z, -1)\n# diam 即直径长度; 记录前驱可回放路径\n\n# 树形 DP (支持负权)\ndef dfs(u, p):\n  d1 = d2 = 0   # 向下最长、次长(不同儿子方向)\n  for v in adj[u]:\n    if v == p: continue\n    wv = dfs(v, u) + w(u,v)\n    if wv > d1: d2, d1 = d1, wv\n    elif wv > d2: d2 = wv\n  ans = max(ans, d1 + d2)\n  return d1",
+    "python": "import sys\nsys.setrecursionlimit(1 << 25)\n\n\ndef diameter_two_dfs(n, adj):\n    \"\"\"两次 DFS 求直径(边权非负)。\n    返回 (长度, 路径)。\n    \"\"\"\n    def farthest(start):\n        dist = [-1] * n\n        prev = [-1] * n\n        stack = [(start, -1)]\n        dist[start] = 0\n        while stack:\n            u, p = stack.pop()\n            for v, w in adj[u]:\n                if v != p and dist[v] == -1:\n                    dist[v] = dist[u] + w\n                    prev[v] = u\n                    stack.append((v, u))\n        far = max(range(n), key=lambda x: dist[x])\n        return far, dist[far], prev\n\n    z, _, _ = farthest(0)\n    z2, diam, prev = farthest(z)\n    # 回放路径\n    path = []\n    cur = z2\n    while cur != -1:\n        path.append(cur)\n        cur = prev[cur]\n    return diam, path\n\n\ndef diameter_tree_dp(n, adj):\n    \"\"\"树形 DP 求直径, 支持负权边。返回长度。\"\"\"\n    ans = [0]\n    visited = [False] * n\n\n    def dfs(u, p):\n        d1 = d2 = 0\n        for v, w in adj[u]:\n            if v == p:\n                continue\n            d = dfs(v, u) + w\n            if d > d1:\n                d2, d1 = d1, d\n            elif d > d2:\n                d2 = d\n        ans[0] = max(ans[0], d1 + d2)\n        return d1\n\n    dfs(0, -1)\n    return ans[0]\n\n\nif __name__ == '__main__':\n    # 链 0-1-2-3: 直径=3\n    adj_chain = [[(1, 1)], [(0, 1), (2, 1)], [(1, 1), (3, 1)], [(2, 1)]]\n    d, p = diameter_two_dfs(4, adj_chain)\n    assert d == 3, d\n    assert set(p) == {0, 1, 2, 3}, p\n    assert diameter_tree_dp(4, adj_chain) == 3\n\n    # 星型 0 连 1,2,3: 直径=2\n    adj_star = [[(1, 1), (2, 1), (3, 1)], [(0, 1)], [(0, 1)], [(0, 1)]]\n    d2, _ = diameter_two_dfs(4, adj_star)\n    assert d2 == 2, d2\n    assert diameter_tree_dp(4, adj_star) == 2\n\n    # 负权边: 0-1(-5), 0-2(1), 1-3(2)\n    # 最长简单路径: 1-3 = 2 (单边), 其余如 2-0-1-3 = -2, 0-2 = 1\n    adj_neg = [[(1, -5), (2, 1)], [(0, -5), (3, 2)], [(0, 1)], [(1, 2)]]\n    assert diameter_tree_dp(4, adj_neg) == 2\n    # 两次 DFS 在此情形不保证正确, 故不断言\n\n    print('chain diameter:', d)\n    print('chain path    :', p)\n    print('star diameter :', d2)\n    print('negative-edge tree DP diameter:', diameter_tree_dp(4, adj_neg))\n    print('All tree-diameter tests passed!')\n",
+    "pypy_notes": "两次 DFS 用迭代栈避免递归深度问题; 树形 DP 需 sys.setrecursionlimit 或改为自底向上后序迭代。n=10^5 级数据 PyPy 的 list 邻接表比 dict 快很多。",
+    "complexity": {
+      "time": "两次 DFS / 树形DP: O(N)",
+      "space": "O(N) — 邻接表 + dist 数组 + 递归栈"
+    },
+    "limitations": "两次 DFS 在有负权边时失效(证明依赖非负); 树形 DP 通用但难以直接回放整条路径(需额外记录最长/次长子结点); 直径'长度'与'路径'的求法不同, 输出路径须记录前驱。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "B4016",
+      "url": "https://www.luogu.com.cn/problem/B4016",
+      "difficulty": 2,
+      "key_point": "树的直径模板: 两次DFS或树形DP, n<=1e5"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1099",
+      "url": "https://www.luogu.com.cn/problem/P1099",
+      "difficulty": 4,
+      "key_point": "树网的核: NOIP2007, 直径上枚举+双指针, 直径性质应用"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3629",
+      "url": "https://www.luogu.com.cn/problem/P3629",
+      "difficulty": 4,
+      "key_point": "巡逻: APIO2010, 两次求直径(含负权变换), 直径路径标记"
+    }
+  ],
+  "pitfalls": [
+    "负权边必须用树形 DP, 两次 DFS 会给出错误答案(证明依赖边权非负)",
+    "d1/d2 更新顺序: 先算 d=d1+d2 再更新 d1/d2, 避免用同一儿子链拼自身(需两条不同方向链)",
+    "两次 DFS 找最远点用 max 时要留意 dist 初始值, 不连通时全部为 -1 需特判",
+    "输出路径时记录前驱, 第二次 DFS 的前驱数组从直径端点回溯",
+    "n=1 单点树直径=0, 需单独处理(无向无环图中叶子度数<=1 定义下也无妨)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "choose",
+        "label": "判定边权非负? 选两次DFS 或 树形DP"
+      },
+      {
+        "id": "first_dfs",
+        "label": "任选起点DFS找最远点z(两次DFS)"
+      },
+      {
+        "id": "second_dfs",
+        "label": "从z DFS找最远点并记录前驱回放路径"
+      },
+      {
+        "id": "dp",
+        "label": "树形DP: 维护向下最长/次长链, ans=max(d1+d2)"
+      },
+      {
+        "id": "result",
+        "label": "得到直径长度/路径, 处理后续应用"
+      }
+    ],
+    "edges": [
+      {
+        "from": "choose",
+        "to": "first_dfs"
+      },
+      {
+        "from": "first_dfs",
+        "to": "second_dfs"
+      },
+      {
+        "from": "second_dfs",
+        "to": "result"
+      },
+      {
+        "from": "choose",
+        "to": "dp"
+      },
+      {
+        "from": "dp",
+        "to": "result"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/tree-diameter/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/tree-diameter.md",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch14 pp.143-150"
+    }
+  ]
+}

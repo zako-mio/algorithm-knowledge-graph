@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarjan强连通分量 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-4.html">连通性族</a> / <span>Tarjan强连通分量</span></div>
+  <h1>Tarjan强连通分量</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-B-4</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-B-4.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-B-4.html"><span class="dir">组内第 1 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="cut-vertex.html"><span class="dir">下一个 / 组内</span><span class="v">cut-vertex</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">有向图强连通分量，DFS+dfn/low O(V+E)，缩点成DAG</div><p>Tarjan 算法在线性时间 O(V+E) 内求有向图的强连通分量（SCC）。对图做 DFS，维护 dfn[u]（访问次序）与 low[u]（u 子树中能回溯到的栈内最小 dfn）；当 dfn[u]==low[u] 时，栈中 u 及其上方节点构成一个 SCC。将每个 SCC 缩成一个点，原图变为 DAG，可做拓扑排序、求最长路、判断可达性（如受欢迎的牛、传递闭包类问题）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>DFS 生成树中，每个 SCC 恰是某棵子树。low[u] 记录&#x27;u 的子树里能沿着边（含回边/横叉边到栈内祖先）回溯到的最早访问点&#x27;。若 low[u]==dfn[u]，说明 u 的子树无法回溯到任何祖先，u 就是该 SCC 在搜索树中第一次遇到的根，栈顶到 u 之间即一个 SCC。关键：从 u 出发经过的任何非树边只能回到已入栈节点（栈内），栈外节点所在 SCC 已处理完。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>DFS 边分四类：树边、反祖边、前向边、横叉边。SCC 中第一个被访问的节点必为根，其余节点都在根的子树中（反证：若某节点在子树外，u→v 的路径必有离开子树的边，只能是横叉/反祖边，但这两类都指向已访问节点，矛盾）。维护 dfn 与 low：①v 未访问：递归后 low[u]=min(low[u],low[v])；②v 在栈中：low[u]=min(low[u],dfn[v])；③v 已出栈：忽略（其 SCC 已处理）。回溯时 dfn[u]==low[u] 则弹出栈中 u 及以上节点成 SCC。时间复杂度 O(V+E)（每条边处理一次）。注意：Tarjan 的 SCC 发现顺序是缩点后 DAG 的逆拓扑序。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Robert Tarjan 于 1972 年提出（同年还提出 LCA 离线 Tarjan 算法、并查集等），首次给出线性时间求 SCC 的算法。此前 Kosaraju 的两遍 DFS 算法（1978 年发表，但更早由 Kosaraju 1978 私下提出）也可在 O(V+E) 求解。Tarjan 算法因只需一次 DFS 且常数小，成为竞赛中最常用的 SCC 算法。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">tarjan</span>(u):
+    dfn[u] = low[u] = ++timer
+    入栈; in_stack[u]=true
+    <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+        <span class="t-k">if</span> dfn[v]==<span class="t-n">0</span>:            <span class="t-c"># 未访问(树边)</span>
+            <span class="t-f">tarjan</span>(v)
+            low[u] = <span class="t-b">min</span>(low[u], low[v])
+        <span class="t-k">elif</span> in_stack[v]:        <span class="t-c"># 在栈中(回边/横叉到祖先)</span>
+            low[u] = <span class="t-b">min</span>(low[u], dfn[v])
+        <span class="t-c"># 已出栈: 忽略</span>
+    <span class="t-k">if</span> dfn[u] == low[u]:         <span class="t-c"># u是SCC根</span>
+        ++scc_cnt
+        重复弹栈并标记, 直到弹出u, 构成一个SCC
+
+<span class="t-c"># 主循环</span>
+<span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-n">1.</span>.n:
+    <span class="t-k">if</span> dfn[i]==<span class="t-n">0</span>: <span class="t-f">tarjan</span>(i)
+
+<span class="t-c"># 缩点: 遍历每条边, 两端不同SCC则加DAG边</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+<span class="t-k">from</span> collections <span class="t-k">import</span> deque
+sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">1000000</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">tarjan_scc</span>(n, adj):
+    <span class="t-s">&quot;&quot;&quot;Tarjan 强连通分量
+    adj: 0-based 邻接表 (list[list[int]])
+    返回 (scc_of: 每个节点所属SCC编号(0-based), sccs: 分量列表)
+    &quot;&quot;&quot;</span>
+    dfn = [<span class="t-n">0</span>] * n
+    low = [<span class="t-n">0</span>] * n
+    in_stack = [<span class="t-k">False</span>] * n
+    scc_of = [-<span class="t-n">1</span>] * n
+    stack = []
+    timer = [<span class="t-n">0</span>]
+    sccs = []
+
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(u):
+        timer[<span class="t-n">0</span>] += <span class="t-n">1</span>
+        dfn[u] = low[u] = timer[<span class="t-n">0</span>]
+        stack.<span class="t-f">append</span>(u)
+        in_stack[u] = <span class="t-k">True</span>
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> <span class="t-k">not</span> dfn[v]:
+                <span class="t-f">dfs</span>(v)
+                low[u] = <span class="t-b">min</span>(low[u], low[v])
+            <span class="t-k">elif</span> in_stack[v]:
+                low[u] = <span class="t-b">min</span>(low[u], dfn[v])
+        <span class="t-k">if</span> dfn[u] == low[u]:
+            comp = []
+            <span class="t-k">while</span> <span class="t-k">True</span>:
+                w = stack.<span class="t-f">pop</span>()
+                in_stack[w] = <span class="t-k">False</span>
+                scc_of[w] = <span class="t-b">len</span>(sccs)
+                comp.<span class="t-f">append</span>(w)
+                <span class="t-k">if</span> w == u:
+                    <span class="t-k">break</span>
+            sccs.<span class="t-f">append</span>(comp)
+
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">if</span> <span class="t-k">not</span> dfn[i]:
+            <span class="t-f">dfs</span>(i)
+    <span class="t-k">return</span> scc_of, sccs
+
+
+<span class="t-k">def</span> <span class="t-f">condensation</span>(n, adj, scc_of):
+    <span class="t-s">&quot;&quot;&quot;缩点: 把每个SCC缩成一个点, 返回缩点后DAG邻接表与分量数&quot;&quot;&quot;</span>
+    cnt = <span class="t-b">max</span>(scc_of) + <span class="t-n">1</span>
+    dag = [<span class="t-b">set</span>() <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(cnt)]
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> scc_of[u] != scc_of[v]:
+                dag[scc_of[u]].<span class="t-f">add</span>(scc_of[v])
+    <span class="t-k">return</span> dag, cnt
+
+
+<span class="t-k">def</span> <span class="t-f">popular_cow</span>(n, adj):
+    <span class="t-s">&quot;&quot;&quot;受欢迎牛应用(POJ1236/USACO): 被所有其他节点可达的节点数
+    缩点后, 若出度为0的SCC唯一且从任意SCC可达它, 则答案=该SCC大小
+    &quot;&quot;&quot;</span>
+    scc_of, sccs = <span class="t-f">tarjan_scc</span>(n, adj)
+    dag, cnt = <span class="t-f">condensation</span>(n, adj, scc_of)
+    out_deg = [<span class="t-b">len</span>(dag[i]) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(cnt)]
+    zero_out = [i <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(cnt) <span class="t-k">if</span> out_deg[i] == <span class="t-n">0</span>]
+    <span class="t-k">if</span> <span class="t-b">len</span>(zero_out) != <span class="t-n">1</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span>  <span class="t-c"># 出度0的SCC不唯一, 无人被所有人欢迎</span>
+    target = zero_out[<span class="t-n">0</span>]
+    <span class="t-c"># 检查是否所有SCC都能到达 target</span>
+    <span class="t-k">for</span> s <span class="t-k">in</span> <span class="t-b">range</span>(cnt):
+        seen = {s}
+        q = <span class="t-f">deque</span>([s])
+        ok = <span class="t-k">False</span>
+        <span class="t-k">while</span> q:
+            u = q.<span class="t-f">popleft</span>()
+            <span class="t-k">if</span> u == target:
+                ok = <span class="t-k">True</span>
+                <span class="t-k">break</span>
+            <span class="t-k">for</span> v <span class="t-k">in</span> dag[u]:
+                <span class="t-k">if</span> v <span class="t-k">not</span> <span class="t-k">in</span> seen:
+                    seen.<span class="t-f">add</span>(v)
+                    q.<span class="t-f">append</span>(v)
+        <span class="t-k">if</span> <span class="t-k">not</span> ok:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+    <span class="t-k">return</span> <span class="t-b">sum</span>(<span class="t-n">1</span> <span class="t-k">for</span> c <span class="t-k">in</span> sccs <span class="t-k">if</span> scc_of[c[<span class="t-n">0</span>]] == target)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 单环 0-&gt;1-&gt;2-&gt;0: 一个SCC</span>
+    scc_of, sccs = <span class="t-f">tarjan_scc</span>(<span class="t-n">3</span>, [[<span class="t-n">1</span>], [<span class="t-n">2</span>], [<span class="t-n">0</span>]])
+    <span class="t-k">assert</span> <span class="t-b">len</span>(sccs) == <span class="t-n">1</span> <span class="t-k">and</span> <span class="t-b">len</span>(sccs[<span class="t-n">0</span>]) == <span class="t-n">3</span>
+
+    <span class="t-c"># 混合图: {0,1,2} 与 {3,4}</span>
+    adj = [[<span class="t-n">1</span>], [<span class="t-n">2</span>, <span class="t-n">3</span>], [<span class="t-n">0</span>], [<span class="t-n">4</span>], [<span class="t-n">3</span>]]
+    scc_of, sccs = <span class="t-f">tarjan_scc</span>(<span class="t-n">5</span>, adj)
+    <span class="t-k">assert</span> <span class="t-b">sorted</span>(<span class="t-b">len</span>(c) <span class="t-k">for</span> c <span class="t-k">in</span> sccs) == [<span class="t-n">2</span>, <span class="t-n">3</span>]
+    dag, cnt = <span class="t-f">condensation</span>(<span class="t-n">5</span>, adj, scc_of)
+    <span class="t-k">assert</span> cnt == <span class="t-n">2</span>
+    <span class="t-k">assert</span> scc_of[<span class="t-n">3</span>] <span class="t-k">in</span> dag[scc_of[<span class="t-n">0</span>]]  <span class="t-c"># SCC{0,1,2}-&gt;SCC{3,4}</span>
+
+    <span class="t-c"># 独立点: 每个点一个SCC</span>
+    scc_of, sccs = <span class="t-f">tarjan_scc</span>(<span class="t-n">3</span>, [[], [], []])
+    <span class="t-k">assert</span> <span class="t-b">len</span>(sccs) == <span class="t-n">3</span>
+
+    <span class="t-c"># 受欢迎牛: 0&lt;-&gt;1, 1-&gt;2, 只有节点2被所有人(含自己)可达</span>
+    <span class="t-c"># 0-&gt;1-&gt;2, 1-&gt;2, 2自 =&gt; 答案=1(节点2)</span>
+    adj = [[<span class="t-n">1</span>], [<span class="t-n">0</span>, <span class="t-n">2</span>], []]
+    <span class="t-k">assert</span> <span class="t-f">popular_cow</span>(<span class="t-n">3</span>, adj) == <span class="t-n">1</span>
+
+    <span class="t-c"># 两个出度0的SCC: 无人被欢迎</span>
+    adj = [[<span class="t-n">1</span>], [<span class="t-n">2</span>], []]  <span class="t-c"># 0-&gt;1-&gt;2, 但1也被2指向? 否</span>
+    <span class="t-c"># 0-&gt;1, 1-&gt;2, 2没有出边 =&gt; SCC{0},{1},{2}, 出度0的只有{2}</span>
+    <span class="t-k">assert</span> <span class="t-f">popular_cow</span>(<span class="t-n">3</span>, [[<span class="t-n">1</span>], [<span class="t-n">2</span>], []]) == <span class="t-n">1</span>
+    <span class="t-c"># 0-&gt;1, 2-&gt;1, 1无出边 =&gt; 只有节点1被欢迎</span>
+    <span class="t-k">assert</span> <span class="t-f">popular_cow</span>(<span class="t-n">3</span>, [[<span class="t-n">1</span>], [], [<span class="t-n">1</span>]]) == <span class="t-n">1</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;tarjan-scc all tests passed (template + condensation + POJ1236 app)&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Tarjan 递归深度等于 DFS 深度，链式图会爆递归栈，务必 sys.setrecursionlimit 且 PyPy 下可用迭代式 DFS 改写。邻接表用 list 比 set 快；缩点后 DAG 用 set 去重边。PyPy 对列表/栈操作快，可轻松处理 1e5 节点。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(V+E)，每条边每个节点访问一次</td></tr><tr><th>空间复杂度</th><td>O(V)（dfn/low/in_stack/栈）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只适用于有向图（无向图连通性用 tarjan 桥/割点或并查集）；递归栈溢出风险；缩点后若需拓扑序，注意 SCC 编号是逆拓扑序（可倒序处理）；超大图(1e6+)建议迭代式 DFS。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>low 更新三情况必须区分：未访问(用low[v])、在栈中(用dfn[v])、已出栈(忽略)——写错导致 SCC 错误合并</li><li>递归深度：链式图爆栈，设大 setrecursionlimit</li><li>SCC 编号顺序是逆拓扑序，缩点后拓扑处理注意方向</li><li>缩点后要处理重边（同一 SCC 间多条边），用 set 或去重</li><li>图可能不连通，主循环必须遍历所有未访问节点</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>LOJ</td><td><strong>10091</strong></td><td>3</td><td>受欢迎的牛（HAOI2006/USACO Fall）：SCC+缩点+出度判断</td><td class="u"><a href="https://loj.ac/problem/10091" target="_blank" rel="noopener">https://loj.ac/problem/10091</a></td></tr><tr><td>POJ</td><td><strong>1236</strong></td><td>3</td><td>Network of Schools：SCC缩点，求入度为0的SCC数与拓扑条件</td><td class="u"><a href="http://poj.org/problem?id=1236" target="_blank" rel="noopener">http://poj.org/problem?id=1236</a></td></tr><tr><td>Luogu</td><td><strong>P3387</strong></td><td>3</td><td>【模板】缩点：SCC缩点后DAG上DP求最长路</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3387" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3387</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-tarjan-scc" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "dfn_low", "label": "维护dfn/low与栈"}}, {"data": {"id": "edges", "label": "边分类处理(树边/回边/横叉)"}}, {"data": {"id": "pop", "label": "dfn==low时弹栈成SCC"}}, {"data": {"id": "condense", "label": "缩点成DAG"}}, {"data": {"id": "apply", "label": "DAG上应用(拓扑/DP/可达)"}}, {"data": {"id": "edfn_low->edges", "source": "dfn_low", "target": "edges"}}, {"data": {"id": "eedges->dfn_low", "source": "edges", "target": "dfn_low"}}, {"data": {"id": "eedges->pop", "source": "edges", "target": "pop"}}, {"data": {"id": "epop->condense", "source": "pop", "target": "condense"}}, {"data": {"id": "econdense->apply", "source": "condense", "target": "apply"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-tarjan-scc'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="dfs.html" title="Tarjan算法基于DFS生成树与dfn/low">DFS深度优先搜索<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-combination" href="two-sat.html" title="2-SAT建图后用SCC判定可行性与拓扑逆序">2-SAT<span class="etype">组合</span></a><a class="chip e-combination" href="dag-dp.html" title="SCC缩点后形成DAG，在DAG上做DP">差分约束/DAG最短路<span class="etype">组合</span></a><a class="chip e-cooccurrence" href="topo-sort.html" title="SCC缩点后需对DAG拓扑排序">拓扑排序<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/scc/" target="_blank" rel="noopener">https://oi-wiki.org/graph/scc/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/strongly-connected-components.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/strongly-connected-components.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch17 pp167-172</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

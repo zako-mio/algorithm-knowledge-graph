@@ -1,0 +1,106 @@
+{
+  "id": "majority-element",
+  "name": "主元素/Boyer-Moore投票",
+  "group": "G-E-7",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "出现>n/2的元素：候选+计数消去法O(n)O(1)；在线流式处理",
+  "what": "主元素问题：给 n 个元素序列，求出现次数严格大于 n/2 的元素(题目保证存在)。Boyer-Moore 多数投票算法用 val/cnt 两个变量在线扫描一遍即得候选，再扫描一遍验证，时空 O(n)/O(1)。离线做法可先排序取中位元素或 nth_element 找第 n/2+1 大。推广：出现次数 >n/3 的所有元素(LeetCode 229)需维护两个候选。",
+  "why": {
+    "intuition": "主元素出现次数超过一半，那么'主元素和一个非主元素两两配对消去'后主元素必剩。于是维护一个候选 val 与计数 cnt：遇到相同元素 cnt+1，不同则 cnt-1，cnt 归零就换候选。消去配对的过程保证最终候选是主元素。",
+    "principle": "扫描：cnt==0 时令 val=x,cnt=1；否则 x==val 则 cnt++，否则 cnt--。每一步都可理解为把 val 与一个非 val 元素抵消。由于主元素多于一半，抵消过程中它永远不可能被消灭完，故最终 val 即主元素。算法只能给出'候选'，主元素是否存在需二次扫描计数验证。",
+    "history": "算法 1981 年由 Boyer 和 Moore 提出(与 BM 字符串匹配算法同一作者)。OI Wiki 主元素页(多数投票算法)描述在线与离线两种做法，并列出洛谷 P2397(yyy loves Maths VI mode)与 LeetCode 229(多数元素II)为典型例题。"
+  },
+  "how": {
+    "pseudocode": "# 第一遍: 找候选\nval, cnt = None, 0\nfor x in a:\n  if cnt == 0:\n    val, cnt = x, 1\n  elif x == val:\n    cnt += 1\n  else:\n    cnt -= 1\n\n# 第二遍: 验证 val 是否 > n/2\ncount = sum(1 for x in a if x == val)\nreturn val if count > n // 2 else -1",
+    "python": "def majority_element(nums):\n    \"\"\"Boyer-Moore 投票算法。返回出现>n/2的元素, 无则返回-1。\"\"\"\n    val, cnt = None, 0\n    for x in nums:\n        if cnt == 0:\n            val, cnt = x, 1\n        elif x == val:\n            cnt += 1\n        else:\n            cnt -= 1\n    # 验证\n    if nums.count(val) > len(nums) // 2:\n        return val\n    return -1\n\n\ndef majority_element_generalized(nums):\n    \"\"\"LeetCode 229: 找出所有出现超过 n/3 的元素。\n    维护两个候选。\n    \"\"\"\n    cand1 = cand2 = None\n    c1 = c2 = 0\n    for x in nums:\n        if c1 == 0 and x != cand2:\n            cand1, c1 = x, 1\n        elif c2 == 0 and x != cand1:\n            cand2, c2 = x, 1\n        elif x == cand1:\n            c1 += 1\n        elif x == cand2:\n            c2 += 1\n        else:\n            c1 -= 1\n            c2 -= 1\n    n = len(nums)\n    ans = []\n    for c in (cand1, cand2):\n        if c is not None and nums.count(c) > n // 3 and c not in ans:\n            ans.append(c)\n    return ans\n\n\ndef majority_offline(nums):\n    \"\"\"离线做法: 排序取中位元素(nth_element 思想)。\"\"\"\n    n = len(nums)\n    mid = sorted(nums)[n // 2]\n    return mid if nums.count(mid) > n // 2 else -1\n\n\nif __name__ == '__main__':\n    assert majority_element([1, 2, 3, 2, 2, 2, 5, 4, 2]) == 2\n    assert majority_element([3, 3, 4, 2, 4, 4, 2, 4, 4]) == 4\n    assert majority_element([1, 1, 1, 2, 2]) == 1\n    assert majority_element([1, 2, 3]) == -1          # 无主元素\n    assert majority_element([2, 2, 1, 1, 1, 2, 2]) == 2\n\n    assert majority_element_generalized([3, 2, 3]) == [3]\n    assert majority_element_generalized([1, 1, 1, 3, 3, 2, 2, 2]) == [1, 2]\n\n    assert majority_offline([1, 2, 3, 2, 2, 2, 5, 4, 2]) == 2\n    assert majority_offline([1, 2, 3]) == -1\n\n    import random\n    random.seed(5)\n    for _ in range(200):\n        n = random.randint(1, 30)\n        arr = [random.randint(0, 5) for _ in range(n)]\n        brute = [x for x in set(arr) if arr.count(x) > n // 2]\n        got = majority_element(arr)\n        assert (got == brute[0]) if brute else (got == -1)\n\n    print('majority [1,2,3,2,2,2,5,4,2]:', majority_element([1, 2, 3, 2, 2, 2, 5, 4, 2]))\n    print('no majority [1,2,3]          :', majority_element([1, 2, 3]))\n    print('>n/3 elements [1,1,1,3,3,2,2,2]:', majority_element_generalized([1, 1, 1, 3, 3, 2, 2, 2]))\n    print('Random brute-compare (200 cases): OK')\n    print('All majority-element tests passed!')\n",
+    "pypy_notes": "两个变量扫描, PyPy 近乎零开销; 注意第二遍用 count() 是 O(n) 内置 C 实现, 比 Python 手写循环快; 流式数据无法回放时可用双指针重复流代替二次扫描(流式存储受限时)。",
+    "complexity": {
+      "time": "O(N) — 两次线性扫描",
+      "space": "O(1) — 仅两个变量"
+    },
+    "limitations": "只能保证候选为主元素; 若序列无主元素必须二次扫描验证; 主元素定义>n/2 时只需单候选, 改为>n/3 需多候选推广且候选数有限; 流式数据无法缓存时二次验证需能重读流。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P2397",
+      "url": "https://www.luogu.com.cn/problem/P2397",
+      "difficulty": 2,
+      "key_point": "yyy loves Maths VI (mode): 在线主元素, 题目要求不能开大数组, 投票算法正解"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "169",
+      "url": "https://leetcode.cn/problems/majority-element/",
+      "difficulty": 1,
+      "key_point": "多数元素: Boyer-Moore 投票经典模板"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "229",
+      "url": "https://leetcode.cn/problems/majority-element-ii/",
+      "difficulty": 2,
+      "key_point": "多数元素II: 出现>n/3 的元素, 双候选推广"
+    }
+  ],
+  "pitfalls": [
+    "不验证就输出候选: 无主元素时算法给出的是任意'占位'值, 必须二次计数验证",
+    "cnt==0 更新候选时先后顺序: 先判 cnt==0 再判 x==val, 否则边界错",
+    "Python 中 val 初始化 None 时与 0/False 比较需小心; 用对象哨兵或直接以首元素初始化更稳",
+    "n/2 是整数除法, 出现次数要 > n//2 才满足'严格大于'",
+    ">n/3 推广维护 2 个候选时, 处理 c1==0 且 x==cand2 的先后关系, 否则候选冲突"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "scan1",
+        "label": "第一遍扫描: 维护 val/cnt 得到候选"
+      },
+      {
+        "id": "verify",
+        "label": "第二遍扫描: 统计候选出现次数"
+      },
+      {
+        "id": "check",
+        "label": "判断 count > n/2? 决定是否输出"
+      },
+      {
+        "id": "output",
+        "label": "输出主元素或判无解"
+      }
+    ],
+    "edges": [
+      {
+        "from": "scan1",
+        "to": "verify"
+      },
+      {
+        "from": "verify",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "to": "output"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/misc/main-element/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/main-element.md",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_majority_vote_algorithm",
+      "verified": true
+    }
+  ]
+}

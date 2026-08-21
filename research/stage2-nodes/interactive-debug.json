@@ -1,0 +1,89 @@
+{
+  "id": "interactive-debug",
+  "name": "交互题调试",
+  "group": "G-E-4",
+  "stage": "advanced",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "交互题对拍困难，需模拟交互过程；封装输入输出函数；静态查错能力重要",
+  "what": "交互题(interactive problem)中选手程序与评测器(grader)通过标准输入输出交替通信。调试难点在于无法简单对拍——需模拟交互过程、封装 IO 函数、依赖静态查错和 grader 本地调试。",
+  "why": {
+    "intuition": "普通题可对拍(同一输入两解比对)，交互题的输出会改变后续输入，无法简单对拍。",
+    "principle": "①封装 ask/answer 函数，所有交互经统一通道 ②每次输出后 fflush(stdout) 刷新缓冲区 ③用题目提供的 grader 头文件本地模拟评测器 ④多测时即使提前知道答案也须读完所有输入(否则 ILE) ⑤尽量一遍写对，培养静态查错能力。",
+    "history": "IOI 早期已有交互题，2019年 NOI 系列连续出现两道(P5208/P5473)标志其回归。"
+  },
+  "how": {
+    "pseudocode": "ask(x): print('? x'); flush(); return int(input())\nanswer(r): print('! r'); flush()\nmain: 二分/枚举 -> ask -> 判断 -> answer",
+    "python": "import sys\n\ndef ask(x):\n    \"\"\"向评测器提问: x 是不是答案的一部分?\"\"\"\n    print(f'? {x}', flush=True)\n    resp = sys.stdin.readline().strip()\n    return resp\n\ndef answer(val):\n    \"\"\"向评测器提交最终答案。\"\"\"\n    print(f'! {val}', flush=True)\n\n# 示例: 猜一个1~100之间的数(类似CF679A)\n# 评测器回答 'yes'/'no'\ndef solve_guessing_game():\n    lo, hi = 1, 100\n    # 二分猜数\n    while lo < hi:\n        mid = (lo + hi) // 2\n        resp = ask(mid)\n        if resp == 'yes':\n            answer(mid)\n            return\n        elif resp == 'too_small':\n            lo = mid + 1\n        else:  # too_large\n            hi = mid - 1\n    answer(lo)\n\n# 本地自测: 模拟评测器\nif __name__ == '__main__':\n    # 模拟: 答案是42, 评测器回答 'too_small'/'too_large'/'yes'\n    # 实际竞赛中由评测器回答, 这里仅演示封装结构\n    print('Interactive debug template loaded.')\n    print('ask(x): prints ?x, flush, reads response')\n    print('answer(v): prints !v, flush')\n    print('Rule: always flush after print; read all input for multi-test.')\n",
+    "pypy_notes": "交互题 IO 频繁，PyPy 的 sys.stdin.readline 性能足够；不要用 input()(慢且可能不刷新)；每轮 print 必须 flush=True。",
+    "complexity": {
+      "time": "取决于交互次数限制(通常 O(log N) 或 O(sqrt N))",
+      "space": "O(1) 通常"
+    },
+    "limitations": "无法传统对拍；需手写 grader 模拟器；多测未读完输入导致 ILE；交互次数超限导致 WA/PLE。"
+  },
+  "examples": [
+    {
+      "oj": "Codeforces",
+      "pid": "679A",
+      "url": "https://codeforces.com/problemset/problem/679/A",
+      "difficulty": 1600,
+      "key_point": "Bear and Prime 100: 50以内质数枚举判定质合数"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "843B",
+      "url": "https://codeforces.com/problemset/problem/843/B",
+      "difficulty": 2100,
+      "key_point": "Interactive LowerBound: 随机撒点+链表遍历"
+    }
+  ],
+  "pitfalls": [
+    "忘记 fflush(stdout) → ILE (Idleness Limit Exceeded)",
+    "多测时提前知道答案就 return → 未读完输入 → ILE",
+    "交互次数超限 → WA (Codeforces) / PLE (UVa)",
+    "用快读(input优化)可能吞掉评测器输出导致交互错乱"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "encapsulate",
+        "label": "封装ask/answer函数"
+      },
+      {
+        "id": "flush",
+        "label": "每次输出后flush"
+      },
+      {
+        "id": "logic",
+        "label": "实现交互逻辑(二分/枚举)"
+      },
+      {
+        "id": "grader",
+        "label": "本地用grader模拟调试"
+      }
+    ],
+    "edges": [
+      {
+        "from": "encapsulate",
+        "to": "flush"
+      },
+      {
+        "from": "flush",
+        "to": "logic"
+      },
+      {
+        "from": "logic",
+        "to": "grader"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/contest/interaction/",
+      "verified": true,
+      "single_source": true
+    }
+  ]
+}

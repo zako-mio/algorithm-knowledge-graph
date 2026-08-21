@@ -1,0 +1,98 @@
+{
+  "id": "li-chao-tree",
+  "name": "李超线段树",
+  "group": "G-D-8",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "线段树维护线段/直线集合，标记永久化求横坐标处最值",
+  "what": "李超线段树把「线段/直线集合」存进线段树：每个节点存一条当前区间内「最优」线段作永久化标记，插入新线段时在中点比较、把较优者留下、较劣者递归下传到唯一可能更优的子区间，查询时沿路径取所有标记的 max。",
+  "why": {
+    "intuition": "两条直线最多在一个子区间相交，所以在某一半区间内哪条更优是确定的——可把较劣的那条只在它可能赢的那一半继续下传，另一条留在当前节点当标记。这保证每条线段每次只会递归到一个子区间。",
+    "principle": "节点 p 存直线 f_p。插入直线 g 到区间 [cl,cr]，比中点 m 处值：若 g(m)>f_p(m) 则交换 g 与 f_p(让 g 留下当标记)。再比端点：若 g 在左端点更优则 g 只可能在左半赢，递归左儿子；若在右端点更优则递归右儿子；左右端点 f_p 都更优则 g 无需下传。标记永久化——查询时沿根到叶路径对所有标记取 max，无需 pushdown。",
+    "history": "李超线段树由李超在 2013-2014 年竞赛中提出并传播（CF 讨论与《算法竞赛进阶指南》收录），核心「中点比较+单侧递归」思想在 OI 社区成熟。"
+  },
+  "how": {
+    "pseudocode": "upd(p,cl,cr,k,b): m=(cl+cr)/2; 若 g(m)>f(m) 交换 g,f; 若 g(左端)>f(左端) 递归左; 若 g(右端)>f(右端) 递归右\nquery: 沿路径对所有节点标记取 max",
+    "python": "import sys\n\n# 李超线段树: 维护线段集合, 查询某横坐标处纵坐标最大值\nINF = float(\"inf\")\nK = [0]     # 斜率 (1-indexed, 下标 0 为占位)\nB = [0]     # 截距\nlc = [0]    # 左儿子\nrc = [0]    # 右儿子\ntot = 0\n\n\ndef new_node():\n    global tot\n    tot += 1\n    K.append(0); B.append(-INF)\n    lc.append(0); rc.append(0)\n    return tot\n\n\ndef f(k, b, x):\n    return k * x + b\n\n\ndef upd(p, cl, cr, k, b):\n    # 在区间 [cl,cr] 插入直线 y=kx+b\n    m = (cl + cr) >> 1\n    if not lc[p]:\n        lc[p] = new_node()\n    if not rc[p]:\n        rc[p] = new_node()\n    if f(k, b, m) > f(K[p], B[p], m):\n        k, K[p] = K[p], k\n        b, B[p] = B[p], b\n    if f(k, b, cl) > f(K[p], B[p], cl):\n        upd(lc[p], cl, m, k, b)\n    if f(k, b, cr) > f(K[p], B[p], cr):\n        upd(rc[p], m + 1, cr, k, b)\n\n\ndef upd_seg(p, cl, cr, l, r, k, b):\n    # 插入线段 y=kx+b, 定义域 [l,r]\n    if l <= cl and cr <= r:\n        upd(p, cl, cr, k, b)\n        return\n    m = (cl + cr) >> 1\n    if l <= m:\n        if not lc[p]:\n            lc[p] = new_node()\n        upd_seg(lc[p], cl, m, l, r, k, b)\n    if r > m:\n        if not rc[p]:\n            rc[p] = new_node()\n        upd_seg(rc[p], m + 1, cr, l, r, k, b)\n\n\ndef query(p, cl, cr, x):\n    # 查询横坐标 x 处最大纵坐标\n    res = f(K[p], B[p], x)\n    m = (cl + cr) >> 1\n    if x <= m and lc[p]:\n        res = max(res, query(lc[p], cl, m, x))\n    if x > m and rc[p]:\n        res = max(res, query(rc[p], m + 1, cr, x))\n    return res\n\n\nif __name__ == \"__main__\":\n    sys.setrecursionlimit(1 << 20)\n    root = new_node()\n    XR = 1 << 18\n    upd_seg(root, 1, XR, 1, XR, 1, 0)        # y = x\n    upd_seg(root, 1, XR, 1, XR, -1, 100)     # y = -x + 100\n    print(query(root, 1, XR, 50))            # 50  (y=x 与 y=-x+100 交于 x=50)\n    print(query(root, 1, XR, 1))             # 99\n",
+    "complexity": {
+      "time": "插入直线 O(log C)；插入线段(定义域跨多区间)O(log² C)；查询 O(log C)。C 为横坐标值域",
+      "space": "O(Q log C) — 动态开点按需建"
+    },
+    "limitations": "Python 浮点比较易出精度问题，整数斜率建议用分数/交叉乘法避免 eps；垂直线段(x0==x1)会除零，需特殊处理为定义域 [x,x] 的一次函数 f(x)=0·x+y1；查询横坐标超出已插入范围时返回 -INF 需判空。",
+    "pypy_notes": "标记永久化+单链递归 PyPy 常数小；斜率/截距用列表存。整数斜率建议交叉乘法避免浮点误差。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4097",
+      "url": "https://www.luogu.com.cn/problem/P4097",
+      "difficulty": 5,
+      "key_point": "HEOI2013 Segment：插入线段+查询某 x 处纵坐标最大的线段编号，李超树模板"
+    }
+  ],
+  "pitfalls": [
+    "垂直线段(x0==x1)除零，必须特判为定义域单点的一次函数",
+    "浮点斜率用 eps 比较精度不足，整数场景改交叉乘法",
+    "多条线段交点纵坐标相同时要按编号取较小者(题目要求)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "locate",
+        "label": "定位线段覆盖到的线段树区间"
+      },
+      {
+        "id": "mid_cmp",
+        "label": "中点比较新线段与旧标记"
+      },
+      {
+        "id": "swap",
+        "label": "较优者留下当标记,较劣者递归"
+      },
+      {
+        "id": "recur",
+        "label": "递归到唯一可能更优的子区间"
+      },
+      {
+        "id": "query",
+        "label": "查询:沿路径取所有标记max"
+      }
+    ],
+    "edges": [
+      {
+        "from": "locate",
+        "to": "mid_cmp"
+      },
+      {
+        "from": "mid_cmp",
+        "to": "swap"
+      },
+      {
+        "from": "swap",
+        "to": "recur"
+      },
+      {
+        "from": "recur",
+        "to": "query"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/li-chao-tree.md",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/li-chao-tree/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/geometry/convex_hull_trick.html",
+      "verified": true
+    }
+  ]
+}

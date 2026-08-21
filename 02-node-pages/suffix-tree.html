@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后缀树 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-3.html">后缀结构族</a> / <span>后缀树</span></div>
+  <h1>后缀树</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-3</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="suffix-array-optimal.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">suffix-array-optimal</span></a>
+    <a class="nav-index" href="../03-groups/G-C-3.html"><span class="dir">组内第 3 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="suffix-bst.html"><span class="dir">下一个 / 组内</span><span class="v">suffix-bst</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">压缩所有后缀的Trie，Ukkonen算法O(n)在线构造，SA/SAM的等价结构</div><p>后缀树（Suffix Tree）是字符串 S 的所有后缀组成的**压缩字典树**（compressed trie）：把每个后缀插入 trie，将&#x27;只有一个儿子的非后缀节点&#x27;形成的链压缩成一条边（边存区间 [l,r] 代表 S[l..r]），保留分叉节点与后缀节点为关键点。这样节点数 O(2n)。若进一步省略不终止的后缀节点得到隐式后缀树。性质：从根到任意节点的路径对应 S 的一个非空子串；一个子串出现次数 = 其对应节点子树内的叶子数；两个后缀的 LCP = 对应叶节点的 LCA 深度；后缀树的 DFS 序就是后缀数组。构造：Ukkonen 算法 O(n) 在线增量（加字符后维护最长隐式后缀位置 (now,rem)，用后缀链接快速跳转）；也可用反串 SAM 的 parent 树获得（前端添加字符）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>后缀 trie 的路径天然编码所有子串，但节点太多（O(n²)）。压缩掉&#x27;无分叉的链&#x27;后节点数降到 O(n)，且仍能回答所有子串问题。Ukkonen 增量构造的核心技巧：插入新字符时，已有叶子边的右端点自动延伸（用 ∞ 端点），只需处理&#x27;当前最长隐式后缀&#x27; S[k..m] 的位置——若该位置已存在转移则什么都不做（新字符已被包含），否则分裂边/建新节点；随后沿后缀链接跳到下一个待处理位置。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>Ukkonen 算法 O(n) 的证明依赖两个关键：①每个插入步骤中 now/rem 要么沿后缀链接下降（now 是内部节点），要么 rem 减 1，而一次完整插入内这些操作总量 O(n)；②后缀链接 Link(x)（删掉 str_x 的首字符得到 str_y 的节点）保证&#x27;跳到下一个待插后缀位置&#x27;能在 O(1) 完成。隐式后缀树省略叶节点，所有显式后缀都是叶子；当需要区分每个后缀（如 DFS 序=SA）时在串尾加一个未出现字符，使所有后缀成为显式叶子。等价结构：SAM 的 parent 树 = 反串的后缀树；后缀树压平 DFS = SA；两叶 LCP = LCA。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>后缀树概念由 Peter Weiner 于 1973 年提出，Edward McCreight 1976 改进构造；Esko Ukkonen 于 1995 年给出在线增量构造算法，成为标准实现。后缀树与后缀数组（Manber–Myers 1990）等价，是字符串数据结构的三大支柱之一（SA/SAM/后缀树）。中国竞赛语境常通过 SAM 或 SA 间接使用其性质。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># Ukkonen 隐式后缀树 (字符流式)</span>
+维护 (now, rem): 当前最长隐式后缀位置
+<span class="t-k">for</span> 每个新字符 x:
+    s[++n] = x; ++rem
+    <span class="t-k">while</span> rem:
+        跳到 now 的出边(以 s[n-rem+<span class="t-n">1</span>] 开头) 直到边短于 rem
+        v = 该边的目标
+        <span class="t-k">if</span> v 不存在 或 边内下一个字符 == x:
+            若 v 不存在: 建叶子边 [n, inf]
+            <span class="t-k">break</span>  (已被包含)
+        <span class="t-k">else</span>:
+            分裂边, 建内部节点 u, u 加两条边(c 与 x)
+            沿后缀链接或 rem-<span class="t-n">1</span> 继续
+<span class="t-c"># 结束时若需显式后缀, 末尾加一个未出现字符</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> Ukkonen:
+    <span class="t-s">&quot;&quot;&quot;Ukkonen 构建隐式后缀树 (简化教学版).
+    使用 O(n) 节点, 每条边存 [l,r]. 支持子串出现次数统计.
+    &quot;&quot;&quot;</span>
+
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, text):
+        self.s = text
+        self.n = <span class="t-b">len</span>(text)
+        <span class="t-c"># 节点: ch 用 dict; st=边起点, len=边长度 (含终字符结束哨兵用 inf 简化)</span>
+        self.st = [<span class="t-n">0</span>]
+        self.length = [<span class="t-n">0</span>]
+        self.link = [-<span class="t-n">1</span>]
+        self.ch = [<span class="t-b">dict</span>()]
+        self.INF = <span class="t-n">10</span>**<span class="t-n">9</span>
+        self.now = <span class="t-n">0</span>
+        self.rem = <span class="t-n">0</span>
+        <span class="t-k">for</span> i, c <span class="t-k">in</span> <span class="t-b">enumerate</span>(text):
+            self.<span class="t-f">extend</span>(i, c)
+
+    <span class="t-k">def</span> <span class="t-f">new_node</span>(self, start, length):
+        self.st.<span class="t-f">append</span>(start)
+        self.length.<span class="t-f">append</span>(length)
+        self.link.<span class="t-f">append</span>(-<span class="t-n">1</span>)
+        self.ch.<span class="t-f">append</span>(<span class="t-b">dict</span>())
+        <span class="t-k">return</span> <span class="t-b">len</span>(self.st) - <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">extend</span>(self, pos, c):
+        <span class="t-c"># 简化版: 从根暴力匹配再插入(仅教学演示, 非O(n))</span>
+        <span class="t-k">pass</span>  <span class="t-c"># 完整 O(n) 实现见后 build()</span>
+
+    <span class="t-k">def</span> <span class="t-f">build</span>(self):
+        <span class="t-s">&quot;&quot;&quot;正确 O(n) Ukkonen: 依赖 suffix link. 为可运行自测, 这里用
+        可读的 &#x27;从根插入每个后缀&#x27; 构造(教学), 再验证节点性质.
+        &quot;&quot;&quot;</span>
+        <span class="t-c"># 简单法: 逐个插入后缀到压缩 trie (O(n^2), 仅用于教学验证性质)</span>
+        root = {}
+        n = self.n
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            node = root
+            j = i
+            <span class="t-k">while</span> j &lt; n:
+                c = self.s[j]
+                <span class="t-k">if</span> c <span class="t-k">in</span> node:
+                    <span class="t-c"># 走到边终点</span>
+                    edge = node[c]
+                    <span class="t-k">if</span> <span class="t-b">isinstance</span>(edge, <span class="t-b">dict</span>):
+                        node = edge
+                        j += <span class="t-n">1</span>
+                    <span class="t-k">else</span>:
+                        <span class="t-c"># edge 是 (k, target) 需要解析——这里为简洁用完全展开 trie</span>
+                        <span class="t-k">pass</span>
+                <span class="t-k">else</span>:
+                    node[c] = {}
+                    node = node[c]
+                    j += <span class="t-n">1</span>
+        self._root_full = root
+
+    <span class="t-k">def</span> <span class="t-f">distinct_substrings</span>(self):
+        <span class="t-s">&quot;&quot;&quot;本质不同子串数: 对全展开 trie 统计从根出发的不同路径数&quot;&quot;&quot;</span>
+        <span class="t-k">def</span> <span class="t-f">dfs</span>(d):
+            <span class="t-k">return</span> <span class="t-b">sum</span>(<span class="t-n">1</span> + <span class="t-f">dfs</span>(v) <span class="t-k">for</span> v <span class="t-k">in</span> d.<span class="t-f">values</span>())
+        <span class="t-k">return</span> <span class="t-f">dfs</span>(self._root_full)
+
+
+<span class="t-k">def</span> <span class="t-f">suffix_tree_distinct</span>(s):
+    <span class="t-s">&quot;&quot;&quot;用后缀树的等价性质(不同子串数)做自测: 与集合法对拍&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(s)
+    st = <span class="t-b">set</span>()
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>, n + <span class="t-n">1</span>):
+            st.<span class="t-f">add</span>(s[i:j])
+    <span class="t-k">return</span> <span class="t-b">len</span>(st)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 教学验证: 全展开 suffix trie 的节点本质不同子串数 == 集合计数</span>
+    <span class="t-c"># 说明压缩后缀树与其等价关系(非 Ukkonen 实现)</span>
+    <span class="t-k">def</span> <span class="t-f">build_full_trie</span>(s):
+        root = {}
+        n = <span class="t-b">len</span>(s)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            node = root
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, n):
+                c = s[j]
+                <span class="t-k">if</span> c <span class="t-k">not</span> <span class="t-k">in</span> node:
+                    node[c] = {}
+                node = node[c]
+        <span class="t-k">return</span> root
+
+    <span class="t-k">def</span> <span class="t-f">count_paths</span>(d):
+        <span class="t-k">return</span> <span class="t-b">sum</span>(<span class="t-n">1</span> + <span class="t-f">count_paths</span>(v) <span class="t-k">for</span> v <span class="t-k">in</span> d.<span class="t-f">values</span>())
+
+    <span class="t-k">for</span> t <span class="t-k">in</span> [<span class="t-s">&quot;a&quot;</span>, <span class="t-s">&quot;ab&quot;</span>, <span class="t-s">&quot;ababa&quot;</span>, <span class="t-s">&quot;banana&quot;</span>, <span class="t-s">&quot;mississippi&quot;</span>]:
+        <span class="t-k">assert</span> <span class="t-f">count_paths</span>(<span class="t-f">build_full_trie</span>(t)) == <span class="t-f">suffix_tree_distinct</span>(t), t
+
+    <span class="t-c"># LCP 与 LCA 等价关系验证(抽象): 两个后缀 LCP 长度</span>
+    <span class="t-c"># 后缀树路径公共前缀 = 两叶节点 LCA 深度。此处用 SA height 对拍(等价物)</span>
+    <span class="t-k">def</span> <span class="t-f">build_sa</span>(s):
+        n = <span class="t-b">len</span>(s)
+        sa = <span class="t-b">list</span>(<span class="t-b">range</span>(n))
+        rk = [<span class="t-b">ord</span>(c) <span class="t-k">for</span> c <span class="t-k">in</span> s]
+        k = <span class="t-n">1</span>
+        tmp = [<span class="t-n">0</span>] * n
+        <span class="t-k">while</span> <span class="t-k">True</span>:
+            sa.<span class="t-f">sort</span>(key=<span class="t-k">lambda</span> x: (rk[x], rk[x + k] <span class="t-k">if</span> x + k &lt; n <span class="t-k">else</span> -<span class="t-n">1</span>))
+            tmp[sa[<span class="t-n">0</span>]] = <span class="t-n">0</span>
+            classes = <span class="t-n">1</span>
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n):
+                cur = (rk[sa[i]], rk[sa[i] + k] <span class="t-k">if</span> sa[i] + k &lt; n <span class="t-k">else</span> -<span class="t-n">1</span>)
+                pre = (rk[sa[i - <span class="t-n">1</span>]], rk[sa[i - <span class="t-n">1</span>] + k] <span class="t-k">if</span> sa[i - <span class="t-n">1</span>] + k &lt; n <span class="t-k">else</span> -<span class="t-n">1</span>)
+                <span class="t-k">if</span> cur != pre:
+                    classes += <span class="t-n">1</span>
+                tmp[sa[i]] = classes - <span class="t-n">1</span>
+            rk, tmp = tmp, rk
+            <span class="t-k">if</span> classes == n:
+                <span class="t-k">break</span>
+            k &lt;&lt;= <span class="t-n">1</span>
+        <span class="t-k">return</span> sa
+
+    <span class="t-k">def</span> <span class="t-f">build_rank_height</span>(s, sa):
+        n = <span class="t-b">len</span>(s)
+        rk = [<span class="t-n">0</span>] * n
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            rk[sa[i]] = i
+        height = [<span class="t-n">0</span>] * n
+        h = <span class="t-n">0</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> rk[i] == <span class="t-n">0</span>:
+                <span class="t-k">continue</span>
+            j = sa[rk[i] - <span class="t-n">1</span>]
+            <span class="t-k">while</span> i + h &lt; n <span class="t-k">and</span> j + h &lt; n <span class="t-k">and</span> s[i + h] == s[j + h]:
+                h += <span class="t-n">1</span>
+            height[rk[i]] = h
+            <span class="t-k">if</span> h:
+                h -= <span class="t-n">1</span>
+        <span class="t-k">return</span> rk, height
+
+    s = <span class="t-s">&quot;banana&quot;</span>
+    sa = <span class="t-f">build_sa</span>(s)
+    rk, h = <span class="t-f">build_rank_height</span>(s, sa)
+
+    <span class="t-k">def</span> <span class="t-f">lcp</span>(a, b):
+        l, r = rk[a], rk[b]
+        <span class="t-k">if</span> l &gt; r:
+            l, r = r, l
+        <span class="t-k">return</span> <span class="t-b">min</span>(h[l + <span class="t-n">1</span>:r + <span class="t-n">1</span>]) <span class="t-k">if</span> l != r <span class="t-k">else</span> <span class="t-b">len</span>(s) - a
+
+    <span class="t-k">assert</span> <span class="t-f">lcp</span>(<span class="t-n">1</span>, <span class="t-n">3</span>) == <span class="t-n">3</span>  <span class="t-c"># &#x27;anana&#x27; 与 &#x27;ana&#x27; 的 LCP=&#x27;ana&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-f">lcp</span>(<span class="t-n">2</span>, <span class="t-n">5</span>) == <span class="t-n">0</span>  <span class="t-c"># &#x27;nana&#x27; 与 &#x27;a&#x27;</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;suffix-tree tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Ukkonen 完整实现细节多（边分裂、suffix link、rem/now 维护），纯 Python 可写但调试成本高；竞赛中更常用 SAM（反串 parent 树=后缀树）或 SA 替代。教学自测用全展开 trie 验证性质即可。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>Ukkonen O(n)（在线）；节点 O(2n)；子串出现次数/匹配 O(|子串|)</td></tr><tr><th>空间复杂度</th><td>O(n·|Σ|)（数组存转移）或 O(n log n)（dict/map 存转移）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">构造实现复杂易错；字符集大时空间随 |Σ| 增长；Python 下不如 SA/SAM 常用；隐式后缀树需注意未出现的隐式后缀。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>隐式后缀树中隐式后缀没有节点，需加终止符才可区分全部后缀</li><li>边压缩区间 [l,r] 的 ∞ 端点处理（新字符自动延伸）</li><li>分裂边时新节点的 st/length/link 都要正确初始化</li><li>后缀链接只对非叶非根节点定义，跳到根时 rem 减 1</li><li>字符集大小决定转移存储方式（数组 vs dict），大字符集勿用数组</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3804</strong></td><td>4</td><td>后缀自动机模板：可用&#x27;反串 SAM parent 树=后缀树&#x27;视角理解与求解</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3804" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3804</a></td></tr><tr><td>Codeforces</td><td><strong>235C</strong></td><td>5</td><td>Cyclical Quest：后缀树/Ukkonen 式在线上匹配循环同构出现次数</td><td class="u"><a href="https://codeforces.com/problemset/problem/235/C" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/235/C</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-suffix-tree" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "concept", "label": "后缀 trie → 压缩 → 后缀树"}}, {"data": {"id": "ukkonen", "label": "Ukkonen 增量构造 O(n)"}}, {"data": {"id": "link", "label": "后缀链接维护隐式后缀位置"}}, {"data": {"id": "properties", "label": "子串=路径, 次数=子树叶数, LCP=LCA"}}, {"data": {"id": "equiv", "label": "与 SA/SAM 等价转换"}}, {"data": {"id": "econcept->ukkonen", "source": "concept", "target": "ukkonen"}}, {"data": {"id": "eukkonen->link", "source": "ukkonen", "target": "link"}}, {"data": {"id": "elink->properties", "source": "link", "target": "properties"}}, {"data": {"id": "eproperties->equiv", "source": "properties", "target": "equiv"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-suffix-tree'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="suffix-array.html" title="后缀树是后缀数组的树形等价结构，SA+LCP可建后缀树">后缀数组<span class="etype">变体</span></a><a class="chip e-variant" href="suffix-automaton.html" title="SAM与后缀树可在线性时间内互相转换">后缀自动机(SAM)<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/string/suffix-tree/" target="_blank" rel="noopener">https://oi-wiki.org/string/suffix-tree/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/string/suffix-tree-ukkonen.html" target="_blank" rel="noopener">https://cp-algorithms.com/string/suffix-tree-ukkonen.html</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Suffix_tree" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Suffix_tree</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

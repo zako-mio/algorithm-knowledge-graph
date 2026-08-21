@@ -1,0 +1,112 @@
+{
+  "id": "monotonic-queue",
+  "name": "单调队列",
+  "group": "G-A-2",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "维护滑动窗口最值，O(n)均摊，DP优化基础",
+  "what": "单调队列(Monotonic Queue)是一个双端队列(deque)，在队尾插入元素时弹出所有破坏单调性的元素，使队列内元素保持单调递增或递减。同时通过记录元素位置来淘汰超出窗口范围的队首。可在 O(n) 均摊时间内维护滑动窗口的最值，是 DP 优化(如多重背包、斜率优化)的基础。",
+  "why": {
+    "intuition": "滑动窗口求最值：暴力 O(nk)。关键观察与新元素比较：如果新元素比队尾大(求最大值时)，那么队尾元素永远不会成为未来窗口的最大值——新元素更大且更晚离开窗口。所以可以安全弹出队尾。类似地，队首超出窗口范围时弹出。这样每个元素进出队列各一次，总共 O(n)。",
+    "principle": "用双端队列(deque)维护一个单调序列。队列存储元素下标，便于判断是否超出窗口。对每个新元素 i：①弹出队首超出窗口的元素(while dq[0] < i-k+1: popleft) ②弹出队尾不满足单调性的元素(求最大值: while arr[dq[-1]] <= arr[i]: pop) ③将 i 入队尾 ④队首 dq[0] 即为当前窗口的最值下标。求最大值→递减队列；求最小值→递增队列。",
+    "history": "单调队列的经典应用是 POJ2823(Sliding Window)。在 DP 优化中，单调队列可将 O(nk) 的多重背包/滑动DP优化到 O(n)。OI Wiki 将其与单调栈并列为栈队列的进阶结构。"
+  },
+  "how": {
+    "pseudocode": "# 滑动窗口最大值 (窗口大小 k)\ndq = deque()  # 存下标, 维护递减\nfor i in range(n):\n  # 1. 弹出超出窗口的队首\n  while dq and dq[0] < i - k + 1:\n    dq.popleft()\n  # 2. 弹出不满足单调性的队尾\n  while dq and arr[dq[-1]] <= arr[i]:\n    dq.pop()\n  # 3. 入队\n  dq.append(i)\n  # 4. 记录答案(i >= k-1 时)\n  if i >= k - 1:\n    ans.append(arr[dq[0]])",
+    "python": "from collections import deque\n\ndef sliding_window_max(arr, k):\n    \"\"\"滑动窗口最大值: 返回每个窗口的最大值。\n    单调递减队列(存下标)。\n    LeetCode 239 模板。\n    \"\"\"\n    n = len(arr)\n    if n == 0:\n        return []\n    dq = deque()  # 存下标, arr[dq[i]] 递减\n    ans = []\n    for i in range(n):\n        # 弹出超出窗口的队首\n        while dq and dq[0] < i - k + 1:\n            dq.popleft()\n        # 弹出比当前元素小的队尾(它们不可能成为最大值)\n        while dq and arr[dq[-1]] <= arr[i]:\n            dq.pop()\n        dq.append(i)\n        # 第一个窗口完整后开始记录\n        if i >= k - 1:\n            ans.append(arr[dq[0]])\n    return ans\n\n\ndef sliding_window_min(arr, k):\n    \"\"\"滑动窗口最小值: 单调递增队列。\"\"\"\n    n = len(arr)\n    if n == 0:\n        return []\n    dq = deque()  # 存下标, arr[dq[i]] 递增\n    ans = []\n    for i in range(n):\n        while dq and dq[0] < i - k + 1:\n            dq.popleft()\n        while dq and arr[dq[-1]] >= arr[i]:\n            dq.pop()\n        dq.append(i)\n        if i >= k - 1:\n            ans.append(arr[dq[0]])\n    return ans\n\n\ndef dp_sliding_window_max(arr, k):\n    \"\"\"DP优化示例: dp[i] = max(arr[i-k..i]) 的递推。\n    用单调队列优化到 O(n)。\n    \"\"\"\n    n = len(arr)\n    if n == 0:\n        return []\n    dp = [0] * n\n    dq = deque()\n    for i in range(n):\n        while dq and dq[0] < i - k + 1:\n            dq.popleft()\n        while dq and arr[dq[-1]] <= arr[i]:\n            dq.pop()\n        dq.append(i)\n        dp[i] = arr[dq[0]]\n    return dp\n\n\nif __name__ == '__main__':\n    arr = [1, 3, -1, -3, 5, 3, 6, 7]\n    k = 3\n\n    # 测试滑动窗口最大值\n    maxs = sliding_window_max(arr, k)\n    print(f'Window max: {maxs}')\n    assert maxs == [3, 3, 5, 5, 6, 7]\n\n    # 测试滑动窗口最小值\n    mins = sliding_window_min(arr, k)\n    print(f'Window min: {mins}')\n    assert mins == [-1, -3, -3, -3, 3, 3]\n\n    # 测试DP优化\n    dp = dp_sliding_window_max(arr, k)\n    print(f'DP max:     {dp}')\n\n    print('All monotonic queue tests passed!')\n",
+    "pypy_notes": "PyPy 对 deque 操作优化好；单调队列是竞赛高频结构，PyPy 下 N=1e6 约 0.1s；注意 deque 的 popleft/pop 都是 O(1)。",
+    "complexity": {
+      "time": "O(N) — 每个元素最多入队一次、出队一次(队首或队尾)，均摊 O(1)",
+      "space": "O(K) — 队列最多存窗口大小 K 个元素(实际最坏 O(N) 完全递减序列)"
+    },
+    "limitations": "仅适用于滑动窗口/区间最值类问题；窗口大小必须固定(变长窗口需结合双指针)；不能处理区间和(用前缀和/树状数组)；DP优化需转移方程具有单调性。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "239",
+      "url": "https://leetcode.cn/problems/sliding-window-maximum/",
+      "difficulty": 3,
+      "key_point": "滑动窗口最大值: 单调队列经典模板题"
+    },
+    {
+      "oj": "POJ",
+      "pid": "2823",
+      "url": "http://poj.org/problem?id=2823",
+      "difficulty": 2,
+      "key_point": "Sliding Window: 单调队列起源题, 同时求窗口最大最小"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2698",
+      "url": "https://www.luogu.com.cn/problem/P2698",
+      "difficulty": 3,
+      "key_point": "Flowerpot S: 双单调队列维护区间max-min+双指针"
+    }
+  ],
+  "pitfalls": [
+    "队首弹出条件用 dq[0] < i-k+1(下标比较) 而非值比较，存的是下标不是值",
+    "求最大值用递减队列(弹出<=当前的), 求最小值用递增队列(弹出>=当前的), 方向搞反会错",
+    "弹出队尾用 pop()(从尾部), 弹出队首用 popleft()(从头部), 不能混用",
+    "第一个完整窗口在 i=k-1 时形成, 之前不应记录答案"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "scan",
+        "label": "遍历序列(i从0到n-1)"
+      },
+      {
+        "id": "front_pop",
+        "label": "弹出超出窗口的队首"
+      },
+      {
+        "id": "back_pop",
+        "label": "弹出破坏单调性的队尾"
+      },
+      {
+        "id": "push",
+        "label": "当前下标入队尾"
+      },
+      {
+        "id": "record",
+        "label": "队首即窗口最值(i>=k-1时记录)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "scan",
+        "to": "front_pop"
+      },
+      {
+        "from": "front_pop",
+        "to": "back_pop"
+      },
+      {
+        "from": "back_pop",
+        "to": "push"
+      },
+      {
+        "from": "push",
+        "to": "record"
+      },
+      {
+        "from": "record",
+        "to": "scan"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/monotonic-queue/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/data_structures/stack_queue_modification.html",
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "nim-game",
+  "name": "Nim游戏",
+  "group": "G-E-6",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "n 堆石子轮流取任意堆任意多枚，Nim 和（全部堆的异或）为 0 则先手必败（P 态），非 0 则先手必胜（N 态）；公平组合博弈的基础模型",
+  "what": "Nim 游戏：共 n 堆石子，第 i 堆有 a_i 枚。两名玩家轮流操作，每次选取任意一堆，取走该堆中的任意正整数枚石子。无法操作（所有堆为空）的玩家输。结论（Bouton 定理）：局面先手必胜（N 态）当且仅当 Nim 和 s=a_1⊕a_2⊕⋯⊕a_n≠0；先手必败（P 态）当且仅当 s=0。必胜策略：找到最高位的 1（s 的最高位），选一堆 a_i 使其最高位为 1，将其改为 a_i⊕s（该值 < a_i），使新异或和为 0。",
+  "why": {
+    "intuition": "异或像是『二进制的奇偶校验』。两个相等的堆互相抵消（同堆策略——对手拿什么你拿什么），异或和恰好刻画了这个抵消后的残余。残余为 0 说明局面完全'对称'，后手永远跟一手就能赢；残余非 0 先手只需一步把残余清零，把'对称'交给对手。",
+    "principle": "三性质完备：①终止态（全 0）异或和为 0（P 态）。②异或和非 0 时存在合法操作把它变 0：设 s 最高位为 k，取最高位含 1 的一堆 a_i，因 a_i≥2^k 而 a_i⊕s < a_i（s 使 k 位翻转为 0，更高位不变），拿走 a_i−(a_i⊕s) 个即可。③异或和为 0 时任何合法操作（把某一堆 a_i 减小为 a_i'）必使新异或非 0：因 s'=s⊕a_i⊕a_i'=a_i⊕a_i'≠0（a_i≠a_i'）。①②③ 恰为博弈图 P/N 标记的归纳条件。",
+    "history": "Nim 起源于中国古代游戏（'捡石子' Jianshizi 类似）。Charles L. Bouton 于 1901 年首次发表完整数学分析（含异或策略），并命名 Nim。之后 Sprague 与 Grundy（1935/1939）把结论推广为 SG 理论，证明所有公平组合游戏都等价于某种单堆 Nim。Nim 因此是组合博弈论的基石模型，被 OI Wiki、CPH 与 CP-Algorithms 收录。"
+  },
+  "how": {
+    "pseudocode": "# 判定先手胜负\ndef nim_win(piles):\n  s = 0\n  for a in piles: s ^= a\n  return s != 0\n\n# 构造必胜走法：返回 (堆下标, 取走后该堆大小) 或 None\ndef nim_move(piles):\n  s = 0\n  for a in piles: s ^= a\n  if s == 0: return None\n  for i, a in enumerate(piles):\n    if (a ^ s) < a:\n      return (i, a ^ s)  # 从第 i 堆取走 a-(a^s) 枚",
+    "python": "def nim_win(piles):\n    \"\"\"返回当前局面是否为先手必胜（正常规则）。\"\"\"\n    s = 0\n    for a in piles:\n        s ^= a\n    return s != 0\n\n\ndef nim_move(piles):\n    \"\"\"返回必胜策略中的一步：元组 (堆下标, 操作后该堆剩余)。\n    若已是 P 态（先手必败）返回 None。\n    \"\"\"\n    s = 0\n    for a in piles:\n        s ^= a\n    if s == 0:\n        return None\n    for i, a in enumerate(piles):\n        if (a ^ s) < a:\n            return (i, a ^ s)\n    return None\n\n\ndef nim_strategy(piles):\n    \"\"\"演示：输出先手操作，并让后手（模拟最佳）应对后判断结果。\n    仅用于教学演示。\n    \"\"\"\n    if not nim_win(piles):\n        return \"P 态：先手必败\"\n    i, rest = nim_move(piles)\n    return f\"先手取第 {i} 堆，使其变为 {rest}\"\n\n\nif __name__ == \"__main__\":\n    # 经典判定\n    assert nim_win([1, 1]) is False        # 对称局面，后手跟手必胜\n    assert nim_win([1, 2, 3]) is False     # 1^2^3 = 0\n    assert nim_win([2, 5, 4]) is True      # 2^5^4 = 3\n    assert nim_win([3]) is True\n    assert nim_win([]) is False\n    assert nim_win([1, 1, 1]) is True      # 1^1^1 = 1\n\n    # 必胜走法正确性：移动后应为 P 态（异或和 0）\n    for piles in [[2, 5, 4], [3, 4, 5, 6], [10, 8, 2], [7]]:\n        i, rest = nim_move(piles)\n        nxt = piles[:]\n        nxt[i] = rest\n        s = 0\n        for a in nxt:\n            s ^= a\n        assert s == 0, (piles, nxt)\n\n    # P 态无合法必胜走法\n    assert nim_move([1, 1]) is None\n    assert nim_move([1, 2, 3]) is None\n\n    print(\"All tests passed.\")",
+    "pypy_notes": "O(n) 异或扫描即可，n=1e5、a_i=1e9 轻松通过。构造走法时 (a^s)<a 的判断等价于最高位含 1，不需要位运算技巧包装。Python 的整数异或无溢出顾虑。",
+    "complexity": {
+      "time": "判定 O(n)；构造走法 O(n)",
+      "space": "O(1)"
+    },
+    "limitations": "适用于公平组合游戏（双方行动集相同、完全信息、无平局、正常规则）。若规则含『不能取』约束或反常规则（最后取者输），结论需调整（见 anti-nim）。存在走法但题目若要求输出字典序最小等需要额外排序。多堆且 a_i 巨大时仍 O(n)。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P2197",
+      "url": "https://www.luogu.com.cn/problem/P2197",
+      "difficulty": 2,
+      "key_point": "【模板】Nim 游戏：直接判定异或和，OI Wiki 模板题"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "ABC 278 G? / AGC 系列组合博弈",
+      "url": "https://atcoder.jp/contests/agc002/tasks/agc002_e",
+      "difficulty": 7,
+      "key_point": "AGC 002 E Candy Piles：Nim 思想 + 阶梯/排序化归（OI Wiki 习题）"
+    },
+    {
+      "oj": "SPOJ",
+      "pid": "COT3 Combat on a tree",
+      "url": "https://www.spoj.com/problems/COT3/",
+      "difficulty": 8,
+      "key_point": "树上博弈的 SG/Nim 组合综合题（OI Wiki 习题）"
+    }
+  ],
+  "pitfalls": [
+    "判断用『异或和==0 → 先手必败』，方向别记反",
+    "a_i 可能为 0（空堆），异或不变，但全空局面是 P 态",
+    "构造走法时要找 (a^s)<a 的那一堆，不能随便取一堆",
+    "P 态没有必胜走法，nim_move 返回 None 时别误报有解",
+    "异或用 Python 的 ^ 而非数学加号，两者不同",
+    "只适用于正常规则（最后取者赢）；misère 规则见 anti-nim"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "xor_sum", "label": "计算 Nim 和（全部异或）" },
+      { "id": "judge", "label": "N/P 态判定: s==0 → P" },
+      { "id": "move", "label": "构造必胜走法 (a^s)<a" },
+      { "id": "sg", "label": "推广: SG 函数与 Sprague-Grundy" },
+      { "id": "anti", "label": "变体: Anti-Nim 反常规则" }
+    ],
+    "edges": [
+      { "from": "xor_sum", "to": "judge" },
+      { "from": "judge", "to": "move" },
+      { "from": "judge", "to": "sg" },
+      { "from": "judge", "to": "anti" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/math/game-theory/impartial-game/", "verified": true },
+    { "type": "cpalg", "url": "https://cp-algorithms.com/game_theory/sprague-grundy-nim.html", "verified": true },
+    { "type": "book", "ref": "CPH ch25 Game theory, pp.245-252", "verified": true }
+  ]
+}

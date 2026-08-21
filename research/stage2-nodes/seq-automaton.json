@@ -1,0 +1,107 @@
+{
+ "id": "seq-automaton",
+ "name": "序列自动机",
+ "group": "G-C-4",
+ "stage": "advanced",
+ "priority": "P2",
+ "depth_tier": "standard",
+ "brief": "接受一个串所有子序列的最小自动机：next[i][c]=i 之后字符 c 第一次出现的位置，O(n|Σ|) 构造，用于子序列匹配与计数 DP",
+ "what": "序列自动机（sequence automaton）是接受且仅接受给定串 s 的全部子序列的 DFA：状态 0..n（n=|s|），状态 i 表示'已匹配到 s 的前 i 个字符'，转移 δ(i,c)=s 中 i 之后（严格大于 i）字符 c 第一次出现的位置，即 next[i][c]=min{j | j>i, s[j]=c}（不存在为 null）。所有状态都是接受状态。构造：从后向前扫描，维护每个字符当前最近出现位置 last[c]，则 next[i][c]=last[c]，之后 last[s[i]]=i。复杂度 O(n|Σ|)。应用：判断 t 是否为 s 的子序列（贪心沿 next 走，O(|t|)）；计数 s 的不同子序列数；与其他自动机叠加做 DP（如 HEOI2015 最短不公共子序列）；字典序第 k 小子序列等。",
+ "why": {
+  "intuition": "判断子序列的贪心：匹配时总是选'最靠前的下一个字符'最优——因为越靠前的后缀，包含的子序列越多（后缀 s[i..] 的子序列集合是 s[j..] 的子集，对 i>j）。所以每个状态只需记录每个字符下一次出现的最前位置，这就是转移表。",
+  "principle": "转移 δ(u,c)=min{i|i>u, s[i]=c}。构造从后往前：维护 last[c] 表示扫描过的后缀中 c 的最前出现位置，则 next[i][c]=last[c]（即 i 之后 c 第一次出现）；随后更新 last[s[i]]=i。正确性：贪心选最前位置不会丢解，因为若用更靠后的位置能匹配成功，改用更靠前的位置也一定能成功（后者是前者子序列的超集）。所有状态均接受（空串与任意子序列都可停止）。子序列计数：不同子序列数可在 DAG 上 DP（状态数 n+1，转移去重）。多自动机叠加：如求'最短的既不是 A 子串也不是 B 子序列的串'，在 A 的 SAM 与 B 的序列自动机上做双自动机 BFS/DP。",
+  "history": "序列自动机是自动机理论中'子序列识别'的经典构造，竞赛中由 OI Wiki 等以'序列自动机'专题整理推广，常用于子序列匹配、子序列计数及与 SAM/AC 自动机叠加的'最短非公共子序列'类题目（如 HEOI2015）。"
+ },
+ "how": {
+  "pseudocode": "# 构造 O(n|Σ|)\nlast[c] = null (所有 c)\nnext = [n+1][|Σ|] 全 null\nfor i = n-1 downto 0:\n    for c in Σ: next[i][c] = last[c]\n    last[s[i]] = i\n# 判断 t 是否子序列\npos = 0\nfor ch in t:\n    pos = next[pos][ch]\n    if pos == null: return False\n    pos += 1    # 匹配后移到 pos+1\nreturn True",
+  "python": "# -*- coding: utf-8 -*-\n# 序列自动机：状态 i 表示已匹配 s[0..i-1]（消耗了前 i 个字符）。\n# next[i][c] = s 中位置 >= i 的字符 c 第一次出现的位置；不存在为 -1。\n# 匹配时：u = next[u][ch]；若为 -1 失败；否则 u += 1（消耗该字符）。\ndef build_seq(s, sigma=26):\n    \"\"\"返回 next: (n+1) x sigma 数组。\"\"\"\n    n = len(s)\n    nxt = [[-1] * sigma for _ in range(n + 1)]\n    last = [-1] * sigma                 # 扫描过的后缀中 c 的最前出现位置\n    for i in range(n, 0, -1):           # 状态 i 的转移来自位置 >= i 的后缀\n        nxt[i] = last[:]\n        last[ord(s[i - 1]) - 97] = i - 1\n    nxt[0] = last[:]                    # 状态 0 可用整个串（位置 >= 0）\n    return nxt\n\n\ndef is_subsequence(nxt, t, sigma=26):\n    \"\"\"判断 t 是否为 s 的子序列。\"\"\"\n    u = 0\n    for ch in t:\n        u = nxt[u][ord(ch) - 97]\n        if u == -1:\n            return False\n        u += 1                          # 消耗该字符，下次查找从 u 开始\n    return True\n\n\ndef count_distinct_subseq(s, sigma=26):\n    \"\"\"s 的不同子序列数（含空串）。经典去重 DP：g(u)=2*g(u+1)-g(同字符下次出现位置+1)。\"\"\"\n    n = len(s)\n    g = [0] * (n + 1)\n    g[n] = 1\n    nxtp = [-1] * sigma                 # 当前位置右边同字符首次出现\n    for i in range(n - 1, -1, -1):\n        c = ord(s[i]) - 97\n        g[i] = 2 * g[i + 1]\n        p = nxtp[c]                     # s[i] 在 i 之后第一次出现的位置\n        if p != -1:\n            g[i] -= g[p + 1]\n        nxtp[c] = i\n    return g[0]\n\n\nif __name__ == '__main__':\n    s = 'abcde'\n    nxt = build_seq(s)\n    for t in ['ace', 'aec', 'b', 'ad', '', 'zz', 'de']:\n        def brute(t):\n            i = 0\n            for ch in s:\n                if i < len(t) and ch == t[i]:\n                    i += 1\n            return i == len(t)\n        assert is_subsequence(nxt, t) == brute(t), (t, is_subsequence(nxt, t), brute(t))\n    import random\n    random.seed(0)\n    for _ in range(200):\n        n = random.randint(1, 10)\n        s2 = ''.join(random.choice('abc') for _ in range(n))\n        nx = build_seq(s2)\n        for _ in range(10):\n            m = random.randint(0, 6)\n            t = ''.join(random.choice('abc') for _ in range(m))\n            def brute2(t):\n                i = 0\n                for ch in s2:\n                    if i < len(t) and ch == t[i]:\n                        i += 1\n                return i == len(t)\n            assert is_subsequence(nx, t) == brute2(t), (s2, t)\n    # 不同子序列数暴力验证\n    for s3 in ['ab', 'aaa', 'abc', 'aba', 'abcabc', 'banana']:\n        n3 = len(s3)\n        alls = set([''])\n        for i in range(n3):\n            for j in range(i + 1, n3 + 1):\n                for mask in range(1 << (j - i)):\n                    sub = ''.join(s3[i + k] for k in range(j - i) if (mask >> k) & 1)\n                    alls.add(sub)\n        assert count_distinct_subseq(s3) == len(alls), (s3, count_distinct_subseq(s3), len(alls))\n    print('seq-automaton tests passed')\n",
+  "pypy_notes": "next 数组 (n+1)×|Σ|，n≤1e5、Σ=26 时内存约 26e6 int（PyPy 下偏大）；可用 dict 稀疏化或只在需要时构建。子序列计数/最短非公共子序列的 DP 注意状态规模。",
+  "complexity": {
+   "time": "构造 O(n|Σ|)；子序列判断 O(|t|)；子序列计数 O(n|Σ|)",
+   "space": "O(n|Σ|)"
+  },
+  "limitations": "只能处理单个串的子序列；构造需要 |Σ| 空间。多自动机叠加（SAM+seq-auto）做最短非公共子串/子序列时状态是两者的笛卡尔积，注意剪枝。字符集大时 O(n|Σ|) 不可行。"
+ },
+ "examples": [
+  {
+   "oj": "LibreOJ",
+   "pid": "2123",
+   "url": "https://loj.ac/p/2123",
+   "difficulty": 4,
+   "key_point": "HEOI2015 最短不公共子串：四问，其中子序列问用序列自动机 DP/叠加 SAM"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P3976",
+   "url": "https://www.luogu.com.cn/problem/P3976",
+   "difficulty": 4,
+   "key_point": "子序列计数类（不同子序列数），序列自动机/DP 均可"
+  }
+ ],
+ "pitfalls": [
+  "next[i][c] 记的是'第一次出现位置'，判断子序列时要 pos+=1 跳过已用字符",
+  "状态从 0（未匹配）到 n（匹配完整个 s），n+1 个状态；next[n] 全为 -1",
+  "构造是倒序扫描，last 数组维护后缀最前出现，顺序错了会错位",
+  "不同子序列计数去重公式易错：dp[i]=1+Σ(dp[nxt+1]−1)，不要漏减重复空串",
+  "字符集下界注意：'a'..'z' 的偏移或离散化"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "def",
+    "label": "子序列自动机定义与转移 δ(u,c)=最前出现位置"
+   },
+   {
+    "id": "build",
+    "label": "倒序构造 O(n|Σ|)"
+   },
+   {
+    "id": "match",
+    "label": "子序列判断（贪心沿转移走）"
+   },
+   {
+    "id": "count",
+    "label": "不同子序列计数 DP"
+   },
+   {
+    "id": "stack",
+    "label": "与 SAM/AC 叠加：最短非公共子串/子序列"
+   }
+  ],
+  "edges": [
+   {
+    "from": "def",
+    "to": "build"
+   },
+   {
+    "from": "build",
+    "to": "match"
+   },
+   {
+    "from": "build",
+    "to": "count"
+   },
+   {
+    "from": "match",
+    "to": "stack"
+   },
+   {
+    "from": "count",
+    "to": "stack"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/string/seq-automaton/",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "url": "",
+   "ref": "HEOI2015 最短不公共子串（loj 2123）题解",
+   "verified": true
+  }
+ ]
+}

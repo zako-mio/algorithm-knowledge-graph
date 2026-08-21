@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卢卡斯定理 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-8.html">数论进阶族</a> / <span>卢卡斯定理</span></div>
+  <h1>卢卡斯定理</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-C-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="discrete-root.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">discrete-root</span></a>
+    <a class="nav-index" href="../03-groups/G-C-8.html"><span class="dir">组内第 5 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="extended-lucas.html"><span class="dir">下一个 / 组内</span><span class="v">extended-lucas</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">C(n,m) mod p（p 为素数）：按 p 进制拆 n,m 后各位组合数相乘，O(p) 预处理阶乘 + O(log_p n) 每次查询，大组合数取小素模的标准工具</div><p>卢卡斯定理（Lucas&#x27;s theorem）：对素数 p 与非负整数 n,m，
+C(n,m) ≡ C(⌊n/p⌋,⌊m/p⌋) · C(n mod p, m mod p) (mod p)。
+其中规定 C(a,b)=0 当 b&gt;a。等价地，把 n,m 写成 p 进制展开，则 C(n,m) ≡ ∏ C(n_i, m_i) (mod p)。由此可在 O(p + T log_p n) 内处理任意大的 n（可远超 64 位），只要模数是小的素数。前提：p 为素数且通常 p ≤ 1e6~1e7（需要预处理 p 以内阶乘逆元）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>n! 里含 p 的因子把大组合数撑爆，但模 p 后每个 p 的倍数因子都被清零。把 n,m 按 p 进制分段，&#x27;高位段&#x27;和&#x27;低位段&#x27;的贡献正好分开：低位用 p 以内阶乘直接算，高位递归再用一次 Lucas——这就是 p 进制位拆分的直觉。生成函数视角：模 p 下 (1+x)^n ≡ (1+x^p)^⌊n/p⌋(1+x)^(n mod p)，两侧 x^k 系数相等即得定理。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>关键引理：模素数 p 时 C(p,i)≡0 (对 0&lt;i&lt;p)，故 (1+x)^p ≡ 1+x^p (mod p)（Freshman&#x27;s dream）。于是 (1+x)^n = (1+x)^(p·q+r) ≡ (1+x^p)^q·(1+x)^r，比较 x^m 系数：左侧为 C(n,m)，右侧唯一分解 m=p·m_high+m_low 给出 C(q,m_high)·C(r,m_low)。递归 q=⌊n/p⌋ 即得按位乘积公式。等价代数证明：n! = p^(⌊n/p⌋)·⌊n/p⌋! · (去除 p 因子后的乘积)，约分得 C(n,m) = p^e·C(⌊n/p⌋,⌊m/p⌋)·(去 p 因子乘积之比)，其中 e=ν_p(n!)−ν_p(m!)−ν_p((n−m)!) ≥ 0，模 p 后只剩 Lucas 递推。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>法国数学家 Édouard Lucas 于 1878 年发表该定理（其最早思想可追溯至 19 世纪初）。Lucas 在素数分解、Fibonacci 数上有大量工作，并以 Lucas 数列闻名。定理为『大组合数取小素模』提供了第一个实用方法，是 exLucas 与数论组合题的基石，被收录于 OI Wiki 数论章与 CPH 组合章。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 预处理 0..p-1 阶乘与逆元（O(p)）</span>
+fact[<span class="t-n">0.</span>.p-<span class="t-n">1</span>], inv_fact[<span class="t-n">0.</span>.p-<span class="t-n">1</span>]
+<span class="t-c"># 单次小组合数（p 以内）</span>
+<span class="t-k">def</span> <span class="t-f">comb</span>(a, b):
+  <span class="t-k">if</span> b &lt; <span class="t-n">0</span> <span class="t-k">or</span> b &gt; a: <span class="t-k">return</span> <span class="t-n">0</span>
+  <span class="t-k">return</span> fact[a] * inv_fact[b] % p * inv_fact[a-b] % p
+<span class="t-c"># Lucas 递归/迭代</span>
+<span class="t-k">def</span> <span class="t-f">lucas</span>(n, m, p):
+  res = <span class="t-n">1</span>
+  <span class="t-k">while</span> n <span class="t-k">or</span> m:
+    res = res * <span class="t-f">comb</span>(n % p, m % p) % p
+    n //= p; m //= p
+  <span class="t-k">return</span> res</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">lucas_comb</span>(n, m, p):
+    <span class="t-s">&quot;&quot;&quot;Lucas 定理 + CRT 组合的完整实现。
+    p 必须为素数。
+    该函数同时验证了与 CRT 结合的经典写法
+    （多素因子模数场景请见 extended-lucas 节点）。
+    &quot;&quot;&quot;</span>
+    <span class="t-k">if</span> m &lt; <span class="t-n">0</span> <span class="t-k">or</span> m &gt; n:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    <span class="t-k">if</span> p == <span class="t-n">1</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+
+    fact = [<span class="t-n">1</span>] * p
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, p):
+        fact[i] = fact[i - <span class="t-n">1</span>] * i % p
+    inv_fact = [<span class="t-n">1</span>] * p
+    inv_fact[p - <span class="t-n">1</span>] = <span class="t-b">pow</span>(fact[p - <span class="t-n">1</span>], p - <span class="t-n">2</span>, p)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(p - <span class="t-n">2</span>, -<span class="t-n">1</span>, -<span class="t-n">1</span>):
+        inv_fact[i] = inv_fact[i + <span class="t-n">1</span>] * (i + <span class="t-n">1</span>) % p
+
+    <span class="t-k">def</span> <span class="t-f">comb</span>(a, b):
+        <span class="t-k">if</span> b &lt; <span class="t-n">0</span> <span class="t-k">or</span> b &gt; a:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        <span class="t-k">return</span> fact[a] * inv_fact[b] % p * inv_fact[a - b] % p
+
+    res = <span class="t-n">1</span>
+    <span class="t-k">while</span> n <span class="t-k">or</span> m:
+        res = res * <span class="t-f">comb</span>(n % p, m % p) % p
+        n //= p
+        m //= p
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">crt_merge_lucas</span>(n, m, mod):
+    <span class="t-s">&quot;&quot;&quot;Lucas + CRT：mod 可为合数但其每个素因子都是小素数。
+    对每个素因子 p_i 用 Lucas 求余数，再 CRT 合并。
+    注意：p_i 若以高次幂出现需用 exLucas（见 extended-lucas 节点）。
+    &quot;&quot;&quot;</span>
+    <span class="t-k">import</span> math
+    <span class="t-k">from</span> math <span class="t-k">import</span> gcd
+
+    mm = mod
+    primes = []
+    d = <span class="t-n">2</span>
+    <span class="t-k">while</span> d * d &lt;= mm:
+        <span class="t-k">if</span> mm % d == <span class="t-n">0</span>:
+            primes.<span class="t-f">append</span>(d)
+            <span class="t-k">while</span> mm % d == <span class="t-n">0</span>:
+                mm //= d
+        d += <span class="t-n">1</span>
+    <span class="t-k">if</span> mm &gt; <span class="t-n">1</span>:
+        primes.<span class="t-f">append</span>(mm)
+
+    rs = []
+    mods = []
+    <span class="t-k">for</span> p <span class="t-k">in</span> primes:
+        <span class="t-k">if</span> p &gt; <span class="t-n">1_000_000</span>:
+            <span class="t-k">raise</span> <span class="t-b">ValueError</span>(<span class="t-s">&quot;p 过大无法预处理阶乘&quot;</span>)
+        rs.<span class="t-f">append</span>(<span class="t-f">lucas_comb</span>(n, m, p))
+        mods.<span class="t-f">append</span>(p)
+
+    total = <span class="t-n">1</span>
+    <span class="t-k">for</span> m <span class="t-k">in</span> mods:
+        total *= m
+    x = <span class="t-n">0</span>
+    <span class="t-k">for</span> r, m <span class="t-k">in</span> <span class="t-b">zip</span>(rs, mods):
+        mi = total // m
+        x = (x + r * mi * <span class="t-b">pow</span>(mi, -<span class="t-n">1</span>, m)) % total
+    <span class="t-k">return</span> x
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> math
+
+    <span class="t-c"># 与 math.comb 交叉验证（小 p 全范围）</span>
+    <span class="t-k">for</span> p <span class="t-k">in</span> [<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">7</span>, <span class="t-n">11</span>]:
+        <span class="t-k">for</span> n <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, <span class="t-n">80</span>):
+            <span class="t-k">for</span> m <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, n + <span class="t-n">1</span>):
+                <span class="t-k">assert</span> <span class="t-f">lucas_comb</span>(n, m, p) == math.<span class="t-f">comb</span>(n, m) % p, (n, m, p)
+
+    <span class="t-c"># 经典样例</span>
+    <span class="t-k">assert</span> <span class="t-f">lucas_comb</span>(<span class="t-n">10</span>, <span class="t-n">3</span>, <span class="t-n">7</span>) == <span class="t-n">120</span> % <span class="t-n">7</span> == <span class="t-n">1</span>
+    <span class="t-k">assert</span> <span class="t-f">lucas_comb</span>(<span class="t-n">100</span>, <span class="t-n">50</span>, <span class="t-n">97</span>) == math.<span class="t-f">comb</span>(<span class="t-n">100</span>, <span class="t-n">50</span>) % <span class="t-n">97</span>
+    <span class="t-c"># 大 n（远超 64 位）也能算：n=1e5 的精确组合数仍可由 math.comb 求出并取模交叉验证</span>
+    n = <span class="t-n">100000</span>
+    <span class="t-k">assert</span> <span class="t-f">lucas_comb</span>(n, n // <span class="t-n">3</span>, <span class="t-n">999983</span>) == math.<span class="t-f">comb</span>(n, n // <span class="t-n">3</span>) % <span class="t-n">999983</span>
+    <span class="t-k">assert</span> <span class="t-f">lucas_comb</span>(n, n // <span class="t-n">2</span>, <span class="t-n">998244353</span>) == math.<span class="t-f">comb</span>(n, n // <span class="t-n">2</span>) % <span class="t-n">998244353</span>
+
+    <span class="t-c"># Lucas+CRT 组合：mod 为 squarefree 合数</span>
+    <span class="t-k">assert</span> <span class="t-f">crt_merge_lucas</span>(<span class="t-n">10</span>, <span class="t-n">3</span>, <span class="t-n">6</span>) == <span class="t-n">120</span> % <span class="t-n">6</span>
+    <span class="t-k">assert</span> <span class="t-f">crt_merge_lucas</span>(<span class="t-n">100</span>, <span class="t-n">40</span>, <span class="t-n">35</span>) == math.<span class="t-f">comb</span>(<span class="t-n">100</span>, <span class="t-n">40</span>) % <span class="t-n">35</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">预处理 p 以内阶乘+逆元需 O(p)，p=1e6 时 PyPy 约 0.1~0.2s，p=1e7 约 1.5s 且有内存压力（两个 int 数组）。每次查询仅 log_p n 次小组合数，常数极小。若 T 次查询且 p 固定，把 fact/inv_fact 提到函数外只预处理一次。n 可达任意大（Python 大整数无碍），m 必须非负。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>预处理 O(p)；单次查询 O(log_p n)；T 次查询 O(p + T log_p n)</td></tr><tr><th>空间复杂度</th><td>O(p)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">p 必须为素数。p 超过约 1e7 时 O(p) 预处理好时间；若只有少数查询且 p 很大，可改用 O(√p) 的单点组合数（但 n 小）。对 n mod p &lt; m mod p 的处理依赖 C(a,b)=0 约定。合数模必须用 exLucas（除非模数恰为若干互异小素因子之积且幂次全为 1，可用 Lucas+CRT）。m&lt;0 或 m&gt;n 返回 0。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>p 是素数才可用 Lucas；合数直接套会错（要用 exLucas）</li><li>预处理阶乘数组要覆盖 0..p-1（大小恰为 p），越界越界访问</li><li>n&lt;m 时 C(n,m)=0，不能直接算（comb 里 b&gt;a 要返回 0）</li><li>递归写法尾递归深度 O(log_p n)，n 很大时用迭代避免递归栈问题（Python 无尾递归优化）</li><li>CRT 合并时模数互素（素因子）才可用公式，模数为素因子乘积要保证 squarefree</li><li>阶乘逆元用费马小定理需 p 素数；p=2 时逆元计算仍正确但注意边界</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3807</strong></td><td>3</td><td>【模板】卢卡斯定理：n,m 可达 1e18，p≤1e5，直接套 Lucas+阶乘逆元</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3807" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3807</a></td></tr><tr><td>SDOI2010</td><td><strong>P2480 古代猪文</strong></td><td>7</td><td>C(n,d) 对 999911659 取模：先分解 999911658 的素因子，每个小素因子用 Lucas 求余，再 CRT 合并，指数降幂</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2480" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2480</a></td></tr><tr><td>LibreOJ</td><td><strong>LOJ 10229</strong></td><td>7</td><td>SDOI2010 古代猪文同题：Lucas+CRT+欧拉降幂的综合模板</td><td class="u"><a href="https://loj.ac/problem/10229" target="_blank" rel="noopener">https://loj.ac/problem/10229</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-lucas-theorem" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "prep", "label": "预处理 p 以内阶乘与逆元"}}, {"data": {"id": "comb_small", "label": "p 以内小组合数 C(a,b)"}}, {"data": {"id": "lucas_rec", "label": "Lucas 迭代/递归按 p 进制拆位"}}, {"data": {"id": "crt", "label": "应用: 多素因子模数 CRT 合并"}}, {"data": {"id": "exlucas", "label": "延伸: 素因子高次幂情形见 exLucas"}}, {"data": {"id": "eprep->comb_small", "source": "prep", "target": "comb_small"}}, {"data": {"id": "ecomb_small->lucas_rec", "source": "comb_small", "target": "lucas_rec"}}, {"data": {"id": "elucas_rec->crt", "source": "lucas_rec", "target": "crt"}}, {"data": {"id": "elucas_rec->exlucas", "source": "lucas_rec", "target": "exlucas"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-lucas-theorem'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="combination-number.html" title="Lucas定理处理大组合数取模，是组合数计算的进阶">组合数<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="extended-lucas.html" title="exLucas是Lucas在合数模数下的推广">扩展卢卡斯(exLucas)<span class="etype">变体</span></a><a class="chip e-combination" href="combination-number.html" title="Lucas是组合数取模的加速，二者常组合使用">组合数<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/lucas/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/lucas/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/combinatorics/binomial-coefficients.html" target="_blank" rel="noopener">https://cp-algorithms.com/combinatorics/binomial-coefficients.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch21 Number theory（组合数模素数 p）</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

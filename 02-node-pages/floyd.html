@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floyd-Warshall算法 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-2.html">最短路族</a> / <span>Floyd-Warshall算法</span></div>
+  <h1>Floyd-Warshall算法</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-B-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="dijkstra.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">dijkstra</span></a>
+    <a class="nav-index" href="../03-groups/G-B-2.html"><span class="dir">组内第 2 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="bellman-ford.html"><span class="dir">下一个 / 组内</span><span class="v">bellman-ford</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">全源最短路，DP三重循环O(V³)，可处理负权</div><p>Floyd-Warshall 算法（又称 Floyd）求任意两点间（全源）最短路径，O(V³)。它用动态规划：令 dis[k][i][j] 表示只允许经过前 k 个节点（编号 ≤k）中转时 i 到 j 的最短路，转移 dis[k][i][j]=min(dis[k-1][i][j], dis[k-1][i][k]+dis[k-1][k][j])，滚掉第一维后即为三重循环 dis[i][j]=min(dis[i][j], dis[i][k]+dis[k][j])。可处理负权边，并在循环结束后检测负环（dis[i][i]&lt;0）。常用于点数较少（n≤500）的全源最短路、传递闭包、最小环等。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把『所有点』当做一个一个加入的『允许中转点』。新加入点 k 时，检查每一对 (i,j)：经 k 中转是否更短。因为每步只依赖上一次的结果，三重循环里 k 在最外层是精妙的『以 k 为最大中转点编号』的 DP 顺序，保证每个中转点恰好被考虑一次。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 状态 dis[k][i][j]：只用 {0..k} 中节点做中转时 i→j 最短路；② 转移 dis[k]=min(dis[k-1], dis[k-1][i][k]+dis[k-1][k][j])，即 k 要么不在中转路径里，要么被使用；③ 滚掉 k 维得标准三重循环（k 外层），原因是 k 层只用上一层的 i,k 与 k,j，原地更新不破坏正确性；④ 路径重建：记录 nxt[i][j] 为从 i 到 j 路径上的下一节点，松弛时同步更新；⑤ 负环：若某 dis[i][i]&lt;0，说明存在总权为负的闭合路径（负环）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>算法以 Robert Floyd 命名（1962 年发表于 Communications of the ACM），但本质是 Stephen Warshall（1962）传递闭包思想的推广；同时 Bernard Roy（1959）也独立发表。是四大经典最短路算法（Dijkstra/Bellman-Ford/Floyd/Johnson）中唯一的全源 DP 方法，教材（CLRS、CPH ch13）标准内容。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 三重循环 (k 外层)</span>
+dis = 距离矩阵; 无边记 INF; dis[i][i]=<span class="t-n">0</span>
+<span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(n):
+  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+    <span class="t-k">if</span> dis[i][k] == INF: <span class="t-k">continue</span>
+    <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+      <span class="t-k">if</span> dis[k][j] == INF: <span class="t-k">continue</span>
+      dis[i][j] = <span class="t-b">min</span>(dis[i][j], dis[i][k]+dis[k][j])
+
+<span class="t-c"># 负环检测: 结束后存在 dis[i][i] &lt; 0</span>
+<span class="t-c"># 路径重建:</span>
+nxt[i][j] 初始 = <span class="t-f">j</span> (若有边)
+<span class="t-k">if</span> 松弛: nxt[i][j] = nxt[i][k]</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">floyd</span>(n, edges):
+    <span class="t-s">&quot;&quot;&quot;Floyd-Warshall: 返回 dis 距离矩阵 (可处理负权, 不含负环)。
+    edges: [(u,v,w),...] 0-indexed&quot;&quot;&quot;</span>
+    INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    dis = [[INF] * n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        dis[i][i] = <span class="t-n">0</span>
+    <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+        dis[u][v] = <span class="t-b">min</span>(dis[u][v], w)
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> dis[i][k] == INF:
+                <span class="t-k">continue</span>
+            ik = dis[i][k]
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> dis[k][j] == INF:
+                    <span class="t-k">continue</span>
+                nd = ik + dis[k][j]
+                <span class="t-k">if</span> nd &lt; dis[i][j]:
+                    dis[i][j] = nd
+    <span class="t-k">return</span> dis
+
+
+<span class="t-k">def</span> <span class="t-f">floyd_has_neg_cycle</span>(n, edges):
+    <span class="t-s">&quot;&quot;&quot;检测负环: Floyd 结束后存在 dis[i][i]&lt;0&quot;&quot;&quot;</span>
+    dis = <span class="t-f">floyd</span>(n, edges)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">if</span> dis[i][i] &lt; <span class="t-n">0</span>:
+            <span class="t-k">return</span> <span class="t-k">True</span>
+    <span class="t-k">return</span> <span class="t-k">False</span>
+
+
+<span class="t-k">def</span> <span class="t-f">floyd_path</span>(n, edges, s, t):
+    <span class="t-s">&quot;&quot;&quot;Floyd + 路径重建: 返回 (dist, path 节点列表); 不可达返回 (inf, [])&quot;&quot;&quot;</span>
+    INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    dis = [[INF] * n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    nxt = [[-<span class="t-n">1</span>] * n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        dis[i][i] = <span class="t-n">0</span>
+    <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+        <span class="t-k">if</span> w &lt; dis[u][v]:
+            dis[u][v] = w
+            nxt[u][v] = v
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> dis[i][k] == INF:
+                <span class="t-k">continue</span>
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> dis[k][j] == INF:
+                    <span class="t-k">continue</span>
+                nd = dis[i][k] + dis[k][j]
+                <span class="t-k">if</span> nd &lt; dis[i][j]:
+                    dis[i][j] = nd
+                    nxt[i][j] = nxt[i][k]
+    <span class="t-k">if</span> dis[s][t] == INF:
+        <span class="t-k">return</span> INF, []
+    path = []
+    cur = s
+    <span class="t-k">while</span> cur != -<span class="t-n">1</span>:
+        path.<span class="t-f">append</span>(cur)
+        <span class="t-k">if</span> cur == t:
+            <span class="t-k">break</span>
+        cur = nxt[cur][t]
+    <span class="t-k">return</span> dis[s][t], path
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+
+    <span class="t-k">def</span> <span class="t-f">dijkstra_all</span>(adj, n):
+        <span class="t-k">import</span> heapq
+        out = []
+        <span class="t-k">for</span> s <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            dis = [<span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)] * n
+            dis[s] = <span class="t-n">0</span>
+            pq = [(<span class="t-n">0</span>, s)]
+            <span class="t-k">while</span> pq:
+                d, u = heapq.<span class="t-f">heappop</span>(pq)
+                <span class="t-k">if</span> d &gt; dis[u]:
+                    <span class="t-k">continue</span>
+                <span class="t-k">for</span> v, w <span class="t-k">in</span> adj[u]:
+                    <span class="t-k">if</span> d + w &lt; dis[v]:
+                        dis[v] = d + w
+                        heapq.<span class="t-f">heappush</span>(pq, (dis[v], v))
+            out.<span class="t-f">append</span>(dis)
+        <span class="t-k">return</span> out
+
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">11</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">150</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">7</span>)
+        edges = []
+        adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> i != j <span class="t-k">and</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.35</span>:
+                    w = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">8</span>)
+                    edges.<span class="t-f">append</span>((i, j, w))
+                    adj[i].<span class="t-f">append</span>((j, w))
+        disF = <span class="t-f">floyd</span>(n, edges)
+        disD = <span class="t-f">dijkstra_all</span>(adj, n)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                a, b = disF[i][j], disD[i][j]
+                <span class="t-k">if</span> a == <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>) <span class="t-k">or</span> b == <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>):
+                    <span class="t-k">assert</span> a == b, (i, j, a, b)
+                <span class="t-k">else</span>:
+                    <span class="t-k">assert</span> a == b, (i, j, a, b)
+
+    <span class="t-c"># 负环检测</span>
+    <span class="t-k">assert</span> <span class="t-f">floyd_has_neg_cycle</span>(<span class="t-n">3</span>, [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, -<span class="t-n">1</span>), (<span class="t-n">2</span>, <span class="t-n">0</span>, -<span class="t-n">2</span>)]) <span class="t-k">is</span> <span class="t-k">True</span>
+    <span class="t-k">assert</span> <span class="t-f">floyd_has_neg_cycle</span>(<span class="t-n">3</span>, [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, -<span class="t-n">1</span>), (<span class="t-n">2</span>, <span class="t-n">0</span>, <span class="t-n">1</span>)]) <span class="t-k">is</span> <span class="t-k">False</span>
+
+    <span class="t-c"># 路径重建</span>
+    edges = [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">0</span>, <span class="t-n">2</span>, <span class="t-n">5</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">1</span>), (<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">2</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">1</span>)]
+    d, p = <span class="t-f">floyd_path</span>(<span class="t-n">4</span>, edges, <span class="t-n">0</span>, <span class="t-n">3</span>)
+    <span class="t-k">assert</span> d == <span class="t-n">3</span> <span class="t-k">and</span> p == [<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">3</span>], (d, p)
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">三重循环用局部变量 ik=dis[i][k] 与 nd 减少索引；跳过 INF 提前 continue 显著提速。稠密图 n≤500 时三重 1.25e8 次运算 PyPy 约 2-3s，可接受；更大只能换 Johnson 或 n 次 Dijkstra。内层 j 循环用 range 而非 list 切片。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(V³)</td></tr><tr><th>空间复杂度</th><td>O(V²) 距离矩阵；路径重建额外 O(V²)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">V 大时 O(V³) 不可行（n≤500 以内为宜，n=1000 约 1e9 操作超时）。可处理负权但不能含负环（检测到负环即无有限最短路）。对含负环的图，floyd 无法给出答案，需先判负环。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>k 必须在最外层——把 k 放内层会得到错误结果</li><li>重边取 min 建矩阵，否则丢边</li><li>INF 太大导致 inf+w 溢出（Python float 无此问题，但 int INF 需足够大）</li><li>负环时 dis[i][i]&lt;0，但无负环图从任意 i 出发回到 i 应为 0</li><li>路径重建忘记初始化 nxt 或在松弛时同步更新</li><li>n 超过 ~500 时 O(V³) 超时，需换 Johnson/SPFA</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1119</strong></td><td>4</td><td>灾后重建：按时间逐点开放中转点，恰好对应 Floyd 的 k 循环</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1119" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1119</a></td></tr><tr><td>CSES</td><td><strong>Shortest Routes II</strong></td><td>3</td><td>全源最短路模板（Floyd），n≤500 标准题</td><td class="u"><a href="https://cses.fi/problemset/task/1672" target="_blank" rel="noopener">https://cses.fi/problemset/task/1672</a></td></tr><tr><td>Luogu</td><td><strong>P4768</strong></td><td>6</td><td>最短路径+离线：结合 Kruskal 重构树，Floyd 思路的推广</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4768" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4768</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-floyd" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "dp_state", "label": "状态 dis[k][i][j]: 只用≤k 中转"}}, {"data": {"id": "k_outer", "label": "k 最外层三重循环顺序"}}, {"data": {"id": "relax_loop", "label": "转移 min(直接, 经 k)"}}, {"data": {"id": "neg_cycle", "label": "负环检测 dis[i][i]\u003c0"}}, {"data": {"id": "path_rebuild", "label": "nxt 数组路径重建"}}, {"data": {"id": "min_cycle", "label": "扩展: 最小环"}}, {"data": {"id": "edp_state->k_outer", "source": "dp_state", "target": "k_outer"}}, {"data": {"id": "ek_outer->relax_loop", "source": "k_outer", "target": "relax_loop"}}, {"data": {"id": "erelax_loop->neg_cycle", "source": "relax_loop", "target": "neg_cycle"}}, {"data": {"id": "erelax_loop->path_rebuild", "source": "relax_loop", "target": "path_rebuild"}}, {"data": {"id": "epath_rebuild->min_cycle", "source": "path_rebuild", "target": "min_cycle"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-floyd'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="dijkstra.html" title="同为最短路算法，Dijkstra单源Floyd全源">Dijkstra算法<span class="etype">变体</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-combination" href="min-cycle.html" title="最小环可在Floyd过程中枚举最大编号节点">最小环<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/shortest-path/" target="_blank" rel="noopener">https://oi-wiki.org/graph/shortest-path/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/all-pair-shortest-path-floyd-warshall.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/all-pair-shortest-path-floyd-warshall.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch13 pp133-142</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

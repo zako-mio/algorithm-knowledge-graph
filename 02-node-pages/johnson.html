@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Johnson算法 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-2.html">最短路族</a> / <span>Johnson算法</span></div>
+  <h1>Johnson算法</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-B-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="spfa.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">spfa</span></a>
+    <a class="nav-index" href="../03-groups/G-B-2.html"><span class="dir">组内第 5 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="bfs-01.html"><span class="dir">下一个 / 组内</span><span class="v">bfs-01</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">全源最短路，势能法处理负权，n次Dijkstra O(VElogV)</div><p>Johnson 算法求任意两点间的全源最短路，O(VE log V)，在稀疏图上优于 Floyd 的 O(V³)，且支持负权边（不能有负环）。思路：加虚拟源点 0 向所有点连 0 权边，用 Bellman-Ford 求出各点势能 h(i)；把每条边 (u,v,w) 重新标记为 w&#x27;=w+h(u)-h(v)≥0，然后对每个点跑一遍 Dijkstra 求最短路，最后把势能差加回去。是『把负权图变成非负权图再利用 Dijkstra 的贪心优势』的经典势能技巧，也是最小费用流 SSP 里用 Dijkstra 的核心思想来源。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>负权边让 Dijkstra 失效，但把每条边统一加一个常数又会改变最短路（走的边数不同，OI Wiki 反例）。观察：若给每个点赋一个『高度』h(i)（势能），把边权 w(u,v) 改成 w+h(u)-h(v)，则任意路径 s→t 的总长变化恒为 h(s)-h(t)，与走哪条路无关——路径长度排序不变，最短路还是那条。若还能让所有新边权非负，就能跑 Dijkstra。Bellman-Ford 从虚拟源点求出的最短路天然满足三角形不等式 h(v)≤h(u)+w(u,v)，故 w&#x27;=w+h(u)-h(v)≥0。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 加虚拟源点 0，向每个点连权 0 的边；② 从 0 跑 Bellman-Ford 得 h(v)=dis(v)（若检测到负环则无解）；③ 重标号 w&#x27;(u,v)=w(u,v)+h(u)-h(v)，由三角形不等式知 w&#x27;≥0；④ 对每个顶点跑 Dijkstra 得 d&#x27;(s,t)；⑤ 真实最短路 d(s,t)=d&#x27;(s,t)-h(s)+h(t)。正确性：路径 s→p1→…→t 长度和 Σ(w+h(u)-h(v)) = Σw + h(s)-h(t)，势能差为常数，因此最短路对应关系不变。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Donald B. Johnson 于 1977 年提出（Johnson，Efficient algorithms for shortest paths in sparse networks），将全源最短路从 O(V³) 降为 O(VE log V)。势能重标号思想与差分约束/最短路径势（potential）一脉相承，后成为算法设计中『转负权为非负』的标准范式。OI Wiki 与 CPH ch13 均收录。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">johnson</span>(n, edges):
+  <span class="t-c"># 虚拟源点 0</span>
+  h = <span class="t-f">bellman_ford</span>(n+<span class="t-n">1</span>, edges + [(n,i,<span class="t-n">0</span>) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)], n)[<span class="t-n">1</span>]
+  <span class="t-k">if</span> 负环: <span class="t-k">return</span> <span class="t-k">None</span>
+  <span class="t-c"># 重标号</span>
+  w&#x27;[u,v] = w[u,v] + h[u] - h[v]   <span class="t-c"># 全部 &gt;=0</span>
+  adj<span class="t-s">&#x27; = 按 w&#x27;</span> 建邻接表
+  ans = [[<span class="t-n">0</span>]*n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+  <span class="t-k">for</span> s <span class="t-k">in</span> <span class="t-b">range</span>(n):
+    d<span class="t-s">&#x27; = dijkstra(adj&#x27;</span>, s)
+    <span class="t-k">for</span> t <span class="t-k">in</span> <span class="t-b">range</span>(n):
+      ans[s][t] = d&#x27;[t] - h[s] + h[t]
+  <span class="t-k">return</span> ans</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> heapq
+
+
+<span class="t-k">def</span> <span class="t-f">_dijkstra</span>(adj, s, n):
+    INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    dis = [INF] * n
+    dis[s] = <span class="t-n">0</span>
+    pq = [(<span class="t-n">0</span>, s)]
+    <span class="t-k">while</span> pq:
+        d, u = heapq.<span class="t-f">heappop</span>(pq)
+        <span class="t-k">if</span> d &gt; dis[u]:
+            <span class="t-k">continue</span>
+        <span class="t-k">for</span> v, w <span class="t-k">in</span> adj[u]:
+            nd = d + w
+            <span class="t-k">if</span> nd &lt; dis[v]:
+                dis[v] = nd
+                heapq.<span class="t-f">heappush</span>(pq, (nd, v))
+    <span class="t-k">return</span> dis
+
+
+<span class="t-k">def</span> <span class="t-f">johnson</span>(n, edges):
+    <span class="t-s">&quot;&quot;&quot;全源最短路(支持负权, 无负环). edges: [(u,v,w)].
+    返回 dis 矩阵; 不可达为 float(&#x27;inf&#x27;); 存在负环返回 None.&quot;&quot;&quot;</span>
+    INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    super_src = n
+    super_edges = edges + [(super_src, i, <span class="t-n">0</span>) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+
+    h = [INF] * (n + <span class="t-n">1</span>)
+    h[super_src] = <span class="t-n">0</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        updated = <span class="t-k">False</span>
+        <span class="t-k">for</span> u, v, w <span class="t-k">in</span> super_edges:
+            <span class="t-k">if</span> h[u] != INF <span class="t-k">and</span> h[u] + w &lt; h[v]:
+                h[v] = h[u] + w
+                updated = <span class="t-k">True</span>
+        <span class="t-k">if</span> <span class="t-k">not</span> updated:
+            <span class="t-k">break</span>
+    <span class="t-k">for</span> u, v, w <span class="t-k">in</span> super_edges:
+        <span class="t-k">if</span> h[u] != INF <span class="t-k">and</span> h[u] + w &lt; h[v]:
+            <span class="t-k">return</span> <span class="t-k">None</span>  <span class="t-c"># 负环</span>
+
+    adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+        w2 = w + h[u] - h[v]
+        <span class="t-k">if</span> w2 &lt; <span class="t-n">0</span>:
+            w2 = <span class="t-n">0</span>  <span class="t-c"># 数值保护(理论上 w&#x27;&gt;=0, 浮点/取整边界兜底)</span>
+        adj[u].<span class="t-f">append</span>((v, w2))
+
+    ans = [[INF] * n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">for</span> s <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        d2 = <span class="t-f">_dijkstra</span>(adj, s, n)
+        <span class="t-k">for</span> t <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> d2[t] != INF:
+                ans[s][t] = d2[t] - h[s] + h[t]
+            <span class="t-k">else</span>:
+                ans[s][t] = INF
+    <span class="t-k">return</span> ans
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 带负权的稀疏图</span>
+    n = <span class="t-n">4</span>
+    edges = [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">0</span>, <span class="t-n">2</span>, -<span class="t-n">2</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">2</span>), (<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">5</span>), (<span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">3</span>, <span class="t-n">1</span>, -<span class="t-n">1</span>)]
+    ans = <span class="t-f">johnson</span>(n, edges)
+    <span class="t-k">assert</span> ans <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>
+    <span class="t-k">assert</span> ans[<span class="t-n">0</span>][<span class="t-n">3</span>] == <span class="t-n">1</span>, ans[<span class="t-n">0</span>]  <span class="t-c"># 0-&gt;2(-2)-&gt;1(1)-&gt;3(2) = 1</span>
+    <span class="t-k">assert</span> ans[<span class="t-n">0</span>] == [<span class="t-n">0</span>, -<span class="t-n">1</span>, -<span class="t-n">2</span>, <span class="t-n">1</span>], ans[<span class="t-n">0</span>]
+
+    <span class="t-c"># 与 Floyd 交叉验证</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">41</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">7</span>)
+        edges = []
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> i != j <span class="t-k">and</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.3</span>:
+                    edges.<span class="t-f">append</span>((i, j, random.<span class="t-f">randint</span>(-<span class="t-n">4</span>, <span class="t-n">7</span>)))
+        <span class="t-c"># Floyd 参考</span>
+        INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+        d = [[INF] * n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            d[i][i] = <span class="t-n">0</span>
+        <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+            d[u][v] = <span class="t-b">min</span>(d[u][v], w)
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> d[i][k] == INF:
+                    <span class="t-k">continue</span>
+                <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                    <span class="t-k">if</span> d[k][j] == INF:
+                        <span class="t-k">continue</span>
+                    d[i][j] = <span class="t-b">min</span>(d[i][j], d[i][k] + d[k][j])
+        neg = <span class="t-b">any</span>(d[i][i] &lt; <span class="t-n">0</span> <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n))
+        ans = <span class="t-f">johnson</span>(n, edges)
+        <span class="t-k">if</span> neg:
+            <span class="t-k">assert</span> ans <span class="t-k">is</span> <span class="t-k">None</span>, (n, edges)
+        <span class="t-k">else</span>:
+            <span class="t-k">assert</span> ans <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                    a, b = ans[i][j], d[i][j]
+                    <span class="t-k">if</span> a == INF <span class="t-k">or</span> b == INF:
+                        <span class="t-k">assert</span> a == b, (i, j, a, b)
+                    <span class="t-k">else</span>:
+                        <span class="t-k">assert</span> <span class="t-b">abs</span>(a - b) &lt; <span class="t-n">1e-9</span>, (i, j, a, b)
+
+    <span class="t-c"># 负环</span>
+    <span class="t-k">assert</span> <span class="t-f">johnson</span>(<span class="t-n">3</span>, [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, -<span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">0</span>, <span class="t-n">1</span>)]) <span class="t-k">is</span> <span class="t-k">None</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Bellman-Ford 用边列表一次遍历；Dijkstra 用 heapq。n 次 Dijkstra 是主开销，n,m 均 ~1e4 时约 O(VE log V) 可行；n 大边少时比 Floyd 优。势能 h 可为负大数，Python int 无溢出。若已知图无负权可跳过 BF 直接 n 次 Dijkstra。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(VE) 求势能 + O(VE log V) 的 n 次 Dijkstra</td></tr><tr><th>空间复杂度</th><td>O(V²) 结果矩阵 + O(V+E)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">含负环时无最短路，算法返回 None；V 很大且图稠密时 O(VE log V) 仍不如 Floyd。结果矩阵 O(V²) 内存对 V≥5e3 有压力。仅需单源时不要用 Johnson。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>忘记先判负环：Bellman-Ford 求 h 时若第 n 轮仍可松弛必须返回无解</li><li>重标号后忘记把 h 差加回去（ans = d&#x27; - h[s] + h[t]）</li><li>虚拟源点到所有点连 0 权边是必要的，否则 h 只覆盖从 0 可达部分</li><li>n 次 Dijkstra 之间要复用邻接表，别重复建图</li><li>h 数组用 INF 初始化，未从 0 达的点要处理</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P5905</strong></td><td>5</td><td>【模板】Johnson 全源最短路：模板题，负权+全源</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5905" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5905</a></td></tr><tr><td>CSES</td><td><strong>Shortest Routes II</strong></td><td>3</td><td>全源最短路（非负）：Floyd 或 Johnson 均适用的小数据题</td><td class="u"><a href="https://cses.fi/problemset/task/1672" target="_blank" rel="noopener">https://cses.fi/problemset/task/1672</a></td></tr><tr><td>AtCoder</td><td><strong>ABC237 E</strong></td><td>5</td><td>Skiing：含负权单源，差分约束/势能思想与 Dijkstra 结合</td><td class="u"><a href="https://atcoder.jp/contests/abc237/tasks/abc237_e" target="_blank" rel="noopener">https://atcoder.jp/contests/abc237/tasks/abc237_e</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-johnson" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "super_src", "label": "虚拟源点连 0 权边"}}, {"data": {"id": "bf_potential", "label": "Bellman-Ford 求势能 h"}}, {"data": {"id": "reweight", "label": "重标号 w'=w+h(u)-h(v)≥0"}}, {"data": {"id": "n_dijkstra", "label": "n 次 Dijkstra 求重标号图最短路"}}, {"data": {"id": "unshift", "label": "还原 d = d' - h[s] + h[t]"}}, {"data": {"id": "esuper_src->bf_potential", "source": "super_src", "target": "bf_potential"}}, {"data": {"id": "ebf_potential->reweight", "source": "bf_potential", "target": "reweight"}}, {"data": {"id": "ereweight->n_dijkstra", "source": "reweight", "target": "n_dijkstra"}}, {"data": {"id": "en_dijkstra->unshift", "source": "n_dijkstra", "target": "unshift"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-johnson'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-combination" href="dijkstra.html" title="Johnson用势能法转化后以Dijkstra为子程序">Dijkstra算法<span class="etype">组合</span></a><a class="chip e-combination" href="bellman-ford.html" title="Johnson用Bellman-Ford求势能h(i)">Bellman-Ford算法<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/shortest-path/" target="_blank" rel="noopener">https://oi-wiki.org/graph/shortest-path/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/johnson.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/johnson.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch13 pp133-142</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

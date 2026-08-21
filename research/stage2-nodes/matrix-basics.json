@@ -1,0 +1,122 @@
+{
+  "id": "matrix-basics",
+  "name": "矩阵基础",
+  "group": "G-C-14",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "矩阵加减乘与转置，矩阵快速幂O(k^3 log n)，递推加速核心",
+  "what": "矩阵是按行列排列的数表。矩阵乘法遵循'左行右列'法则：C[i][j]=ΣA[i][k]*B[k][j]。矩阵乘法满足结合律但不满足交换律。利用结合律和快速幂思想，可在O(n^3 log k)内计算矩阵k次幂，用于加速线性递推（如斐波那契数列）。单位矩阵I是对角线为1其余为0的方阵。特殊矩阵包括对角矩阵、三角矩阵、对称矩阵等。",
+  "why": {
+    "intuition": "矩阵是对数据的'打包处理'。线性方程组Ax=b中，A将未知数向量x变换为结果向量b。矩阵乘法是向量内积的推广：结果矩阵的每个元素是左矩阵一行与右矩阵一列的内积。",
+    "principle": "矩阵快速幂利用结合律：(A^2)^2=A^4。二进制分解指数k，每次平方矩阵并按需累乘。对于n阶方阵，每次乘法O(n^3)，共O(log k)次，总O(n^3 log k)。线性递推f(n)=c1*f(n-1)+...+ck*f(n-k)可表示为矩阵乘法，用快速幂加速到O(k^3 log n)。",
+    "history": "矩阵概念源于线性方程组的研究。矩阵快速幂是竞赛中加速线性递推的标准方法。Strassen算法可做到O(n^2.807)但常数大，竞赛中很少使用。"
+  },
+  "how": {
+    "pseudocode": "mat_mul(A, B):\n  C[i][j] = sum(A[i][k]*B[k][j])\n\nmat_pow(A, p):\n  result = I (identity)\n  while p > 0:\n    if p & 1: result = mul(result, A)\n    A = mul(A, A)\n    p >>= 1\n  return result",
+    "python": "def mat_mul(A, B, mod=None):\n    \"\"\"Multiply matrices A (n x m) and B (m x k), optional mod.\"\"\"\n    n, m = len(A), len(A[0])\n    k = len(B[0])\n    C = [[0] * k for _ in range(n)]\n    for i in range(n):\n        for j in range(k):\n            s = 0\n            for t in range(m):\n                s += A[i][t] * B[t][j]\n            if mod:\n                s %= mod\n            C[i][j] = s\n    return C\n\ndef mat_pow(A, p, mod=None):\n    \"\"\"Matrix fast exponentiation A^p using binary exponentiation.\"\"\"\n    n = len(A)\n    result = [[1 if i == j else 0 for j in range(n)] for i in range(n)]\n    while p > 0:\n        if p & 1:\n            result = mat_mul(result, A, mod)\n        A = mat_mul(A, A, mod)\n        p >>= 1\n    return result\n\ndef mat_add(A, B, mod=None):\n    n, m = len(A), len(A[0])\n    C = [[0] * m for _ in range(n)]\n    for i in range(n):\n        for j in range(m):\n            C[i][j] = A[i][j] + B[i][j]\n            if mod:\n                C[i][j] %= mod\n    return C\n\ndef mat_transpose(A):\n    n, m = len(A), len(A[0])\n    return [[A[i][j] for i in range(n)] for j in range(m)]\n\nif __name__ == \"__main__\":\n    # Matrix multiplication\n    A = [[1, 2], [3, 4]]\n    B = [[5, 6], [7, 8]]\n    C = mat_mul(A, B)\n    assert C == [[19, 22], [43, 50]], f\"mat mul failed: {C}\"\n    # Matrix fast power (Fibonacci)\n    F = [[1, 1], [1, 0]]\n    result = mat_pow(F, 9)\n    assert result[0][0] == 55, f\"mat pow failed: {result[0][0]}\"  # F(10)=55\n    # With mod\n    result_mod = mat_pow([[1, 1], [1, 0]], 100, 10**9 + 7)\n    assert result_mod[0][0] > 0\n    # Transpose\n    T = mat_transpose([[1, 2, 3], [4, 5, 6]])\n    assert T == [[1, 4], [2, 5], [3, 6]]\n    print(\"matrix-basics: ALL TESTS PASSED\")\n",
+    "pypy_notes": "PyPy的JIT对三层嵌套循环优化好。纯Python矩阵乘法比numpy慢，但竞赛环境通常无numpy。可手动展开小矩阵乘法减小常数。",
+    "complexity": {
+      "time": "乘法O(n^3)，快速幂O(n^3 log k)",
+      "space": "O(n^2)"
+    },
+    "limitations": "纯Python三层循环常数大，大矩阵(>100阶)可能TLE。不支持非方阵快速幂。浮点矩阵可能有精度问题。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1939",
+      "url": "https://www.luogu.com.cn/problem/P1939",
+      "difficulty": 5,
+      "key_point": "a[k]=a[k-1]+a[k-3] 矩阵快速幂"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3390",
+      "url": "https://www.luogu.com.cn/problem/P3390",
+      "difficulty": 4,
+      "key_point": "模板题：A^k"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "50",
+      "url": "https://leetcode.cn/problems/powx-n/",
+      "difficulty": 3,
+      "key_point": "标量快速幂（矩阵快速幂简化版）"
+    }
+  ],
+  "pitfalls": [
+    "矩阵乘法不满足交换律：AB≠BA",
+    "快速幂结果初始化为单位矩阵I而非全0",
+    "取模运算在累加时进行，防止溢出",
+    "Python大整数乘法不溢出但可能慢，需取模"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "m1",
+        "label": "初始化result=I(单位矩阵)"
+      },
+      {
+        "id": "m2",
+        "label": "p>0?"
+      },
+      {
+        "id": "m3",
+        "label": "p&1? result=mul(result,A)"
+      },
+      {
+        "id": "m4",
+        "label": "A=mul(A,A), p>>=1"
+      },
+      {
+        "id": "m5",
+        "label": "返回result"
+      }
+    ],
+    "edges": [
+      {
+        "from": "m1",
+        "to": "m2",
+        "type": "next"
+      },
+      {
+        "from": "m2",
+        "to": "m3",
+        "type": "yes"
+      },
+      {
+        "from": "m3",
+        "to": "m4",
+        "type": "next"
+      },
+      {
+        "from": "m4",
+        "to": "m2",
+        "type": "loop"
+      },
+      {
+        "from": "m2",
+        "to": "m5",
+        "type": "no"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/linear-algebra/matrix/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch23 Matrices (p227-234)"
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/binary-exponentiation/",
+      "verified": true
+    }
+  ]
+}

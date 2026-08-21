@@ -1,0 +1,127 @@
+{
+  "id": "suffix-array",
+  "name": "后缀数组",
+  "group": "G-C-3",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "SA+rank+height数组，对字符串所有后缀排序，配合LCP做子串统计与匹配",
+  "what": "后缀数组（Suffix Array, SA）是字符串 S 的所有后缀按字典序排序后得到的起始下标数组：sa[i] 表示字典序第 i 小的后缀的起始位置。配套数组：rank/rk[i] 表示后缀 i 的排名（sa 与 rk 互逆：sa[rk[i]]=rk[sa[i]]=i）；height[i]=lcp(sa[i], sa[i-1]) 表示排序后相邻两个后缀的最长公共前缀（height[1]=0）。SA 与 SAM/后缀树可互相转化。经典构造：朴素 O(n²log n) 直接排序所有后缀；倍增法 O(n log n)（可用基数排序 O(n log n)，排序比较用 O(n log²n)）；SA-IS/DC3 达到 O(n)。核心应用：子串匹配（SA 上二分）、不同子串数 n(n+1)/2 − Σ height、LCP(RMQ 区间最小值)、出现次数统计、最长公共子串、循环同构/最小表示、结合并查集/单调栈做区间统计（品酒大会等）。",
+  "why": {
+    "intuition": "把'所有后缀'按字典序排序后，具备相同前缀的后缀会相邻——这是 height 数组与 LCP 区间最小值定理的基础。想找某个子串的所有出现位置，只需在 SA 上二分；想知道两个后缀的 LCP，只需查它们排名之间 height 的区间最小值（RMQ）。倍增思想：排序长度 1 的子串 → 用两个长度 w/2 的排名拼成长度 w 的关键字对 → 再排序 → 长度翻倍，直到 w≥n，因为后缀由前缀完全决定，排序长度 ≥n 的子串即等价于排序后缀。",
+    "principle": "倍增法正确性：长度 w 的子串 s[i..i+w-1] 由 (s[i..i+w/2-1], s[i+w/2..i+w-1]) 拼接，若前一半的排名已对（长度 w/2 的子串排序正确），则二元组 (rk[i], rk[i+w/2]) 的字典序即长度 w 子串的字典序。i+w/2 越界时视为 -inf（更小）。用基数排序（按第二关键字再按第一关键字计数排序）每次 O(n)，共 O(log n) 轮，总 O(n log n)。height 的 O(n) 求法依赖引理 height[rk[i]] ≥ height[rk[i-1]]−1：因为后缀 i-1 与它排名前一位的 LCP 为 h，则删掉首字符后后缀 i 与其相邻后缀至少有 h−1 的公共前缀；用此性质暴力跳，k 最多减 n 次加 2n 次，总 O(n)。",
+    "history": "后缀数组由 Udi Manber 与 Gene Myers 于 1990 年提出，用于字符串匹配与数据压缩；1993 年 Giegerich 与 Kurtz 将其与后缀树联系起来。倍增构造法、height/LCP 的线性算法以及'罗穗骞论文'（2004，后缀数组——处理字符串的有力工具）让 SA 成为中国竞赛选手的标配技能。后续 SA-IS（Nong-Zhang-Chan 2009）与 DC3（Kärkkäinen–Sanders 2003）提供线性构造。"
+  },
+  "how": {
+    "pseudocode": "# 倍增法求 SA (O(n log n), 排序用计数/基数)\nsa[i]=i; rk[i]=s[i];  # 长度1排序\nfor w=1; w<n; w<<=1:\n    # 按 (rk[i], rk[i+w]) 双关键字基数排序\n    # 第二关键字: 越界(i+w>n)排最前\n    # 第一关键字: rk[i]\n    更新 sa 与 rk (去重相同子串)\n# 若 rk 值域已达 [1..n] 即所有后缀排名不同, 可提前退出\n\n# O(n) 求 height\nfor i=1..n:\n    k = max(0, k-1)\n    while s[i+k] == s[sa[rk[i]-1]+k]: k+=1\n    height[rk[i]] = k",
+    "python": "def build_sa(s):\n    \"\"\"倍增法求后缀数组(含复杂度 O(n log^2 n) 的简单实现 + 可换基数).\n    s: 字符串, 返回 sa (0-index, sa[i] 为第 i 小后缀起始下标)\n    \"\"\"\n    n = len(s)\n    sa = list(range(n))\n    rk = [ord(c) for c in s]\n    k = 1\n    tmp = [0] * n\n    while True:\n        # 双关键字: (rk[i], rk[i+k]) 排序, 越界第二关键字视为 -1\n        sa.sort(key=lambda x: (rk[x], rk[x + k] if x + k < n else -1))\n        # 重新排名\n        tmp[sa[0]] = 0\n        classes = 1\n        for i in range(1, n):\n            cur = (rk[sa[i]], rk[sa[i] + k] if sa[i] + k < n else -1)\n            pre = (rk[sa[i - 1]], rk[sa[i - 1] + k] if sa[i - 1] + k < n else -1)\n            if cur != pre:\n                classes += 1\n            tmp[sa[i]] = classes - 1\n        rk, tmp = tmp, rk\n        if classes == n:\n            break\n        k <<= 1\n    return sa\n\n\ndef build_rank_height(s, sa):\n    \"\"\"由 sa 求 rk 与 height (height[i]=lcp(sa[i],sa[i-1]), height[0]=0).\"\"\"\n    n = len(s)\n    rk = [0] * n\n    for i in range(n):\n        rk[sa[i]] = i\n    height = [0] * n\n    h = 0\n    for i in range(n):\n        if rk[i] == 0:\n            continue\n        j = sa[rk[i] - 1]\n        while i + h < n and j + h < n and s[i + h] == s[j + h]:\n            h += 1\n        height[rk[i]] = h\n        if h:\n            h -= 1\n    return rk, height\n\n\ndef count_distinct_substrings(s, sa, height):\n    \"\"\"不同子串数 = n(n+1)/2 - sum(height[1:])\"\"\"\n    n = len(s)\n    return n * (n + 1) // 2 - sum(height[1:])\n\n\ndef lcp_min_query(s, sa, height):\n    \"\"\"返回一个函数: lcp(i,j) = min(height[rk[i]+1 .. rk[j]]) 用 RMQ(ST 表).\"\"\"\n    import math\n    n = len(s)\n    rk = [0] * n\n    for i in range(n):\n        rk[sa[i]] = i\n    LOG = n.bit_length()\n    st = [[0] * n for _ in range(LOG)]\n    st[0] = height[:]\n    for k in range(1, LOG):\n        span = 1 << (k - 1)\n        for i in range(n - (1 << k) + 1):\n            st[k][i] = min(st[k - 1][i], st[k - 1][i + span])\n\n    def query(a, b):\n        if a == b:\n            return n - a\n        l, r = rk[a], rk[b]\n        if l > r:\n            l, r = r, l\n        # min height[l+1..r]\n        L = r - l\n        k = L.bit_length() - 1\n        return min(st[k][l + 1], st[k][r - (1 << k) + 1])\n\n    return query\n\n\nif __name__ == \"__main__\":\n    s = \"ababa\"\n    sa = build_sa(s)\n    rk, h = build_rank_height(s, sa)\n    # 后缀: 0:ababa 1:baba 2:aba 3:ba 4:a\n    # 排序: a(4) aba(2) ababa(0) ba(3) baba(1) => sa=[4,2,0,3,1]\n    assert sa == [4, 2, 0, 3, 1], sa\n    assert rk == [2, 4, 1, 3, 0], rk\n    # height: [_, lcp(a,aba)=1, lcp(aba,ababa)=3, lcp(ababa,ba)=0, lcp(ba,baba)=2]\n    assert h == [0, 1, 3, 0, 2], h\n\n    # 不同子串数: n(n+1)/2 - sum(h[1:]) = 15 - (1+3+0+2)=9\n    assert count_distinct_substrings(s, sa, h) == 9\n\n    # 验证 lcp RMQ\n    q = lcp_min_query(s, sa, h)\n    assert q(0, 2) == 3  # ababa 与 aba 的 LCP=aba (3)\n    assert q(1, 3) == 2  # baba 与 ba 的 LCP=ba (2)\n    assert q(0, 4) == 1  # ababa 与 a 的 LCP=1\n\n    # 与暴力 LCP 对拍\n    def brute_lcp(a, b):\n        cnt = 0\n        while a + cnt < len(s) and b + cnt < len(s) and s[a + cnt] == s[b + cnt]:\n            cnt += 1\n        return cnt\n\n    for a in range(len(s)):\n        for b in range(len(s)):\n            assert q(a, b) == brute_lcp(a, b), (a, b)\n\n    # 随机串对拍\n    import random\n    random.seed(0)\n    for _ in range(50):\n        n = random.randrange(1, 15)\n        t = ''.join(random.choice('abc') for _ in range(n))\n        sa2 = build_sa(t)\n        # 检查排序正确性\n        suff = [t[i:] for i in range(n)]\n        assert [t[i:] for i in sa2] == sorted(suff)\n        r2, h2 = build_rank_height(t, sa2)\n        # 检查 height 与暴力 LCP 一致\n        for i in range(1, n):\n            a, b = sa2[i - 1], sa2[i]\n            bl = 0\n            while a + bl < n and b + bl < n and t[a + bl] == t[b + bl]:\n                bl += 1\n            assert h2[i] == bl, (t, sa2, i, h2[i], bl)\n\n    print(\"suffix-array tests passed\")\n",
+    "pypy_notes": "倍增法用 Python 的 sort(key=...) 是 O(n log²n)（比较 O(log n) 轮），n≤1e5 在 PyPy 下可跑但偏慢；追求 O(n log n) 需手写基数排序（计数排序两遍）。height 用 while 暴力 O(n) 摊销，注意列表索引与切片开销。大串建议 PyPy 或 C++。",
+    "complexity": {
+      "time": "倍增 O(n log²n)（朴素 sort）或 O(n log n)（基数排序）；height O(n)；LCP RMQ 预处理 O(n log n)、查询 O(1)",
+      "space": "O(n)"
+    },
+    "limitations": "SA 构造本身不解决所有问题：求两后缀 LCP 需额外 RMQ；出现次数、区间统计等问题需再结合数据结构；字符集为整数时需离散化；Python 下大串常数大。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3809",
+      "url": "https://www.luogu.com.cn/problem/P3809",
+      "difficulty": 3,
+      "key_point": "后缀排序模板：倍增法直接输出 sa"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2178",
+      "url": "https://www.luogu.com.cn/problem/P2178",
+      "difficulty": 5,
+      "key_point": "NOI2015 品酒大会：height + 并查集/单调栈 求 LCP≥r 的对数统计"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2870",
+      "url": "https://www.luogu.com.cn/problem/P2870",
+      "difficulty": 4,
+      "key_point": "Best Cow Line：串+分隔符+反串拼一起求 SA，O(1) 比较首尾取字符"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2852",
+      "url": "https://www.luogu.com.cn/problem/P2852",
+      "difficulty": 4,
+      "key_point": "Milk Patterns：出现至少 k 次的最长子串=height 中连续 k-1 个最小值最大"
+    }
+  ],
+  "pitfalls": [
+    "下标从 1 还是 0：OI Wiki 用 1-index，CP-Alg 用 0-index，转换易错",
+    "倍增时第二关键字越界必须视为 -inf（更小），否则排序错",
+    "重新排名去重时（两子串相同则同排名）忘记处理会破坏后续排序",
+    "height[i]=lcp(sa[i],sa[i-1])，height[1]=0；RMQ 求 lcp(i,j) 要查区间 [min(rk)+1, max(rk)]",
+    "建 height 时 rk[i]==0 要跳过（无前一名）",
+    "n(n+1)/2 可能溢出 int（Python 无此问题）"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "construct",
+        "label": "倍增/SA-IS 构造 sa 与 rk"
+      },
+      {
+        "id": "height",
+        "label": "O(n) 求 height(LCP)"
+      },
+      {
+        "id": "rmq",
+        "label": "height 建 RMQ(ST表)"
+      },
+      {
+        "id": "lcp",
+        "label": "两后缀 LCP = 区间 min height"
+      },
+      {
+        "id": "apply",
+        "label": "应用于匹配/计数/区间统计"
+      }
+    ],
+    "edges": [
+      {
+        "from": "construct",
+        "to": "height"
+      },
+      {
+        "from": "height",
+        "to": "rmq"
+      },
+      {
+        "from": "rmq",
+        "to": "lcp"
+      },
+      {
+        "from": "lcp",
+        "to": "apply"
+      },
+      {
+        "from": "height",
+        "to": "apply"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/string/sa/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/string/suffix-array.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "url": "",
+      "ref": "CPH ch26 (p253-260) String algorithms",
+      "verified": true
+    }
+  ]
+}

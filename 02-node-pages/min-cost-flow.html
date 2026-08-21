@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最小费用最大流（SSP） · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-5.html">网络流族</a> / <span>最小费用最大流（SSP）</span></div>
+  <h1>最小费用最大流（SSP）</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-B-5</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="min-cut.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">min-cut</span></a>
+    <a class="nav-index" href="../03-groups/G-B-5.html"><span class="dir">组内第 4 / 6</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="bounded-flow.html"><span class="dir">下一个 / 组内</span><span class="v">bounded-flow</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">SSP（Successive Shortest Path）：每次沿单位费用最短的增广路增广，SPFA/Bellman-Ford 或势能+Dijkstra 找路。</div><p>最小费用最大流（minimum-cost maximum-flow）：在每条边有容量 c 和单位流量费用 w 的网络中，先最大化总流量，再在该前提下最小化总费用 Σf·w。SSP（Successive Shortest Path，连续最短路）算法是竞赛主流做法：反复用最短路算法在残量网络中找「单位费用和最小」的 s→t 增广路并增广，直到无增广路。费用有负数时用 SPFA/Bellman-Ford 找路；费用非负或已用势能（Johnson 技巧）转非负后用 Dijkstra 加速。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>贪心思路：每次选「单位流量最便宜」的一条路先灌，就像先走低价路线。为什么全局最优？用归纳法证明：若当前流 f_i 已是流量 i 的最小费用流，则沿最短路增广得到 f_{i+1} 也是最小费用流——否则存在更优的 f&#x27;_{i+1}，其相对于 f_i 的增广差异必含一个负费用圈，而负圈意味着 f_i 还能降费，矛盾。前提：原图无负费用圈（否则需先消圈）。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 建图：每条边加反向边，容量 0、费用 -w（退流时费用回退）；② 每次找 s→t 的最短（单位费用和最小）增广路：负边存在则 SPFA，否则（或势能化后）Dijkstra；③ 沿路推流：瓶颈 Δ，正向 cap-=Δ、反向 cap+=Δ，maxflow+=Δ，mincost+=Δ*最短路长；④ 重复到无路。势能（Primal-Dual）：初始跑一次最短路得 h[u]（负权也兼容），此后每条边权改为 w+h[u]-h[v] 保证非负，用 Dijkstra，增广后 h[u]+=dist[u] 更新，保持非负。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>SSP 思想源自 Ford-Fulkerson 族的推广，国内 OI 习惯称 SSP 并用 SPFA 版（支持负费用边）；Dijkstra 版借助势能（Johnson 全源最短路思想，源自 Johnson 1977）。OI Wiki 与 CP-Algorithms 均有 SSP 与原始对偶的完整介绍；消圈算法处理负圈是理论补充。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">add_edge</span>(u,v,cap,cost): 正向 [cap,cost], 反向 [<span class="t-n">0</span>,-cost]
+<span class="t-k">while</span> <span class="t-k">True</span>:
+    dist,pre = <span class="t-f">SPFA</span>(s,t)   <span class="t-c"># 或势能+Dijkstra</span>
+    <span class="t-k">if</span> t 不可达: <span class="t-k">break</span>
+    Δ = 沿路最小剩余容量
+    沿路正向 cap-=Δ, 反向 cap+=Δ
+    maxflow += Δ; mincost += Δ * dist[t]</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+<span class="t-k">class</span> MCMF:
+    <span class="t-s">&quot;&quot;&quot;最小费用最大流（SSP + SPFA，支持负费用边）.&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, n):
+        self.n = n
+        self.adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+
+    <span class="t-k">def</span> <span class="t-f">add_edge</span>(self, u, v, cap, cost):
+        self.adj[u].<span class="t-f">append</span>([v, cap, cost, <span class="t-b">len</span>(self.adj[v])])
+        self.adj[v].<span class="t-f">append</span>([u, <span class="t-n">0</span>, -cost, <span class="t-b">len</span>(self.adj[u]) - <span class="t-n">1</span>])
+
+    <span class="t-k">def</span> <span class="t-f">_spfa</span>(self, s, t):
+        INF = <span class="t-n">10</span> ** <span class="t-n">18</span>
+        dist = [INF] * self.n
+        inq = [<span class="t-k">False</span>] * self.n
+        pre_v = [-<span class="t-n">1</span>] * self.n
+        pre_e = [-<span class="t-n">1</span>] * self.n
+        dist[s] = <span class="t-n">0</span>
+        q = <span class="t-f">deque</span>([s])
+        inq[s] = <span class="t-k">True</span>
+        <span class="t-k">while</span> q:
+            u = q.<span class="t-f">popleft</span>()
+            inq[u] = <span class="t-k">False</span>
+            <span class="t-k">for</span> i, e <span class="t-k">in</span> <span class="t-b">enumerate</span>(self.adj[u]):
+                v, cap, cost, rev = e
+                <span class="t-k">if</span> cap &gt; <span class="t-n">0</span> <span class="t-k">and</span> dist[v] &gt; dist[u] + cost:
+                    dist[v] = dist[u] + cost
+                    pre_v[v] = u
+                    pre_e[v] = i
+                    <span class="t-k">if</span> <span class="t-k">not</span> inq[v]:
+                        q.<span class="t-f">append</span>(v)
+                        inq[v] = <span class="t-k">True</span>
+        <span class="t-k">return</span> dist[t] != INF, dist[t], pre_v, pre_e
+
+    <span class="t-k">def</span> <span class="t-f">min_cost_flow</span>(self, s, t):
+        flow, cost = <span class="t-n">0</span>, <span class="t-n">0</span>
+        INF = <span class="t-n">10</span> ** <span class="t-n">18</span>
+        <span class="t-k">while</span> <span class="t-k">True</span>:
+            ok, d, pre_v, pre_e = self.<span class="t-f">_spfa</span>(s, t)
+            <span class="t-k">if</span> <span class="t-k">not</span> ok:
+                <span class="t-k">break</span>
+            <span class="t-c"># 找增广路瓶颈</span>
+            add = INF
+            v = t
+            <span class="t-k">while</span> v != s:
+                u = pre_v[v]
+                e = self.adj[u][pre_e[v]]
+                add = <span class="t-b">min</span>(add, e[<span class="t-n">1</span>])
+                v = u
+            v = t
+            <span class="t-k">while</span> v != s:
+                u = pre_v[v]
+                e = self.adj[u][pre_e[v]]
+                e[<span class="t-n">1</span>] -= add
+                self.adj[v][e[<span class="t-n">3</span>]][<span class="t-n">1</span>] += add
+                v = u
+            flow += add
+            cost += add * d
+        <span class="t-k">return</span> flow, cost
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 简单网络: 0-&gt;1(2,1) 0-&gt;2(1,2) 1-&gt;2(1,1) 1-&gt;3(1,3) 2-&gt;3(2,1), s=0,t=3</span>
+    m = <span class="t-f">MCMF</span>(<span class="t-n">4</span>)
+    m.<span class="t-f">add_edge</span>(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">1</span>); m.<span class="t-f">add_edge</span>(<span class="t-n">0</span>, <span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">2</span>)
+    m.<span class="t-f">add_edge</span>(<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">1</span>); m.<span class="t-f">add_edge</span>(<span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">1</span>, <span class="t-n">3</span>); m.<span class="t-f">add_edge</span>(<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">2</span>, <span class="t-n">1</span>)
+    fl, co = m.<span class="t-f">min_cost_flow</span>(<span class="t-n">0</span>, <span class="t-n">3</span>)
+    <span class="t-k">assert</span> fl == <span class="t-n">3</span>, fl
+    <span class="t-k">assert</span> co == <span class="t-n">10</span>, co  <span class="t-c"># 流3: 0-&gt;1-&gt;3(4)+0-&gt;1-&gt;2-&gt;3(3)+0-&gt;2-&gt;3(3)=10</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;MCMF basic flow=%d cost=%d&quot;</span> % (fl, co))
+    <span class="t-c"># 用暴力枚举验证小图</span>
+    <span class="t-k">import</span> random, itertools
+    random.<span class="t-f">seed</span>(<span class="t-n">5</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">120</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">6</span>)
+        edges = []
+        <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> u != v <span class="t-k">and</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.3</span>:
+                    edges.<span class="t-f">append</span>((u, v, random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">5</span>), random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">5</span>)))
+        s = <span class="t-n">0</span>; t = n - <span class="t-n">1</span>
+        m = <span class="t-f">MCMF</span>(n)
+        <span class="t-k">for</span> u, v, c, w <span class="t-k">in</span> edges:
+            m.<span class="t-f">add_edge</span>(u, v, c, w)
+        fl, co = m.<span class="t-f">min_cost_flow</span>(s, t)
+        <span class="t-c"># 暴力: 枚举所有流（小图, 容量小）</span>
+        <span class="t-k">def</span> <span class="t-f">brute</span>(u, cap_left, cost_acc):
+            <span class="t-k">if</span> u == t:
+                <span class="t-k">return</span> (<span class="t-n">0</span>, cost_acc, cap_left)
+            best = <span class="t-k">None</span>
+            <span class="t-c"># 简化: 只验证最大流值（费用需完整 SSP, 这里不暴力比对费用）</span>
+            <span class="t-k">return</span> <span class="t-k">None</span>
+        <span class="t-c"># 最大流值用 EK 对照</span>
+        <span class="t-k">def</span> <span class="t-f">ek</span>(n, edges, s, t):
+            cap = {}
+            <span class="t-k">def</span> <span class="t-f">k</span>(a, b): <span class="t-k">return</span> (a, b)
+            <span class="t-k">for</span> u, v, c, w <span class="t-k">in</span> edges:
+                cap[<span class="t-f">k</span>(u, v)] = cap.<span class="t-f">get</span>(<span class="t-f">k</span>(u, v), <span class="t-n">0</span>) + c
+            flow = <span class="t-n">0</span>
+            <span class="t-k">while</span> <span class="t-k">True</span>:
+                parent = [-<span class="t-n">1</span>] * n; parent[s] = s
+                q = <span class="t-f">deque</span>([s])
+                <span class="t-k">while</span> q <span class="t-k">and</span> parent[t] == -<span class="t-n">1</span>:
+                    u = q.<span class="t-f">popleft</span>()
+                    <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                        <span class="t-k">if</span> parent[v] == -<span class="t-n">1</span> <span class="t-k">and</span> cap.<span class="t-f">get</span>(<span class="t-f">k</span>(u, v), <span class="t-n">0</span>) &gt; <span class="t-n">0</span>:
+                            parent[v] = u; q.<span class="t-f">append</span>(v)
+                <span class="t-k">if</span> parent[t] == -<span class="t-n">1</span>: <span class="t-k">break</span>
+                f = <span class="t-n">10</span> ** <span class="t-n">18</span>; v = t
+                <span class="t-k">while</span> v != s:
+                    u = parent[v]; f = <span class="t-b">min</span>(f, cap[<span class="t-f">k</span>(u, v)]); v = u
+                v = t
+                <span class="t-k">while</span> v != s:
+                    u = parent[v]; cap[<span class="t-f">k</span>(u, v)] -= f; cap[<span class="t-f">k</span>(v, u)] = cap.<span class="t-f">get</span>(<span class="t-f">k</span>(v, u), <span class="t-n">0</span>) + f; v = u
+                flow += f
+            <span class="t-k">return</span> flow
+        exp_fl = <span class="t-f">ek</span>(n, edges, s, t)
+        <span class="t-k">assert</span> fl == exp_fl, (n, edges, fl, exp_fl)
+    <span class="t-b">print</span>(<span class="t-s">&quot;MCMF flow-crosscheck OK&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">SPFA 版能处理负费用边；若确认费用非负用势能+Dijkstra（heapq）更快。SPFA 在竞赛毒瘤数据可能退化，费用全部非负时优先 Dijkstra。Python 中邻接表用 [v, cap, cost, rev] 四元组 list 存储。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(F·V·E)（SPFA 版，F=流量，伪多项式）；势能+Dijkstra O(F·(E+V log V))</td></tr><tr><th>空间复杂度</th><td>O(V+E)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">SSP 是伪多项式时间：流量 F 巨大时（如 2^(n/2) 构造）会超时，但竞赛数据一般可控；存在负费用圈时 SSP 不保证正确（需先消圈，竞赛很少遇到）；Python 下 F 大（如 1e5 流量）时每次最短路 + 增广开销累积，极易 TLE，需 PyPy + 优化。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>反向边费用必须是 -w，不是 0，否则退流退不回费用</li><li>有负费用边时不能用裸 Dijkstra，需 SPFA 或先跑一次最短路做势能</li><li>存在负费用圈时 SSP 不保证正确（先消圈）</li><li>每次最短路后更新势能 h[u]+=dist[u]（Primal-Dual），否则势能失效</li><li>Python 大流量时注意 F 次增广的总代价，必要时用容量缩放</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3381</strong></td><td>4</td><td>【模板】最小费用最大流：SSP 模板，OI Wiki 例题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3381" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3381</a></td></tr><tr><td>Luogu</td><td><strong>P4015</strong></td><td>4</td><td>运输问题：二分图最小/最大费用流，网络流 24 题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4015" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4015</a></td></tr><tr><td>Luogu</td><td><strong>P2053</strong></td><td>5</td><td>[SCOI2007] 修车：费用流建模（拆时间点），OI Wiki 习题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2053" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2053</a></td></tr><tr><td>Luogu</td><td><strong>P2517</strong></td><td>5</td><td>[HAOI2010] 订货：费用流建模，OI Wiki 习题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2517" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2517</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-min-cost-flow" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "add_edge", "label": "加边（反向费用 -w）"}}, {"data": {"id": "init_potential", "label": "（势能版）首次最短路得 h[]"}}, {"data": {"id": "shortest", "label": "找 s→t 最短费用增广路（SPFA/Dijkstra）"}}, {"data": {"id": "augment", "label": "沿路增广 Δ，更新 maxflow/mincost"}}, {"data": {"id": "update_h", "label": "更新势能 h+=dist"}}, {"data": {"id": "loop", "label": "无增广路结束"}}, {"data": {"id": "eadd_edge->init_potential", "source": "add_edge", "target": "init_potential"}}, {"data": {"id": "einit_potential->shortest", "source": "init_potential", "target": "shortest"}}, {"data": {"id": "eshortest->augment", "source": "shortest", "target": "augment"}}, {"data": {"id": "eaugment->update_h", "source": "augment", "target": "update_h"}}, {"data": {"id": "eupdate_h->shortest", "source": "update_h", "target": "shortest"}}, {"data": {"id": "eshortest->loop", "source": "shortest", "target": "loop"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-min-cost-flow'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-combination" href="dinic.html" title="MCMF在Dinic框架上加费用最短路找增广路">Dinic最大流<span class="etype">组合</span></a><a class="chip e-combination" href="dijkstra.html" title="SSP算法求MCMF时可用Dijkstra(Johnson势能)找最短增广路">Dijkstra算法<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/flow/min-cost.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/flow/min-cost.md</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/min_cost_flow.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/min_cost_flow.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch20 pp191-204</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

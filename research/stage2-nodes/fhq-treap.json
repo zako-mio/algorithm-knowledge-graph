@@ -1,0 +1,128 @@
+{
+ "id": "fhq-treap",
+ "name": "无旋Treap(FHQ Treap)",
+ "group": "G-A-8",
+ "stage": "advanced",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "按值/按秩分裂合并，无需旋转，可持久化友好",
+ "what": "FHQ Treap（无旋 Treap / 分裂合并 Treap，由范浩强提出）在随机优先级 Treap 基础上用分裂(split)与合并(merge)代替旋转维护堆性质。split 按值或按子树大小把树切成两棵，merge 按 priority 决定根，均不改变中序顺序。由此天然支持区间操作（区间翻转/区间加）、可持久化、可并堆等旋转 Treap 难以实现的功能，所有操作期望 O(log n)。",
+ "why": {
+  "intuition": "旋转本质是把节点上浮调整，而分裂-合并等价于把子树整体重新拼接：按值分裂把小于 x 的部分摘出来，再与另一棵按 priority 合并回去——拼接顺序由 priority 决定，等价于旋转逐步到位。因为不物理旋转节点，历史版本不会因原地修改而被破坏，可持久化极自然。",
+  "principle": "split(cur, key, &a, &b)：若 cur.val <= key（按值）则 a 的右半包含 cur 右子树递归分裂，反之 b 的左半递归；同时保留节点本身，不修改其子指针，故可持久化。merge(a, b)：若 a.pri < b.pri 则 a.right = merge(a.right, b) 返回 a，否则 b.left = merge(a, b.left) 返回 b。所有插入/删除/区间操作均可分解为两次 split + 一次 merge + 再合并。区间翻转：按 rank split 出 [l,r]，在中间树根打懒标记，再 merge 回去。期望复杂度证明同旋转 Treap（节点期望深度 O(log n)）。",
+  "history": "无旋 Treap 由范浩强在其论文/讲解中推广（2010s），中文竞赛圈普遍称 FHQ-Treap。因其实现简洁、支持区间操作与可持久化，成为 OI/Python 竞赛中最受欢迎的平衡树。OI Wiki《平衡树》与《文艺平衡树》均以其为模板。"
+ },
+ "how": {
+  "pseudocode": "split_val(cur, val, &a, &b):      # 按值：a 含 <=val，b 含 >val\n  if cur 为空: a=b=null; return\n  if cur.val <= val:\n    a = cur\n    split_val(cur.right, val, cur.right, b)\n    push_up(cur)\n  else:\n    b = cur\n    split_val(cur.left, val, a, cur.left)\n    push_up(cur)\n\nsplit_rank(cur, k, &a, &b):       # 按秩：a 含前 k 个\n  if cur 为空: a=b=null; return\n  if size(cur.left) + 1 <= k:\n    a = cur\n    split_rank(cur.right, k - size(cur.left) - 1, cur.right, b)\n    push_up(cur)\n  else:\n    b = cur\n    split_rank(cur.left, k, a, cur.left)\n    push_up(cur)\n\nmerge(a, b):\n  if a 为空 or b 为空: return a or b\n  if a.pri < b.pri:\n    a.right = merge(a.right, b); push_up(a); return a\n  else:\n    b.left = merge(a, b.left); push_up(b); return b\n\ninsert(val): x,y = split_val(root,val); root = merge(merge(x,Node(val)), y)\ndelete(val): a,b = split_val(root,val-1); c,d = split_val(b,val); c = split_rank(c,size(c)-1)[0]; root = merge(merge(a,c), d)\n区间翻转(l,r): a,b = split_rank(root,l-1); b,c = split_rank(b,r-l+1); b.rev ^= 1; root = merge(merge(a,b),c)",
+  "python": "import random\n\nclass Node:\n    __slots__ = ('val', 'pri', 'left', 'right', 'size', 'rev')\n    def __init__(self, val, pri=None):\n        self.val = val\n        self.pri = pri if pri is not None else random.random()\n        self.left = None\n        self.right = None\n        self.size = 1\n        self.rev = False\n\ndef sz(n):\n    return n.size if n else 0\n\ndef pull(n):\n    if n:\n        n.size = 1 + sz(n.left) + sz(n.right)\n\ndef push(n):\n    if n and n.rev:\n        n.left, n.right = n.right, n.left\n        if n.left:\n            n.left.rev ^= True\n        if n.right:\n            n.right.rev ^= True\n        n.rev = False\n\ndef split_val(cur, val):\n    \"\"\"返回 (a, b): a 含 val<=key 的节点，b 含 >key 的节点。\"\"\"\n    if cur is None:\n        return None, None\n    push(cur)\n    if cur.val <= val:\n        a, b = split_val(cur.right, val)\n        cur.right = a\n        pull(cur)\n        return cur, b\n    else:\n        a, b = split_val(cur.left, val)\n        cur.left = b\n        pull(cur)\n        return a, cur\n\ndef split_rank(cur, k):\n    \"\"\"返回 (a, b): a 为前 k 个节点的树。\"\"\"\n    if cur is None:\n        return None, None\n    push(cur)\n    if sz(cur.left) + 1 <= k:\n        a, b = split_rank(cur.right, k - sz(cur.left) - 1)\n        cur.right = a\n        pull(cur)\n        return cur, b\n    else:\n        a, b = split_rank(cur.left, k)\n        cur.left = b\n        pull(cur)\n        return a, cur\n\ndef merge(a, b):\n    if a is None or b is None:\n        return a or b\n    if a.pri < b.pri:\n        push(a)\n        a.right = merge(a.right, b)\n        pull(a)\n        return a\n    else:\n        push(b)\n        b.left = merge(a, b.left)\n        pull(b)\n        return b\n\ndef insert(root, val):\n    a, b = split_val(root, val)\n    return merge(merge(a, Node(val)), b)\n\ndef delete(root, val):\n    a, b = split_val(root, val - 1)   # a = < val\n    c, d = split_val(b, val)          # c = == val 的所有副本, d = > val\n    c = split_rank(c, sz(c) - 1)[0]   # 丢弃最右副本，删一个\n    return merge(merge(a, c), d)\n\ndef reverse_range(root, l, r):\n    a, b = split_rank(root, l - 1)\n    b, c = split_rank(b, r - l + 1)\n    if b:\n        b.rev ^= True\n    return merge(merge(a, b), c)\n\ndef inorder(n):\n    out = []\n    if n:\n        push(n)\n        out.extend(inorder(n.left))\n        out.append(n.val)\n        out.extend(inorder(n.right))\n    return out\n\ndef _is_heap(n, lo=-float('inf')):\n    if n is None:\n        return True\n    if not lo <= n.pri:\n        return False\n    return _is_heap(n.left, n.pri) and _is_heap(n.right, n.pri)  # 小根堆：子 >= 父\n\n\ndef _check_bst(n, lo=-float('inf'), hi=float('inf')):\n    if n is None:\n        return True\n    if not (lo < n.val <= hi):\n        return False\n    return _check_bst(n.left, lo, n.val) and _check_bst(n.right, n.val, hi)\n\n\nif __name__ == \"__main__\":\n    rng = random.Random(7)\n    root = None\n    arr = []\n    for _ in range(500):\n        v = rng.randint(0, 1000)\n        root = insert(root, v)\n        arr.append(v)\n    assert _is_heap(root)\n    assert inorder(root) == sorted(arr)\n    for _ in range(100):\n        v = rng.choice(list(sorted(set(arr))))\n        root = delete(root, v)\n        arr.remove(v)\n    assert inorder(root) == sorted(arr)\n    # 区间翻转\n    seq = list(range(1, 11))\n    root = None\n    for x in seq:\n        root = insert(root, x)\n    root = reverse_range(root, 2, 5)  # 翻转 [2,5]\n    got = inorder(root)\n    expect = [1, 5, 4, 3, 2, 6, 7, 8, 9, 10]\n    assert got == expect, got\n    root = reverse_range(root, 1, 10)\n    assert inorder(root) == expect[::-1]\n    print(\"All tests passed.\")",
+  "pypy_notes": "FHQ-Treap 递归深度等于树高期望 ~O(log n)，PyPy 默认递归上限可能不足，建议模块头 sys.setrecursionlimit(1<<25)。priority 用 random.random()。区间操作记得先 push 后 split/merge。Python 版本比 Splay 常数更小、更好写，是平衡树问题首选。",
+  "complexity": {
+   "time": "split/merge/insert/delete/区间操作均期望 O(log n)",
+   "space": "O(n)；可持久化版本额外 O(版本数×log n)"
+  },
+  "limitations": "期望复杂度依赖随机数；最坏理论 O(n) 概率极小。可持久化时每次修改产生 O(log n) 新节点，空间开销上升。区间操作需 push 懒标记与 rank 分裂配合，标记下传时序错误会造成中序错乱。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P3369",
+   "url": "https://www.luogu.com.cn/problem/P3369",
+   "difficulty": 4,
+   "key_point": "普通平衡树：FHQ 分裂合并模板题"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P3391",
+   "url": "https://www.luogu.com.cn/problem/P3391",
+   "difficulty": 5,
+   "key_point": "文艺平衡树：区间翻转，rank 分裂+懒标记"
+  },
+  {
+   "oj": "LOJ",
+   "pid": "105",
+   "url": "https://loj.ac/problem/105",
+   "difficulty": 5,
+   "key_point": "文艺平衡树官方模板，区间翻转完整实现"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P3835",
+   "url": "https://www.luogu.com.cn/problem/P3835",
+   "difficulty": 6,
+   "key_point": "可持久化平衡树：版本回溯，每次操作开新根"
+  }
+ ],
+ "pitfalls": [
+  "split 后忘记 push_up 更新 size，导致 rank 分裂越界",
+  "区间操作前未 push 懒标记就 split，翻转信息丢失或错位",
+  "delete 用 split_val(val) 与 split_val(val-1) 时 val-1 对离散化值域错误（应 split 两次同 val）",
+  "可持久化时复用旧节点而不 clone，导致旧版本被修改（非持久化正确性）"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "node",
+    "label": "节点:val/pri/size/rev懒标记"
+   },
+   {
+    "id": "split",
+    "label": "按值 split_val / 按秩 split_rank"
+   },
+   {
+    "id": "merge",
+    "label": "按 priority 合并"
+   },
+   {
+    "id": "basic",
+    "label": "insert/delete/排名第k小"
+   },
+   {
+    "id": "range",
+    "label": "区间翻转/区间加懒标记"
+   },
+   {
+    "id": "persist",
+    "label": "可持久化 clone 版本"
+   }
+  ],
+  "edges": [
+   {
+    "from": "node",
+    "to": "split"
+   },
+   {
+    "from": "split",
+    "to": "merge"
+   },
+   {
+    "from": "merge",
+    "to": "basic"
+   },
+   {
+    "from": "split",
+    "to": "range"
+   },
+   {
+    "from": "merge",
+    "to": "persist"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/treap/",
+   "verified": true
+  },
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/treap/#无旋-treap",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "ref": "范浩强 无旋Treap 讲解（FHQ 论文/博客，2010s）",
+   "verified": true
+  }
+ ]
+}

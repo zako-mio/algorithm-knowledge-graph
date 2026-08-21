@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平面图 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-9.html">图论高级专题</a> / <span>平面图</span></div>
+  <h1>平面图</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-B-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="chord-graph.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">chord-graph</span></a>
+    <a class="nav-index" href="../03-groups/G-B-9.html"><span class="dir">组内第 3 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="max-clique.html"><span class="dir">下一个 / 组内</span><span class="v">max-clique</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">可嵌入平面的图：欧拉公式V-E+F=2、对偶图转最短路/最小割、稀疏边数|E|≤3|V|-6</div><p>平面图（planar graph）是能画在平面上且除顶点外无边相交的图。核心工具与性质：(1) 欧拉公式 V-E+F=2（连通平面图），推论 |E|≤3|V|-6（简单平面图，故平面图稀疏）；(2) 对偶图：每个面对应一个点、每条边对应对偶边，把平面图最小割问题转化为对偶图最短路问题；(3) 判定：Kuratowski 定理（不含与 K5 或 K3,3 同胚的子图 ⇔ 平面）与 Wagner 定理（不可收缩到 K5/K3,3），线性判定算法有 Hopcroft-Tarjan、Boyer-Myrvold、LR 算法（实现复杂，竞赛极少手写，多用库）；(4) 四色定理、Fáry 定理、极大平面图（三角剖分）、外平面图等。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>平面性给图强加了稀疏性（边数 O(V)）与『面』结构。欧拉公式把边、点、面的数量锁死，于是许多稠密图算法在平面图上变快；对偶图把『割』与『路』互换——平面图上横跨 s-t 割的边集，正对应对偶图中一条 s*-t* 路径，所以最小割=对偶最短路。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>欧拉公式：对连通平面图 V-E+F=2；k 连通分支时为 V-E+F=k+1。由面次数≥3 得 2E≥3F，代入欧拉公式得 E≤3V-6。对偶图构造：每个面取点，公共边界边连对偶边（割边连自环）；对偶图必连通，连通图满足 G**≅G。最小割→最短路：选使 s,t 共面的嵌入，加射线把外部面分成 f+,f-，则 G 的 s-t 边割集 ↔ G* 中 f+ 到 f- 的路径（权相等），用 Dijkstra 求最短路即得最小割（需保证存在使 s,t 共面的嵌入）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>平面图与欧拉公式是最古老图论结果之一（Euler 1752，多面体公式）；Kuratowski (1930) 与 Wagner (1937) 给出禁用子图刻画；Hopcroft-Tarjan (1974) 给出首个线性平面性判定算法，Boyer-Myrvold (1999)、LR 算法改进之。OI Wiki planar 章节（graph/planar）整理全部内容，并给出 Luogu P3209 平面图判定、P4001 狼抓兔子（最小割=对偶最短路经典题）、P4073[WC2013]平面图等习题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 对偶图最短路求平面 s-t 最小割</span>
+G* = <span class="t-f">build_dual</span>(G)
+s_t_cut = <span class="t-f">shortest_path</span>(G*, s*, t*)
+<span class="t-c"># 欧拉公式计数: V-E+F=2, 推论 E≤3V-6</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> math
+
+
+<span class="t-k">def</span> <span class="t-f">euler_check</span>(V, E, F):
+    <span class="t-s">&quot;&quot;&quot;连通平面图欧拉公式 V - E + F == 2。&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> V - E + F == <span class="t-n">2</span>
+
+
+<span class="t-k">def</span> <span class="t-f">max_edges</span>(V):
+    <span class="t-s">&quot;&quot;&quot;简单平面图边数上界 3V - 6 (V&gt;=3)。&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> <span class="t-b">max</span>(<span class="t-n">0</span>, <span class="t-n">3</span> * V - <span class="t-n">6</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">dual_of_triangulation_edges</span>(V):
+    <span class="t-s">&quot;&quot;&quot;极大平面图（三角剖分）: E = 3V - 6, F = 2V - 4。&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> <span class="t-n">3</span> * V - <span class="t-n">6</span>, <span class="t-n">2</span> * V - <span class="t-n">4</span>
+
+
+<span class="t-k">def</span> <span class="t-f">planar_mincut_via_dual</span>(n, edges, s, t):
+    <span class="t-s">&quot;&quot;&quot;平面图最小割 -&gt; 对偶图最短路（示意：接受对偶图已按面构造好）。
+    本函数演示转化思想而非完整嵌入算法。
+    说明：竞赛中通常题目直接给出平面嵌入，可手工按面建对偶图再跑 Dijkstra。
+    &quot;&quot;&quot;</span>
+    <span class="t-k">raise</span> <span class="t-b">NotImplementedError</span>(
+        <span class="t-s">&quot;完整实现需先构造平面嵌入与面表（复杂）。实战：P4001 狼抓兔子 直接建对偶网格图。&quot;</span>
+    )
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># K4 四面体: V=4, E=6, F=4</span>
+    <span class="t-k">assert</span> <span class="t-f">euler_check</span>(<span class="t-n">4</span>, <span class="t-n">6</span>, <span class="t-n">4</span>)
+    <span class="t-c"># K5: V=5, E=10 &gt; 3*5-6=9 非平面</span>
+    <span class="t-k">assert</span> <span class="t-n">10</span> &gt; <span class="t-f">max_edges</span>(<span class="t-n">5</span>)
+    <span class="t-c"># K3,3: V=6, E=9, 面次至少4 =&gt; E&lt;=2V-4=8, 9&gt;8 非平面</span>
+    <span class="t-k">assert</span> <span class="t-n">9</span> &gt; <span class="t-n">2</span> * <span class="t-n">6</span> - <span class="t-n">4</span>
+    <span class="t-c"># 极大平面图 三角剖分</span>
+    <span class="t-k">assert</span> <span class="t-f">dual_of_triangulation_edges</span>(<span class="t-n">6</span>) == (<span class="t-n">12</span>, <span class="t-n">8</span>)
+    <span class="t-b">print</span>(<span class="t-s">&quot;planar-graph 自测通过：欧拉公式/边数上界/三角剖分性质正确&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">平面图题目主要用『对偶图最短路』与『欧拉公式计数』两类；对偶图构造依赖平面嵌入，Python 端可直接建网格/按面建模，无需手写平面性判定（用库如 networkx 的 boyer_myrvold）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>欧拉公式/边数计算 O(1)；对偶图最短路径 O(E log E)；平面性判定 O(V+E)（线性算法实现复杂）</td></tr><tr><th>空间复杂度</th><td>O(V+E)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">最小割=对偶最短路仅在存在使 s,t 共面的平面嵌入时成立，需先验证（(V, E∪{(s,t)}) 可平面）；对偶图依赖具体嵌入，同一图不同嵌入对偶可不同构。平面性判定线性算法几乎不手写（竞赛中给嵌入）。Python 处理大量网格对偶图注意 I/O 常数。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>欧拉公式要求连通；不连通用 V-E+F=k+1</li><li>E≤3V-6 仅对简单图（无重边自环）且 V≥3</li><li>K3,3 判非平面要用面次数≥4 的 2E≥4F，不能套 3V-6</li><li>最小割→最短路要求 s,t 共面的嵌入，缺失则转化不成立</li><li>对偶图是对具体嵌入定义的，别对『可平面图』（未给嵌入）直接建对偶</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4001</strong></td><td>5</td><td>ICPC-Beijing 2006 狼抓兔子：平面图最小割=对偶图最短路经典题（OI Wiki 例题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4001" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4001</a></td></tr><tr><td>Luogu</td><td><strong>P3209</strong></td><td>6</td><td>HNOI2010 平面图判定：利用哈密顿圈+边二分图判定（OI Wiki 例题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3209" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3209</a></td></tr><tr><td>Luogu</td><td><strong>P3249</strong></td><td>6</td><td>HNOI2016 矿区：平面图点定位+对偶图（OI Wiki 习题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3249" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3249</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-planar-graph" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "euler", "label": "欧拉公式与边数上界检验"}}, {"data": {"id": "embed", "label": "构造/给定平面嵌入与面表"}}, {"data": {"id": "dual", "label": "建对偶图（面对点、边对边）"}}, {"data": {"id": "shortest", "label": "对偶图最短路解最小割"}}, {"data": {"id": "eeuler->embed", "source": "euler", "target": "embed"}}, {"data": {"id": "eembed->dual", "source": "embed", "target": "dual"}}, {"data": {"id": "edual->shortest", "source": "dual", "target": "shortest"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-planar-graph'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/planar/" target="_blank" rel="noopener">https://oi-wiki.org/graph/planar/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/planar.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/planar.md</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-warn">&#9651;</span> <a href="https://cp-algorithms.com/geometry/planar.html" target="_blank" rel="noopener">https://cp-algorithms.com/geometry/planar.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,115 @@
+{
+ "id": "trie",
+ "name": "Trie 字典树",
+ "group": "G-C-2",
+ "stage": "intermediate",
+ "priority": "P0",
+ "depth_tier": "deep",
+ "brief": "树形结构存储多字符串公共前缀，插入/查询 O(|S|)，是 AC 自动机与可持久化 Trie 的基础",
+ "what": "Trie（字典树）用树形结构存储多个字符串：根到某个节点的路径代表一个字符串前缀，每个节点有指向后继字符的转移表（next[26] 或其他字符集）。插入一个字符串即从根沿字符逐层下走，缺节点就新建；在终点打上结束标记。支持：插入 O(|S|)、查询某字符串是否存在 O(|S|)、统计以某前缀开头的数量（节点维护 cnt）、按位插入整数的 01-Trie（异或极值/异或和）。是 AC 自动机、可持久化 Trie、字典序排序、单词自动补全的基础。总节点数 ≤ 模式串总长度之和，空间 O(Σ|s_i|·字符集)。",
+ "why": {
+  "intuition": "词典按首字母分页、同首字母再按第二个字母分……Trie 就是把‘字典的分层结构’物化成树：所有字符串共享公共前缀节点，查询时顺着字母逐层翻页，一次比较一个字符，绝不回头。字符串越长查询越‘顺路’。",
+  "principle": "定义转移函数 δ(u,c)：从节点 u 读入字符 c 到达的节点。插入 s 时从根起反复 u=δ(u,c) 并必要时新建节点，结束时 exist[u]=true。查询同样走 δ，最后检查 exist。为支持前缀统计，每个节点记录经过次数 cnt（每次插入路径上 cnt++）。01-Trie：把整数按二进制位（高位到低位或低位到高位）逐位插入，可 O(logV) 求异或最大值（贪心沿反位走）、维护异或和、全局加一（低位建树交换左右子）。正确性：公共前缀共享路径，查询逐字符比较必然唯一。",
+  "history": "Trie 概念源于 1912 年（René de la Briandais 更早，1960 年 Edward Fredkin 正式命名 trie，取自 retrieval）。因能快速检索字典词条而广泛用于拼写检查、前缀匹配。OI Wiki《字典树》页给出模板及应用（检索字符串、维护异或极值、维护异或和、01-Trie 合并）；CPH ch26 也作为字符串算法基础收录。"
+ },
+ "how": {
+  "pseudocode": "class TrieNode: ch=[None]*26; cnt=0; end=False\nclass Trie:\n  def insert(s):\n    p = root\n    for c in s:\n      i = ord(c)-ord('a')\n      if p.ch[i] is None: p.ch[i] = TrieNode()\n      p = p.ch[i]; p.cnt += 1\n    p.end = True\n  def exists(s):\n    p = walk(s)\n    return p is not None and p.end\n  def count_prefix(s): return walk(s).cnt if walk(s) else 0",
+  "python": "class TrieNode:\n    __slots__ = ('ch', 'cnt', 'end')\n    def __init__(self):\n        self.ch = [None] * 26\n        self.cnt = 0        # 经过该节点的字符串个数\n        self.end = False    # 是否有字符串在此结束\n\n\nclass Trie:\n    \"\"\"字典树: 支持小写字符串的插入/查询/前缀统计/删除.\"\"\"\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, s):\n        p = self.root\n        for ch in s:\n            i = ord(ch) - ord('a')\n            if p.ch[i] is None:\n                p.ch[i] = TrieNode()\n            p = p.ch[i]\n            p.cnt += 1\n        p.end = True\n\n    def _find_node(self, s):\n        p = self.root\n        for ch in s:\n            i = ord(ch) - ord('a')\n            if p.ch[i] is None:\n                return None\n            p = p.ch[i]\n        return p\n\n    def exists(self, s):\n        p = self._find_node(s)\n        return p is not None and p.end\n\n    def count_prefix(self, s):\n        \"\"\"以 s 为前缀的字符串个数.\"\"\"\n        p = self._find_node(s)\n        return p.cnt if p is not None else 0\n\n    def startswith(self, s):\n        return self._find_node(s) is not None\n\n    def remove(self, s):\n        \"\"\"删除一个 s (若存在). 递减 cnt, 清除 end 标记.\"\"\"\n        p = self.root\n        path = [self.root]\n        for ch in s:\n            i = ord(ch) - ord('a')\n            if p.ch[i] is None:\n                return\n            p = p.ch[i]\n            path.append(p)\n        if not p.end:\n            return\n        for node in path[1:]:\n            node.cnt -= 1\n        p.end = False\n\n\nif __name__ == \"__main__\":\n    words = [\"apple\", \"app\", \"apply\", \"banana\", \"ban\"]\n    t = Trie()\n    for w in words:\n        t.insert(w)\n    assert t.exists(\"apple\") and t.exists(\"ban\")\n    assert not t.exists(\"ap\") and not t.exists(\"applepie\")\n    assert t.count_prefix(\"ap\") == 3        # app, apple, apply\n    assert t.count_prefix(\"ban\") == 2\n    assert t.count_prefix(\"ba\") == 2\n    assert t.count_prefix(\"zz\") == 0\n    assert t.startswith(\"appl\")\n\n    t.remove(\"app\")\n    assert not t.exists(\"app\")\n    assert t.count_prefix(\"ap\") == 2\n    t.remove(\"apple\")\n    assert t.count_prefix(\"ap\") == 1\n    assert t.exists(\"apply\")\n\n    # 与 Python 暴力方法交叉验证\n    import random\n    random.seed(5)\n    store = []\n    t2 = Trie()\n    for _ in range(2000):\n        n = random.randint(1, 8)\n        s = ''.join(random.choice('abcdefghij') for _ in range(n))\n        store.append(s)\n        t2.insert(s)\n    for _ in range(300):\n        n = random.randint(1, 6)\n        pre = ''.join(random.choice('abcdefghij') for _ in range(n))\n        expected = sum(1 for x in store if x.startswith(pre))\n        assert t2.count_prefix(pre) == expected, (pre, expected, t2.count_prefix(pre))\n    print(\"trie: all tests passed\")\n",
+  "pypy_notes": "节点用 list 存 26 个引用开销不小；大输入（总长 1e6 以上）用数组模拟：tr[node][26] 用扁平 list 或 list of list，节点号连续分配。删除用递减 cnt 保留结构即可；若需真正释放节点可用 free list。01-Trie 建议固定深度（如 31 位）避免进位问题。递归遍历会深，遍历用栈。",
+  "complexity": {
+   "time": "插入/查询 O(|S|)；前缀统计 O(|S|)",
+   "space": "O(Σ|s_i| × 字符集) 节点"
+  },
+  "limitations": "① 全 26 字符集每节点 26 个指针，内存大（总长 1e6 时 ~26M 引用）；字符集大时可改 map 或 child list（用空间换查找 log）；② 只支持前缀查询，后缀查询需反转字符串或建后缀结构；③ Python 对象式实现常数大，大数据必须数组模拟；④ 不支持区间查询（需可持久化/前缀和），删除后内存不回收。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P2580",
+   "url": "https://www.luogu.com.cn/problem/P2580",
+   "difficulty": 2,
+   "key_point": "于是他错误的点名开始了：Trie 插入+查询，OI Wiki 例题"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P4551",
+   "url": "https://www.luogu.com.cn/problem/P4551",
+   "difficulty": 3,
+   "key_point": "最长异或路径：树上任意两点异或路径 -> 01-Trie 贪心求最大异或对"
+  },
+  {
+   "oj": "LeetCode.cn",
+   "pid": "208",
+   "url": "https://leetcode.cn/problems/implement-trie-prefix-tree/",
+   "difficulty": 2,
+   "key_point": "实现 Trie（前缀树）：insert/search/startsWith 模板题"
+  }
+ ],
+ "pitfalls": [
+  "存在查询误用‘走过节点即可’而忽略 end 标记（如查 apple 误认 app）",
+  "字符集下标映射出错（大小写、非小写字母需映射表）",
+  "前缀统计 cnt 更新位置（应在子节点而非父节点）写错",
+  "对象式 Trie 内存爆炸；递归深度过深（长字符串）",
+  "删除实现把整个子树剪掉导致其他字符串丢失（应只递减 cnt）",
+  "01-Trie 位数不足导致高位置 0 与进位问题"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "init",
+    "label": "根节点 + 转移表(26) + cnt/end 标记"
+   },
+   {
+    "id": "insert",
+    "label": "沿字符下走, 缺则建, 终点置 end, 路径 cnt++"
+   },
+   {
+    "id": "query",
+    "label": "查询存在/前缀统计 O(|S|)"
+   },
+   {
+    "id": "01trie",
+    "label": "二进制插入 -> 异或极值/异或和/全局加一"
+   },
+   {
+    "id": "ext",
+    "label": "扩展: AC自动机/可持久化Trie/Trie合并/字典序排序"
+   }
+  ],
+  "edges": [
+   {
+    "from": "init",
+    "to": "insert"
+   },
+   {
+    "from": "insert",
+    "to": "query"
+   },
+   {
+    "from": "query",
+    "to": "01trie"
+   },
+   {
+    "from": "01trie",
+    "to": "ext"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/string/trie/",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/string/aho_corasick.html",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "ref": "CPH ch26 String algorithms p253-260",
+   "verified": true
+  }
+ ]
+}

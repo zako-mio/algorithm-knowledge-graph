@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link-Cut Tree（LCT，动态树） · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-4.html">树链剖分与动态树</a> / <span>Link-Cut Tree（LCT，动态树）</span></div>
+  <h1>Link-Cut Tree（LCT，动态树）</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-D-4</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-D-4.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-D-4.html"><span class="dir">组内第 1 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="euler-tour-tree.html"><span class="dir">下一个 / 组内</span><span class="v">euler-tour-tree</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">用 Splay 森林维护实链剖分（Preferred Path Decomposition）的动态树数据结构，支持 O(log n) 均摊的加边、删边、换根、路径修改与路径查询。</div><p>LCT 用一组 Splay（辅助树）维护动态森林。原树被『实链剖分』为若干条实链（preferred path），每条实链放进一棵 Splay 中，Splay 的中序遍历对应原树上从上到下的一条链；每棵 Splay 的根通过虚边（认父不认子）指向其链顶在原树中的父节点。核心操作 access(x) 把 x 到根的路径暴露成一条实链（放进一棵 Splay），其余一切操作（makeroot 换根、link 连边、cut 删边、split 提取路径、findroot 求连通块根）都由若干次 access + splay 组合而成。所有基于 access 的操作均摊 O(log n)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>树链剖分把静态树切成若干链再放线段树，但静态剖分无法应对动态加删边。LCT 的洞察：我们不需要固定剖分，而是『用哪条链就剖哪条』——让当前需要用到的路径实时变为一条实链，然后用 Splay 的区间操作去处理。虚边『认父不认子』的设计让森林在辅助树中仍然是一棵树，任何时刻辅助树都唯一对应一棵原树。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 辅助树性质：每棵 Splay 对应原树一条从上到下的路径（中序遍历即路径顺序）；Splay 根的父亲指向路径顶端节点在原树的父节点（虚边，父不认子）。② access(x)：自下而上把 x 到原树根的路径全部改为实链——每次 splay(x) 后把 x 右儿子设为上一步的 y（y 是上段链的根），并把 x 原右儿子的虚边保留（认父不认子）。③ makeroot(x)：access(x)+splay(x) 后对 x 打翻转标记 rev，则 x 变为该树的新根（利用 Splay 区间翻转）。④ link(x,y)：makeroot(x) 后令 fa[x]=y（若 x,y 已连通则非法）。⑤ cut(x,y)：makeroot(x)+access(y)+splay(y) 后，x 是 y 的左儿子且没有右儿子，直接断开。⑥ split(x,y)：makeroot(x)+access(y)+splay(y)，此时 y 的 Splay 子树（中序整段）即 x→y 路径。复杂度证明基于 Splay 的势能分析：access 中 splay 部分 O(log n)，虚边访问的均摊复杂度亦为 O(log n)，故 m 次 access 为 O((n+m)log n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>LCT 由 Daniel Sleator 与 Robert Tarjan 在 1983 年的论文《A Data Structure for Dynamic Trees》中提出，与 Splay 树同出于这两位作者（Sleator-Tarjan 1985 发表 Splay）。早期是自调整二叉搜索树思想在动态树上的扩展。国内 OI 竞赛中 LCT 模板（Luogu P3690）与大量题目（弹飞绵羊、洞穴勘测、Tree II 等）将其推向普及，OI Wiki 有系统中文教程。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">struct LCT:
+    ch[<span class="t-n">0.</span>.n][<span class="t-n">2</span>], fa[<span class="t-n">0.</span>.n], rev[<span class="t-n">0.</span>.n], <span class="t-b">sum</span>[<span class="t-n">0.</span>.n], val[<span class="t-n">0.</span>.n]
+
+    <span class="t-f">isroot</span>(x):  <span class="t-k">return</span> ch[fa[x]][<span class="t-n">0</span>] != x <span class="t-k">and</span> ch[fa[x]][<span class="t-n">1</span>] != x
+    <span class="t-f">pushup</span>(x):  <span class="t-b">sum</span>[x] = <span class="t-b">sum</span>[ch[x][<span class="t-n">0</span>]] + val[x] + <span class="t-b">sum</span>[ch[x][<span class="t-n">1</span>]]
+    <span class="t-f">pushrev</span>(x): <span class="t-f">swap</span>(ch[x][<span class="t-n">0</span>], ch[x][<span class="t-n">1</span>]); rev[x] ^= <span class="t-n">1</span>
+    <span class="t-f">pushdown</span>(x): <span class="t-k">if</span> rev[x]: <span class="t-f">pushrev</span>(ch[x][<span class="t-n">0</span>]); <span class="t-f">pushrev</span>(ch[x][<span class="t-n">1</span>]); rev[x]=<span class="t-n">0</span>
+
+    <span class="t-f">rotate</span>(x):  <span class="t-c"># 经典 splay 旋转，注意 isroot 判断</span>
+    <span class="t-f">splay</span>(x):   <span class="t-c"># 先下放路径上的翻转标记，再双旋</span>
+
+    <span class="t-f">access</span>(x):
+        last = <span class="t-n">0</span>
+        <span class="t-k">while</span> x:
+            <span class="t-f">splay</span>(x)
+            ch[x][<span class="t-n">1</span>] = last     <span class="t-c"># 实边切到 last，原右儿子变虚边</span>
+            <span class="t-f">pushup</span>(x)
+            last = x
+            x = fa[x]           <span class="t-c"># 沿虚边向上</span>
+        <span class="t-k">return</span> last
+
+    <span class="t-f">makeroot</span>(x): <span class="t-f">access</span>(x); <span class="t-f">splay</span>(x); <span class="t-f">pushrev</span>(x)
+    <span class="t-f">findroot</span>(x):
+        <span class="t-f">access</span>(x); <span class="t-f">splay</span>(x)
+        <span class="t-k">while</span> ch[x][<span class="t-n">0</span>]: <span class="t-f">pushdown</span>(x); x = ch[x][<span class="t-n">0</span>]
+        <span class="t-f">splay</span>(x); <span class="t-k">return</span> x
+    <span class="t-f">split</span>(x, y): <span class="t-f">makeroot</span>(x); <span class="t-f">access</span>(y); <span class="t-f">splay</span>(y)   <span class="t-c"># 此时 y 子树即路径</span>
+    <span class="t-f">link</span>(x, y):  <span class="t-f">makeroot</span>(x); fa[x] = y             <span class="t-c"># 需判连通</span>
+    <span class="t-f">cut</span>(x, y):   <span class="t-f">makeroot</span>(x); <span class="t-f">access</span>(y); <span class="t-f">splay</span>(y)
+                 <span class="t-c"># ch[y][0]==x 且 ch[x][1]==0 才合法，然后置零</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> LinkCutTree:
+    <span class="t-s">&quot;&quot;&quot;教学实现：点权路径异或和（可改为 sum/max）。
+    节点编号 1..n。
+    &quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, n, val):
+        self.n = n
+        self.ch = [[<span class="t-n">0</span>, <span class="t-n">0</span>] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+        self.fa = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+        self.rev = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+        self.val = [<span class="t-n">0</span>] + val[:]
+        self.<span class="t-b">sum</span> = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+            self.<span class="t-b">sum</span>[i] = self.val[i]
+
+    <span class="t-k">def</span> <span class="t-f">_isroot</span>(self, x):
+        f = self.fa[x]
+        <span class="t-k">return</span> f == <span class="t-n">0</span> <span class="t-k">or</span> (self.ch[f][<span class="t-n">0</span>] != x <span class="t-k">and</span> self.ch[f][<span class="t-n">1</span>] != x)
+
+    <span class="t-k">def</span> <span class="t-f">_pushup</span>(self, x):
+        self.<span class="t-b">sum</span>[x] = self.<span class="t-b">sum</span>[self.ch[x][<span class="t-n">0</span>]] ^ self.<span class="t-b">sum</span>[self.ch[x][<span class="t-n">1</span>]] ^ self.val[x]
+
+    <span class="t-k">def</span> <span class="t-f">_pushrev</span>(self, x):
+        self.ch[x][<span class="t-n">0</span>], self.ch[x][<span class="t-n">1</span>] = self.ch[x][<span class="t-n">1</span>], self.ch[x][<span class="t-n">0</span>]
+        self.rev[x] ^= <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">_pushdown</span>(self, x):
+        <span class="t-k">if</span> self.rev[x]:
+            self.<span class="t-f">_pushrev</span>(self.ch[x][<span class="t-n">0</span>])
+            self.<span class="t-f">_pushrev</span>(self.ch[x][<span class="t-n">1</span>])
+            self.rev[x] = <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">_rotate</span>(self, x):
+        y, z = self.fa[x], self.fa[self.fa[x]]
+        c = self.ch[y][<span class="t-n">1</span>] == x
+        b = self.ch[x][c ^ <span class="t-n">1</span>]
+        <span class="t-k">if</span> <span class="t-k">not</span> self.<span class="t-f">_isroot</span>(y):
+            self.ch[z][self.ch[z][<span class="t-n">1</span>] == y] = x
+        self.fa[x] = z
+        self.ch[y][c] = b
+        <span class="t-k">if</span> b:
+            self.fa[b] = y
+        self.fa[y] = x
+        self.ch[x][c ^ <span class="t-n">1</span>] = y
+        self.<span class="t-f">_pushup</span>(y)
+        self.<span class="t-f">_pushup</span>(x)
+
+    <span class="t-k">def</span> <span class="t-f">_splay</span>(self, x):
+        st = [x]
+        y = x
+        <span class="t-k">while</span> <span class="t-k">not</span> self.<span class="t-f">_isroot</span>(y):
+            y = self.fa[y]
+            st.<span class="t-f">append</span>(y)
+        <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">reversed</span>(st):
+            self.<span class="t-f">_pushdown</span>(v)
+        <span class="t-k">while</span> <span class="t-k">not</span> self.<span class="t-f">_isroot</span>(x):
+            y, z = self.fa[x], self.fa[self.fa[x]]
+            <span class="t-k">if</span> <span class="t-k">not</span> self.<span class="t-f">_isroot</span>(y):
+                <span class="t-k">if</span> (self.ch[y][<span class="t-n">1</span>] == x) == (self.ch[z][<span class="t-n">1</span>] == y):
+                    self.<span class="t-f">_rotate</span>(y)
+                <span class="t-k">else</span>:
+                    self.<span class="t-f">_rotate</span>(x)
+            self.<span class="t-f">_rotate</span>(x)
+
+    <span class="t-k">def</span> <span class="t-f">access</span>(self, x):
+        last = <span class="t-n">0</span>
+        <span class="t-k">while</span> x:
+            self.<span class="t-f">_splay</span>(x)
+            self.ch[x][<span class="t-n">1</span>] = last
+            self.<span class="t-f">_pushup</span>(x)
+            last = x
+            x = self.fa[x]
+        <span class="t-k">return</span> last
+
+    <span class="t-k">def</span> <span class="t-f">makeroot</span>(self, x):
+        self.<span class="t-f">access</span>(x)
+        self.<span class="t-f">_splay</span>(x)
+        self.<span class="t-f">_pushrev</span>(x)
+
+    <span class="t-k">def</span> <span class="t-f">findroot</span>(self, x):
+        self.<span class="t-f">access</span>(x)
+        self.<span class="t-f">_splay</span>(x)
+        <span class="t-k">while</span> self.ch[x][<span class="t-n">0</span>]:
+            self.<span class="t-f">_pushdown</span>(x)
+            x = self.ch[x][<span class="t-n">0</span>]
+        self.<span class="t-f">_splay</span>(x)
+        <span class="t-k">return</span> x
+
+    <span class="t-k">def</span> <span class="t-f">split</span>(self, x, y):
+        self.<span class="t-f">makeroot</span>(x)
+        self.<span class="t-f">access</span>(y)
+        self.<span class="t-f">_splay</span>(y)
+        <span class="t-k">return</span> self.<span class="t-b">sum</span>[y]
+
+    <span class="t-k">def</span> <span class="t-f">link</span>(self, x, y):
+        self.<span class="t-f">makeroot</span>(x)
+        <span class="t-k">if</span> self.<span class="t-f">findroot</span>(y) != x:
+            self.fa[x] = y
+
+    <span class="t-k">def</span> <span class="t-f">cut</span>(self, x, y):
+        self.<span class="t-f">makeroot</span>(x)
+        self.<span class="t-f">access</span>(y)
+        self.<span class="t-f">_splay</span>(y)
+        <span class="t-k">if</span> self.ch[y][<span class="t-n">0</span>] == x <span class="t-k">and</span> self.ch[x][<span class="t-n">1</span>] == <span class="t-n">0</span>:
+            self.ch[y][<span class="t-n">0</span>] = <span class="t-n">0</span>
+            self.fa[x] = <span class="t-n">0</span>
+            self.<span class="t-f">_pushup</span>(y)
+
+    <span class="t-k">def</span> <span class="t-f">connected</span>(self, x, y):
+        <span class="t-k">if</span> x == y:
+            <span class="t-k">return</span> <span class="t-k">True</span>
+        self.<span class="t-f">makeroot</span>(x)
+        <span class="t-k">return</span> self.<span class="t-f">findroot</span>(y) == x
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    n = <span class="t-n">5</span>
+    val = [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">5</span>]
+    lct = <span class="t-f">LinkCutTree</span>(n, val)
+    <span class="t-c"># 建树: 1-2, 1-3, 3-4, 3-5</span>
+    lct.<span class="t-f">link</span>(<span class="t-n">1</span>, <span class="t-n">2</span>)
+    lct.<span class="t-f">link</span>(<span class="t-n">1</span>, <span class="t-n">3</span>)
+    lct.<span class="t-f">link</span>(<span class="t-n">3</span>, <span class="t-n">4</span>)
+    lct.<span class="t-f">link</span>(<span class="t-n">3</span>, <span class="t-n">5</span>)
+    <span class="t-k">assert</span> lct.<span class="t-f">connected</span>(<span class="t-n">2</span>, <span class="t-n">5</span>)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;path 2..5 xor =&#x27;</span>, lct.<span class="t-f">split</span>(<span class="t-n">2</span>, <span class="t-n">5</span>))
+    <span class="t-k">assert</span> lct.<span class="t-f">split</span>(<span class="t-n">2</span>, <span class="t-n">5</span>) == (<span class="t-n">2</span> ^ <span class="t-n">1</span> ^ <span class="t-n">3</span> ^ <span class="t-n">5</span>)  <span class="t-c"># 2-1-3-5</span>
+    <span class="t-c"># 换根后查询不同路径</span>
+    lct.<span class="t-f">makeroot</span>(<span class="t-n">4</span>)
+    <span class="t-k">assert</span> lct.<span class="t-f">split</span>(<span class="t-n">4</span>, <span class="t-n">1</span>) == (<span class="t-n">4</span> ^ <span class="t-n">3</span> ^ <span class="t-n">1</span>)
+    <span class="t-c"># 删边 1-3，断开 1 与 3/4/5</span>
+    lct.<span class="t-f">cut</span>(<span class="t-n">1</span>, <span class="t-n">3</span>)
+    <span class="t-k">assert</span> <span class="t-k">not</span> lct.<span class="t-f">connected</span>(<span class="t-n">1</span>, <span class="t-n">4</span>)
+    <span class="t-k">assert</span> lct.<span class="t-f">connected</span>(<span class="t-n">3</span>, <span class="t-n">5</span>)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;OK&#x27;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 教学实现常数大，n 达 1e5 全功能操作在 PyPy 下约 3-5s 量级，竞赛通常仅作了解或小数据题；若必须用，应内联 _isroot/_pushup、用数组替代属性、避免递归。PyPy 的 while 循环性能尚可，真正瓶颈是 _splay 中的 path 收集（可用显式栈）。生产环境建议 C++。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>access/splay/makeroot/link/cut/split 均摊 O(log n)；初始化 O(n)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只维护路径信息，子树信息需配合虚子树维护（较复杂）；均摊而非最坏界，个别操作可能 O(n)（但摊还 O(log n)）；Python 实现常数大，大范围数据不建议用 Python 提交。实现细节极多，isroot 判断、翻转标记顺序、cut 合法性检查缺一不可，稍错即 WA。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>isroot 用 fa 判断而不用『儿子是否为 x』，否则虚边方向错误</li><li>_rotate 中必须先判断 y 是否 isroot 再改 z 的儿子，否则破坏辅助树</li><li>splay 前必须把祖先链上的 rev 标记按序下放，否则翻转错位</li><li>makeroot 的 rev 标记会反转路径，查询路径前要先 pushdown 再取信息</li><li>cut 必须先验证 ch[y][0]==x 且 ch[x][1]==0（x 与 y 直连）才断开</li><li>节点编号从 1 开始，0 号节点的 fa/ch 恒为 0，isroot(0) 需特判</li><li>access 里要 pushup(x)，忘记更新 sum 是常见 WA 源</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3690</strong></td><td>5</td><td>【模板】动态树（LCT）：link/cut/路径异或查询全功能模板</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3690" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3690</a></td></tr><tr><td>Luogu</td><td><strong>P3203</strong></td><td>4</td><td>[HNOI2010] 弹飞绵羊：i 向 i+a[i] 连边，改装根（n+1 为虚拟根），查询跳出的步数即到虚拟根的路径长度</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3203" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3203</a></td></tr><tr><td>Luogu</td><td><strong>P2147</strong></td><td>4</td><td>[SDOI2008] 洞穴勘测：link/cut/连通性查询，LCT 基础应用</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2147" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2147</a></td></tr><tr><td>Luogu</td><td><strong>P1501</strong></td><td>6</td><td>[国家集训队] Tree II：路径加/乘/求和，需在 Splay 上维护 add/mul 双懒标记</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1501" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1501</a></td></tr><tr><td>Luogu</td><td><strong>P4234</strong></td><td>7</td><td>最小差值生成树：边权转点权（边结点），LCT 维护最大边权，加边删边求最小差值</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4234" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4234</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-lct" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "splay", "label": "Splay 树与区间翻转"}}, {"data": {"id": "preferred-path", "label": "实链剖分 / 辅助树"}}, {"data": {"id": "access", "label": "access(x) 暴露路径"}}, {"data": {"id": "makeroot", "label": "makeroot 换根"}}, {"data": {"id": "ops", "label": "link/cut/split/findroot"}}, {"data": {"id": "lazy", "label": "路径懒标记（加/乘）"}}, {"data": {"id": "esplay->preferred-path", "source": "splay", "target": "preferred-path"}}, {"data": {"id": "epreferred-path->access", "source": "preferred-path", "target": "access"}}, {"data": {"id": "eaccess->makeroot", "source": "access", "target": "makeroot"}}, {"data": {"id": "emakeroot->ops", "source": "makeroot", "target": "ops"}}, {"data": {"id": "eops->lazy", "source": "ops", "target": "lazy"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-lct'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="splay.html" title="LCT以Splay为辅助树维护动态森林">Splay(伸展树)<span class="etype">前置依赖</span></a><a class="chip e-combination" href="dp-dynamic.html" title="动态DP用LCT维护转移矩阵链乘">动态DP(DDP)<span class="etype">组合</span></a><a class="chip e-variant" href="hld.html" title="均维护树链，LCT 支持动态连断边">树链剖分(HLD)<span class="etype">变体</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="top-tree.html" title="Top Tree是LCT维护树上路径和子树信息的扩展">Top Tree<span class="etype">变体</span></a><a class="chip e-cooccurrence" href="euler-tour-tree.html" title="ETT和LCT均为动态树问题的解决方案">Euler Tour Tree<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/lct.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/lct.md</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/lct/" target="_blank" rel="noopener">https://oi-wiki.org/ds/lct/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

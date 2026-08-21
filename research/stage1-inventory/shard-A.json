@@ -1,0 +1,2851 @@
+{
+  "shard": "A",
+  "shard_name": "数据结构与算法范式",
+  "groups": [
+    {
+      "id": "G-A-1",
+      "name": "排序与基础算法族",
+      "domain": "基础算法",
+      "stage_range": [
+        "basic",
+        "intermediate"
+      ],
+      "node_ids": [
+        "sort-intro",
+        "merge-sort",
+        "quick-sort",
+        "heap-sort",
+        "comparison-sort",
+        "non-comparison-sort",
+        "tim-sort",
+        "tournament-sort",
+        "binary-search",
+        "ternary-search",
+        "binary-answer",
+        "greedy",
+        "divide-conquer",
+        "enumerate",
+        "simulate",
+        "construction",
+        "prefix-sum",
+        "binary-lifting",
+        "complexity",
+        "amortized-analysis"
+      ]
+    },
+    {
+      "id": "G-A-2",
+      "name": "栈队列与单调结构族",
+      "domain": "数据结构",
+      "stage_range": [
+        "basic",
+        "intermediate"
+      ],
+      "node_ids": [
+        "stack",
+        "queue",
+        "monotonic-stack",
+        "monotonic-queue"
+      ]
+    },
+    {
+      "id": "G-A-3",
+      "name": "堆与优先队列族",
+      "domain": "数据结构",
+      "stage_range": [
+        "basic",
+        "advanced"
+      ],
+      "node_ids": [
+        "binary-heap",
+        "leftist-tree",
+        "pairing-heap",
+        "huffman-tree",
+        "fibonacci-heap",
+        "randomized-heap"
+      ]
+    },
+    {
+      "id": "G-A-4",
+      "name": "并查集族",
+      "domain": "数据结构",
+      "stage_range": [
+        "basic",
+        "advanced"
+      ],
+      "node_ids": [
+        "dsu-basic",
+        "dsu-weighted",
+        "persistent-dsu"
+      ]
+    },
+    {
+      "id": "G-A-5",
+      "name": "区间查询与分块族",
+      "domain": "数据结构",
+      "stage_range": [
+        "basic",
+        "advanced"
+      ],
+      "node_ids": [
+        "sparse-table",
+        "fenwick",
+        "fenwick-extended",
+        "sqrt-decomposition",
+        "block-array",
+        "block-list",
+        "cat-tree",
+        "sqrt-tree",
+        "rmq-linear"
+      ]
+    },
+    {
+      "id": "G-A-6",
+      "name": "线段树族",
+      "domain": "数据结构",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "seg-basic",
+        "seg-lazy",
+        "seg-dynamic",
+        "seg-merge",
+        "seg-beats",
+        "seg-nested",
+        "li-chao-tree",
+        "kinetic-tournament"
+      ]
+    },
+    {
+      "id": "G-A-7",
+      "name": "可持久化数据结构族",
+      "domain": "数据结构",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "persistent-concept",
+        "persistent-seg",
+        "persistent-trie",
+        "persistent-heap",
+        "persistent-balanced"
+      ]
+    },
+    {
+      "id": "G-A-8",
+      "name": "平衡二叉搜索树族",
+      "domain": "数据结构",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "bst",
+        "treap",
+        "fhq-treap",
+        "splay",
+        "sgt",
+        "sbt",
+        "avl",
+        "wblt",
+        "rbtree"
+      ]
+    },
+    {
+      "id": "G-A-9",
+      "name": "高级树结构族",
+      "domain": "数据结构",
+      "stage_range": [
+        "advanced",
+        "frontier"
+      ],
+      "node_ids": [
+        "lct",
+        "ett",
+        "top-tree",
+        "kdt",
+        "cartesian-tree",
+        "tree-decompose"
+      ]
+    },
+    {
+      "id": "G-A-10",
+      "name": "哈希与链表族",
+      "domain": "数据结构",
+      "stage_range": [
+        "basic",
+        "intermediate"
+      ],
+      "node_ids": [
+        "hash-table",
+        "linked-list",
+        "skiplist"
+      ]
+    },
+    {
+      "id": "G-A-11",
+      "name": "动态规划基础族",
+      "domain": "动态规划",
+      "stage_range": [
+        "basic",
+        "intermediate"
+      ],
+      "node_ids": [
+        "dp-basic",
+        "dp-memo",
+        "dp-knapsack01",
+        "dp-knapsack-complete",
+        "dp-knapsack-multiple",
+        "dp-knapsack-group",
+        "dp-linear",
+        "dp-interval",
+        "dp-tree",
+        "dp-tree-knapsack",
+        "dp-state",
+        "dp-count",
+        "dp-number",
+        "dp-dag",
+        "dp-probability"
+      ]
+    },
+    {
+      "id": "G-A-12",
+      "name": "DP优化族",
+      "domain": "动态规划",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "dp-opt-overview",
+        "dp-opt-monotonic-queue",
+        "dp-opt-slope",
+        "dp-opt-quadrangle",
+        "dp-opt-divide-conquer",
+        "dp-opt-slope-trick",
+        "dp-opt-wqs",
+        "dp-opt-state",
+        "dp-opt-data-structure"
+      ]
+    },
+    {
+      "id": "G-A-13",
+      "name": "高级DP族",
+      "domain": "动态规划",
+      "stage_range": [
+        "advanced",
+        "frontier"
+      ],
+      "node_ids": [
+        "dp-plug",
+        "dp-dynamic",
+        "dp-dpofdp"
+      ]
+    },
+    {
+      "id": "G-A-14",
+      "name": "搜索算法族",
+      "domain": "搜索算法",
+      "stage_range": [
+        "basic",
+        "advanced"
+      ],
+      "node_ids": [
+        "dfs",
+        "bfs",
+        "backtracking",
+        "bidirectional",
+        "iterative-deepening",
+        "heuristic-search",
+        "astar",
+        "idastar",
+        "search-pruning",
+        "minimax-alpha-beta",
+        "dlx"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "sort-intro",
+      "name": "排序基础概念",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "排序算法总览：稳定性、复杂度、比较与非比较排序的分类",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/sort-intro/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch3 p35",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "merge-sort",
+      "name": "归并排序",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "分治排序，O(n log n)稳定排序，可用于求逆序对",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/merge-sort/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch3 p35",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "quick-sort",
+      "name": "快速排序",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "分治排序，期望O(n log n)，最坏O(n^2)，常数小",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/quick-sort/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch3 p38",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "heap-sort",
+      "name": "堆排序",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P1",
+      "brief": "基于二叉堆的O(n log n)原地排序，不稳定",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/heap-sort/",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch3 p41",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "comparison-sort",
+      "name": "简单比较排序(冒泡/选择/插入/希尔)",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P2",
+      "brief": "O(n^2)简单排序及希尔分组优化，教学与小规模数据",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/bubble-sort/",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch3 p35",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "non-comparison-sort",
+      "name": "非比较排序(计数/桶/基数)",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P1",
+      "brief": "线性时间排序，依赖键值范围限制",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/counting-sort/",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch3 p42",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "tim-sort",
+      "name": "Timsort",
+      "group_id": "G-A-1",
+      "stage": "intermediate",
+      "priority": "P3",
+      "brief": "归并+插入混合稳定排序，Python/Java标准库使用",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/tim-sort/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "tournament-sort",
+      "name": "锦标赛排序",
+      "group_id": "G-A-1",
+      "stage": "intermediate",
+      "priority": "P3",
+      "brief": "基于锦标赛树的排序，O(n log n)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/tournament-sort/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "binary-search",
+      "name": "二分查找",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "有序数组O(log n)查找，含lower_bound/upper_bound",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/binary/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/num_methods/binary_search.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "ternary-search",
+      "name": "三分法",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P1",
+      "brief": "在单峰函数上找极值，O(log n)三分查找",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/binary/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/num_methods/ternary_search.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "binary-answer",
+      "name": "二分答案",
+      "group_id": "G-A-1",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "对答案值域二分，配合check函数求解最优化问题",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/binary/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "greedy",
+      "name": "贪心算法",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "每步取局部最优，需证明最优子结构与交换论证",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/greedy/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch6 p67",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "divide-conquer",
+      "name": "分治与递归",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "分解-解决-合并，递归处理子问题",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/divide-and-conquer/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch3 p35",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "enumerate",
+      "name": "枚举与暴力",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "系统枚举所有可能，常结合剪枝优化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/enumerate/",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch5 p57",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "simulate",
+      "name": "模拟",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "按题意直接模拟过程，考察代码实现能力",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/simulate/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "construction",
+      "name": "构造题",
+      "group_id": "G-A-1",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "构造满足条件的解，需洞察问题结构",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/construction/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "prefix-sum",
+      "name": "前缀和与差分",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "O(1)区间和查询/O(1)区间修改，一维与多维",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/prefix-sum/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch4 p45",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "binary-lifting",
+      "name": "倍增",
+      "group_id": "G-A-1",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "预处理2^k次幂跳跃，用于ST表/LCA/稀疏表等",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/binary-lifting/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "complexity",
+      "name": "时间/空间复杂度分析",
+      "group_id": "G-A-1",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "渐近符号(O/Theta/Omega)与复杂度分析方法",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/complexity/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch2 p27",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "amortized-analysis",
+      "name": "均摊分析",
+      "group_id": "G-A-1",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "聚合法/势能法/记账法分析均摊复杂度",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/basic/amortized-analysis/",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch8 p87",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "stack",
+      "name": "栈",
+      "group_id": "G-A-2",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "LIFO后进先出结构，支持括号匹配/表达式求值等",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/stack/",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch4 p45",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "queue",
+      "name": "队列",
+      "group_id": "G-A-2",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "FIFO先进先出结构，BFS基础组件",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/queue/",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch4 p45",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "monotonic-stack",
+      "name": "单调栈",
+      "group_id": "G-A-2",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "维护单调性的栈，O(n)求左右第一个大/小于当前值",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/monotonic-stack/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/stack_queue_modification.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "monotonic-queue",
+      "name": "单调队列",
+      "group_id": "G-A-2",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "维护滑动窗口最值，O(n)均摊，DP优化基础",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/monotonic-queue/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/stack_queue_modification.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "binary-heap",
+      "name": "二叉堆",
+      "group_id": "G-A-3",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "完全二叉树维护优先队列，O(log n)插入/删除最值",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/binary-heap/",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch4 p47",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "leftist-tree",
+      "name": "左偏树(可并堆)",
+      "group_id": "G-A-3",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "支持O(log n)合并的可并堆，利用偏侧树高",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/leftist-tree/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "pairing-heap",
+      "name": "配对堆",
+      "group_id": "G-A-3",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "均摊O(1)插入/O(log n)删除，Fibonacci堆的简单替代",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/pairing-heap/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "huffman-tree",
+      "name": "哈夫曼树",
+      "group_id": "G-A-3",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "最优前缀编码树，贪心构造，WPL最小",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/huffman-tree/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "fibonacci-heap",
+      "name": "斐波那契堆",
+      "group_id": "G-A-3",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "均摊O(1)decrease-key，理论最优堆，实现复杂",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/heap/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "randomized-heap",
+      "name": "随机化堆",
+      "group_id": "G-A-3",
+      "stage": "intermediate",
+      "priority": "P3",
+      "brief": "随机合并的可并堆，期望O(log n)",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/randomized_heap.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "dsu-basic",
+      "name": "并查集(路径压缩+按秩合并)",
+      "group_id": "G-A-4",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "近O(1)合并/查询集合，路径压缩+按秩合并",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/dsu/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/disjoint_set_union.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch4 p53",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dsu-weighted",
+      "name": "带权/扩展域并查集",
+      "group_id": "G-A-4",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "维护节点间权值关系/种类关系，处理冲突判断",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/dsu/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "persistent-dsu",
+      "name": "可持久化并查集",
+      "group_id": "G-A-4",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "基于可持久化线段树实现历史版本回溯的并查集",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/persistent-seg/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "sparse-table",
+      "name": "ST表(稀疏表)",
+      "group_id": "G-A-5",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "倍增预处理O(1)回答可重复贡献问题(RMQ/GCD)，不支持修改",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/sparse-table/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/sparse-table.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch9 p93",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "fenwick",
+      "name": "树状数组(BIT)",
+      "group_id": "G-A-5",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "lowbit分组，O(log n)单点修改+前缀查询，代码短常数小",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/fenwick/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/fenwick.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch9 p97",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "fenwick-extended",
+      "name": "扩展树状数组",
+      "group_id": "G-A-5",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "差分实现区间修改+区间查询，或双BIT维护不可差分信息",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/fenwick/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "sqrt-decomposition",
+      "name": "分块(Sqrt分解)",
+      "group_id": "G-A-5",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "O(sqrt n)块内暴力+块间预处理，通用性最强的区间结构",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/decompose/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/sqrt_decomposition.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch27 p261",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "block-array",
+      "name": "分块数组",
+      "group_id": "G-A-5",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "将数组分为O(sqrt n)块，块间维护聚合信息",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/block-array/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "block-list",
+      "name": "块状链表",
+      "group_id": "G-A-5",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "链表+分块混合，支持插入删除的O(sqrt n)区间操作",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/block-list/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "cat-tree",
+      "name": "猫树",
+      "group_id": "G-A-5",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "分治预处理O(1)静态区间查询，不支持修改",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/cat-tree/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "sqrt-tree",
+      "name": "Sqrt Tree",
+      "group_id": "G-A-5",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "O(1)静态区间查询，O(sqrt n)重建，分块递归",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/sqrt-tree/",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/sqrt-tree.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "rmq-linear",
+      "name": "线性RMQ(±1 RMQ)",
+      "group_id": "G-A-5",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "O(n)预处理O(1)查询的RMQ，基于笛卡尔树+LCA",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/rmq_linear.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "seg-basic",
+      "name": "线段树基础",
+      "group_id": "G-A-6",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "O(log n)单点修改+区间查询，递归建树合并子节点信息",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/seg/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/segment_tree.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch9 p89",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "seg-lazy",
+      "name": "懒标记线段树",
+      "group_id": "G-A-6",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "区间修改+区间查询，lazy tag延迟下发均摊O(log n)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/seg/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/segment_tree.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch28 p267",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "seg-dynamic",
+      "name": "动态开点线段树",
+      "group_id": "G-A-6",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "按需创建节点，支持大值域离散化无需预先开空间",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/seg/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "seg-merge",
+      "name": "线段树合并与分裂",
+      "group_id": "G-A-6",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "合并多棵动态开点线段树，用于树上信息合并",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/seg-merge-split/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "seg-beats",
+      "name": "Segment Beats(吉司机线段树)",
+      "group_id": "G-A-6",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "维护区间最值操作(区间取min/max)与历史最值",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/seg-beats/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "seg-nested",
+      "name": "线段树嵌套",
+      "group_id": "G-A-6",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "线段树套线段树/BIT/平衡树，支持二维或多维区间操作",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/seg-in-seg/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "li-chao-tree",
+      "name": "李超线段树",
+      "group_id": "G-A-6",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "维护区间最值线段，O(log n)插入线段/O(log n)查询最值",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/li-chao-tree/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "kinetic-tournament",
+      "name": "Kinetic Tournament Tree",
+      "group_id": "G-A-6",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "动态凸壳维护，线段树节点存一次函数，支持区间最值",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/kinetic-tournament-tree/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "persistent-concept",
+      "name": "可持久化数据结构概念",
+      "group_id": "G-A-7",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "保存历史版本，部分可持久化vs完全可持久化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/persistent/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "persistent-seg",
+      "name": "可持久化线段树(主席树)",
+      "group_id": "G-A-7",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "保存每次修改的历史版本，区间第k小/历史查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/persistent-seg/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch28 p271",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "persistent-trie",
+      "name": "可持久化Trie",
+      "group_id": "G-A-7",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "保存历史版本的Trie，支持区间异或最值等查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/persistent-trie/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "persistent-heap",
+      "name": "可持久化堆",
+      "group_id": "G-A-7",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "支持历史版本的堆，基于左偏树实现",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/persistent-heap/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "persistent-balanced",
+      "name": "可持久化平衡树",
+      "group_id": "G-A-7",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "可持久化无旋Treap，保存历史版本",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/persistent-balanced/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "bst",
+      "name": "二叉搜索树基础",
+      "group_id": "G-A-8",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "左<根<右性质，期望O(log n)操作，最坏O(n)退化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/bst/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "treap",
+      "name": "Treap(树堆)",
+      "group_id": "G-A-8",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "BST+堆随机优先级，旋转维护平衡，期望O(log n)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/treap/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/treap.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "fhq-treap",
+      "name": "无旋Treap(FHQ Treap)",
+      "group_id": "G-A-8",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "按值/按秩分裂合并，无需旋转，可持久化友好",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/treap/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "splay",
+      "name": "Splay(伸展树)",
+      "group_id": "G-A-8",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "伸展操作将访问节点旋至根，均摊O(log n)，LCT基础",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/splay/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "sgt",
+      "name": "替罪羊树(Scapegoat Tree)",
+      "group_id": "G-A-8",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "不平衡时按比例重构子树，O(log n)均摊",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/sgt/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "sbt",
+      "name": "Size Balanced Tree(SBT)",
+      "group_id": "G-A-8",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "按子树size维护平衡，O(log n)操作",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/sbt/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "avl",
+      "name": "AVL树",
+      "group_id": "G-A-8",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "严格平衡(高度差<=1)，旋转维护",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/avl/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "wblt",
+      "name": "WBLT(加权平衡叶树)",
+      "group_id": "G-A-8",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "按子树权重维护平衡，支持可持久化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/wblt/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "rbtree",
+      "name": "红黑树",
+      "group_id": "G-A-8",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "弱平衡BST，C++ std::map底层，竞赛中少用",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/rbtree/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "lct",
+      "name": "Link-Cut Tree(LCT)",
+      "group_id": "G-A-9",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "动态树问题，Splay维护森林路径/子树操作，O(log n)均摊",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/lct/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "ett",
+      "name": "Euler Tour Tree(ETT)",
+      "group_id": "G-A-9",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "欧拉序维护动态树，平衡树支持换根/连边/断边",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/ett/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "top-tree",
+      "name": "Top Tree",
+      "group_id": "G-A-9",
+      "stage": "frontier",
+      "priority": "P3",
+      "brief": "维护树上层和路径信息的通用框架，LCT的扩展",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/top-tree/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "kdt",
+      "name": "K-D Tree",
+      "group_id": "G-A-9",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "k维空间分块树，最近邻/矩形查询，O(n^{1-1/k})",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/kdt/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "cartesian-tree",
+      "name": "笛卡尔树",
+      "group_id": "G-A-9",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "数组下标BST+值堆性质，单调栈O(n)构建，RMQ转化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/cartesian-tree/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "tree-decompose",
+      "name": "树分块",
+      "group_id": "G-A-9",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "树上Sqrt分块，配合莫队处理树上路径查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/tree-decompose/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "hash-table",
+      "name": "哈希表(散列表)",
+      "group_id": "G-A-10",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "key-value映射，哈希函数+冲突处理(开链/开放寻址)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/hash/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "linked-list",
+      "name": "链表",
+      "group_id": "G-A-10",
+      "stage": "basic",
+      "priority": "P1",
+      "brief": "节点指针串联，O(1)插入删除，需处理边界",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/linked-list/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "skiplist",
+      "name": "跳表(Skip List)",
+      "group_id": "G-A-10",
+      "stage": "intermediate",
+      "priority": "P3",
+      "brief": "多层链表随机化，期望O(log n)查找/插入",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/ds/skiplist/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "dp-basic",
+      "name": "动态规划基础",
+      "group_id": "G-A-11",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "最优子结构/无后效性/子问题重叠，状态定义与转移方程",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/basic/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/dynamic_programming/intro-to-dp.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch7 p75",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-memo",
+      "name": "记忆化搜索",
+      "group_id": "G-A-11",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "自顶向下DFS+缓存，DP的递归实现方式",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/memo/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-knapsack01",
+      "name": "0-1背包",
+      "group_id": "G-A-11",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "每个物品取/不取，O(nW)转移，滚动数组优化空间",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/knapsack/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/dynamic_programming/knapsack.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch7 p78",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-knapsack-complete",
+      "name": "完全背包",
+      "group_id": "G-A-11",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "每件物品无限取，正序遍历容量",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/knapsack/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch7 p79",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-knapsack-multiple",
+      "name": "多重背包",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "每件物品有限数量，二进制拆分或单调队列优化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/knapsack/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-knapsack-group",
+      "name": "分组背包",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "物品分组，每组最多选一件",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/knapsack/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-linear",
+      "name": "线性DP(LIS/LCS)",
+      "group_id": "G-A-11",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "一维序列上的DP，最长递增子序列/最长公共子序列",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/basic/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/dynamic_programming/longest_increasing_subsequence.html",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/sequences/longest_increasing_subsequence.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch7 p83",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-interval",
+      "name": "区间DP",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "f(i,j)表示区间[i,j]最优，枚举合并点k，O(n^3)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/interval/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch7 p82",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-tree",
+      "name": "树形DP",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "树上递归DP，DFS后序传递子树最优解到父节点",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/tree/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch10 p105",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-tree-knapsack",
+      "name": "树上背包",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "树形DP+背包结合，依赖关系物品选择",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/tree/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-state",
+      "name": "状压DP",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "集合状态编码为二进制整数，适合小规模状态空间",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/state/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/dynamic_programming/profile-dynamics.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "dp-count",
+      "name": "计数DP",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "利用DP记忆化求计数问题，划分子集不重不漏",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/count/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-number",
+      "name": "数位DP",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "按数位逐位枚举，记忆化记录合法状态，大区间计数",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/number/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-dag",
+      "name": "DAG上的DP",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "有向无环图上的最长/最短路，拓扑序转移",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/dag/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-probability",
+      "name": "概率/期望DP",
+      "group_id": "G-A-11",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "概率顺推/期望逆推，可能需高斯消元处理环依赖",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/probability/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-opt-overview",
+      "name": "DP优化概述",
+      "group_id": "G-A-12",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "利用数据结构/数学性质/状态设计降低DP转移复杂度",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/opt/dp-opt/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-opt-monotonic-queue",
+      "name": "单调队列/栈优化DP",
+      "group_id": "G-A-12",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "用单调队列维护滑动窗口最值加速转移，如多重背包",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/opt/monotonic-queue-stack/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-opt-slope",
+      "name": "斜率优化DP",
+      "group_id": "G-A-12",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "转移方程化为一次函数，凸壳上二分/单调队列维护最值",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/opt/slope/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-opt-quadrangle",
+      "name": "四边形不等式/决策单调性优化",
+      "group_id": "G-A-12",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "w满足四边形不等式则决策单调，分治/单调队列优化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/opt/quadrangle/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/dynamic_programming/knuth-optimization.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "dp-opt-divide-conquer",
+      "name": "分治优化DP",
+      "group_id": "G-A-12",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "决策点单调时利用分治缩小决策空间，O(n log n)",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "dp-opt-slope-trick",
+      "name": "Slope Trick",
+      "group_id": "G-A-12",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "维护凸函数的斜率/拐点序列，简化凸DP转移",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/opt/slope-trick/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-opt-wqs",
+      "name": "WQS二分/凸优化DP",
+      "group_id": "G-A-12",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "带数量限制的凸DP，二分惩罚系数消除限制",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/opt/wqs-binary-search/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-opt-state",
+      "name": "状态设计优化",
+      "group_id": "G-A-12",
+      "stage": "intermediate",
+      "priority": "P2",
+      "brief": "改变状态定义降低维度/状态数，题目特异性优化",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/opt/state/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-opt-data-structure",
+      "name": "数据结构优化DP",
+      "group_id": "G-A-12",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "用线段树/BIT/平衡树加速转移中的查询/修改操作",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/opt/dp-opt/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-plug",
+      "name": "插头DP(连通性状态压缩DP)",
+      "group_id": "G-A-13",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "轮廓线DP+连通性编码，解决网格哈密顿路径/回路计数",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/plug/",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/dynamic_programming/zero_matrix.html",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "dp-dynamic",
+      "name": "动态DP(DDP)",
+      "group_id": "G-A-13",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "带修改的树上DP，广义矩阵乘法+LCT维护转移矩阵",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/dynamic/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dp-dpofdp",
+      "name": "DP套DP",
+      "group_id": "G-A-13",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "外层DP的状态是内层DP的结果，状态空间需分析",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/dp/dp-of-dp/",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "id": "dfs",
+      "name": "深度优先搜索(DFS)",
+      "group_id": "G-A-14",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "沿一条路径深入到底再回溯，栈/递归实现，空间O(h)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/dfs/",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/depth-first-search.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch5 p57",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "bfs",
+      "name": "广度优先搜索(BFS)",
+      "group_id": "G-A-14",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "逐层扩展，队列实现，求无权图最短路，空间O(n)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/bfs/",
+          "verified": false
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/breadth-first-search.html",
+          "verified": false
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch5 p57",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "backtracking",
+      "name": "回溯法",
+      "group_id": "G-A-14",
+      "stage": "basic",
+      "priority": "P0",
+      "brief": "DFS+撤销操作，走不通就回头，排列/组合/棋盘类问题",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/backtracking/",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch5 p57",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "bidirectional",
+      "name": "双向搜索/Meet in the Middle",
+      "group_id": "G-A-14",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "从两端同时搜索或折半枚举，O(2^{n/2})降低指数",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/bidirectional/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "iterative-deepening",
+      "name": "迭代加深(IDDFS)",
+      "group_id": "G-A-14",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "逐步增加DFS深度限制，DFS方式实现BFS效果，空间优",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/iterative/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "heuristic-search",
+      "name": "启发式搜索",
+      "group_id": "G-A-14",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "估价函数引导分支选择，可行性/最优性剪枝",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/heuristic/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "astar",
+      "name": "A*算法",
+      "group_id": "G-A-14",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "f=g+h优先队列搜索，可采纳启发函数保证最优性",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/astar/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "idastar",
+      "name": "IDA*算法",
+      "group_id": "G-A-14",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "迭代加深+A*剪枝，限制路径成本而非深度",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/idastar/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "search-pruning",
+      "name": "搜索剪枝优化",
+      "group_id": "G-A-14",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "可行性剪枝/最优性剪枝/搜索顺序优化，减少搜索量",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/opt/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "minimax-alpha-beta",
+      "name": "Minimax/Alpha-Beta剪枝",
+      "group_id": "G-A-14",
+      "stage": "intermediate",
+      "priority": "P2",
+      "brief": "博弈对抗搜索，Alpha-Beta剪枝减少不必要分支",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/alpha-beta/",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dlx",
+      "name": "Dancing Links(X算法)",
+      "group_id": "G-A-14",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "双向十字链表加速精确覆盖/重复覆盖问题的回溯搜索",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://oi-wiki.org/search/dlx/",
+          "verified": true
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "sort-intro",
+      "to": "merge-sort",
+      "type": "variant",
+      "evidence": "归并排序是排序基础概念的具体实现之一"
+    },
+    {
+      "from": "sort-intro",
+      "to": "quick-sort",
+      "type": "variant",
+      "evidence": "快速排序是排序基础概念的具体实现之一"
+    },
+    {
+      "from": "sort-intro",
+      "to": "comparison-sort",
+      "type": "variant",
+      "evidence": "冒泡/选择/插入排序是排序基础概念的简单实现"
+    },
+    {
+      "from": "sort-intro",
+      "to": "non-comparison-sort",
+      "type": "variant",
+      "evidence": "非比较排序是排序基础概念中线性时间分支"
+    },
+    {
+      "from": "divide-conquer",
+      "to": "merge-sort",
+      "type": "prerequisite",
+      "evidence": "归并排序基于分治思想"
+    },
+    {
+      "from": "divide-conquer",
+      "to": "quick-sort",
+      "type": "prerequisite",
+      "evidence": "快速排序基于分治思想"
+    },
+    {
+      "from": "binary-heap",
+      "to": "heap-sort",
+      "type": "prerequisite",
+      "evidence": "堆排序基于二叉堆结构"
+    },
+    {
+      "from": "merge-sort",
+      "to": "tim-sort",
+      "type": "variant",
+      "evidence": "Timsort是归并排序与插入排序的混合改进"
+    },
+    {
+      "from": "binary-heap",
+      "to": "tournament-sort",
+      "type": "variant",
+      "evidence": "锦标赛排序基于树形堆结构"
+    },
+    {
+      "from": "binary-search",
+      "to": "binary-answer",
+      "type": "prerequisite",
+      "evidence": "二分答案基于二分查找思想扩展到答案值域"
+    },
+    {
+      "from": "binary-search",
+      "to": "ternary-search",
+      "type": "variant",
+      "evidence": "三分法是二分查找在单峰函数上的扩展"
+    },
+    {
+      "from": "binary-lifting",
+      "to": "sparse-table",
+      "type": "prerequisite",
+      "evidence": "ST表基于倍增思想预处理2^k次幂区间信息"
+    },
+    {
+      "from": "stack",
+      "to": "monotonic-stack",
+      "type": "variant",
+      "evidence": "单调栈是栈结构的单调性约束变体"
+    },
+    {
+      "from": "queue",
+      "to": "monotonic-queue",
+      "type": "variant",
+      "evidence": "单调队列是队列结构的单调性约束变体"
+    },
+    {
+      "from": "monotonic-stack",
+      "to": "cartesian-tree",
+      "type": "combination",
+      "evidence": "笛卡尔树用单调栈O(n)构建"
+    },
+    {
+      "from": "monotonic-queue",
+      "to": "dp-opt-monotonic-queue",
+      "type": "combination",
+      "evidence": "单调队列优化DP是单调队列与DP的结合"
+    },
+    {
+      "from": "binary-heap",
+      "to": "leftist-tree",
+      "type": "variant",
+      "evidence": "左偏树是二叉堆的可合并扩展"
+    },
+    {
+      "from": "binary-heap",
+      "to": "pairing-heap",
+      "type": "variant",
+      "evidence": "配对堆是堆的多路合并变体"
+    },
+    {
+      "from": "binary-heap",
+      "to": "huffman-tree",
+      "type": "prerequisite",
+      "evidence": "哈夫曼树构建过程使用优先队列(堆)"
+    },
+    {
+      "from": "leftist-tree",
+      "to": "persistent-heap",
+      "type": "variant",
+      "evidence": "可持久化堆常基于左偏树实现"
+    },
+    {
+      "from": "binary-heap",
+      "to": "randomized-heap",
+      "type": "variant",
+      "evidence": "随机化堆是二叉堆的随机合并变体"
+    },
+    {
+      "from": "dsu-basic",
+      "to": "dsu-weighted",
+      "type": "variant",
+      "evidence": "带权并查集在基础并查集上增加权值维护"
+    },
+    {
+      "from": "dsu-basic",
+      "to": "persistent-dsu",
+      "type": "variant",
+      "evidence": "可持久化并查集是并查集的历史版本扩展"
+    },
+    {
+      "from": "fenwick",
+      "to": "fenwick-extended",
+      "type": "variant",
+      "evidence": "扩展树状数组利用差分/双BIT增强基础BIT功能"
+    },
+    {
+      "from": "sqrt-decomposition",
+      "to": "block-array",
+      "type": "variant",
+      "evidence": "分块数组是Sqrt分解思想的具体实现"
+    },
+    {
+      "from": "sqrt-decomposition",
+      "to": "block-list",
+      "type": "variant",
+      "evidence": "块状链表是Sqrt分解与链表的结合"
+    },
+    {
+      "from": "cartesian-tree",
+      "to": "rmq-linear",
+      "type": "combination",
+      "evidence": "线性RMQ通过笛卡尔树+LCA实现O(1)查询"
+    },
+    {
+      "from": "sparse-table",
+      "to": "rmq-linear",
+      "type": "cooccurrence",
+      "evidence": "两者均解决RMQ问题，线性RMQ是ST表的更优替代"
+    },
+    {
+      "from": "seg-basic",
+      "to": "seg-lazy",
+      "type": "variant",
+      "evidence": "懒标记线段树是基础线段树的区间修改变体"
+    },
+    {
+      "from": "seg-basic",
+      "to": "seg-dynamic",
+      "type": "variant",
+      "evidence": "动态开点是基础线段树的空间优化变体"
+    },
+    {
+      "from": "seg-lazy",
+      "to": "seg-dynamic",
+      "type": "prerequisite",
+      "evidence": "动态开点线段树常需配合懒标记处理区间操作"
+    },
+    {
+      "from": "seg-dynamic",
+      "to": "seg-merge",
+      "type": "prerequisite",
+      "evidence": "线段树合并需基于动态开点实现"
+    },
+    {
+      "from": "seg-basic",
+      "to": "seg-beats",
+      "type": "variant",
+      "evidence": "Segment Beats是线段树的区间最值操作扩展"
+    },
+    {
+      "from": "seg-basic",
+      "to": "seg-nested",
+      "type": "variant",
+      "evidence": "线段树嵌套是基础线段树的多维扩展"
+    },
+    {
+      "from": "seg-basic",
+      "to": "li-chao-tree",
+      "type": "variant",
+      "evidence": "李超树是线段树维护线段/一次函数的变体"
+    },
+    {
+      "from": "li-chao-tree",
+      "to": "kinetic-tournament",
+      "type": "variant",
+      "evidence": "Kinetic Tournament是李超树的动态凸壳扩展"
+    },
+    {
+      "from": "persistent-concept",
+      "to": "persistent-seg",
+      "type": "prerequisite",
+      "evidence": "可持久化线段树是可持久化概念在线段树上的应用"
+    },
+    {
+      "from": "seg-dynamic",
+      "to": "persistent-seg",
+      "type": "prerequisite",
+      "evidence": "主席树基于动态开点线段树保存历史版本"
+    },
+    {
+      "from": "persistent-seg",
+      "to": "persistent-dsu",
+      "type": "combination",
+      "evidence": "可持久化并查集基于可持久化线段树实现"
+    },
+    {
+      "from": "persistent-concept",
+      "to": "persistent-trie",
+      "type": "prerequisite",
+      "evidence": "可持久化Trie是可持久化概念在Trie上的应用"
+    },
+    {
+      "from": "persistent-concept",
+      "to": "persistent-heap",
+      "type": "prerequisite",
+      "evidence": "可持久化堆是可持久化概念在堆上的应用"
+    },
+    {
+      "from": "fhq-treap",
+      "to": "persistent-balanced",
+      "type": "prerequisite",
+      "evidence": "可持久化平衡树通常基于无旋Treap实现"
+    },
+    {
+      "from": "bst",
+      "to": "treap",
+      "type": "variant",
+      "evidence": "Treap是BST加入随机优先级的平衡变体"
+    },
+    {
+      "from": "bst",
+      "to": "splay",
+      "type": "variant",
+      "evidence": "Splay是BST通过伸展操作维护平衡的变体"
+    },
+    {
+      "from": "bst",
+      "to": "avl",
+      "type": "variant",
+      "evidence": "AVL是BST严格平衡的变体"
+    },
+    {
+      "from": "bst",
+      "to": "sgt",
+      "type": "variant",
+      "evidence": "替罪羊树是BST按比例重构的变体"
+    },
+    {
+      "from": "bst",
+      "to": "sbt",
+      "type": "variant",
+      "evidence": "SBT是按子树size平衡的BST变体"
+    },
+    {
+      "from": "bst",
+      "to": "wblt",
+      "type": "variant",
+      "evidence": "WBLT是按子树权重平衡的BST变体"
+    },
+    {
+      "from": "treap",
+      "to": "fhq-treap",
+      "type": "variant",
+      "evidence": "无旋Treap是Treap的分裂合并变体"
+    },
+    {
+      "from": "bst",
+      "to": "cartesian-tree",
+      "type": "variant",
+      "evidence": "笛卡尔树满足BST性质，是BST的特殊构造"
+    },
+    {
+      "from": "splay",
+      "to": "lct",
+      "type": "prerequisite",
+      "evidence": "LCT以Splay为辅助树维护动态森林"
+    },
+    {
+      "from": "lct",
+      "to": "top-tree",
+      "type": "variant",
+      "evidence": "Top Tree是LCT维护树上路径和子树信息的扩展"
+    },
+    {
+      "from": "lct",
+      "to": "ett",
+      "type": "cooccurrence",
+      "evidence": "ETT和LCT均为动态树问题的解决方案"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-memo",
+      "type": "variant",
+      "evidence": "记忆化搜索是DP的递归实现方式"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-knapsack01",
+      "type": "prerequisite",
+      "evidence": "0-1背包是DP基础思想的经典应用"
+    },
+    {
+      "from": "dp-knapsack01",
+      "to": "dp-knapsack-complete",
+      "type": "variant",
+      "evidence": "完全背包是0-1背包的无限物品变体"
+    },
+    {
+      "from": "dp-knapsack01",
+      "to": "dp-knapsack-multiple",
+      "type": "variant",
+      "evidence": "多重背包是0-1背包的有限物品变体"
+    },
+    {
+      "from": "dp-knapsack01",
+      "to": "dp-knapsack-group",
+      "type": "variant",
+      "evidence": "分组背包是0-1背包的分组互斥变体"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-linear",
+      "type": "prerequisite",
+      "evidence": "线性DP是DP基础在一维序列上的直接应用"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-interval",
+      "type": "prerequisite",
+      "evidence": "区间DP是DP基础在区间合并问题上的应用"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-tree",
+      "type": "prerequisite",
+      "evidence": "树形DP是DP基础在树结构上的应用"
+    },
+    {
+      "from": "dp-tree",
+      "to": "dp-tree-knapsack",
+      "type": "combination",
+      "evidence": "树上背包是树形DP与背包DP的结合"
+    },
+    {
+      "from": "dp-knapsack01",
+      "to": "dp-tree-knapsack",
+      "type": "combination",
+      "evidence": "树上背包基于背包DP转移方程"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-state",
+      "type": "prerequisite",
+      "evidence": "状压DP是DP基础在状态压缩编码上的应用"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-count",
+      "type": "prerequisite",
+      "evidence": "计数DP是DP思想在计数问题上的应用"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-number",
+      "type": "prerequisite",
+      "evidence": "数位DP是DP基础在数位枚举上的应用"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-dag",
+      "type": "prerequisite",
+      "evidence": "DAG上DP是DP基础在有向无环图上的应用"
+    },
+    {
+      "from": "dp-basic",
+      "to": "dp-probability",
+      "type": "prerequisite",
+      "evidence": "概率DP是DP基础在概率/期望问题上的应用"
+    },
+    {
+      "from": "dp-state",
+      "to": "dp-plug",
+      "type": "prerequisite",
+      "evidence": "插头DP是状压DP的连通性编码高级扩展"
+    },
+    {
+      "from": "dp-opt-overview",
+      "to": "dp-opt-monotonic-queue",
+      "type": "variant",
+      "evidence": "单调队列优化是DP优化的具体技术之一"
+    },
+    {
+      "from": "dp-opt-overview",
+      "to": "dp-opt-slope",
+      "type": "variant",
+      "evidence": "斜率优化是DP优化的具体技术之一"
+    },
+    {
+      "from": "dp-opt-overview",
+      "to": "dp-opt-quadrangle",
+      "type": "variant",
+      "evidence": "四边形不等式优化是DP优化的具体技术之一"
+    },
+    {
+      "from": "dp-opt-overview",
+      "to": "dp-opt-divide-conquer",
+      "type": "variant",
+      "evidence": "分治优化是DP优化的具体技术之一"
+    },
+    {
+      "from": "dp-opt-overview",
+      "to": "dp-opt-slope-trick",
+      "type": "variant",
+      "evidence": "Slope Trick是DP优化的具体技术之一"
+    },
+    {
+      "from": "dp-opt-overview",
+      "to": "dp-opt-wqs",
+      "type": "variant",
+      "evidence": "WQS二分是DP优化的具体技术之一"
+    },
+    {
+      "from": "dp-opt-overview",
+      "to": "dp-opt-state",
+      "type": "variant",
+      "evidence": "状态设计优化是DP优化的具体技术之一"
+    },
+    {
+      "from": "dp-opt-overview",
+      "to": "dp-opt-data-structure",
+      "type": "variant",
+      "evidence": "数据结构优化是DP优化的具体技术之一"
+    },
+    {
+      "from": "dp-opt-monotonic-queue",
+      "to": "dp-knapsack-multiple",
+      "type": "combination",
+      "evidence": "单调队列优化可用于加速多重背包转移"
+    },
+    {
+      "from": "dp-linear",
+      "to": "dp-opt-slope",
+      "type": "combination",
+      "evidence": "斜率优化常用于线性DP的转移加速"
+    },
+    {
+      "from": "dp-interval",
+      "to": "dp-opt-quadrangle",
+      "type": "combination",
+      "evidence": "区间DP常用四边形不等式优化决策点"
+    },
+    {
+      "from": "dp-opt-quadrangle",
+      "to": "dp-opt-divide-conquer",
+      "type": "cooccurrence",
+      "evidence": "决策单调性既可用四边形不等式也可用分治实现"
+    },
+    {
+      "from": "dp-tree",
+      "to": "dp-dynamic",
+      "type": "variant",
+      "evidence": "动态DP是树形DP加入修改操作的变体"
+    },
+    {
+      "from": "dp-dynamic",
+      "to": "lct",
+      "type": "combination",
+      "evidence": "动态DP用LCT维护转移矩阵链乘"
+    },
+    {
+      "from": "dp-state",
+      "to": "dp-dpofdp",
+      "type": "variant",
+      "evidence": "DP套DP的外层状态常涉及状态压缩"
+    },
+    {
+      "from": "dfs",
+      "to": "backtracking",
+      "type": "variant",
+      "evidence": "回溯法是DFS加上撤销操作的搜索技巧"
+    },
+    {
+      "from": "bfs",
+      "to": "bidirectional",
+      "type": "variant",
+      "evidence": "双向搜索是BFS从两端同时扩展的变体"
+    },
+    {
+      "from": "dfs",
+      "to": "bidirectional",
+      "type": "variant",
+      "evidence": "双向搜索也可用DFS实现双向"
+    },
+    {
+      "from": "dfs",
+      "to": "iterative-deepening",
+      "type": "variant",
+      "evidence": "迭代加深用DFS方式限制深度实现BFS效果"
+    },
+    {
+      "from": "dfs",
+      "to": "search-pruning",
+      "type": "combination",
+      "evidence": "剪枝优化主要应用于DFS搜索过程"
+    },
+    {
+      "from": "backtracking",
+      "to": "search-pruning",
+      "type": "combination",
+      "evidence": "回溯法结合剪枝大幅减少搜索量"
+    },
+    {
+      "from": "iterative-deepening",
+      "to": "idastar",
+      "type": "prerequisite",
+      "evidence": "IDA*是迭代加深与A*的结合"
+    },
+    {
+      "from": "astar",
+      "to": "idastar",
+      "type": "combination",
+      "evidence": "IDA*使用A*的启发函数进行剪枝"
+    },
+    {
+      "from": "heuristic-search",
+      "to": "astar",
+      "type": "prerequisite",
+      "evidence": "A*是启发式搜索的具体算法实现"
+    },
+    {
+      "from": "bfs",
+      "to": "astar",
+      "type": "variant",
+      "evidence": "A*是BFS加入启发函数的改进(退化为Dijkstra/BFS)"
+    },
+    {
+      "from": "backtracking",
+      "to": "dlx",
+      "type": "combination",
+      "evidence": "DLX用双向十字链表加速精确覆盖的回溯搜索"
+    },
+    {
+      "from": "seg-basic",
+      "to": "dp-opt-data-structure",
+      "type": "combination",
+      "evidence": "线段树是数据结构优化DP的常用工具"
+    },
+    {
+      "from": "fenwick",
+      "to": "dp-opt-data-structure",
+      "type": "combination",
+      "evidence": "树状数组常用于优化DP转移中的查询"
+    },
+    {
+      "from": "li-chao-tree",
+      "to": "dp-opt-slope",
+      "type": "combination",
+      "evidence": "李超线段树可替代凸壳维护实现斜率优化DP"
+    },
+    {
+      "from": "binary-search",
+      "to": "dp-opt-wqs",
+      "type": "combination",
+      "evidence": "WQS二分的核心是对惩罚系数进行二分查找"
+    },
+    {
+      "from": "splay",
+      "to": "dp-dynamic",
+      "type": "combination",
+      "evidence": "动态DP用LCT(基于Splay)维护转移矩阵"
+    },
+    {
+      "from": "prefix-sum",
+      "to": "dp-interval",
+      "type": "combination",
+      "evidence": "区间DP转移常需前缀和O(1)计算区间代价"
+    },
+    {
+      "from": "prefix-sum",
+      "to": "dp-count",
+      "type": "combination",
+      "evidence": "计数DP的区间划分常利用前缀和优化"
+    },
+    {
+      "from": "divide-conquer",
+      "to": "dp-opt-divide-conquer",
+      "type": "combination",
+      "evidence": "分治优化DP是分治思想在DP转移上的应用"
+    },
+    {
+      "from": "monotonic-stack",
+      "to": "dp-opt-monotonic-queue",
+      "type": "cooccurrence",
+      "evidence": "单调栈和单调队列常共现于DP优化场景"
+    },
+    {
+      "from": "dsu-basic",
+      "to": "dp-dag",
+      "type": "cooccurrence",
+      "evidence": "DAG上DP的连通性判断常配合并查集"
+    },
+    {
+      "from": "cartesian-tree",
+      "to": "sparse-table",
+      "type": "cooccurrence",
+      "evidence": "笛卡尔树和ST表均与RMQ问题相关联"
+    }
+  ],
+  "unresolved": [
+    "BFS/DFS在OI Wiki中同时存在于search域和graph域(search/bfs.md, search/dfs.md vs graph/bfs.md, graph/dfs.md)，内容可能重复，需主Agent去重决定归属",
+    "Dijkstra算法为全局P0但属于graph域(graph/shortest-path.md)，不在本shard范围，应由图论shard覆盖",
+    "KMP等字符串算法为全局P0但属于string域，不在本shard范围，应由字符串shard覆盖",
+    "基础数论(筛法/模逆)为全局P0但属于math域，不在本shard范围，应由数学shard覆盖",
+    "dp-dynamic依赖树链剖分(HLD)和矩阵快速幂，前者属graph域后者属math域，跨域依赖需主Agent建立跨shard边",
+    "dp-probability依赖概率论基础(math域)和高斯消元(math域)，跨域依赖需主Agent建立跨shard边",
+    "dp-plug的CP-Alg源(zero_matrix.html)内容是否等价于OI Wiki插头DP页面需进一步确认，可能为轮廓线DP的入门子主题",
+    "CP-Alg sequences/k-th.html(第k小元素)和sequences/mex.html(MEX)的主题归属待定：k-th可能归入排序族或搜索族，mex可能与博弈论(math/game域)关联",
+    "OI Wiki intro域全部为元信息页面(about/faq/format/mirrors/symbol等)，非算法内容，未纳入任何节点",
+    "treap(FHQ Treap)在OI Wiki中未独立分页，包含在ds/treap.md内，是否应拆为两个独立节点需主Agent根据粒度策略决定",
+    "CP-Alg data_structures/deleting_in_log_n.html(对数删除)为通用技巧页，未明确对应独立算法节点，暂不纳入",
+    "CP-Alg data_structures/treap.html页面标题抓取为空(可能为重定向或JS渲染)，URL存在但内容未验证",
+    "CP-Alg dynamic_programming/divide-and-conquer-dp.html和sequences/longest_increasing_subsequence.html因超时未验证标题，URL在sitemap中确认存在"
+  ]
+}

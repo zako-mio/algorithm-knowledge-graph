@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>可持久化分块数组 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-5.html">可持久化数据结构</a> / <span>可持久化分块数组</span></div>
+  <h1>可持久化分块数组</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-5</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="persistent-heap.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">persistent-heap</span></a>
+    <a class="nav-index" href="../03-groups/G-D-5.html"><span class="dir">组内第 5 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-D-5.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">分块数组的每个版本保留一份块副本，单点修改 O(sqrt n) 拷贝、查询 O(sqrt n)，空间 O(n + V·B)</div><p>可持久化分块数组 = 可持久化思想 + 分块数组。分块数组把长度 n 的数组分成 B≈√n 大小的若干块，修改/查询定位到块后暴力扫描。要让其支持「回到任意历史版本」：每个版本维护一个块指针列表，单点修改时只需复制被改的那一个块（大小 O(B)=O(√n)）并新建版本，其余块共享。查询在指定版本内定位块 O(1)、块内 O(B)。相比可持久化线段树 O(log n)/版本，它空间常数更小、实现更简单；相比每版本全量拷贝 O(n)/版本，它把单版本开销降到 O(√n)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>普通数组改一个数要复制整份才得到新版本，太贵。分块数组把数组切成 B 大小的段，一次修改只影响一个段，所以新版本只需「复制被改的那个段 + 换一个指针」，其余段全部复用旧版本的。版本之间像一棵棵共用的树，块是共享节点，只有被改的块是新拷贝。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>设块大小 B≈√n，块数 nb≈n/B。version 数组存 list，每个元素指向该版本的「块列表」（每个块是一个长度 B 的 list）。set(ver, idx, val)：定位块 b=idx//B，浅拷贝块列表（O(nb) 指针），深拷贝目标块（O(B) 元素），替换后追加为新版本。get(ver, idx)：在 versions[ver] 定位块内 O(1)。任意两个版本的差 = 从分叉点起每版被改的块。离线时可用版本树；在线时直接存全版本序列。由于只浅拷贝块指针数组，深拷贝一个块，单版本写开销 O(B+nb)=O(√n)，空间 O(n·B 初始 + V·√n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>分块/块状数组思想在竞赛中由来已久（根号分治），OI Wiki 的分块页介绍了基础分块数组；可持久化分块数组页面在 OI Wiki 为占位空页（ds/persistent-block-array.md 内容为空），概念源自「可持久化数据结构」通用范式（保留历史版本，path copying）。竞赛中此结构用于需要版本回溯 + 单点修改/区间查询的题目，频率低于可持久化线段树，但实现门槛低、内存表现好。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">B = <span class="t-f">ceil</span>(<span class="t-f">sqrt</span>(n))
+versions = []
+<span class="t-c"># version 0: 把 arr 分成若干块</span>
+versions.<span class="t-f">append</span>([arr[i:i+B] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, n, B)])
+
+<span class="t-k">def</span> <span class="t-f">get</span>(ver, idx):
+    <span class="t-k">return</span> versions[ver][idx // B][idx % B]
+
+<span class="t-k">def</span> <span class="t-b">set</span>(ver, idx, val) -&gt; new_version:
+    blocks = <span class="t-b">list</span>(versions[ver])            <span class="t-c"># 浅拷贝块指针列表 O(nb)</span>
+    b = idx // B
+    nb = <span class="t-b">list</span>(blocks[b])                    <span class="t-c"># 拷贝目标块 O(B)</span>
+    nb[idx % B] = val
+    blocks[b] = nb
+    versions.<span class="t-f">append</span>(blocks)                 <span class="t-c"># 新版本</span>
+    <span class="t-k">return</span> <span class="t-b">len</span>(versions) - <span class="t-n">1</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> math
+
+
+<span class="t-k">class</span> PersistentBlockArray:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, arr, block_size=<span class="t-k">None</span>):
+        self.n = <span class="t-b">len</span>(arr)
+        self.B = block_size <span class="t-k">or</span> <span class="t-b">max</span>(<span class="t-n">1</span>, <span class="t-b">int</span>(math.<span class="t-f">sqrt</span>(self.n)))
+        self.versions = []
+        self.versions.<span class="t-f">append</span>([arr[i:i + self.B] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, self.n, self.B)])
+
+    <span class="t-k">def</span> <span class="t-f">get</span>(self, ver, idx):
+        <span class="t-k">return</span> self.versions[ver][idx // self.B][idx % self.B]
+
+    <span class="t-k">def</span> <span class="t-b">set</span>(self, ver, idx, val):
+        blocks = <span class="t-b">list</span>(self.versions[ver])
+        b = idx // self.B
+        nb = <span class="t-b">list</span>(blocks[b])
+        nb[idx % self.B] = val
+        blocks[b] = nb
+        self.versions.<span class="t-f">append</span>(blocks)
+        <span class="t-k">return</span> <span class="t-b">len</span>(self.versions) - <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">version_count</span>(self):
+        <span class="t-k">return</span> <span class="t-b">len</span>(self.versions)
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    pba = <span class="t-f">PersistentBlockArray</span>(<span class="t-b">list</span>(<span class="t-b">range</span>(<span class="t-n">9</span>)), block_size=<span class="t-n">3</span>)
+    <span class="t-c"># 版本0: [0,1,2,3,4,5,6,7,8]</span>
+    v0 = <span class="t-n">0</span>
+    <span class="t-k">assert</span> pba.<span class="t-f">get</span>(v0, <span class="t-n">4</span>) == <span class="t-n">4</span>
+    <span class="t-c"># 版本1: 改 idx4 -&gt; 99</span>
+    v1 = pba.<span class="t-b">set</span>(v0, <span class="t-n">4</span>, <span class="t-n">99</span>)
+    <span class="t-c"># 版本2: 在版本1基础上改 idx1 -&gt; 50</span>
+    v2 = pba.<span class="t-b">set</span>(v1, <span class="t-n">1</span>, <span class="t-n">50</span>)
+    <span class="t-k">assert</span> pba.<span class="t-f">get</span>(v1, <span class="t-n">4</span>) == <span class="t-n">99</span>
+    <span class="t-k">assert</span> pba.<span class="t-f">get</span>(v1, <span class="t-n">1</span>) == <span class="t-n">1</span>        <span class="t-c"># 版本1的 idx1 未被版本2影响</span>
+    <span class="t-k">assert</span> pba.<span class="t-f">get</span>(v2, <span class="t-n">1</span>) == <span class="t-n">50</span>
+    <span class="t-k">assert</span> pba.<span class="t-f">get</span>(v2, <span class="t-n">4</span>) == <span class="t-n">99</span>       <span class="t-c"># 版本2继承版本1的改动</span>
+    <span class="t-k">assert</span> pba.<span class="t-f">get</span>(v0, <span class="t-n">4</span>) == <span class="t-n">4</span>        <span class="t-c"># 版本0不变</span>
+    <span class="t-c"># 共享检查：未改的块是同一个对象（节约空间）</span>
+    <span class="t-k">assert</span> pba.versions[v0][<span class="t-n">0</span>] <span class="t-k">is</span> pba.versions[v1][<span class="t-n">0</span>]
+    <span class="t-k">assert</span> pba.versions[v1][<span class="t-n">2</span>] <span class="t-k">is</span> pba.versions[v2][<span class="t-n">2</span>]
+    <span class="t-c"># 改过的块是新对象</span>
+    <span class="t-k">assert</span> pba.versions[v0][<span class="t-n">1</span>] <span class="t-k">is</span> <span class="t-k">not</span> pba.versions[v1][<span class="t-n">1</span>]
+    <span class="t-b">print</span>(<span class="t-s">&quot;versions:&quot;</span>, pba.<span class="t-f">version_count</span>())
+    <span class="t-b">print</span>(<span class="t-s">&quot;v0:&quot;</span>, [pba.<span class="t-f">get</span>(v0, i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">9</span>)])
+    <span class="t-b">print</span>(<span class="t-s">&quot;v1:&quot;</span>, [pba.<span class="t-f">get</span>(v1, i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">9</span>)])
+    <span class="t-b">print</span>(<span class="t-s">&quot;v2:&quot;</span>, [pba.<span class="t-f">get</span>(v2, i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">9</span>)])
+    <span class="t-b">print</span>(<span class="t-s">&quot;persistent-block-array OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 下 list 浅拷贝与切片是 C 层 memcpy 级操作，块拷贝开销可忽略；每版本浅拷贝块指针列表 O(nb) 次指针是主要常数，nb≈√n 时很小。若要更省空间，块指针列表也可做成可持久化数组（每次只复制 log 个节点），但竞赛中通常不需要。注意 Python 大递归不需要（本实现非递归）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>get O(1) 定位 + O(1) 索引；set O(B + nb) = O(√n)；区间查询最坏 O(√n)</td></tr><tr><th>空间复杂度</th><td>O(n) 初始块 + O(V·√n) 每版本新增（V 为版本数）；未改块共享</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">块大小 B 需折中：B 太大单次拷贝贵，B 太小块数多、指针列表浅拷贝贵，取 √n。仅适合「单点修改/单点查、或区间查询」场景；若需区间加区间和，块内须配懒标记且可持久化要连带复制，复杂度上升。Python 中若题目给的是「可持久化数组」模板题（如洛谷 P3834 类静态区间第 k 小），更标准做法是可持久化线段树，本结构更适合块状查询的题。版本数 V 大时总空间 O(V√n) 可能超限，需评估。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>set 里若直接改 versions[ver][b] 会污染旧版本——必须 copy 出新的块再改</li><li>浅拷贝块列表后，改 versions[ver][b]=nb 是安全的；但若误写成 versions[ver][b][i]=val 则会破坏旧版本</li><li>下标计算 idx//B 与 idx%B 易混；块号从 0 计</li><li>版本号是追加式单调递增，回溯时不能回收旧版本（可持久化语义），内存只增不减</li><li>把块大小设成 n 退化成全量拷贝；设成 1 退化成可持久化指针数组，两者都要避免</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3919</strong></td><td>4</td><td>可持久化线段树模板题（单点改+版本回溯），可作可持久化思想入门，理解 path copying</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3919" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3919</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-persistent-block-array" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "确定块大小 B≈√n，初始化第一版本块列表"}}, {"data": {"id": "s2", "label": "get(ver,idx)：定位块+块内偏移，O(1)"}}, {"data": {"id": "s3", "label": "set(ver,idx,val)：浅拷贝块列表，深拷贝目标块"}}, {"data": {"id": "s4", "label": "替换块指针，追加为新版本"}}, {"data": {"id": "s5", "label": "验证共享：未改块对象 is 相同"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es1->s3", "source": "s1", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}, {"data": {"id": "es4->s5", "source": "s4", "target": "s5"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-persistent-block-array'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="persistent-seg.html" title="可持久化分块数组复用历史版本">可持久化线段树(主席树)<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-block-array.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-block-array.md</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/block-array/" target="_blank" rel="noopener">https://oi-wiki.org/ds/block-array/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/persistent/" target="_blank" rel="noopener">https://oi-wiki.org/ds/persistent/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

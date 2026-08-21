@@ -1,0 +1,74 @@
+{
+  "id": "avl",
+  "name": "AVL树",
+  "group": "G-A-8",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "严格平衡(高度差<=1)，旋转维护",
+  "what": "AVL 树是最早发明的自平衡二叉搜索树（1962 年，Adelson-Velsky 与 Landis）。每个节点维护子树高度 h，保证任意节点左右子树高度差 |h(left)-h(right)| ≤ 1（该差称为平衡因子，常用 right-left 表示，取值 ∈{-1,0,1}）。插入/删除后通过四种旋转（LL/RR/LR/RL）恢复平衡，树高严格 O(log n)，所有操作严格 O(log n)。",
+  "why": {
+    "intuition": "二叉树平衡意味着树高低。AVL 把「高度差不超 1」作为硬约束，最坏树高约为 1.44·log2(n+2)（设 f_n 为高 n 的最小节点数，f_n=f_{n-1}+f_{n-2}+1，即 Fibonacci 型递归），保证查找像二分一样快且无随机性。插入只需沿插入路径回溯，发现平衡因子出界就旋转一次即可恢复。",
+    "principle": "四种失衡形态（以插入后第一个失衡节点 A 判断）：LL——左子树高且 A.left 的左子树更高，右旋 A；RR——右子树高且 A.right 的右子树更高，左旋 A；LR——左子树高但 A.left 的右子树更高，先左旋 A.left 再右旋 A；RL——右子树高但 A.right 的左子树更高，先右旋 A.right 再左旋 A。删除后可能需沿路径多次旋转（至多 O(log n) 次）。平衡因子更新顺序：旋转后先更新子树节点高度再更新新根。",
+    "history": "1962 年由 G. M. Adelson-Velsky 与 E. M. Landis 在苏联提出，是最早的平衡树，名字即两位作者缩写。作为数据结构教科书（CLRS/算法导论）的经典内容，也用于内存数据库（如早期的 Java TreeMap 之前、C++ 部分实现）等场景。竞赛中因实现较繁、常数较大，如今 Python 选手多用 FHQ-Treap，但理解 AVL 有助于掌握旋转与平衡因子思想。"
+  },
+  "how": {
+    "pseudocode": "get_balance(x) = height(x.right) - height(x.left)\n\ninsert(x, val):            # 与 BST 一致，返回后更新高度\n  ... 普通 BST 插入 ...\n  height[x] = 1 + max(height(left), height(right))\n  bf = get_balance(x)\n  if bf > 1 and val > x.right.val:  return left_rotate(x)      # RR\n  if bf > 1 and val <= x.right.val: x.right=right_rotate(x.right); return left_rotate(x)  # RL\n  if bf < -1 and val <= x.left.val: return right_rotate(x)     # LL\n  if bf < -1 and val > x.left.val:  x.left=left_rotate(x.left); return right_rotate(x)    # LR\n  return x\n\ndelete 类似：BST 删除后更新高度、按 bf 四种旋转（且需向根持续检查）",
+    "python": "class AVLNode:\n    __slots__ = ('val', 'left', 'right', 'h')\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n        self.h = 1\n\nclass AVL:\n    def __init__(self):\n        self.root = None\n\n    @staticmethod\n    def _h(n):\n        return n.h if n else 0\n\n    def _pull(self, n):\n        n.h = 1 + max(self._h(n.left), self._h(n.right))\n\n    def _bf(self, n):\n        return self._h(n.right) - self._h(n.left)\n\n    def _rr(self, a):\n        b = a.right\n        a.right = b.left\n        b.left = a\n        self._pull(a)\n        self._pull(b)\n        return b\n\n    def _rl(self, a):\n        b = a.left\n        a.left = b.right\n        b.right = a\n        self._pull(a)\n        self._pull(b)\n        return b\n\n    def _balance(self, n):\n        bf = self._bf(n)\n        if bf > 1:\n            if self._bf(n.right) >= 0:      # RR\n                return self._rr(n)\n            n.right = self._rl(n.right)     # RL\n            return self._rr(n)\n        if bf < -1:\n            if self._bf(n.left) <= 0:       # LL\n                return self._rl(n)\n            n.left = self._rr(n.left)       # LR\n            return self._rl(n)\n        return n\n\n    def _insert(self, n, val):\n        if n is None:\n            return AVLNode(val)\n        if val < n.val:\n            n.left = self._insert(n.left, val)\n        else:\n            n.right = self._insert(n.right, val)\n        self._pull(n)\n        return self._balance(n)\n\n    def insert(self, val):\n        self.root = self._insert(self.root, val)\n\n    def _min(self, n):\n        while n.left:\n            n = n.left\n        return n\n\n    def _delete(self, n, val):\n        if n is None:\n            return None\n        if val < n.val:\n            n.left = self._delete(n.left, val)\n        elif val > n.val:\n            n.right = self._delete(n.right, val)\n        else:\n            if n.left is None:\n                return n.right\n            if n.right is None:\n                return n.left\n            m = self._min(n.right)          # 后继替换\n            n.val = m.val\n            n.right = self._delete(n.right, m.val)\n        self._pull(n)\n        return self._balance(n)\n\n    def delete(self, val):\n        self.root = self._delete(self.root, val)\n\n    def search(self, val):\n        n = self.root\n        while n and n.val != val:\n            n = n.left if val < n.val else n.right\n        return n is not None\n\n    def inorder(self):\n        out = []\n        def dfs(n):\n            if n is None:\n                return\n            dfs(n.left)\n            out.append(n.val)\n            dfs(n.right)\n        dfs(self.root)\n        return out\n\n    def height(self):\n        return self._h(self.root)\n\n\ndef _is_avl(n):\n    if n is None:\n        return True, 0\n    ok_l, hl = _is_avl(n.left)\n    ok_r, hr = _is_avl(n.right)\n    ok = ok_l and ok_r and abs(hl - hr) <= 1\n    return ok, 1 + max(hl, hr)\n\n\ndef _is_bst(n, lo=-float('inf'), hi=float('inf')):\n    if n is None:\n        return True\n    if not (lo < n.val <= hi):\n        return False\n    return _is_bst(n.left, lo, n.val) and _is_bst(n.right, n.val, hi)\n\n\nif __name__ == \"__main__\":\n    import random\n    random.seed(9)\n    t = AVL()\n    arr = []\n    for _ in range(3000):\n        v = random.randint(0, 100000)\n        t.insert(v)\n        arr.append(v)\n    assert t.inorder() == sorted(arr)\n    ok, _ = _is_avl(t.root)\n    assert ok, \"AVL balance broken\"\n    # 树高上界验证：1.44*log2(n+2)\n    import math\n    n = len(arr)\n    bound = 1.44 * math.log2(n + 2) + 1\n    assert t.height() <= bound, (t.height(), bound)\n    # 有序插入也不退化\n    t2 = AVL()\n    for i in range(2000):\n        t2.insert(i)\n    ok, _ = _is_avl(t2.root)\n    assert ok and t2.height() < 30\n    # 删除一半\n    uniq = sorted(set(arr))\n    removed = set(uniq[:len(uniq) // 2])\n    for v in removed:\n        while t.search(v):\n            t.delete(v)\n    expect = sorted(a for a in arr if a not in removed)\n    assert t.inorder() == expect\n    ok, _ = _is_avl(t.root)\n    assert ok, \"AVL broken after deletes\"\n    assert t.inorder() == sorted(t.inorder())\n    print(\"All tests passed.\")",
+    "pypy_notes": "AVL 用递归实现时每次 _balance 返回新根，注意 Python 递归深度受树高限制（~1.44 log n，安全）。平衡因子计算用 right-left 约定需与旋转方向一致。删除用后继替换后递归删除，注意 _delete 内部更新。实际竞赛若追求简洁请用 FHQ-Treap。",
+    "complexity": {
+      "time": "查找/插入/删除严格 O(log n)（树高 ≤1.44 log n）",
+      "space": "O(n)"
+    },
+    "limitations": "插入至多一次旋转，删除至多 O(log n) 次旋转（仍 O(log n)）；常数比 Treap/FHQ 略大；实现需维护高度与平衡因子，代码量大于 FHQ。无区间操作支持。竞赛 Python 场景优先级不高，属理论理解型结构。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3369",
+      "url": "https://www.luogu.com.cn/problem/P3369",
+      "difficulty": 4,
+      "key_point": "普通平衡树：AVL 全操作实现"
+    },
+    {
+      "oj": "LeetCode.cn",
+      "pid": "110",
+      "url": "https://leetcode.cn/problems/balanced-binary-tree/",
+      "difficulty": 2,
+      "key_point": "判断平衡二叉树：高度差校验即 AVL 平衡条件"
+    }
+  ],
+  "pitfalls": [
+    "LL 与 LR、RR 与 RL 判断混淆（需看失衡子树自身平衡因子方向）",
+    "旋转后未先更新旧子树高度再更新新根高度，导致高度错误连锁失衡",
+    "删除后用左子树最大值替换但未递归删除它（残留副本）",
+    "平衡因子用 int 缓存但旋转后忘记刷新"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "node", "label": "节点:val+高度h"},
+      {"id": "rotate", "label": "左旋/右旋与高度更新"},
+      {"id": "balance", "label": "LL/LR/RR/RL 四种旋转决策"},
+      {"id": "insert", "label": "BST插入+回溯平衡"},
+      {"id": "delete", "label": "BST删除(后继替换)+回溯平衡"}
+    ],
+    "edges": [
+      {"from": "node", "to": "rotate"},
+      {"from": "rotate", "to": "balance"},
+      {"from": "balance", "to": "insert"},
+      {"from": "balance", "to": "delete"}
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/avl/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CLRS《算法导论》ch13 红黑树 / ch12 二叉搜索树（AVL 思想）",
+      "verified": true
+    }
+  ]
+}

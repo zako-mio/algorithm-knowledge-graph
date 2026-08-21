@@ -1,0 +1,118 @@
+{
+  "id": "frac-programming",
+  "name": "分数规划/01分数规划",
+  "group": "G-E-7",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "求Σa/Σb极值：二分答案→Σw_i(a_i-mid·b_i)≥0判定；Dinkelbach迭代法",
+  "what": "分数规划(Fractional Programming)用于求分式 Σ(a_i·w_i)/Σ(b_i·w_i) 的极值，其中 w_i∈{0,1} 表示选/不选第 i 个物品。核心方法：二分答案 mid，将分式判定转化为 Σw_i(a_i-mid·b_i)≥0 的线性判定问题，再用贪心/DP/MST/SPFA等求解判定。",
+  "why": {
+    "intuition": "要求 Σa/Σb 的最大值。如果猜答案为 mid，则 Σa/Σb≥mid 等价于 Σa-mid·Σb≥0 即 Σ(a_i-mid·b_i)≥0。这样分式判定就变成了线性判定：每个物品的'净权值'为 a_i-mid·b_i，选若干使净权和≥0。二分 mid 即可逼近最优比值。",
+    "principle": "二分法：对答案 mid，判定是否存在选法使 Σw_i(a_i-mid·b_i)≥0。判定函数的设计取决于限制条件：①无限制→贪心选正净权值 ②恰好选 k 个→选净权值前 k 大 ③分母≥W→01背包(b_i为重量,a_i-mid·b_i为价值) ④生成树→MST(a_i-mid·b_i为边权) ⑤环→判负环(a_i-mid为边权)。Dinkelbach 迭代法：用上一轮的比值作新 mid 迭代直至收敛，收敛快但不保证最劣情况。",
+    "history": "分数规划是运筹学经典方法。Dinkelbach(1967)提出迭代法。竞赛中常见于最优比率生成树(POJ2728)、最优比率环(负环判定)、01分数规划(LOJ149)。OI Wiki 系统整理了二分法和 Dinkelbach 两种解法。"
+  },
+  "how": {
+    "pseudocode": "# 01分数规划: 选恰好k个, 最大化 Σa/Σb\n# 二分法\nlo, hi = 0, max_ratio_upper_bound\nwhile hi - lo > eps:\n  mid = (lo + hi) / 2\n  # 计算每个物品净权值 c_i = a_i - mid * b_i\n  # 选净权值前k大, 求和\n  c = [(a[i] - mid * b[i]) for i in range(n)]\n  c.sort(reverse=True)\n  s = sum(c[:k])\n  if s >= 0:  # mid 可行\n    lo = mid\n  else:\n    hi = mid\nreturn lo",
+    "python": "def fractional_programming_01(a, b, k):\n    \"\"\"01分数规划: 从n个物品中选恰好k个, 最大化 Σa_i/Σb_i。\n    二分答案法。\n    a, b: 每个物品的两个权值\n    k: 必须选的个数\n    返回最大比值。\n    \"\"\"\n    n = len(a)\n    eps = 1e-7\n    lo, hi = 0.0, max(a[i] / b[i] for i in range(n))\n    for _ in range(100):  # 二分100次足够精度\n        mid = (lo + hi) / 2\n        # 净权值 c_i = a_i - mid * b_i\n        c = [a[i] - mid * b[i] for i in range(n)]\n        c.sort(reverse=True)\n        s = sum(c[:k])  # 选前k大\n        if s >= 0:\n            lo = mid\n        else:\n            hi = mid\n    return lo\n\n\ndef fractional_programming_unlimited(a, b):\n    \"\"\"分数规划: 无限制选, 最大化 Σa/Σb。\n    贪心: 选所有正净权值物品。\n    \"\"\"\n    eps = 1e-7\n    lo, hi = 0.0, max(a[i] / b[i] for i in range(len(a))) if a else 0.0\n    for _ in range(100):\n        mid = (lo + hi) / 2\n        s = sum(max(0, a[i] - mid * b[i]) for i in range(len(a)))\n        if s >= 0:\n            lo = mid\n        else:\n            hi = mid\n    return lo\n\n\ndef dinkelbach_method(a, b, k):\n    \"\"\"Dinkelbach迭代法: 01分数规划。\n    用上一轮比值作新mid, 迭代至收敛。\n    通常比二分法收敛更快。\n    \"\"\"\n    n = len(a)\n    # 初始猜测: 选前k个的比值\n    L = sum(a[:k]) / sum(b[:k])\n    eps = 1e-7\n    while True:\n        c = [(a[i] - L * b[i], i) for i in range(n)]\n        c.sort(reverse=True)\n        selected = [c[j][1] for j in range(k)]\n        new_L = sum(a[i] for i in selected) / sum(b[i] for i in selected)\n        if abs(new_L - L) < eps:\n            return new_L\n        L = new_L\n\n\nif __name__ == '__main__':\n    # 测试01分数规划(选恰好k个)\n    a = [1, 2, 3, 4]\n    b = [1, 1, 1, 1]\n    k = 2\n    # 最优: 选a最大的两个(3,4), 比值=(3+4)/(1+1)=3.5\n    result = fractional_programming_01(a, b, k)\n    print(f'01 fractional programming (k={k}): {result:.6f}')\n    assert abs(result - 3.5) < 1e-4\n\n    # 测试Dinkelbach迭代法\n    result2 = dinkelbach_method(a, b, k)\n    print(f'Dinkelbach method: {result2:.6f}')\n    assert abs(result2 - 3.5) < 1e-4\n\n    # 测试无限制选\n    a2 = [3, 1, 4, 1, 5]\n    b2 = [2, 1, 3, 1, 2]\n    result3 = fractional_programming_unlimited(a2, b2)\n    print(f'Unlimited selection: {result3:.6f}')\n    # 暴力验证: 选所有a/b>0的部分\n    best = 0\n    for mask in range(1, 1 << len(a2)):\n        sa = sum(a2[i] for i in range(len(a2)) if mask & (1 << i))\n        sb = sum(b2[i] for i in range(len(a2)) if mask & (1 << i))\n        best = max(best, sa / sb)\n    print(f'Brute force: {best:.6f}')\n    assert abs(result3 - best) < 1e-4\n\n    print('All fractional programming tests passed!')\n",
+    "pypy_notes": "PyPy 对浮点运算和排序优化尚可；但二分100次+每次排序 O(n log n) 的开销在 N>1e5 时可能偏慢；注意浮点精度 eps 设 1e-7 通常足够。",
+    "complexity": {
+      "time": "O(log(V/eps) * T) — T为单次判定复杂度; 贪心判定O(n log n), 背包判定O(n*W), MST判定O(m log m)",
+      "space": "O(N) — 存净权值数组"
+    },
+    "limitations": "浮点精度问题: eps 太小可能死循环, 太大精度不够；Dinkelbach 法不保证最劣情况收敛速度(但实际通常快)；判定函数设计是难点(需根据限制条件灵活变型)。"
+  },
+  "examples": [
+    {
+      "oj": "LOJ",
+      "pid": "149",
+      "url": "https://loj.ac/p/149",
+      "difficulty": 3,
+      "key_point": "01分数规划模板: 选恰好k个最大化Σa/Σb, 贪心判定"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4377",
+      "url": "https://www.luogu.com.cn/problem/P4377",
+      "difficulty": 4,
+      "key_point": "Talent Show G: 分母≥W限制, 01背包判定"
+    },
+    {
+      "oj": "POJ",
+      "pid": "2728",
+      "url": "http://poj.org/problem?id=2728",
+      "difficulty": 4,
+      "key_point": "Desert King: 最优比率生成树, MST判定"
+    }
+  ],
+  "pitfalls": [
+    "浮点精度: 二分次数不够导致精度不足, 通常100次二分或 eps=1e-7 足够",
+    "hi 上界估计: 应取 max(a_i/b_i) 而非随意大值, 避免无效二分区段",
+    "判定函数方向: 求最大值时 s>=0 则 lo=mid, 求最小值时方向相反",
+    "Dinkelbach 不收敛: 某些构造数据下 Dinkelbach 可能退化, 二分法更稳定"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "guess",
+        "label": "猜答案 mid (二分/Dinkelbach)"
+      },
+      {
+        "id": "transform",
+        "label": "变形: Σa/Σb≥mid → Σ(a_i-mid·b_i)≥0"
+      },
+      {
+        "id": "judge",
+        "label": "判定: 求净权值最大/最小选法(贪心/DP/MST/SPFA)"
+      },
+      {
+        "id": "adjust",
+        "label": "调整: s≥0→lo=mid, s<0→hi=mid"
+      },
+      {
+        "id": "converge",
+        "label": "收敛: hi-lo<eps, 输出答案"
+      }
+    ],
+    "edges": [
+      {
+        "from": "guess",
+        "to": "transform"
+      },
+      {
+        "from": "transform",
+        "to": "judge"
+      },
+      {
+        "from": "judge",
+        "to": "adjust"
+      },
+      {
+        "from": "adjust",
+        "to": "converge"
+      },
+      {
+        "from": "converge",
+        "to": "guess"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/misc/frac-programming/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/others/maximum_average_segment.html",
+      "verified": true
+    },
+    {
+      "type": "paper",
+      "url": "https://doi.org/10.1287/mnsc.13.7.492",
+      "verified": true,
+      "note": "Dinkelbach 1967"
+    }
+  ]
+}

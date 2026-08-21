@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>离散化 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-7.html">离线与杂项技巧族</a> / <span>离散化</span></div>
+  <h1>离散化</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-E-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="two-pointer.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">two-pointer</span></a>
+    <a class="nav-index" href="../03-groups/G-E-7.html"><span class="dir">组内第 6 / 18</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="frac-programming.html"><span class="dir">下一个 / 组内</span><span class="v">frac-programming</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">大值域映射到紧凑排名：排序+去重+lower_bound，保持偏序关系，压缩数组下标</div><p>离散化(Discretization)是一种将大值域数据映射到紧凑连续排名的技巧：将原始值排序去重后，用每个值在有序序列中的位置(排名)代替原始值。映射后保持偏序关系(x&lt;y ⟺ rank(x)&lt;rank(y))，但值域从 10^9 压缩到 n 级别，使得数组下标可用。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>树状数组/线段数组需要用值做下标，但值域可能 10^9(甚至 10^18)。直接开数组会 MLE。但实际不同的值最多 n 个，只需把它们映射到 [1,n] 即可。离散化本质是一种保序哈希：大值→小排名，但大小关系不变。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>①复制原数组 ②排序副本 ③去重(unique) ④对原数组每个值，用 lower_bound 在去重数组中找排名。方法一(同值同排名): sort + unique + lower_bound。方法二(同值不同排名，按出现顺序): 用 pair(val, idx) 排序，val 相同时按 idx 排。两者均 O(n log n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>离散化是竞赛中极其常用的预处理技巧，几乎所有值域大于数组可开范围的问题都需要。OI Wiki 将其归为杂项技巧。与哈希的区别在于离散化保持偏序关系，而哈希不一定。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 方法一: 同值同排名(常用)</span>
+tmp = <span class="t-b">sorted</span>(<span class="t-b">set</span>(arr))  <span class="t-c"># 排序+去重</span>
+<span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+  arr[i] = <span class="t-f">lower_bound</span>(tmp, arr[i])  <span class="t-c"># 查排名</span>
+
+<span class="t-c"># 方法二: 同值不同排名(按出现顺序)</span>
+pairs = [(arr[i], i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+pairs.<span class="t-f">sort</span>(key=<span class="t-k">lambda</span> x: (x[<span class="t-n">0</span>], x[<span class="t-n">1</span>]))  <span class="t-c"># 值相同时按原始位置</span>
+<span class="t-k">for</span> rank, (val, idx) <span class="t-k">in</span> <span class="t-b">enumerate</span>(pairs):
+  arr[idx] = rank  <span class="t-c"># 排名从0或1开始</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> bisect
+
+
+<span class="t-k">def</span> <span class="t-f">discretize_same</span>(arr):
+    <span class="t-s">&quot;&quot;&quot;离散化方法一: 相同的值离散化为相同的排名。
+    返回离散化后的数组(1-indexed排名)。
+    保持偏序: x &lt; y =&gt; rank(x) &lt; rank(y)
+    &quot;&quot;&quot;</span>
+    tmp = <span class="t-b">sorted</span>(<span class="t-b">set</span>(arr))  <span class="t-c"># 排序+去重</span>
+    <span class="t-k">return</span> [bisect.<span class="t-f">bisect_left</span>(tmp, v) + <span class="t-n">1</span> <span class="t-k">for</span> v <span class="t-k">in</span> arr]  <span class="t-c"># 1-indexed</span>
+
+
+<span class="t-k">def</span> <span class="t-f">discretize_unique</span>(arr):
+    <span class="t-s">&quot;&quot;&quot;离散化方法二: 相同的值按出现顺序离散化为不同排名。
+    用于需要区分相同值不同位置的场合。
+    &quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(arr)
+    pairs = [(arr[i], i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    pairs.<span class="t-f">sort</span>(key=<span class="t-k">lambda</span> x: (x[<span class="t-n">0</span>], x[<span class="t-n">1</span>]))
+    result = [<span class="t-n">0</span>] * n
+    <span class="t-k">for</span> rank, (val, idx) <span class="t-k">in</span> <span class="t-b">enumerate</span>(pairs):
+        result[idx] = rank + <span class="t-n">1</span>  <span class="t-c"># 1-indexed</span>
+    <span class="t-k">return</span> result
+
+
+<span class="t-k">def</span> <span class="t-f">discretize_with_query</span>(arr):
+    <span class="t-s">&quot;&quot;&quot;离散化并返回: 离散数组 + 查询函数(原值-&gt;排名)。
+    便于后续多次查询。
+    &quot;&quot;&quot;</span>
+    tmp = <span class="t-b">sorted</span>(<span class="t-b">set</span>(arr))
+    disc = [bisect.<span class="t-f">bisect_left</span>(tmp, v) + <span class="t-n">1</span> <span class="t-k">for</span> v <span class="t-k">in</span> arr]
+
+    <span class="t-k">def</span> <span class="t-f">query</span>(val):
+        <span class="t-s">&quot;&quot;&quot;原值 -&gt; 排名(1-indexed), 不存在返回插入位置。&quot;&quot;&quot;</span>
+        <span class="t-k">return</span> bisect.<span class="t-f">bisect_left</span>(tmp, val) + <span class="t-n">1</span>
+
+    <span class="t-k">return</span> disc, query, tmp  <span class="t-c"># tmp为去重有序数组</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 测试方法一: 同值同排名</span>
+    arr1 = [<span class="t-n">1000</span>, <span class="t-n">500</span>, <span class="t-n">500</span>, <span class="t-n">2000</span>, <span class="t-n">1000</span>]
+    disc1 = <span class="t-f">discretize_same</span>(arr1)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Original: {arr1}&#x27;</span>)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Discretized (same): {disc1}&#x27;</span>)  <span class="t-c"># [2, 1, 1, 3, 2]</span>
+    <span class="t-k">assert</span> disc1 == [<span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">2</span>]
+    <span class="t-k">assert</span> <span class="t-b">all</span>(<span class="t-n">1</span> &lt;= x &lt;= <span class="t-n">3</span> <span class="t-k">for</span> x <span class="t-k">in</span> disc1)  <span class="t-c"># 值域压缩到 [1,3]</span>
+
+    <span class="t-c"># 测试偏序保持</span>
+    arr2 = [<span class="t-n">300</span>, <span class="t-n">100</span>, <span class="t-n">200</span>]
+    disc2 = <span class="t-f">discretize_same</span>(arr2)
+    <span class="t-k">assert</span> disc2 == [<span class="t-n">3</span>, <span class="t-n">1</span>, <span class="t-n">2</span>]  <span class="t-c"># 100&lt;200&lt;300 =&gt; 1&lt;2&lt;3</span>
+
+    <span class="t-c"># 测试方法二: 同值不同排名</span>
+    arr3 = [<span class="t-n">100</span>, <span class="t-n">100</span>, <span class="t-n">50</span>, <span class="t-n">200</span>]
+    disc3 = <span class="t-f">discretize_unique</span>(arr3)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Discretized (unique): {disc3}&#x27;</span>)  <span class="t-c"># 50-&gt;1, 100(first)-&gt;2, 100(second)-&gt;3, 200-&gt;4</span>
+    <span class="t-k">assert</span> disc3 == [<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">1</span>, <span class="t-n">4</span>]
+
+    <span class="t-c"># 测试带查询函数</span>
+    arr4 = [<span class="t-n">10</span>, <span class="t-n">20</span>, <span class="t-n">10</span>, <span class="t-n">30</span>]
+    disc4, query, tmp = <span class="t-f">discretize_with_query</span>(arr4)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Discretized: {disc4}&#x27;</span>)  <span class="t-c"># [1, 2, 1, 3]</span>
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Query 20: {query(20)}&#x27;</span>)  <span class="t-c"># 2</span>
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Query 25: {query(25)}&#x27;</span>)  <span class="t-c"># 3 (插入位置)</span>
+    <span class="t-k">assert</span> disc4 == [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">3</span>]
+    <span class="t-k">assert</span> <span class="t-f">query</span>(<span class="t-n">20</span>) == <span class="t-n">2</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&#x27;All discretization tests passed!&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 对排序和 bisect 优化好；离散化是 O(n log n) 预处理，几乎无性能瓶颈；bisect_left 是 C 实现极快。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(N log N) — 排序 O(N log N) + 去重 O(N) + N 次 lower_bound O(N log N)</td></tr><tr><th>空间复杂度</th><td>O(N) — 去重数组+结果数组</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅适用于&#x27;只需偏序关系&#x27;的场景(树状数组/线段树下标)；不适用于需要原始值运算的场景(如值的大小比较后的加减)；离散化后值域变为 [1,n]，但 n 可能仍很大(需配合动态开点线段树等)。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>忘记去重: set() 或 unique() 必须执行, 否则排名不连续(有空洞)</li><li>lower_bound 返回的是 0-indexed 位置, 树状数组需要 1-indexed → 需 +1</li><li>方法一和方法二选择错误: 需区分相同值时用方法二, 否则用方法一</li><li>离散化后值域 [1,n] 但 n 可能仍大, 线段树仍需动态开点或离散化后值域分析</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1955</strong></td><td>3</td><td>NOI2015 程序自动分析: 离散化+并查集, 大值域映射</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1955" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1955</a></td></tr><tr><td>Luogu</td><td><strong>P3740</strong></td><td>3</td><td>HAOI2014 贴海报: 离散化+倒序处理区间覆盖</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3740" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3740</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-discrete" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "copy", "label": "复制原数组"}}, {"data": {"id": "sort", "label": "排序副本"}}, {"data": {"id": "unique", "label": "去重(unique/set)"}}, {"data": {"id": "lookup", "label": "lower_bound 查排名"}}, {"data": {"id": "replace", "label": "用排名替换原值"}}, {"data": {"id": "ecopy->sort", "source": "copy", "target": "sort"}}, {"data": {"id": "esort->unique", "source": "sort", "target": "unique"}}, {"data": {"id": "eunique->lookup", "source": "unique", "target": "lookup"}}, {"data": {"id": "elookup->replace", "source": "lookup", "target": "replace"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-discrete'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="cdq-divide.html" title="CDQ三维偏序常需离散化压缩值域">CDQ分治<span class="etype">共现</span></a><a class="chip e-cooccurrence" href="parallel-binsearch.html" title="整体二分常配合离散化">整体二分/并行二分<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/discrete/" target="_blank" rel="noopener">https://oi-wiki.org/misc/discrete/</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Transitive_reduction" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Transitive_reduction</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

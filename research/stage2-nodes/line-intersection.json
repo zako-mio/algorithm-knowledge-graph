@@ -1,0 +1,114 @@
+{
+ "id": "line-intersection",
+ "name": "直线交点",
+ "group": "G-D-2",
+ "stage": "intermediate",
+ "priority": "P2",
+ "depth_tier": "standard",
+ "brief": "用叉积判定两直线位置关系并求交点坐标",
+ "what": "给定两条直线，求它们的交点或判定平行/重合。直线可用方程 ax+by+c=0 表示，两直线的交点即解二元一次方程组：a₁x+b₁y+c₁=0 与 a₂x+b₂y+c₂=0。用 Cramer 法则：分母 D=a₁b₂-a₂b₁（即法向量叉积）；若 |D|<eps 则平行；若平行且 (a₁,b₁,c₁) 与 (a₂,b₂,c₂) 成比例则重合，否则无交点。交点坐标 x=-(c₁b₂-c₂b₁)/D，y=-(a₁c₂-a₂c₁)/D。也可用两点式构造直线再求交。这是所有几何求交问题（线段相交、圆与线、半平面交）的基础。",
+ "why": {
+  "intuition": "两直线的方程是两个线性约束，交点就是同时满足两个方程的点。Cramer 法则把解写成行列式比值：分母是法向量 (a₁,b₁),(a₂,b₂) 的叉积（为 0 说明两法向量共线即两线平行），分子是把常数项替换到对应列后得到的行列式。几何上，法向量叉积=0 意味着两直线方向相同。",
+  "principle": "① 直线标准式 ax+by+c=0，法向量 (a,b)。② 相交判定：det=a₁b₂-a₂b₁≠0。③ 交点：x=-(c₁b₂-c₂b₁)/det, y=-(a₁c₂-a₂c₁)/det（Cramer 法则）。④ 平行判定：det=0；重合判定：det=0 且 a₁c₂-a₂c₁=0 且 b₁c₂-b₂c₁=0（系数成比例）。⑤ 浮点处理：用 EPS 比较 |det|<EPS。⑥ 由两点 p,q 构直线：a=q.y-p.y, b=p.x-q.x, c=-a·p.x-b·p.y。",
+  "history": "Cramer 法则由 Gabriel Cramer（1750）提出，是线性方程组的标准解法之一。直线求交是计算几何最基础运算，CP-Algorithms 的 'Intersection Point of Lines' 是经典参考实现（源自 e-maxx.ru）。OI Wiki 的 2D 几何基础中也将其作为核心原语。"
+ },
+ "how": {
+  "pseudocode": "# 直线 ax+by+c=0\ndef line_intersect(l1, l2):\n  a1,b1,c1 = l1; a2,b2,c2 = l2\n  det = a1*b2 - a2*b1\n  if abs(det) < EPS: return PARALLEL   # 是否重合再查\n  x = -(c1*b2 - c2*b1)/det\n  y = -(a1*c2 - a2*c1)/det\n  return (x,y)\n\ndef line_from_two_points(p, q):\n  a = q.y - p.y; b = p.x - q.x; c = -a*p.x - b*p.y\n  return (a,b,c)",
+  "python": "EPS = 1e-9\n\n\ndef cross(ax, ay, bx, by):\n    return ax * by - ay * bx\n\n\ndef line_from_points(p, q):\n    \"\"\"过 p,q 两点的直线 ax+by+c=0.\"\"\"\n    a = q[1] - p[1]\n    b = p[0] - q[0]\n    c = -a * p[0] - b * p[1]\n    return (a, b, c)\n\n\ndef line_intersect(l1, l2):\n    \"\"\"两直线 ax+by+c=0 求交.\n    返回: ('point', x, y) 交点; ('parallel',) 平行; ('same',) 重合.\"\"\"\n    a1, b1, c1 = l1\n    a2, b2, c2 = l2\n    det = cross(a1, b1, a2, b2)\n    if abs(det) < EPS:\n        # 检查是否重合: 系数成比例\n        if abs(cross(a1, c1, a2, c2)) < EPS and abs(cross(b1, c1, b2, c2)) < EPS:\n            return ('same',)\n        return ('parallel',)\n    x = -(c1 * b2 - c2 * b1) / det\n    y = -(a1 * c2 - a2 * c1) / det\n    return ('point', x, y)\n\n\ndef point_on_line(l, p):\n    \"\"\"点 p 是否在直线 l 上 (浮点判断).\"\"\"\n    a, b, c = l\n    return abs(a * p[0] + b * p[1] + c) < EPS\n\n\nif __name__ == \"__main__\":\n    # y=x 与 y=-x => 交点 (0,0)\n    l1 = (1, -1, 0)   # x - y = 0\n    l2 = (1, 1, 0)    # x + y = 0\n    r = line_intersect(l1, l2)\n    assert r[0] == 'point' and abs(r[1]) < 1e-9 and abs(r[2]) < 1e-9\n\n    # y=2x+1 与 y=3x-2\n    # 2x - y + 1 = 0 ; 3x - y - 2 = 0\n    l3 = (2, -1, 1)\n    l4 = (3, -1, -2)\n    r = line_intersect(l3, l4)\n    # 解: x=3, y=7\n    assert abs(r[1] - 3) < 1e-9 and abs(r[2] - 7) < 1e-9\n    # 交点必须同时满足两方程\n    assert point_on_line(l3, (r[1], r[2]))\n    assert point_on_line(l4, (r[1], r[2]))\n\n    # 平行: x-y=0 与 x-y=5\n    assert line_intersect((1, -1, 0), (1, -1, 5))[0] == 'parallel'\n    # 重合: x-y=0 与 2x-2y=0\n    assert line_intersect((1, -1, 0), (2, -2, 0))[0] == 'same'\n\n    # 两点式构造: (0,0)-(1,1) 与 (0,2)-(2,0) 交于 (1,1)\n    la = line_from_points((0, 0), (1, 1))\n    lb = line_from_points((0, 2), (2, 0))\n    r = line_intersect(la, lb)\n    assert abs(r[1] - 1) < 1e-9 and abs(r[2] - 1) < 1e-9\n\n    # 随机交叉验证: 生成两对随机点 -> 两点式直线 -> 数值核对交点\n    import random\n    random.seed(3)\n    for _ in range(200):\n        p1 = (random.uniform(-10, 10), random.uniform(-10, 10))\n        q1 = (random.uniform(-10, 10), random.uniform(-10, 10))\n        p2 = (random.uniform(-10, 10), random.uniform(-10, 10))\n        q2 = (random.uniform(-10, 10), random.uniform(-10, 10))\n        # 跳过退化\n        if (p1[0] - q1[0]) ** 2 + (p1[1] - q1[1]) ** 2 < 1e-12:\n            continue\n        if (p2[0] - q2[0]) ** 2 + (p2[1] - q2[1]) ** 2 < 1e-12:\n            continue\n        l1 = line_from_points(p1, q1)\n        l2 = line_from_points(p2, q2)\n        r = line_intersect(l1, l2)\n        if r[0] == 'point':\n            assert point_on_line(l1, (r[1], r[2])), (p1, q1, l1, r)\n            assert point_on_line(l2, (r[1], r[2])), (p2, q2, l2, r)\n        else:\n            # 平行: 方向向量叉积为 0\n            d1 = (q1[0] - p1[0], q1[1] - p1[1])\n            d2 = (q2[0] - p2[0], q2[1] - p2[1])\n            assert abs(cross(*d1, *d2)) < 1e-6\n    print(\"All tests passed.\")",
+  "pypy_notes": "浮点求交注意 EPS 选择（1e-9 对 double 安全）。大规模求交避免创建元组过多可内联。整数直线可全程整数运算再最后除，减少误差。",
+  "complexity": {
+   "time": "O(1)",
+   "space": "O(1)"
+  },
+  "limitations": "浮点误差：平行判定依赖 EPS 阈值，EPS 过小会把几乎平行误判为相交。垂直直线在斜率表示法（y=kx+b）下 k 无穷大，务必用 ax+by+c=0 一般式。两点重合会退化为无效直线。",
+  "limitations_note": ""
+ },
+ "examples": [
+  {
+   "oj": "CSES",
+   "pid": "2190",
+   "url": "https://cses.fi/problemset/task/2190",
+   "difficulty": 3,
+   "key_point": "Line Segment Intersection：线段相交（内部用直线交点+线段含点判断，CP-Alg 例题）"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P5490",
+   "url": "https://www.luogu.com.cn/problem/P5490",
+   "difficulty": 3,
+   "key_point": "【模板】扫描线：矩形边求交/线段树维护，直线求交是其子原语"
+  },
+  {
+   "oj": "UVA",
+   "pid": "191",
+   "url": "https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=127",
+   "difficulty": 3,
+   "key_point": "Intersection：线段与矩形相交判定，内部用直线交点原语（经典 UVA 题）"
+  }
+ ],
+ "pitfalls": [
+  "平行与重合混为一谈：先判 det，再判 c 比例",
+  "用 y=kx+b 表示垂直直线会崩，改用一般式",
+  "EPS 阈值与数据范围不匹配（坐标 1e9 时用 1e-12 会误判）",
+  "由两点构直线公式 a=q.y-p.y, b=p.x-q.x 别写反",
+  "交点代入验证时可容忍 eps 误差，别用 == 判浮点相等"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "line_form",
+    "label": "一般式 ax+by+c=0 与两点构线"
+   },
+   {
+    "id": "det",
+    "label": "法向量叉积判定平行/相交"
+   },
+   {
+    "id": "cramer",
+    "label": "Cramer 法则求交点"
+   },
+   {
+    "id": "coincide",
+    "label": "重合判定(系数成比例)"
+   },
+   {
+    "id": "use",
+    "label": "用于线段/圆/半平面求交"
+   }
+  ],
+  "edges": [
+   {
+    "from": "line_form",
+    "to": "det"
+   },
+   {
+    "from": "det",
+    "to": "cramer"
+   },
+   {
+    "from": "det",
+    "to": "coincide"
+   },
+   {
+    "from": "cramer",
+    "to": "use"
+   },
+   {
+    "from": "coincide",
+    "to": "use"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/lines-intersection.html",
+   "verified": true
+  },
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/geometry/2d/",
+   "verified": true
+  }
+ ]
+}

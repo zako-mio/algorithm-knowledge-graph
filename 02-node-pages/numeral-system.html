@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数制转换 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-18.html">大整数与数制族</a> / <span>数制转换</span></div>
+  <h1>数制转换</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-18</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="balanced-ternary.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">balanced-ternary</span></a>
+    <a class="nav-index" href="../03-groups/G-C-18.html"><span class="dir">组内第 4 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-C-18.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">任意进制间转换：整数除基取余法、小数乘基取整法，2/8/16 快速互转；Python int(x,base) 与 format() 内置支持</div><p>数制转换：给定一个数，在其基数为 b1 的表示与基数为 b2 的表示之间转换。整数部分用「除基取余法」（不断除以目标进制取余数，逆序输出）；小数部分用「乘基取整法」。2、8、16 进制间由于 2^3=8、2^4=16，可直接按位分组快速转换（3 位一组 ↔ 8 进制，4 位一组 ↔ 16 进制）。大数进制转换（如十进制 10^1000 转 2 进制）用数组模拟除法或直接 Python 大整数。Python 内置：int(&#x27;101&#x27;,2)、format(x,&#x27;b/o/x&#x27;)、bin/oct/hex；任意进制 2~36 用 int(s, base)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>一个数 = Σ 位×基数^i。转 k 进制：反复除以 k，每次得到的余数就是最低位，商继续除，最后商为 0 停止，逆序拼起来。原理：整除运算把「当前最低位」剥下来，高位整体下移一位。转回十进制：把表示当作多项式求值（霍纳法）value = value*base + digit。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>整数除基取余：n 在 k 进制下表示为 a_k...a_1a_0，n = q0*k + a0（a0=n mod k），q0=floor(n/k) 继续分解，直至商为 0，余数逆序。小数乘基取整：0.25 转二进制，0.25*2=0.5 取整 0，0.5*2=1.0 取整 1 → .01。2↔8/16：8=2^3，所以 (101110)2 按 3 位一组 101 110 → 5 6 → 0o56；16 同理 4 位一组。大数场景用 Python int 直接中转：dec_str 转任意进制可 int(s, b1) → 再自定义 divmod 循环取余到 b2，但 Python 选手一般直接 int() + 自写 to_base 输出。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>进位制思想自古即有（十进制源于自然计数，六十进制源自巴比伦），计算机以二进制为底，八进制/十六进制因便于阅读保留。OI Wiki 数制页系统性介绍除基取余、乘基取整与 2/8/16 快速互转。竞赛中数制转换作为基础技巧在模拟题、字符串题中高频出现。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">DIGITS = <span class="t-s">&#x27;0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ&#x27;</span>
+
+<span class="t-k">def</span> <span class="t-f">to_base</span>(x, b):
+    <span class="t-k">if</span> x == <span class="t-n">0</span>: <span class="t-k">return</span> <span class="t-s">&#x27;0&#x27;</span>
+    res = <span class="t-s">&#x27;&#x27;</span>
+    <span class="t-k">while</span> x:
+        res = DIGITS[x % b] + res
+        x //= b
+    <span class="t-k">return</span> res
+
+<span class="t-k">def</span> <span class="t-f">from_base</span>(s, b):
+    val = <span class="t-n">0</span>
+    <span class="t-k">for</span> ch <span class="t-k">in</span> s:
+        val = val * b + DIGITS.<span class="t-f">index</span>(ch)
+    <span class="t-k">return</span> val</code></pre><h3>Python 实现</h3><pre><code class="python">DIGITS = <span class="t-s">&#x27;0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ&#x27;</span>
+
+
+<span class="t-k">def</span> <span class="t-f">to_base</span>(x, b):
+    <span class="t-k">if</span> x == <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-s">&#x27;0&#x27;</span>
+    res = <span class="t-s">&#x27;&#x27;</span>
+    <span class="t-k">while</span> x:
+        res = DIGITS[x % b] + res
+        x //= b
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">from_base</span>(s, b):
+    val = <span class="t-n">0</span>
+    <span class="t-k">for</span> ch <span class="t-k">in</span> s:
+        val = val * b + DIGITS.<span class="t-f">index</span>(ch)
+    <span class="t-k">return</span> val
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    <span class="t-c"># 与内置校验</span>
+    <span class="t-k">assert</span> <span class="t-f">to_base</span>(<span class="t-n">255</span>, <span class="t-n">16</span>) == <span class="t-s">&#x27;FF&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-f">to_base</span>(<span class="t-n">8</span>, <span class="t-n">2</span>) == <span class="t-s">&#x27;1000&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-f">from_base</span>(<span class="t-s">&#x27;FF&#x27;</span>, <span class="t-n">16</span>) == <span class="t-n">255</span>
+    <span class="t-k">assert</span> <span class="t-f">from_base</span>(<span class="t-s">&#x27;1000&#x27;</span>, <span class="t-n">2</span>) == <span class="t-n">8</span>
+    <span class="t-k">assert</span> <span class="t-b">int</span>(<span class="t-s">&#x27;101&#x27;</span>, <span class="t-n">2</span>) == <span class="t-n">5</span>
+    <span class="t-k">assert</span> <span class="t-b">int</span>(<span class="t-s">&#x27;ff&#x27;</span>, <span class="t-n">16</span>) == <span class="t-n">255</span>
+    <span class="t-k">assert</span> <span class="t-b">format</span>(<span class="t-n">255</span>, <span class="t-s">&#x27;b&#x27;</span>) == <span class="t-s">&#x27;11111111&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-b">format</span>(<span class="t-n">255</span>, <span class="t-s">&#x27;o&#x27;</span>) == <span class="t-s">&#x27;377&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-b">format</span>(<span class="t-n">255</span>, <span class="t-s">&#x27;x&#x27;</span>) == <span class="t-s">&#x27;ff&#x27;</span>
+    <span class="t-c"># 大数：10^30 转 36 进制再转回</span>
+    big = <span class="t-n">10</span>**<span class="t-n">30</span>
+    <span class="t-k">assert</span> <span class="t-f">from_base</span>(<span class="t-f">to_base</span>(big, <span class="t-n">36</span>), <span class="t-n">36</span>) == big
+    <span class="t-c"># 2↔8/16 快速互转一致性</span>
+    x = <span class="t-n">0b10111001</span>
+    <span class="t-k">assert</span> <span class="t-f">to_base</span>(x, <span class="t-n">8</span>) == <span class="t-b">format</span>(x, <span class="t-s">&#x27;o&#x27;</span>) == <span class="t-s">&#x27;271&#x27;</span>
+    <span class="t-k">assert</span> <span class="t-f">to_base</span>(x, <span class="t-n">16</span>).<span class="t-f">lower</span>() == <span class="t-b">format</span>(x, <span class="t-s">&#x27;x&#x27;</span>) == <span class="t-s">&#x27;b9&#x27;</span>
+    <span class="t-k">for</span> b <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, <span class="t-n">37</span>):
+        <span class="t-k">assert</span> <span class="t-f">from_base</span>(<span class="t-f">to_base</span>(<span class="t-n">12345</span>, b), b) == <span class="t-n">12345</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;numeral-system OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 内置 int(s,base) 与 format() 支持 2/8/16 及 2~36；这些在 PyPy 下同速。自定义 to_base 循环 O(log x)，PyPy 无差别。超大进制（&gt;36）需自定义字母表，Python 无内置。负数先取绝对值处理符号。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>除基取余 O(log_b x) 轮（大整数除法本身 O(n^2) 级别）；2↔8/16 按位分组 O(n)</td></tr><tr><th>空间复杂度</th><td>O(log_b x)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Python int(s,base) 只支持 2~36；10^5 位级大数逐位除基取余在 Python 中较慢（大数除法 O(n^2)），必要时用分治/分组技巧（先转大进制再转目标进制）。小数转换有精度问题，浮点转二进制需谨慎。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>除基取余的余数要逆序输出，直接顺序拼接是错的</li><li>x==0 时输出 &#x27;0&#x27; 而不是空串</li><li>from_base 若字符不在 DIGITS 中会 ValueError，输入需校验或忽略大小写</li><li>Python int(&#x27;0x..&#x27;,16) 可带前缀，但 int(&#x27;ff&#x27;,16) 不能大写混入前缀；format 与 int 的字母大小写注意</li><li>负数处理：先取绝对值，最后补符号；除基取余对负数的 % 语义不同</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1015</strong></td><td>4</td><td>回文数：任意进制 n 进制下大整数加法+回文判断，综合数制转换与高精度</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1015" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1015</a></td></tr><tr><td>Luogu</td><td><strong>P1143</strong></td><td>2</td><td>进制转换模板：n 进制转十进制再转 m 进制</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1143" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1143</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-numeral-system" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "整数：除基取余法（逆序输出）"}}, {"data": {"id": "s2", "label": "小数：乘基取整法"}}, {"data": {"id": "s3", "label": "2↔8/16 按位分组快速互转"}}, {"data": {"id": "s4", "label": "Python 内置 int()/format()/bin/oct/hex 便捷路径"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es1->s3", "source": "s1", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-numeral-system'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/numeral-sys/base/" target="_blank" rel="noopener">https://oi-wiki.org/math/numeral-sys/base/</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Numeral_system" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Numeral_system</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

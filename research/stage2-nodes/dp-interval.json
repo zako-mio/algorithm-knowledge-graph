@@ -1,0 +1,73 @@
+{
+  "id": "dp-interval",
+  "name": "区间DP",
+  "group": "G-A-11",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "f(i,j)表示区间[i,j]最优，枚举合并点k，O(n^3)",
+  "what": "区间DP是一种以区间为状态定义的动态规划：状态 f(i,j) 表示将区间 [i,j] 内所有元素通过某种合并方式处理后的最优值。转移时枚举合并点 k，将 [i,k] 和 [k+1,j] 两部分的最优解合并。典型问题如石子合并、矩阵链乘法。",
+  "why": {
+    "intuition": "当问题本质是「将若干部分合并」时，最终的最优合并方案一定是在某个位置 k 处将区间分成左右两部分分别合并——这就是区间DP的决策点。由于左右子区间的长度都严格小于原区间，按长度递增枚举即可保证无后效性。",
+    "principle": "状态转移方程：f(i,j)=max{f(i,k)+f(k+1,j)+cost(i,j)}，其中 i<=k<j，cost(i,j) 为合并 [i,j] 两部分的代价（如区间和）。按区间长度 len 从 2 到 n 枚举，再枚举起点 i（j=i+len-1），最后枚举合并点 k。时间复杂度 O(n³)。环上问题将数组复制为 2n，在长度 2n 的链上做区间DP，最后取 min/max f(1,n)...f(n,2n-1)。",
+    "history": "区间DP是矩阵链乘法(1960s)和最优括号化问题的推广。其核心思想——按区间长度递增枚举、枚举合并点——已成为竞赛中合并类问题的标准范式。石子合并(NOI1995)是其经典教学题。"
+  },
+  "how": {
+    "pseudocode": "for len in 2..n:\n  for i in 1..(n-len+1):\n    j = i + len - 1\n    for k in i..(j-1):\n      f[i][j] = max(f[i][j], f[i][k] + f[k+1][j] + cost(i,j))",
+    "python": "def stone_merge(a):\n    \"\"\"石子合并(环形) 求最大得分\n    a: 各堆石子数量, 环形排列\n    返回: 最大合并得分\n    \"\"\"\n    n = len(a)\n    # 环形 -> 断环成链, 复制为 2n\n    b = a + a\n    N = 2 * n\n    s = [0] * (N + 1)  # 前缀和\n    for i in range(1, N + 1):\n        s[i] = s[i - 1] + b[i - 1]\n\n    INF = float('-inf')\n    f = [[0] * (N + 1) for _ in range(N + 1)]\n\n    for length in range(2, n + 1):  # 枚举区间长度\n        for i in range(1, N - length + 2):  # 枚举起点\n            j = i + length - 1\n            f[i][j] = INF\n            for k in range(i, j):  # 枚举合并点\n                val = f[i][k] + f[k + 1][j] + s[j] - s[i - 1]\n                if val > f[i][j]:\n                    f[i][j] = val\n\n    ans = INF\n    for i in range(1, n + 1):\n        if f[i][i + n - 1] > ans:\n            ans = f[i][i + n - 1]\n    return ans\n\n\ndef stone_merge_min(a):\n    \"\"\"石子合并(环形) 求最小得分\"\"\"\n    n = len(a)\n    b = a + a\n    N = 2 * n\n    s = [0] * (N + 1)\n    for i in range(1, N + 1):\n        s[i] = s[i - 1] + b[i - 1]\n\n    INF = float('inf')\n    f = [[0] * (N + 1) for _ in range(N + 1)]\n\n    for length in range(2, n + 1):\n        for i in range(1, N - length + 2):\n            j = i + length - 1\n            f[i][j] = INF\n            for k in range(i, j):\n                val = f[i][k] + f[k + 1][j] + s[j] - s[i - 1]\n                if val < f[i][j]:\n                    f[i][j] = val\n\n    ans = INF\n    for i in range(1, n + 1):\n        if f[i][i + n - 1] < ans:\n            ans = f[i][i + n - 1]\n    return ans\n\n\nif __name__ == \"__main__\":\n    # 石子合并: 4堆 [4,5,9,4] 环形\n    a = [4, 5, 9, 4]\n    # 链上合并: 4+5=9(+9), 9+9=18(+18), 9+4=13(+13) -> varies\n    # 最大得分 = 54, 最小得分 = 43 (经典答案)\n    print(f\"max = {stone_merge(a)}\")  # 54\n    print(f\"min = {stone_merge_min(a)}\")  # 43\n    assert stone_merge(a) == 54\n    assert stone_merge_min(a) == 43\n    print(\"All tests passed.\")\n",
+    "pypy_notes": "PyPy 对三层嵌套循环优化较好，n=200 的 O(n³) 约 0.1s；n>400 时需考虑四边形不等式优化到 O(n²)。列表初始化用 [[0]*(N+1) for _ in range(N+1)]。",
+    "complexity": {
+      "time": "O(n³) — 三重循环(长度×起点×合并点)；可用四边形不等式优化至 O(n²)",
+      "space": "O(n²) — 二维DP表；环形复制为 2n"
+    },
+    "limitations": "O(n³) 在 n>500 时 Python 必 TLE（C++ 也勉强）。四边形不等式优化可降至 O(n²) 但实现复杂。环上问题需 2n 空间。Python 建议 n<=200 使用。"
+  },
+  "examples": [
+    {
+      "oj": "LOJ",
+      "pid": "10147",
+      "url": "https://loj.ac/problem/10147",
+      "difficulty": 2,
+      "key_point": "NOI1995 石子合并：环形区间DP模板题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1063",
+      "url": "https://www.luogu.com.cn/problem/P1063",
+      "difficulty": 2,
+      "key_point": "NOIP2006 能量项链：区间DP，合并代价为左端点×分割点×右端点"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1005",
+      "url": "https://www.luogu.com.cn/problem/P1005",
+      "difficulty": 3,
+      "key_point": "NOIP2007 矩阵取数游戏：每行独立做区间DP，高精度加法"
+    }
+  ],
+  "pitfalls": [
+    "环形问题忘记将数组复制为 2n 长度，只在 n 上做DP导致遗漏断点",
+    "区间长度从 2 开始枚举而非从 1（长度为 1 时 f(i,i)=0 是边界）",
+    "合并点 k 的范围是 [i, j-1] 而非 [i, j]（k=j 时 k+1 越界）",
+    "前缀和用 s[j]-s[i-1] 而非 s[j]-s[i]，注意下标对齐"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "state", "label": "状态定义 f(i,j)=[i,j]最优" },
+      { "id": "transition", "label": "转移: 枚举合并点k" },
+      { "id": "boundary", "label": "边界: f(i,i)=0" },
+      { "id": "order", "label": "按长度递增枚举" },
+      { "id": "answer", "label": "答案提取(环形取max)" }
+    ],
+    "edges": [
+      { "from": "state", "to": "transition" },
+      { "from": "transition", "to": "boundary" },
+      { "from": "boundary", "to": "order" },
+      { "from": "order", "to": "answer" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/dp/interval/", "verified": true },
+    { "type": "book", "ref": "CPH ch7 p82", "verified": true }
+  ]
+}

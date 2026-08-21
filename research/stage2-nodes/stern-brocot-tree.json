@@ -1,0 +1,110 @@
+{
+ "id": "stern-brocot-tree",
+ "name": "Stern-Brocot 树与 Farey 序列",
+ "group": "G-D-10",
+ "stage": "advanced",
+ "priority": "P2",
+ "depth_tier": "standard",
+ "brief": "生成所有既约正有理数的二叉搜索树：相邻分数插入中位分数 (a+c)/(b+d)，支持二分定位任意有理数与最优有理逼近，关联连分数与 Farey 序列",
+ "what": "Stern-Brocot 树是一棵以 0/1、1/0（表示 +∞）为边界、通过反复插入相邻分数中位分数 (a+c)/(b+d) 构造的无限二叉搜索树，包含全部正的最简有理数且每个恰好出现一次。每个节点对应一个三元组 ((a/b),(p/q),(c/d))，实际存储的分数是中间元素 p/q。三条基本性质：①单调性——第 k 阶 Stern-Brocot 序列单调递增；②最简性——相邻分数满足 bc−ad=1（因此由裴蜀定理所有分数互素）；③完全性——任意正有理数都在树上（否则搜索无限长，可证明每一步 a+b+c+d 严格增大而 p+q 有界，矛盾）。Stern-Brocot 树同时是分子分母的二叉搜索树、堆与笛卡尔树。每个分数 p/q 可由连分数 [t0;t1;…;tn;1] 表示，连分数系数恰好编码从根到该节点的路径（偶数项向右、奇数项向左）。Farey 序列 F(n) 是分母不超过 n 的 0..1 间既约分数按序排列，可从 Stern-Brocot 树裁剪得到，长度 L(n)=1+Σ_{k=1}^n φ(k)。矩阵视角：左/右子节点移动分别对应乘以 L=[[1,1],[0,1]] 与 R=[[1,0],[1,1]]。",
+ "why": {
+  "intuition": "把分数看成实数轴上的点，每次在相邻两个分数之间插入一个中位分数，得到的序列单调且越来越密。如果把它组织成树（每个插入的分数作为两个边界的共同子节点），就成了一棵二叉搜索树：要找一个分数，比较当前分数与目标的大小，大往左小往右。关键洞察是相邻分数 a/b 与 c/d 之间一定满足 bc−ad=1（行列式为 1），这个性质在中位分数插入后保持，既保证最简性，也让'存在性'证明可行。",
+  "principle": "构造：第 0 阶序列为 0/1, 1/0；第 k+1 阶在相邻 (a/b,c/d) 间插入 (a+c)/(b+d)。单调性由 a/b < (a+c)/(b+d) < c/d（消分母即得）归纳保持。最简性：相邻分数行列式 bc−ad=1，中位数插入后 b(a+c)−a(b+d)=bc−ad=1 与 c(b+d)−d(a+c)=bc−ad=1 仍成立，故所有分数互素。完全性：任意 p/q 的搜索若无限，则每步 bx−ay≥1、cy−dx≥1，乘 (c+d)、(a+b) 相加并利用 bc−ad=1 得 p+q≥a+b+c+d，而每深入一层右侧严格增大，矛盾，故必有限步命中。快速查找：连续向右 t 次等价于左边界从 a/b 变为 (a+tc)/(b+td)，连续向左 t 次右边界变为 (ta+c)/(tb+d)，用连分数辗转相除 O(log min(p,q)) 得到路径的游程编码。",
+  "history": "1858 年德国数学家 Moritz Stern 与 1861 年法国钟表匠 Achille Brocot 独立发现（Brocot 用于设计齿轮传动比的钟表领域；有些资料将更早的发现归于古希腊 Eratosthenes）。1816 年英国地质学家 John Farey 猜想 Farey 序列中每个分数都是邻居的中位分数，随后被 Cauchy 证明，但 Haros 于 1802 年已得出几乎相同的结论。CP-Algorithms 指出序列 [a1;a2;…;an;1] 的连分数表示中，渐近分数列即搜索边界序列。"
+ },
+ "how": {
+  "pseudocode": "# 朴素查找: O(p+q), 每步一次中位数比较\nbounds = (0/1, 1/0)\nwhile True:\n    m = mediant(l, r)\n    if m == target: break\n    if target < m: r = m; path += 'L'\n    else:          l = m; path += 'R'\n\n# 快速查找(目标分数已知): O(log min(p,q)), 连分数/辗转相除\nres = []\nright = True\nwhile q:\n    res.append((p // q, 'R' if right else 'L'))\n    p, q = q, p % q\n    right ^= 1\nres[-1].first -= 1   # 最后一个系数减 1\n\n# Farey 序列长度: L(n) = 1 + sum phi(k)",
+  "python": "# -*- coding: utf-8 -*-\n# Stern-Brocot 树：朴素查找（O(p+q) 路径串）\ndef stern_naive(p, q):\n    \"\"\"返回从根到 p/q 的路径串（'L'/'R'）。\"\"\"\n    # 边界 (pa/pb, qa/qb) = (0/1, 1/0)\n    pa, pb, qa, qb = 0, 1, 1, 0\n    res = []\n    while True:\n        pm, qm = pa + qa, pb + qb\n        if pm == p and qm == q:\n            break\n        if p * qm < pm * q:          # p/q < pm/qm -> 向左\n            qa, qb = pm, qm\n            res.append('L')\n        else:                        # 否则向右\n            pa, pb = pm, qm\n            res.append('R')\n    return ''.join(res)\n\n\n# 快速查找：连分数/辗转相除得到游程编码（目标分数已知）\ndef stern_fast(p, q):\n    \"\"\"返回 [(次数, 方向)]，方向交替，复杂度 O(log min(p,q))。\"\"\"\n    res = []\n    right = True\n    while q:\n        res.append((p // q, 'R' if right else 'L'))\n        p, q = q, p % q\n        right ^= 1\n    res[-1] = (res[-1][0] - 1, res[-1][1])   # 最后一个系数减 1\n    return res\n\n\n# Farey 序列长度 L(n) = 1 + sum_{k=1}^n phi(k)\ndef farey_len(n):\n    phi = list(range(n + 1))\n    for i in range(2, n + 1):\n        if phi[i] == i:\n            for j in range(i, n + 1, i):\n                phi[j] -= phi[j] // i\n    return 1 + sum(phi[1:])\n\n\nif __name__ == '__main__':\n    # 朴素与快速查找在随机互素小数据上对拍\n    import random\n    for _ in range(300):\n        p = random.randint(1, 40)\n        q = random.randint(1, 40)\n        g = __import__('math').gcd(p, q)\n        p, q = p // g, q // g          # 只有最简分数在树上\n        a = stern_naive(p, q)\n        b = []\n        for cnt, dd in stern_fast(p, q):\n            b.extend(dd * cnt)\n        assert ''.join(b) == a, (p, q, b, a)\n    # 已知小例子\n    assert stern_naive(1, 2) == 'L'\n    assert stern_naive(2, 1) == 'R'\n    assert stern_naive(1, 1) == ''\n    assert stern_naive(3, 5) == 'LRL'\n    # Farey 序列长度 F(5)=11, F(6)=13, F(10)=33\n    assert farey_len(5) == 11, farey_len(5)\n    assert farey_len(6) == 13\n    assert farey_len(10) == 33\n    print('stern-brocot tests passed')\n",
+  "pypy_notes": "朴素查找 O(p+q) 在 p,q 大时不可用；快速查找用整数除法无大整数开销，PyPy 下直接可跑。注意 Python 大整数乘法做分数比较时用交叉相乘 p*qm < pm*q 可避免浮点误差。",
+  "complexity": {
+   "time": "朴素查找 O(p+q)；快速查找（连分数/辗转相除）O(log min(p,q))；未知目标需二分次数时 O(log²(p+q))；建前 n 层树 O(n²)",
+   "space": "O(1)（迭代）/ O(路径长)"
+  },
+  "limitations": "Stern-Brocot 树在竞赛中多为数论背景或隐含考点（与连分数、Farey 序列、丢番图逼近联动）。朴素查找只能处理小分数；对无理数的有理逼近需注意左右端点距目标的距离比较（逼近误差并非严格递减）。完全性证明要求分数为正。"
+ },
+ "examples": [
+  {
+   "oj": "UVa",
+   "pid": "12995",
+   "url": "https://uva.onlinejudge.org/index.php?option=onlinejudge&page=show_problem&problem=4386",
+   "difficulty": 3,
+   "key_point": "Farey Sequence 长度公式 L(n)=1+Σφ(k)，欧拉函数前缀和"
+  },
+  {
+   "oj": "AtCoder",
+   "pid": "ABC333-F",
+   "url": "https://atcoder.jp/contests/abc333/tasks/abc333_f",
+   "difficulty": 5,
+   "key_point": "题名 Bomb Game 2，涉及分数区间均分，可用 Stern-Brocot/分数序列思想辅助构造"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P1966",
+   "url": "https://www.luogu.com.cn/problem/P1966",
+   "difficulty": 4,
+   "key_point": "火柴排队：排序序数与逆序对，排序思想与分数排序同源"
+  }
+ ],
+ "pitfalls": [
+  "1/0 不是分数而是 +∞ 的记号，作为右边界参与中位数计算但不能输出",
+  "中位分数 (a+c)/(b+d) 的分子分母分别相加即可，不必约分（行列式性质保证互素）",
+  "朴素查找路径长度可达 O(p+q)（如 1/n 的情形），大分数必须用连分数快速查找",
+  "连分数编码最后一项系数要减 1（[t0;t1;…;tn;1] 中末尾的 1），漏掉会错位",
+  "对无理数逼近时近似序列误差不是严格递减的，结尾要比较左右端点距目标的距离",
+  "Farey 序列含 0/1 与 1/1 两个端点，长度公式 1+Σφ 的 1 是端点 0/1"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "construct",
+    "label": "中位分数迭代构造 Stern-Brocot 树/序列"
+   },
+   {
+    "id": "properties",
+    "label": "单调性 / bc-ad=1 最简性 / 完全性"
+   },
+   {
+    "id": "search",
+    "label": "分数定位（朴素→连分数快速查找）"
+   },
+   {
+    "id": "farey",
+    "label": "Farey 序列：裁剪 + 长度公式 L(n)=1+Σφ(k)"
+   },
+   {
+    "id": "approx",
+    "label": "有理逼近与应用（连分数联动）"
+   }
+  ],
+  "edges": [
+   {
+    "from": "construct",
+    "to": "properties"
+   },
+   {
+    "from": "properties",
+    "to": "search"
+   },
+   {
+    "from": "search",
+    "to": "farey"
+   },
+   {
+    "from": "farey",
+    "to": "approx"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/math/number-theory/stern-brocot/",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/others/stern_brocot_tree_farey_sequences.html",
+   "verified": true
+  }
+ ]
+}

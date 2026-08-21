@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>非公平组合博弈 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-6.html">博弈论族</a> / <span>非公平组合博弈</span></div>
+  <h1>非公平组合博弈</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="zero-sum-game.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">zero-sum-game</span></a>
+    <a class="nav-index" href="../03-groups/G-E-6.html"><span class="dir">组内第 7 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-E-6.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">双方可用行动集不同的博弈（如棋类）：Conway 超现实数理论描述，结果分类 L/R/N/P 四种；比公平博弈复杂得多，竞赛少见</div><p>非公平组合博弈（partizan game）：两名玩家（左 L 与右 R）拥有不同的可行动作集合，典型的如国际象棋（双方棋子不同）。与公平博弈的关键区别：每个状态 G={G^L | G^R} 由左方选项集合与右方选项集合组成，且左右不对称。结果是四分类而非两分类：L（左方必胜）、R（右方必胜）、N（先手必胜）、P（后手必胜）。John Conway 的《On Numbers and Games》(1976) 将这类博弈与超现实数（surreal numbers）统一：简单博弈对应数值，另有非数值博弈（如星 * 和 up）。由于一般 partizan 博弈的 SG 理论不存在，竞赛中仅出现一些退化特例（如只需判断 P/N 的二值博弈）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>公平博弈里&#x27;对称&#x27;允许我们用异或把一个值压缩成 Nim 数。非公平博弈失去对称性，每个状态必须同时记录&#x27;左方能做的&#x27;和&#x27;右方能做的&#x27;两套选项。结果只取决于：左方是否有一步能到自己必胜（L 或 P）的态，右方同理。四条规则给出四分类。数值化的特例（超现实数）让许多博弈可以&#x27;加减&#x27;，如 {0|}=1，{0|0}=*。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>结果分类（Conway）：对状态 G={G^L|G^R}，定义左结果 L 当且仅当存在 G^L 为 L 或 P；右结果 R 当且仅当存在 G^R 为 R 或 P。于是：若左结果 L 且右结果 L → 态为 L（左必胜）；若左结果 R 且右结果 R → 态为 R（右必胜）；若左结果 L 且右结果 R → 态为 N（先手必胜）；若左结果 R 且右结果 L → 态为 P（后手必胜）。数值博弈：若 G={a|b} 且 a&lt;b（a,b 为超现实数），则 G 等于某数 x 使 a&lt;x&lt;b；{0|}=1、{|0}=−1、{0|1}=1/2、{1|}=2 等构成数。{0|0}=* 是第一个非数值博弈，{*|0}、{0|*} 等构造 up/down 系列。复合与加和用超现实数加法。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>partizan 博弈的现代理论由 John Horton Conway 建立，代表作《On Numbers and Games》(1976) 与 Berlekamp、Conway、Guy 合著的《Winning Ways》(1982)。Conway 证明所有超现实数都能由博弈构造，反之数值博弈即超现实数。此前 Sprague/Grundy（公平）是唯一完整理论；partizan 理论把博弈论与序数算术、组合数学相连，是数学与 CS 交叉的经典。竞赛中因实现复杂极少考到。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 结果四分类：状态表示为 (L_options, R_options)</span>
+<span class="t-k">def</span> <span class="t-f">outcome</span>(G):
+  lr = <span class="t-s">&#x27;R&#x27;</span>   <span class="t-c"># 左方能否赢（有选项到 L 或 P）</span>
+  <span class="t-k">for</span> o <span class="t-k">in</span> G.L:
+    <span class="t-k">if</span> <span class="t-f">outcome</span>(o) <span class="t-k">in</span> (<span class="t-s">&#x27;L&#x27;</span>,<span class="t-s">&#x27;P&#x27;</span>): lr = <span class="t-s">&#x27;L&#x27;</span>; <span class="t-k">break</span>
+  rr = <span class="t-s">&#x27;L&#x27;</span>   <span class="t-c"># 右方能否赢（有选项到 R 或 P）</span>
+  <span class="t-k">for</span> o <span class="t-k">in</span> G.R:
+    <span class="t-k">if</span> <span class="t-f">outcome</span>(o) <span class="t-k">in</span> (<span class="t-s">&#x27;R&#x27;</span>,<span class="t-s">&#x27;P&#x27;</span>): rr = <span class="t-s">&#x27;R&#x27;</span>; <span class="t-k">break</span>
+  <span class="t-k">if</span> lr==<span class="t-s">&#x27;L&#x27;</span> <span class="t-k">and</span> rr==<span class="t-s">&#x27;L&#x27;</span>: <span class="t-k">return</span> <span class="t-s">&#x27;L&#x27;</span>
+  <span class="t-k">if</span> lr==<span class="t-s">&#x27;R&#x27;</span> <span class="t-k">and</span> rr==<span class="t-s">&#x27;R&#x27;</span>: <span class="t-k">return</span> <span class="t-s">&#x27;R&#x27;</span>
+  <span class="t-k">if</span> lr==<span class="t-s">&#x27;L&#x27;</span> <span class="t-k">and</span> rr==<span class="t-s">&#x27;R&#x27;</span>: <span class="t-k">return</span> <span class="t-s">&#x27;N&#x27;</span>
+  <span class="t-k">return</span> <span class="t-s">&#x27;P&#x27;</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">outcome</span>(G, memo=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;非公平组合博弈的结果四分类。
+    G = (L_opts, R_opts)，选项同为该形式（递归）。
+    返回 &#x27;L&#x27;/&#x27;R&#x27;/&#x27;N&#x27;/&#x27;P&#x27;。
+    &quot;&quot;&quot;</span>
+    <span class="t-k">if</span> memo <span class="t-k">is</span> <span class="t-k">None</span>:
+        memo = {}
+    <span class="t-k">if</span> G <span class="t-k">in</span> memo:
+        <span class="t-k">return</span> memo[G]
+    L_opts, R_opts = G
+
+    left_wins = <span class="t-k">False</span>  <span class="t-c"># 左方能否走到自己必胜（L 或 P）的态</span>
+    <span class="t-k">for</span> o <span class="t-k">in</span> L_opts:
+        <span class="t-k">if</span> <span class="t-f">outcome</span>(o, memo) <span class="t-k">in</span> (<span class="t-s">&quot;L&quot;</span>, <span class="t-s">&quot;P&quot;</span>):
+            left_wins = <span class="t-k">True</span>
+            <span class="t-k">break</span>
+    right_wins = <span class="t-k">False</span>  <span class="t-c"># 右方能否走到自己必胜（R 或 P）的态</span>
+    <span class="t-k">for</span> o <span class="t-k">in</span> R_opts:
+        <span class="t-k">if</span> <span class="t-f">outcome</span>(o, memo) <span class="t-k">in</span> (<span class="t-s">&quot;R&quot;</span>, <span class="t-s">&quot;P&quot;</span>):
+            right_wins = <span class="t-k">True</span>
+            <span class="t-k">break</span>
+
+    <span class="t-k">if</span> left_wins <span class="t-k">and</span> right_wins:
+        res = <span class="t-s">&quot;N&quot;</span>
+    <span class="t-k">elif</span> <span class="t-k">not</span> left_wins <span class="t-k">and</span> <span class="t-k">not</span> right_wins:
+        res = <span class="t-s">&quot;P&quot;</span>
+    <span class="t-k">elif</span> left_wins:
+        res = <span class="t-s">&quot;L&quot;</span>
+    <span class="t-k">else</span>:
+        res = <span class="t-s">&quot;R&quot;</span>
+    memo[G] = res
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 用元组表示 (L_opts, R_opts)，元素本身也是同结构元组</span>
+    zero = ((), ())            <span class="t-c"># 0 = { | }</span>
+    <span class="t-k">assert</span> <span class="t-f">outcome</span>(zero) == <span class="t-s">&quot;P&quot;</span>
+
+    star = ((zero,), (zero,))  <span class="t-c"># * = {0 | 0}</span>
+    <span class="t-k">assert</span> <span class="t-f">outcome</span>(star) == <span class="t-s">&quot;N&quot;</span>
+
+    one = ((zero,), ())        <span class="t-c"># 1 = {0 | }</span>
+    <span class="t-k">assert</span> <span class="t-f">outcome</span>(one) == <span class="t-s">&quot;L&quot;</span>
+
+    minus_one = ((), (zero,))  <span class="t-c"># -1 = { | 0}</span>
+    <span class="t-k">assert</span> <span class="t-f">outcome</span>(minus_one) == <span class="t-s">&quot;R&quot;</span>
+
+    up = ((zero,), (star,))    <span class="t-c"># {0 | *}</span>
+    <span class="t-k">assert</span> <span class="t-f">outcome</span>(up) == <span class="t-s">&quot;L&quot;</span>
+
+    down = ((star,), (zero,))  <span class="t-c"># {* | 0}</span>
+    <span class="t-k">assert</span> <span class="t-f">outcome</span>(down) == <span class="t-s">&quot;R&quot;</span>
+
+    two = ((one,), ())         <span class="t-c"># 2 = {1 | }  （数值博弈左必胜）</span>
+    <span class="t-k">assert</span> <span class="t-f">outcome</span>(two) == <span class="t-s">&quot;L&quot;</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">结果分类用记忆化递归，状态空间大时注意 key 的可哈希性（用元组表示博弈树）。竞赛中 partizan 极罕见；若出现通常是退化到二值（如左必赢或右必赢）的情形，可直接按 L/R 分支判断。数值博弈的加法（超现实数）实现需要分数运算，PyPy 下用 Fraction 或手写。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>单点结果分类 O(|L_opts|+|R_opts|)（记忆化后 O(状态数·分支)）</td></tr><tr><th>空间复杂度</th><td>O(状态数)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">一般 partizan 博弈没有类似 SG 的简洁数值表示（除数值博弈），分析工具（超现实数、冷博弈/热博弈、temperature）远超竞赛范围。OI Wiki 的 partizan-game 页面为空/未维护（github 上文件为空），竞赛中极少出现，若出现几乎必是退化特例。实现上博弈树需是有限无环的。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>partizan 结果四分类中 &#x27;L&#x27;/&#x27;R&#x27; 判断是看『存在选项到 L 或 P』（左）与『存在选项到 R 或 P』（右），不要用公平博弈的 N/P 规则</li><li>N（先手胜）与 P（后手胜）在不对称时易混淆：N 需左右都能动手赢</li><li>不能用异或组合 partizan 博弈的&#x27;值&#x27;（除非数值博弈）</li><li>超现实数的 {a|b} 只在该数为可构造时才等于普通分数，注意左/右选项顺序（左&lt;右）</li><li>判断循环时用记忆化 + 显式环检测，防递归死循环</li><li>OI Wiki 的 partizan-game 页面实际为空，主参考应以 Conway《On Numbers and Games》为准</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>OI-Wiki</td><td><strong>intro 公平/非公平概念</strong></td><td>4</td><td>基础概念：非公平组合博弈定义与公平博弈对照（OI Wiki intro 页）</td><td class="u"><a href="https://oi-wiki.org/math/game-theory/intro/" target="_blank" rel="noopener">https://oi-wiki.org/math/game-theory/intro/</a></td></tr><tr><td>CP-Algorithms</td><td><strong>Sprague-Grundy（公平前提说明）</strong></td><td>5</td><td>SG 定理的公平性前提：理解哪些游戏不适用 SG（即 partizan 范畴）</td><td class="u"><a href="https://cp-algorithms.com/game_theory/sprague-grundy-nim.html" target="_blank" rel="noopener">https://cp-algorithms.com/game_theory/sprague-grundy-nim.html</a></td></tr><tr><td>Wikipedia</td><td><strong>Surreal number</strong></td><td>6</td><td>超现实数：partizan 博弈数值化的理论背景（Conway 定义）</td><td class="u"><a href="https://en.wikipedia.org/wiki/Surreal_number" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Surreal_number</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-partizan-game" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "def", "label": "partizan 博弈定义 {G^L|G^R}"}}, {"data": {"id": "classify", "label": "结果四分类 L/R/N/P"}}, {"data": {"id": "surreal", "label": "数值博弈与超现实数"}}, {"data": {"id": "star", "label": "非数值博弈: * up down"}}, {"data": {"id": "fair", "label": "对照: 公平博弈的 SG 理论"}}, {"data": {"id": "edef->classify", "source": "def", "target": "classify"}}, {"data": {"id": "edef->surreal", "source": "def", "target": "surreal"}}, {"data": {"id": "esurreal->star", "source": "surreal", "target": "star"}}, {"data": {"id": "eclassify->fair", "source": "classify", "target": "fair"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-partizan-game'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="nim-game.html" title="非公平博弈是公平博弈的推广(双方行动不同)">Nim游戏<span class="etype">变体</span></a><a class="chip e-cooccurrence" href="zero-sum-game.html" title="非公平博弈常在零和框架下分析">零和博弈/Minimax<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/game-theory/intro/" target="_blank" rel="noopener">https://oi-wiki.org/math/game-theory/intro/</a></li><li><span class="srctype">OI Wiki</span><span class="v-warn">&#9651;</span> <a href="https://oi-wiki.org/math/game-theory/partizan-game/" target="_blank" rel="noopener">https://oi-wiki.org/math/game-theory/partizan-game/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">Conway, On Numbers and Games (1976)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

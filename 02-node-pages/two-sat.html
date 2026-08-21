@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2-SAT · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-4.html">连通性族</a> / <span>2-SAT</span></div>
+  <h1>2-SAT</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-B-4</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="bcc.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">bcc</span></a>
+    <a class="nav-index" href="../03-groups/G-B-4.html"><span class="dir">组内第 5 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dominator-tree.html"><span class="dir">下一个 / 组内</span><span class="v">dominator-tree</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">2-适定性问题：布尔方程(a∨b)型约束，建蕴含图+SCC判定，用SCC反拓扑序赋解O(V+E)</div><p>2-SAT(Satisfiability)问题是判定n个布尔变量能否满足m个&#x27;两个变量的析取式&#x27;约束的问题，如(x1∨x3)、(¬x2∨x3)等。k-SAT在k&gt;2时是NP完全问题，而2-SAT有多项式算法。解法核心是建蕴含图：每个变量x拆成真、假两个节点，每个约束(a∨b)等价于蕴含对(¬a→b)和(¬b→a)，然后求强连通分量(SCC)：若某变量的真节点与假节点在同一SCC则无解；否则有解，且取&#x27;所在SCC编号更小(反拓扑序更靠后)&#x27;的节点为真即为一组解。由于每条蕴含边同时建一条逆否边，蕴含图满足对称性，保证该取法正确。复杂度O(V+E)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>蕴含图把&#x27;如果a成立那么b必然成立&#x27;翻译成有向边a→b。若从x=true能推出x=false，同时从x=false又能推出x=true(在同一SCC)，则矛盾无解。取解时利用对称性：在SCC收缩后的DAG上，自底向上贪心选节点——选一个节点就要否掉它的矛盾对，由于DAG无环，这种选法不会冲突，等价于取SCC编号小者。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>建图规则：(¬a∨b) → 边 a→b 和 ¬b→¬a；(a∨b) → 边 ¬a→b 和 ¬b→a；(¬a∨¬b) → 边 a→¬b 和 b→¬a。每条约束产生两条蕴含边(成对对称)。随后用Tarjan/Kosaraju求SCC并缩点：若同一变量x与其否定¬x在同一SCC则无解。判定可行后赋解：Tarjan求得的SCC编号是从栈底到栈顶(后序遍历)的，编号越小越接近DAG叶子(反拓扑序靠后)；对每个变量x，取scc[x]&lt;scc[¬x]的节点置真(即选编号更小的节点)。该贪心基于图对称性保证可构造出一组满足所有约束的解。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>2-SAT问题源于逻辑与布尔可满足性研究。k-SAT(k&gt;2)是NP完全(Schaefer定理等)，而2-SAT可在线性时间求解，由Krom(1967)提出，后由Aspvall、Plass与Tarjan(1979)给出基于强连通分量的线性算法。OI Wiki的2-sat.md、CP-Algorithms的2SAT页及CPH ch20(pp191-204)均有完整介绍。伍昱2003年国家集训队论文《由对称性解2-sat问题》深入阐述了基于DAG对称性的求解方法。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 建图: 变量i(0-based)节点 i 表示x_i为真, i+n 表示x_i为假</span>
+<span class="t-c"># 约束 (a OR b): a,b为带符号文字, 正=var节点, 负=var+n节点</span>
+<span class="t-k">def</span> <span class="t-f">add_clause</span>(a, b):
+  <span class="t-f">add_edge</span>(<span class="t-f">neg</span>(a), b)   <span class="t-c"># ¬a -&gt; b</span>
+  <span class="t-f">add_edge</span>(<span class="t-f">neg</span>(b), a)   <span class="t-c"># ¬b -&gt; a</span>
+<span class="t-c"># 判解: Tarjan SCC</span>
+<span class="t-c"># 无解 iff scc[id(x)] == scc[id(not x)]</span>
+<span class="t-c"># 赋值: val[x] = scc[id(x)] &gt; scc[id(not x)]  (取SCC编号小者/反拓扑序靠后)</span>
+<span class="t-c">#   等价于 若 id(x)的scc编号 &lt; id(not x)的scc编号 则 x=true</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">1</span> &lt;&lt; <span class="t-n">25</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">solve_two_sat</span>(n, clauses):
+    <span class="t-s">&quot;&quot;&quot;求解2-SAT.
+    n: 变量个数(0..n-1)
+    clauses: list[(a, b)], a/b为文字: 正数表示变量i, 负数表示¬i (i为1..n)
+    return: (bool, list[int]|None) 是否可行 + 每组变量赋值(True/False)
+    &quot;&quot;&quot;</span>
+    <span class="t-c"># 节点: var i(1..n) -&gt; 真节点 2*i, 假节点 2*i+1</span>
+    <span class="t-k">def</span> <span class="t-f">node</span>(x):  <span class="t-c"># 文字x(带符号)到节点编号</span>
+        v = <span class="t-b">abs</span>(x)
+        <span class="t-k">return</span> <span class="t-n">2</span> * v + (<span class="t-n">0</span> <span class="t-k">if</span> x &gt; <span class="t-n">0</span> <span class="t-k">else</span> <span class="t-n">1</span>)
+
+    <span class="t-k">def</span> <span class="t-f">neg</span>(x):  <span class="t-c"># 文字取反</span>
+        <span class="t-k">return</span> -x
+
+    N = <span class="t-n">2</span> * n + <span class="t-n">2</span>
+    g = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(N)]
+    rg = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(N)]
+
+    <span class="t-k">def</span> <span class="t-f">add_edge</span>(u, v):
+        g[u].<span class="t-f">append</span>(v)
+        rg[v].<span class="t-f">append</span>(u)
+
+    <span class="t-k">for</span> a, b <span class="t-k">in</span> clauses:
+        <span class="t-f">add_edge</span>(<span class="t-f">node</span>(<span class="t-f">neg</span>(a)), <span class="t-f">node</span>(b))   <span class="t-c"># ¬a -&gt; b</span>
+        <span class="t-f">add_edge</span>(<span class="t-f">node</span>(<span class="t-f">neg</span>(b)), <span class="t-f">node</span>(a))   <span class="t-c"># ¬b -&gt; a</span>
+
+    <span class="t-c"># Kosaraju SCC</span>
+    visited = [<span class="t-k">False</span>] * N
+    order = []
+
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(u):
+        visited[u] = <span class="t-k">True</span>
+        <span class="t-k">for</span> v <span class="t-k">in</span> g[u]:
+            <span class="t-k">if</span> <span class="t-k">not</span> visited[v]:
+                <span class="t-f">dfs</span>(v)
+        order.<span class="t-f">append</span>(u)
+
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(N):
+        <span class="t-k">if</span> <span class="t-k">not</span> visited[i]:
+            <span class="t-f">dfs</span>(i)
+
+    comp = [-<span class="t-n">1</span>] * N
+
+    <span class="t-k">def</span> <span class="t-f">rdfs</span>(u, cid):
+        comp[u] = cid
+        <span class="t-k">for</span> v <span class="t-k">in</span> rg[u]:
+            <span class="t-k">if</span> comp[v] == -<span class="t-n">1</span>:
+                <span class="t-f">rdfs</span>(v, cid)
+
+    cid = <span class="t-n">0</span>
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">reversed</span>(order):
+        <span class="t-k">if</span> comp[u] == -<span class="t-n">1</span>:
+            <span class="t-f">rdfs</span>(u, cid)
+            cid += <span class="t-n">1</span>
+
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">if</span> comp[<span class="t-n">2</span> * i] == comp[<span class="t-n">2</span> * i + <span class="t-n">1</span>]:
+            <span class="t-k">return</span> <span class="t-k">False</span>, <span class="t-k">None</span>  <span class="t-c"># x与其否定同SCC, 无解</span>
+
+    <span class="t-c"># 赋值: 取SCC编号更大者为真 (Kosaraju cid与Tarjan同语义: 大cid=反拓扑序靠前)</span>
+    <span class="t-c"># 更通用的做法: 取拓扑序在后者为真, 此处用 comp 编号比较</span>
+    val = [<span class="t-k">False</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        val[i] = comp[<span class="t-n">2</span> * i] &gt; comp[<span class="t-n">2</span> * i + <span class="t-n">1</span>]
+    <span class="t-k">return</span> <span class="t-k">True</span>, val[<span class="t-n">1</span>:]
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 测试1: (x1∨x2), (¬x1∨x3), (¬x2∨¬x3): 有解</span>
+    clauses1 = [(<span class="t-n">1</span>, <span class="t-n">2</span>), (-<span class="t-n">1</span>, <span class="t-n">3</span>), (-<span class="t-n">2</span>, -<span class="t-n">3</span>)]
+    ok, val = <span class="t-f">solve_two_sat</span>(<span class="t-n">3</span>, clauses1)
+    <span class="t-k">assert</span> ok, <span class="t-s">&quot;should be satisfiable&quot;</span>
+    <span class="t-c"># 验证约束</span>
+    <span class="t-k">def</span> <span class="t-f">check</span>(val, clauses):
+        <span class="t-k">for</span> a, b <span class="t-k">in</span> clauses:
+            fa = val[<span class="t-b">abs</span>(a) - <span class="t-n">1</span>] <span class="t-k">if</span> a &gt; <span class="t-n">0</span> <span class="t-k">else</span> <span class="t-k">not</span> val[<span class="t-b">abs</span>(a) - <span class="t-n">1</span>]
+            fb = val[<span class="t-b">abs</span>(b) - <span class="t-n">1</span>] <span class="t-k">if</span> b &gt; <span class="t-n">0</span> <span class="t-k">else</span> <span class="t-k">not</span> val[<span class="t-b">abs</span>(b) - <span class="t-n">1</span>]
+            <span class="t-k">if</span> <span class="t-k">not</span> (fa <span class="t-k">or</span> fb):
+                <span class="t-k">return</span> <span class="t-k">False</span>
+        <span class="t-k">return</span> <span class="t-k">True</span>
+
+    <span class="t-k">assert</span> <span class="t-f">check</span>(val, clauses1), <span class="t-s">f&quot;assignment {val} violates&quot;</span>
+
+    <span class="t-c"># 测试2: (x1∨x1) 且 (¬x1∨¬x1): 无解</span>
+    clauses2 = [(<span class="t-n">1</span>, <span class="t-n">1</span>), (-<span class="t-n">1</span>, -<span class="t-n">1</span>)]
+    ok2, val2 = <span class="t-f">solve_two_sat</span>(<span class="t-n">1</span>, clauses2)
+    <span class="t-k">assert</span> <span class="t-k">not</span> ok2, <span class="t-s">&quot;should be unsatisfiable&quot;</span>
+
+    <span class="t-c"># 测试3: (x1∨x2), (¬x1∨¬x2): 有解(x1=true,x2=false 或反之)</span>
+    clauses3 = [(<span class="t-n">1</span>, <span class="t-n">2</span>), (-<span class="t-n">1</span>, -<span class="t-n">2</span>)]
+    ok3, val3 = <span class="t-f">solve_two_sat</span>(<span class="t-n">2</span>, clauses3)
+    <span class="t-k">assert</span> ok3 <span class="t-k">and</span> <span class="t-f">check</span>(val3, clauses3), (val3, clauses3)
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;two-sat: ALL TESTS PASSED&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">SCC用迭代或提高递归限制均可。建图时注意变量下标从1开始、节点编号2*i与2*i+1，防止越界。Kosaraju与Tarjan的SCC编号方向不同，赋解比较大小前需确认语义(取拓扑序靠后者为真)。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(V+E) — 建图O(n+m) + SCC O(n+m)</td></tr><tr><th>空间复杂度</th><td>O(V+E) — 蕴含图(2n节点,2m边)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅适用于每个约束为二元析取式的2-SAT；一般k-SAT(k&gt;2)为NP完全不可解。蕴含图需保证对称性(每条约束两条蕴含边成对)，否则取解贪心会失效。只求可行性或一组解，不保证解唯一。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>每条约束必须建两条对称蕴含边，只建一条会导致对称性破坏、贪心赋解出错</li><li>变量节点与否定节点下标映射错误(如1-based/0-based混用)是最常见bug</li><li>判定无解条件：x与¬x在同一SCC，注意是&#x27;所在SCC编号相同&#x27;而非&#x27;有边可达&#x27;</li><li>取解用SCC编号比较方向需与所用SCC算法的编号语义匹配(Kosaraju与Tarjan相反)</li><li>自环约束如(a∨a)退化为强制a=true, (¬a∨¬a)退化为强制a=false，建图时同样处理</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4782</strong></td><td>3</td><td>【模板】2-SAT：建蕴含图+SCC判定可行性并输出一组解</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4782" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4782</a></td></tr><tr><td>HDU</td><td><strong>3062</strong></td><td>3</td><td>Party：夫妻二选一+矛盾约束，经典2-SAT可行性判定</td><td class="u"><a href="https://acm.hdu.edu.cn/showproblem.php?pid=3062" target="_blank" rel="noopener">https://acm.hdu.edu.cn/showproblem.php?pid=3062</a></td></tr><tr><td>Luogu</td><td><strong>P5782</strong></td><td>4</td><td>和平委员会：两党代表会议，输出一组合法方案</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5782" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5782</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-two-sat" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "model", "label": "文字拆节点(真/假)"}}, {"data": {"id": "build", "label": "每条约束建两条蕴含边"}}, {"data": {"id": "scc", "label": "求SCC并缩点"}}, {"data": {"id": "judge", "label": "x与¬x同SCC则无解"}}, {"data": {"id": "assign", "label": "按SCC反拓扑序赋解"}}, {"data": {"id": "emodel->build", "source": "model", "target": "build"}}, {"data": {"id": "ebuild->scc", "source": "build", "target": "scc"}}, {"data": {"id": "escc->judge", "source": "scc", "target": "judge"}}, {"data": {"id": "ejudge->assign", "source": "judge", "target": "assign"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-two-sat'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-combination" href="tarjan-scc.html" title="2-SAT建图后用SCC判定可行性与拓扑逆序">Tarjan强连通分量<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/2-sat/" target="_blank" rel="noopener">https://oi-wiki.org/graph/2-sat/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/2SAT.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/2SAT.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch20 pp191-204</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

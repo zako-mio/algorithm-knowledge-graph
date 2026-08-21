@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LTE引理 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-9.html">数论高级族</a> / <span>LTE引理</span></div>
+  <h1>LTE引理</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="continued-fraction.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">continued-fraction</span></a>
+    <a class="nav-index" href="../03-groups/G-C-9.html"><span class="dir">组内第 10 / 11</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dirichlet-convolution.html"><span class="dir">下一个 / 组内</span><span class="v">dirichlet-convolution</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">Lift the Exponent引理，求v_p(a^n-b^n)的公式，简化幂次整除问题</div><p>升幂引理（Lifting The Exponent Lemma，LTE）给出 p 进赋值 ν_p(x^n-y^n) 的精确公式，其中 ν_p(n) 表示 n 中素因子 p 的最高幂次。设 p 为素数，p∤x 且 p∤y。三部分结论：① (n,p)=1 时，若 p|x-y 则 ν_p(x^n-y^n)=ν_p(x-y)；若 p|x+y 且 n 为奇数则 ν_p(x^n+y^n)=ν_p(x+y)。② p 为奇素数且 p|x-y（或 p|x+y、n 奇）时，ν_p(x^n-y^n)=ν_p(x-y)+ν_p(n)。③ p=2 时，若 2|x-y 且 n 为偶数，ν_2(x^n-y^n)=ν_2(x-y)+ν_2(x+y)+ν_2(n)-1；若 4|x-y 则 ν_2(x^n+y^n)=ν_2(x+y)，ν_2(x^n-y^n)=ν_2(x-y)+ν_2(n)。应用：快速计算大幂次差的因子数量、判定整除性、求『最小 n 使某数整除 x^n-y^n』等数论题，常配合快速幂与质因数分解。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>x^n-y^n=(x-y)(x^{n-1}+x^{n-2}y+...+y^{n-1})。第一因子 x-y 贡献 ν_p(x-y)；第二因子在 x≡y (mod p) 时『恰好』≡n·x^{n-1} (mod p)，即贡献再加 ν_p(n)。p=2 的偶数 n 情况特殊，因为二项式系数 C(n,k) 在 p=2 时的 2-进赋值行为不同，需要把 n=2^a·odd 分解，逐层用 x^{2^i}+y^{2^i}≡2 (mod 4) 提取。这就是『升幂』：n 每多一个因子 p，整个式子的 p 次幂就『升』一级。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① ν_p 定义：p^ν_p(n)∥n（整除但不整除更高次）。② 核心分解 x^n-y^n=(x-y)Σx^i y^{n-1-i}，当 x≡y(mod p) 时和式 ≡n·x^{n-1}≠0(mod p)（因 p∤x 且 (n,p)=1）。③ 奇素数 p：用二项式展开可证若 p|x-y 则 ν_p(x^p-y^p)=ν_p(x-y)+1，归纳到 x^n-y^n 得 ν_p(x-y)+ν_p(n)。④ p=2：n 偶时 x^n-y^n=(x-y)(x+y)∏_{i≥1}(x^{2^i}+y^{2^i})，而 x^{2^i}+y^{2^i}≡2(mod 4) 每个贡献恰好 1 个因子 2，加上 (x+y) 的 ν_2 与 (x-y) 的 ν_2，再减 1（重叠修正）。⑤ 与 Hensel 引理相关（p 进提升解）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>LTE 引理的思想萌芽见于 Lucas（1878）的整除性研究（p=2 情形有轻微错误）；2006 年罗马尼亚数学家 Mihai Manea 给出系统的现代表述，主要用于奥林匹克数论。此后在数学竞赛圈（AoPS 论坛）广泛流传得名。LTE 是欧拉定理/费马小定理之外处理幂次整除问题的利器，也出现在算法竞赛数论题中。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 计算 v_p(x^n - y^n)</span>
+<span class="t-k">def</span> <span class="t-f">vp</span>(x):        <span class="t-c"># 计算 x 中 p 的幂次</span>
+  cnt = <span class="t-n">0</span>
+  <span class="t-k">while</span> x % p == <span class="t-n">0</span>:
+    cnt += <span class="t-n">1</span>; x //= p
+  <span class="t-k">return</span> cnt
+
+<span class="t-k">def</span> <span class="t-f">lte</span>(x, y, n, p):
+  <span class="t-c"># 前提: p 不整除 x 和 y</span>
+  <span class="t-k">if</span> p | (x - y):
+    <span class="t-k">if</span> p == <span class="t-n">2</span> <span class="t-k">and</span> n % <span class="t-n">2</span> == <span class="t-n">0</span>:
+      <span class="t-k">return</span> <span class="t-f">vp</span>(x-y) + <span class="t-f">vp</span>(x+y) + <span class="t-f">vp</span>(n) - <span class="t-n">1</span>
+    <span class="t-k">return</span> <span class="t-f">vp</span>(x-y) + <span class="t-f">vp</span>(n)
+  <span class="t-k">if</span> p | (x + y) <span class="t-k">and</span> n % <span class="t-n">2</span> == <span class="t-n">1</span>:
+    <span class="t-k">if</span> p == <span class="t-n">2</span> <span class="t-k">and</span> n == <span class="t-n">1</span>: <span class="t-k">return</span> <span class="t-f">vp</span>(x+y)
+    <span class="t-k">return</span> <span class="t-f">vp</span>(x+y) + <span class="t-f">vp</span>(n)
+  <span class="t-k">return</span> <span class="t-n">0</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">vp_of</span>(n: <span class="t-b">int</span>, p: <span class="t-b">int</span>) -&gt; <span class="t-b">int</span>:
+    <span class="t-s">&quot;&quot;&quot;p 进赋值 v_p(n).&quot;&quot;&quot;</span>
+    cnt = <span class="t-n">0</span>
+    <span class="t-k">while</span> n % p == <span class="t-n">0</span>:
+        cnt += <span class="t-n">1</span>
+        n //= p
+    <span class="t-k">return</span> cnt
+
+
+<span class="t-k">def</span> <span class="t-f">lte</span>(x: <span class="t-b">int</span>, y: <span class="t-b">int</span>, n: <span class="t-b">int</span>, p: <span class="t-b">int</span>) -&gt; <span class="t-b">int</span>:
+    <span class="t-s">&quot;&quot;&quot;LTE: 计算 v_p(x^n - y^n). 前提 p∤x, p∤y, n&gt;=1.&quot;&quot;&quot;</span>
+    <span class="t-k">assert</span> n &gt;= <span class="t-n">1</span>
+    <span class="t-k">if</span> p == <span class="t-n">2</span>:
+        <span class="t-k">if</span> n % <span class="t-n">2</span> == <span class="t-n">1</span>:
+            <span class="t-c"># 奇数 n: 2|x-y =&gt; v2(x^n-y^n)=v2(x-y); 2|x+y =&gt; v2(x^n+y^n)=v2(x+y)</span>
+            <span class="t-k">if</span> (x - y) % <span class="t-n">2</span> == <span class="t-n">0</span>:
+                <span class="t-k">return</span> <span class="t-f">vp_of</span>(x - y, <span class="t-n">2</span>)
+            <span class="t-k">if</span> (x + y) % <span class="t-n">2</span> == <span class="t-n">0</span>:
+                <span class="t-k">return</span> <span class="t-f">vp_of</span>(x + y, <span class="t-n">2</span>)
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        <span class="t-k">else</span>:
+            <span class="t-c"># 偶数 n</span>
+            <span class="t-k">if</span> (x - y) % <span class="t-n">2</span> == <span class="t-n">0</span>:
+                <span class="t-k">return</span> <span class="t-f">vp_of</span>(x - y, <span class="t-n">2</span>) + <span class="t-f">vp_of</span>(x + y, <span class="t-n">2</span>) + <span class="t-f">vp_of</span>(n, <span class="t-n">2</span>) - <span class="t-n">1</span>
+            <span class="t-k">if</span> (x + y) % <span class="t-n">2</span> == <span class="t-n">0</span>:
+                <span class="t-k">return</span> <span class="t-f">vp_of</span>(x + y, <span class="t-n">2</span>) + <span class="t-f">vp_of</span>(n, <span class="t-n">2</span>)
+            <span class="t-k">return</span> <span class="t-n">0</span>
+    <span class="t-c"># p 奇素数</span>
+    <span class="t-k">if</span> (x - y) % p == <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-f">vp_of</span>(x - y, p) + <span class="t-f">vp_of</span>(n, p)
+    <span class="t-k">if</span> (x + y) % p == <span class="t-n">0</span>:
+        <span class="t-k">if</span> n % <span class="t-n">2</span> == <span class="t-n">0</span>:
+            <span class="t-c"># n 偶数且 p|x+y: x^n-y^n ≡ (-y)^n-y^n ≡ 0 (mod p)</span>
+            <span class="t-k">return</span> <span class="t-f">vp_of</span>(x + y, p) + <span class="t-f">vp_of</span>(n, p)
+        <span class="t-k">return</span> <span class="t-n">0</span>  <span class="t-c"># n 奇数且 p|x+y: x^n-y^n ≡ -2y^n (mod p), p∤2y</span>
+    <span class="t-k">return</span> <span class="t-n">0</span>
+
+
+<span class="t-k">def</span> <span class="t-f">brute_vp</span>(x, y, n, p):
+    <span class="t-s">&quot;&quot;&quot;直接计算 v_p(x^n-y^n) 作为对照 (仅小范围).&quot;&quot;&quot;</span>
+    v = <span class="t-b">abs</span>(x) ** n - <span class="t-b">abs</span>(y) ** n <span class="t-k">if</span> x &gt;= <span class="t-n">0</span> <span class="t-k">and</span> y &gt;= <span class="t-n">0</span> <span class="t-k">else</span> <span class="t-k">None</span>
+    <span class="t-k">return</span> <span class="t-k">None</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 例1: v_3(10^5 - 7^5)  10-7=3 | =&gt; v3(3)+v3(5)=1+0=1</span>
+    <span class="t-k">assert</span> <span class="t-f">lte</span>(<span class="t-n">10</span>, <span class="t-n">7</span>, <span class="t-n">5</span>, <span class="t-n">3</span>) == <span class="t-n">1</span>
+    <span class="t-c"># 例2: v_3(10^6 - 7^6)  10-7=3,6 偶? n=6 -&gt; 奇p: v3(3)+v3(6)=1+1=2</span>
+    <span class="t-k">assert</span> <span class="t-f">lte</span>(<span class="t-n">10</span>, <span class="t-n">7</span>, <span class="t-n">6</span>, <span class="t-n">3</span>) == <span class="t-n">2</span>
+    <span class="t-c"># 例3: v_7(10^3 - 3^3): 10-3=7 =&gt; v7(7)+v7(3)=1+0=1</span>
+    <span class="t-k">assert</span> <span class="t-f">lte</span>(<span class="t-n">10</span>, <span class="t-n">3</span>, <span class="t-n">3</span>, <span class="t-n">7</span>) == <span class="t-n">1</span>
+    <span class="t-c"># 例4: v_2(5^4 - 1^4): 5-1=4 =&gt; v2(4)+v2(6)+v2(4)-1 = 2+1+2-1=4</span>
+    <span class="t-k">assert</span> <span class="t-f">lte</span>(<span class="t-n">5</span>, <span class="t-n">1</span>, <span class="t-n">4</span>, <span class="t-n">2</span>) == <span class="t-n">4</span>
+    <span class="t-c"># 例5: v_2(5^3 - 3^3): 5-3=2, n 奇 =&gt; v2(2)=1</span>
+    <span class="t-k">assert</span> <span class="t-f">lte</span>(<span class="t-n">5</span>, <span class="t-n">3</span>, <span class="t-n">3</span>, <span class="t-n">2</span>) == <span class="t-n">1</span>
+
+    <span class="t-c"># 随机暴力交叉验证 (仅测满足 LTE 前提的用例: p|x-y 或 p|x+y)</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">42</span>)
+    cnt = <span class="t-n">0</span>
+    <span class="t-k">while</span> cnt &lt; <span class="t-n">400</span>:
+        x = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">40</span>)
+        y = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">40</span>)
+        <span class="t-k">if</span> x == y:
+            <span class="t-k">continue</span>
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">6</span>)
+        p = random.<span class="t-f">choice</span>([<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">7</span>])
+        <span class="t-k">if</span> x % p == <span class="t-n">0</span> <span class="t-k">or</span> y % p == <span class="t-n">0</span>:
+            <span class="t-k">continue</span>
+        <span class="t-c"># 只保留满足 LTE 前提的用例 (p|x-y 或 p|x+y)</span>
+        <span class="t-k">if</span> (x - y) % p != <span class="t-n">0</span> <span class="t-k">and</span> (x + y) % p != <span class="t-n">0</span>:
+            <span class="t-k">continue</span>
+        val = <span class="t-b">abs</span>(x ** n - y ** n)
+        expected = <span class="t-f">vp_of</span>(val, p)
+        got = <span class="t-f">lte</span>(x, y, n, p)
+        <span class="t-k">assert</span> got == expected, (x, y, n, p, got, expected)
+        cnt += <span class="t-n">1</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">大指数不要直接 pow 求 x^n（会溢出）；LTE 公式全是 O(log n) 内的整除/赋值运算。需要求幂时用 pow(x,n) 前先看是否必要，或用因数分解判断。PyPy 下 vp_of 的整除循环非常快。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(log n + log max(|x|,|y|))（赋值计算 + 判定）</td></tr><tr><th>空间复杂度</th><td>O(1)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">前提 p∤x,p∤y 必须满足，否则公式不适用（需先提取公共因子）。p=2 的公式是最容易记错的：偶数 n 多一个 v_p(x+y)-1 修正项。LTE 只给 v_p 的精确值，求『整除性/因子数』需配合素数分解。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>忘记 p∤x 且 p∤y 的前提（不满足时先提取公共素因子再套公式）</li><li>p=2 且 n 为偶数时漏掉 -1 修正项</li><li>把 ν_p(x-y)+ν_p(n) 错记成 ν_p(x-y)·ν_p(n) 或仅 ν_p(n)</li><li>p|x+y 的情况忘记要求 n 为奇数</li><li>直接 pow 计算大幂次导致溢出；应只用公式</li><li>x^n-y^n 的符号/绝对值：v_p 对负值同样适用，先取绝对值</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3934</strong></td><td>7</td><td>[Ynoi Easy Round 2016] 炸脖龙 I：欧拉降幂+LTE 处理指数塔 (2^2^2^... mod m)</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3934" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3934</a></td></tr><tr><td>Luogu</td><td><strong>P5091</strong></td><td>5</td><td>【模板】扩展欧拉定理：超大指数 a^b mod m，与 LTE 的 v_p 处理互补（指数塔题前置）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5091" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5091</a></td></tr><tr><td>Codeforces</td><td><strong>1114C</strong></td><td>3</td><td>Trailing Loves (or L&#x27;oeufs?!)：n! 中因子 p 的个数，v_p 赋值思想与 LTE 同一体系</td><td class="u"><a href="https://codeforces.com/problemset/problem/1114/C" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/1114/C</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-lift-the-exponent" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "vp_def", "label": "ν_p 定义与基本性质"}}, {"data": {"id": "factor", "label": "分解 x^n-y^n=(x-y)Σ..."}}, {"data": {"id": "odd_p", "label": "奇素数 p 公式 + ν_p(n)"}}, {"data": {"id": "p2", "label": "p=2 特例(偶数 n 修正)"}}, {"data": {"id": "div", "label": "应用: 整除性/因子数/指数塔"}}, {"data": {"id": "evp_def->factor", "source": "vp_def", "target": "factor"}}, {"data": {"id": "efactor->odd_p", "source": "factor", "target": "odd_p"}}, {"data": {"id": "efactor->p2", "source": "factor", "target": "p2"}}, {"data": {"id": "eodd_p->div", "source": "odd_p", "target": "div"}}, {"data": {"id": "ep2->div", "source": "p2", "target": "div"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-lift-the-exponent'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/lift-the-exponent/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/lift-the-exponent/</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Lifting-the-exponent_lemma" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Lifting-the-exponent_lemma</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

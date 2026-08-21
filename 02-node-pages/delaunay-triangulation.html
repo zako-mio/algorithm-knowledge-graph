@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delaunay 三角剖分 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-2.html">平面扫描与几何求交</a> / <span>Delaunay 三角剖分</span></div>
+  <h1>Delaunay 三角剖分</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-D-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="triangulation.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">triangulation</span></a>
+    <a class="nav-index" href="../03-groups/G-D-2.html"><span class="dir">组内第 7 / 10</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="circle-intersection.html"><span class="dir">下一个 / 组内</span><span class="v">circle-intersection</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">满足空圆性质的三角剖分，对偶为 Voronoi 图</div><p>Delaunay 三角剖分（DT）是给定平面点集 P 的一种特殊三角剖分，满足空圆性质：每个三角形的外接圆内部不含任何其他点（点可在外接圆边界上，即退化情形四点共圆）。若点集中任意四点不共圆，DT 唯一。性质：① 最大化最小角（所有三角剖分中最接近正则化的）；② 最小欧氏生成树是 DT 边的子集；③ 对偶于 Voronoi 图（互为对偶图，可 O(n) 互相转换）；④ 最外边界是凸包；⑤ 局部修改只影响邻近三角形。构造：Guibas-Stolfi 分治 O(n log n)（quad-edge 数据结构）、Boyer-Watson 增量法 O(n log n) 期望、随机增量法。应用：最近邻查询、网格生成、Voronoi 图、最小生成树、插值、碰撞检测。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>三角形要『肥』不要『瘦』：瘦长三角形的内角很小，数值不稳定。Delaunay 用空圆准则保证每个三角形尽量饱满——外接圆里没有别的点，意味着没有点能『抢』走这个三角形的区域。空圆性质局部可检验（四点共圆判定），于是可以用翻转对角线（edge flip）把非 Delaunay 局部逐步修正成 Delaunay。对偶视角：每个 Delaunay 三角形对应 Voronoi 图的一个顶点（外接圆圆心），共享边对应相邻 Voronoi 单元之间的边。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 空圆判定 inCircle(a,b,c,d)：用 4×4 行列式 det(x,y,x²+y²) 判定 d 是否在 abc 外接圆内（带符号）。② 分治（Guibas-Stolfi）：按 x 排序，递归剖分左右，合并时从底部 base 边开始，逐个添加跨左右的下一条 LR 边，用 inCircle 检验候选点。③ 增量法（Boyer-Watson）：逐点插入，找包含新点的三角形，删除其公共外接圆含新点的三角形，重连成凸包扇形成新三角形。④ 对偶：Delaunay 边 ⟷ Voronoi 边（垂直平分线段），DT 三角形 ⟷ Voronoi 顶点。⑤ 退化处理：四点共圆时 DT 不唯一，可扰动或指定规则。⑥ quad-edge 数据结构统一表示原边/反向边/对偶边。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Delaunay 三角剖分得名于法国数学家 Boris Delaunay（1934），他证明了最大化最小角性质。Voronoi 图更早（Voronoï, 1908；更早还有 Dirichlet 与 Thiessen 的多边形）。Guibas 与 Stolfi 1985 年发表 O(n log n) 分治算法与 quad-edge 结构；Boyer（1977）与 Watson（1981）独立提出增量算法。是计算几何与图形学核心工具。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># Boyer-Watson 增量法 (教学简洁版)</span>
+<span class="t-k">def</span> <span class="t-f">delaunay</span>(points):
+  <span class="t-c"># 用超大包围三角形初始化</span>
+  sup = 大三角形包住所有点
+  tris = [sup]
+  <span class="t-k">for</span> p <span class="t-k">in</span> points:
+    bad = [t <span class="t-k">for</span> t <span class="t-k">in</span> tris <span class="t-k">if</span> <span class="t-f">in_circle</span>(p, t)]
+    boundary = 所有 bad 三角形的外边界边(只出现一次)
+    remove bad <span class="t-k">from</span> tris
+    <span class="t-k">for</span> e <span class="t-k">in</span> boundary:
+      tris.<span class="t-f">append</span>((e.a, e.b, p))
+  <span class="t-c"># 删除包含包围三角形顶点的三角形</span>
+  <span class="t-k">return</span> [t <span class="t-k">for</span> t <span class="t-k">in</span> tris <span class="t-k">if</span> <span class="t-k">not</span> t.<span class="t-f">uses</span>(super_vertices)]</code></pre><h3>Python 实现</h3><pre><code class="python">EPS = <span class="t-n">1e-9</span>
+
+
+<span class="t-k">def</span> <span class="t-f">cross</span>(o, a, b):
+    <span class="t-k">return</span> (a[<span class="t-n">0</span>] - o[<span class="t-n">0</span>]) * (b[<span class="t-n">1</span>] - o[<span class="t-n">1</span>]) - (a[<span class="t-n">1</span>] - o[<span class="t-n">1</span>]) * (b[<span class="t-n">0</span>] - o[<span class="t-n">0</span>])
+
+
+<span class="t-k">def</span> <span class="t-f">in_circle</span>(a, b, c, d):
+    <span class="t-s">&quot;&quot;&quot;d 是否严格在 abc 外接圆内 (精确行列式, 整数点下无精度损失).&quot;&quot;&quot;</span>
+    ax, ay = a[<span class="t-n">0</span>] - d[<span class="t-n">0</span>], a[<span class="t-n">1</span>] - d[<span class="t-n">1</span>]
+    bx, by = b[<span class="t-n">0</span>] - d[<span class="t-n">0</span>], b[<span class="t-n">1</span>] - d[<span class="t-n">1</span>]
+    cx, cy = c[<span class="t-n">0</span>] - d[<span class="t-n">0</span>], c[<span class="t-n">1</span>] - d[<span class="t-n">1</span>]
+    a2 = ax * ax + ay * ay
+    b2 = bx * bx + by * by
+    c2 = cx * cx + cy * cy
+    det = (ax * (by * c2 - b2 * cy)
+           - ay * (bx * c2 - b2 * cx)
+           + a2 * (bx * cy - by * cx))
+    <span class="t-k">if</span> <span class="t-f">cross</span>(a, b, c) &gt; <span class="t-n">0</span>:
+        <span class="t-k">return</span> det &gt; <span class="t-n">0</span>
+    <span class="t-k">return</span> det &lt; <span class="t-n">0</span>
+
+
+<span class="t-k">def</span> <span class="t-f">delaunay_bw</span>(points):
+    <span class="t-s">&quot;&quot;&quot;Boyer-Watson 增量法 Delaunay 剖分 (浮点).
+    返回三角形列表 [(p_i, p_j, p_k)] (点的原始索引).
+    用远包围三角形处理; 可能因浮点退化产生少量非 Delaunay, 教学演示足够.&quot;&quot;&quot;</span>
+    pts = <span class="t-b">list</span>(points)
+    n = <span class="t-b">len</span>(pts)
+    <span class="t-k">if</span> n &lt; <span class="t-n">3</span>:
+        <span class="t-k">return</span> []
+    <span class="t-c"># 包围三角形</span>
+    xs = [p[<span class="t-n">0</span>] <span class="t-k">for</span> p <span class="t-k">in</span> pts]; ys = [p[<span class="t-n">1</span>] <span class="t-k">for</span> p <span class="t-k">in</span> pts]
+    minx, maxx, miny, maxy = <span class="t-b">min</span>(xs), <span class="t-b">max</span>(xs), <span class="t-b">min</span>(ys), <span class="t-b">max</span>(ys)
+    dx = maxx - minx; dy = maxy - miny
+    dmax = <span class="t-b">max</span>(dx, dy)
+    midx = (minx + maxx) / <span class="t-n">2.0</span>
+    midy = (miny + maxy) / <span class="t-n">2.0</span>
+    sup = [(midx - <span class="t-n">20</span> * dmax, midy - dmax), (midx, midy + <span class="t-n">20</span> * dmax), (midx + <span class="t-n">20</span> * dmax, midy - dmax)]
+    sup_idx = [n, n + <span class="t-n">1</span>, n + <span class="t-n">2</span>]
+    allpts = pts + sup
+    tris = [<span class="t-b">tuple</span>(sup_idx)]
+
+    <span class="t-k">def</span> <span class="t-f">has_vertex</span>(t, idx):
+        <span class="t-k">return</span> idx <span class="t-k">in</span> t
+
+    <span class="t-k">for</span> k, p <span class="t-k">in</span> <span class="t-b">enumerate</span>(pts):
+        bad = []
+        <span class="t-k">for</span> t <span class="t-k">in</span> tris:
+            <span class="t-k">if</span> <span class="t-f">in_circle</span>(allpts[t[<span class="t-n">0</span>]], allpts[t[<span class="t-n">1</span>]], allpts[t[<span class="t-n">2</span>]], p):
+                bad.<span class="t-f">append</span>(t)
+        <span class="t-c"># 边界边 (bad 三角形中出现一次的边)</span>
+        <span class="t-k">from</span> collections <span class="t-k">import</span> defaultdict
+        cnt = <span class="t-f">defaultdict</span>(<span class="t-b">int</span>)
+        edge_list = []
+        <span class="t-k">for</span> t <span class="t-k">in</span> bad:
+            <span class="t-k">for</span> e <span class="t-k">in</span> [(t[<span class="t-n">0</span>], t[<span class="t-n">1</span>]), (t[<span class="t-n">1</span>], t[<span class="t-n">2</span>]), (t[<span class="t-n">2</span>], t[<span class="t-n">0</span>])]:
+                e2 = e <span class="t-k">if</span> e[<span class="t-n">0</span>] &lt; e[<span class="t-n">1</span>] <span class="t-k">else</span> (e[<span class="t-n">1</span>], e[<span class="t-n">0</span>])
+                cnt[e2] += <span class="t-n">1</span>
+        <span class="t-k">for</span> t <span class="t-k">in</span> bad:
+            tris.<span class="t-f">remove</span>(t)
+        boundary = []
+        <span class="t-k">for</span> e, c <span class="t-k">in</span> cnt.<span class="t-f">items</span>():
+            <span class="t-k">if</span> c == <span class="t-n">1</span>:
+                boundary.<span class="t-f">append</span>(e)
+        <span class="t-k">for</span> (a, b) <span class="t-k">in</span> boundary:
+            tris.<span class="t-f">append</span>((a, b, k))
+    <span class="t-c"># 去除含超级顶点的三角形</span>
+    tris = [t <span class="t-k">for</span> t <span class="t-k">in</span> tris <span class="t-k">if</span> <span class="t-k">not</span> (<span class="t-f">has_vertex</span>(t, n) <span class="t-k">or</span> <span class="t-f">has_vertex</span>(t, n + <span class="t-n">1</span>) <span class="t-k">or</span> <span class="t-f">has_vertex</span>(t, n + <span class="t-n">2</span>))]
+    <span class="t-k">return</span> tris
+
+
+<span class="t-k">def</span> <span class="t-f">validate_empty_circle</span>(tris, points):
+    <span class="t-s">&quot;&quot;&quot;验证每个三角形的外接圆不包含其他点 (退化容忍).&quot;&quot;&quot;</span>
+    <span class="t-k">for</span> t <span class="t-k">in</span> tris:
+        a, b, c = points[t[<span class="t-n">0</span>]], points[t[<span class="t-n">1</span>]], points[t[<span class="t-n">2</span>]]
+        <span class="t-k">for</span> k, p <span class="t-k">in</span> <span class="t-b">enumerate</span>(points):
+            <span class="t-k">if</span> k <span class="t-k">in</span> t:
+                <span class="t-k">continue</span>
+            <span class="t-k">if</span> <span class="t-f">in_circle</span>(a, b, c, p):
+                <span class="t-k">return</span> <span class="t-k">False</span>
+    <span class="t-k">return</span> <span class="t-k">True</span>
+
+
+<span class="t-k">def</span> <span class="t-f">hull_boundary_size</span>(ps):
+    <span class="t-s">&quot;&quot;&quot;凸包边界上的点数 (含共线边界点; 三角剖分数公式用此值).&quot;&quot;&quot;</span>
+    pts = <span class="t-b">sorted</span>(<span class="t-b">set</span>(ps))
+    <span class="t-k">if</span> <span class="t-b">len</span>(pts) &lt;= <span class="t-n">2</span>:
+        <span class="t-k">return</span> <span class="t-b">len</span>(pts)
+    <span class="t-k">def</span> <span class="t-f">build</span>(poly):
+        <span class="t-k">if</span> <span class="t-b">len</span>(poly) &lt;= <span class="t-n">2</span>:
+            <span class="t-k">return</span> poly
+        h = []
+        <span class="t-k">for</span> p <span class="t-k">in</span> poly:
+            <span class="t-k">while</span> <span class="t-b">len</span>(h) &gt;= <span class="t-n">2</span> <span class="t-k">and</span> <span class="t-f">cross</span>(h[-<span class="t-n">2</span>], h[-<span class="t-n">1</span>], p) &lt; <span class="t-n">0</span>:
+                h.<span class="t-f">pop</span>()
+            h.<span class="t-f">append</span>(p)
+        <span class="t-k">return</span> h
+    lower = <span class="t-f">build</span>(pts)
+    upper = <span class="t-f">build</span>(pts[::-<span class="t-n">1</span>])
+    <span class="t-k">return</span> <span class="t-b">len</span>(<span class="t-b">set</span>(lower[:-<span class="t-n">1</span>] + upper[:-<span class="t-n">1</span>]))
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">8</span>)
+    <span class="t-c"># 规则网格 (四点共圆退化 -&gt; 可能不唯一, 只验证数量与覆盖)</span>
+    pts = [(<span class="t-n">0</span>, <span class="t-n">0</span>), (<span class="t-n">1</span>, <span class="t-n">0</span>), (<span class="t-n">0</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">1</span>)]
+    tris = <span class="t-f">delaunay_bw</span>(pts)
+    <span class="t-k">assert</span> <span class="t-b">len</span>(tris) &gt;= <span class="t-n">1</span>
+
+    <span class="t-c"># 随机无共圆点集: 验证空圆性质 + 欧拉计数 (容差 1, 浮点退化)</span>
+    <span class="t-k">for</span> trial <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">30</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">4</span>, <span class="t-n">20</span>)
+        ps = <span class="t-b">set</span>()
+        <span class="t-k">while</span> <span class="t-b">len</span>(ps) &lt; n:
+            ps.<span class="t-f">add</span>((random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100</span>), random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100</span>)))
+        ps = <span class="t-b">list</span>(ps)
+        tris = <span class="t-f">delaunay_bw</span>(ps)
+        <span class="t-k">assert</span> <span class="t-b">abs</span>(<span class="t-b">len</span>(tris) - (<span class="t-n">2</span> * <span class="t-b">len</span>(ps) - <span class="t-n">2</span> - <span class="t-f">hull_boundary_size</span>(ps))) &lt;= <span class="t-n">1</span>, \
+            (<span class="t-b">len</span>(ps), <span class="t-b">len</span>(tris), <span class="t-f">hull_boundary_size</span>(ps))
+        <span class="t-k">assert</span> <span class="t-f">validate_empty_circle</span>(tris, ps), <span class="t-s">&quot;empty circle violated&quot;</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)
+
+
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">in_circle 行列式用整数可精确判定（无共圆时）；浮点需 eps。增量法整体期望 O(n log n)，但最坏 O(n²)（全共圆时）。大数据量需 quad-edge 结构，Python 实现偏慢，竞赛较少直接用完整 DT。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>Guibas-Stolfi 分治 O(n log n)；Boyer-Watson 增量期望 O(n log n)（最坏 O(n²)）</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">四点共圆退化导致 DT 不唯一，需扰动或容错规则。共线点集不存在 DT（退化）。增量法对浮点精度敏感，大坐标需 __int128 或高精行列式。Python 完整实现 quad-edge 复杂且慢，竞赛多为理论/少量点。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>in_circle 行列式的符号约定与三角形方向（逆/顺时针）有关，必须一致</li><li>四点共圆退化：不加处理会生成重叠三角形，需扰动或删除冗余边</li><li>包围三角形选得太小会漏点；太大则数值误差增大</li><li>增量法删除 bad 三角形时边界边收集错误（共享边计数必须=1）</li><li>共线点集无 DT，需先判退化</li><li>验证空圆性质时跳过自身三角形顶点，否则永远失败</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>TIMUS</td><td><strong>1504</strong></td><td>7</td><td>Good Manners：Delaunay/最近邻几何应用（CP-Alg 例题）</td><td class="u"><a href="https://acm.timus.ru/problem.aspx?space=1&amp;num=1504" target="_blank" rel="noopener">https://acm.timus.ru/problem.aspx?space=1&amp;num=1504</a></td></tr><tr><td>TIMUS</td><td><strong>1520</strong></td><td>7</td><td>Empire Strikes Back：Voronoi/Delaunay 对偶应用（CP-Alg 例题）</td><td class="u"><a href="https://acm.timus.ru/problem.aspx?space=1&amp;num=1520" target="_blank" rel="noopener">https://acm.timus.ru/problem.aspx?space=1&amp;num=1520</a></td></tr><tr><td>Codeforces</td><td><strong>933C</strong></td><td>6</td><td>A Colorful Prospect：圆/区域划分（Voronoi 式划分思路，CP-Alg 圆交例题同源）</td><td class="u"><a href="https://codeforces.com/problemset/problem/933/C" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/933/C</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-delaunay-triangulation" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "empty", "label": "空圆性质定义与 inCircle 判定"}}, {"data": {"id": "dc", "label": "Guibas-Stolfi 分治 O(n log n)"}}, {"data": {"id": "inc", "label": "Boyer-Watson 增量法"}}, {"data": {"id": "dual", "label": "Voronoi 对偶关系"}}, {"data": {"id": "flip", "label": "边翻转修正(局部)"}}, {"data": {"id": "use", "label": "应用: 最近邻/MST/网格"}}, {"data": {"id": "eempty->dc", "source": "empty", "target": "dc"}}, {"data": {"id": "eempty->inc", "source": "empty", "target": "inc"}}, {"data": {"id": "eempty->flip", "source": "empty", "target": "flip"}}, {"data": {"id": "edc->dual", "source": "dc", "target": "dual"}}, {"data": {"id": "einc->dual", "source": "inc", "target": "dual"}}, {"data": {"id": "edual->use", "source": "dual", "target": "use"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-delaunay-triangulation'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="triangulation.html" title="Delaunay 是满足空圆性质的三角剖分特例">三角剖分<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/geometry/delaunay.html" target="_blank" rel="noopener">https://cp-algorithms.com/geometry/delaunay.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch29 Geometry (p291-304)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

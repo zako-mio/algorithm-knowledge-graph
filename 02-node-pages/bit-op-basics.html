@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>位运算基础 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-2.html">位运算族</a> / <span>位运算基础</span></div>
+  <h1>位运算基础</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-E-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-E-2.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-E-2.html"><span class="dir">组内第 1 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="bitset-compression.html"><span class="dir">下一个 / 组内</span><span class="v">bitset-compression</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">按位与/或/异或/取反/移位，优先级陷阱（&amp; 低于 ==、^ 低于比较），lowbit、置位/清位/翻转、补码表示，Python 无限位宽差异</div><p>位运算基础：对整数二进制表示做逐位操作。运算符：&amp;（与）、|（或）、^（异或）、~（取反）、&lt;&lt;（左移）、&gt;&gt;（右移）。核心事实：lowbit(x)=x&amp;-x（取最低的 1）；置位 x|=(1&lt;&lt;k)；清位 x&amp;=~(1&lt;&lt;k)；翻转 x^=(1&lt;&lt;k)；判断第 k 位 (x&gt;&gt;k)&amp;1；popcount=x.bit_count()。Python 特有：int 无限位宽，~x=-(x+1)、-x=~x+1（补码性质），&gt;&gt; 对负数是算术移位（无限符号位）。竞赛核心：状态压缩（状压 DP）的所有基础。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>CPU 对位运算是一周期指令，比除法/模快得多。用位表示集合状态（第 i 位 = 元素 i 是否选中），一次位运算等价于一次集合操作。位运算优先级是著名陷阱，且 Python 与 C/C++ 相反：Python 中 `&amp;` 高于比较运算符（`x &amp; y == 0` 是 `(x&amp;y)==0`），C/C++ 中 `==` 高于 `&amp;`（`x &amp; y == 0` 是 `x &amp; (y==0)`），迁移语言时最容易踩坑。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>补码：负数 = 其绝对值按位取反 + 1，即 -x = ~x + 1。因此 lowbit：x &amp; -x = x &amp; (~x+1)，恰好保留最低的 1。位运算优先级（Python，从高到低）：算术 + - &lt; 移位 &lt;&lt; &gt;&gt; &lt; 与 &amp; &lt; 异或 ^ &lt; 或 | &lt; 比较 == &lt; 赋值；所以 `1 &lt;&lt; 1 + 1` 是 `1 &lt;&lt; (1+1)`=4（+ 高于移位），`a &amp; b == c` 是 `(a &amp; b) == c`（&amp; 高于比较）。而 C/C++ 中比较运算符高于位与：`x &amp; y == 0` 会被解析为 `x &amp; (y==0)`——跨语言必加括号。x&gt;&gt;k&amp;1 判断第 k 位。x&amp;-x 得 lowbit；x&amp;(x-1) 消掉最低 1；x|(x-1) 把低 1 后的 0 全补 1；x^x=0、x^0=x、x^y^y=x（交换律/自反）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>位运算自计算机诞生即是最底层指令；补码表示使加减统一。CPH 第 10 章『Bit manipulation』与 OI Wiki math/bit 页、CP-Alg bit-manipulation 页都系统整理了这些操作。状压 DP（子集枚举、旅行商）使位运算成为竞赛高频基础，Python 选手因 int 无限位宽甚至可当大 bitset 用。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">lowbit</span>(x)      = x &amp; -x            <span class="t-c"># 最低位 1 的权值</span>
+置位第 k 位    x |= (<span class="t-n">1</span> &lt;&lt; k)
+清位第 k 位    x &amp;= ~(<span class="t-n">1</span> &lt;&lt; k)
+翻转第 k 位    x ^= (<span class="t-n">1</span> &lt;&lt; k)
+判断第 k 位    (x &gt;&gt; k) &amp; <span class="t-n">1</span>
+popcount      x.<span class="t-f">bit_count</span>()
+消最低 <span class="t-n">1</span>      x &amp; (x-<span class="t-n">1</span>)
+是否为 <span class="t-n">2</span> 的幂  x&gt;<span class="t-n">0</span> <span class="t-k">and</span> x&amp;(x-<span class="t-n">1</span>)==<span class="t-n">0</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">main</span>():
+    <span class="t-c"># 基本运算</span>
+    <span class="t-k">assert</span> (<span class="t-n">5</span> &amp; <span class="t-n">6</span>) == <span class="t-n">4</span>
+    <span class="t-k">assert</span> (<span class="t-n">5</span> | <span class="t-n">6</span>) == <span class="t-n">7</span>
+    <span class="t-k">assert</span> (<span class="t-n">5</span> ^ <span class="t-n">6</span>) == <span class="t-n">3</span>
+    <span class="t-k">assert</span> ~<span class="t-n">5</span> == -<span class="t-n">6</span>              <span class="t-c"># 补码取反</span>
+    <span class="t-k">assert</span> ~(-<span class="t-n">5</span>) == <span class="t-n">4</span>
+    <span class="t-k">assert</span> (<span class="t-n">1</span> &lt;&lt; <span class="t-n">10</span>) == <span class="t-n">1024</span>
+    <span class="t-k">assert</span> (<span class="t-n">1024</span> &gt;&gt; <span class="t-n">10</span>) == <span class="t-n">1</span>
+    <span class="t-c"># lowbit</span>
+    <span class="t-k">assert</span> (<span class="t-n">8</span> &amp; -<span class="t-n">8</span>) == <span class="t-n">8</span>
+    <span class="t-k">assert</span> (<span class="t-n">5</span> &amp; -<span class="t-n">5</span>) == <span class="t-n">1</span>
+    <span class="t-k">assert</span> (<span class="t-n">12</span> &amp; -<span class="t-n">12</span>) == <span class="t-n">4</span>
+    <span class="t-c"># 置位/清位/翻转/判位</span>
+    x = <span class="t-n">0</span>
+    x |= (<span class="t-n">1</span> &lt;&lt; <span class="t-n">3</span>)                <span class="t-c"># bit3=1 -&gt; 8</span>
+    <span class="t-k">assert</span> x == <span class="t-n">8</span>
+    x &amp;= ~(<span class="t-n">1</span> &lt;&lt; <span class="t-n">3</span>)
+    <span class="t-k">assert</span> x == <span class="t-n">0</span>
+    x ^= (<span class="t-n">1</span> &lt;&lt; <span class="t-n">2</span>)
+    <span class="t-k">assert</span> x == <span class="t-n">4</span>
+    <span class="t-k">assert</span> ((x &gt;&gt; <span class="t-n">2</span>) &amp; <span class="t-n">1</span>) == <span class="t-n">1</span>
+    <span class="t-c"># popcount 与消 1</span>
+    <span class="t-k">assert</span> (<span class="t-n">0b101101</span>).<span class="t-f">bit_count</span>() == <span class="t-n">4</span>
+    <span class="t-k">assert</span> (<span class="t-n">0b1100</span> &amp; (<span class="t-n">0b1100</span> - <span class="t-n">1</span>)) == <span class="t-n">0b1000</span>
+    <span class="t-c"># 2 的幂判断</span>
+    <span class="t-k">assert</span> (<span class="t-n">8</span> &gt; <span class="t-n">0</span>) <span class="t-k">and</span> (<span class="t-n">8</span> &amp; (<span class="t-n">8</span> - <span class="t-n">1</span>)) == <span class="t-n">0</span>
+    <span class="t-k">assert</span> <span class="t-k">not</span> ((<span class="t-n">6</span> &gt; <span class="t-n">0</span>) <span class="t-k">and</span> (<span class="t-n">6</span> &amp; (<span class="t-n">6</span> - <span class="t-n">1</span>)) == <span class="t-n">0</span>)
+    <span class="t-c"># 优先级陷阱：Python 中 &amp; 高于比较，C/C++ 相反</span>
+    <span class="t-k">assert</span> (<span class="t-n">1</span> &amp; <span class="t-n">3</span> == <span class="t-n">1</span>) == <span class="t-k">True</span>           <span class="t-c"># Python: (1&amp;3)==1</span>
+    <span class="t-k">assert</span> (<span class="t-n">1</span> &amp; (<span class="t-n">3</span> == <span class="t-n">1</span>)) == <span class="t-n">0</span>            <span class="t-c"># C/C++ 语义: 1 &amp; (3==1)</span>
+    <span class="t-k">assert</span> (<span class="t-n">1</span> &amp; <span class="t-n">3</span>) == <span class="t-n">1</span>
+    <span class="t-k">assert</span> (<span class="t-n">1</span> &lt;&lt; <span class="t-n">1</span> + <span class="t-n">1</span>) == <span class="t-n">4</span>                   <span class="t-c"># 加法高于移位</span>
+    <span class="t-c"># 自反性：异或性质</span>
+    y = <span class="t-n">0b1010</span>
+    <span class="t-k">assert</span> y ^ y == <span class="t-n">0</span> <span class="t-k">and</span> y ^ <span class="t-n">0</span> == y
+    <span class="t-b">print</span>(<span class="t-s">&quot;bit-op-basics OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 位运算与 CPython 语义一致（无限位宽 int，负数算术右移）。bit_count()（Python 3.8+，PyPy 3.9+）用内置 popcount，比手写快。位运算单条极快，热循环里优先位运算替代 % 2 判断（x&amp;1）、除以 2（x&gt;&gt;1）。注意 PyPy 的 ~ 与负号对超大 int 同样无限位宽。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>每个位运算 O(位数/字长)（Python int 约 O(wordsize)）</td></tr><tr><th>空间复杂度</th><td>O(1)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Python int 无限位宽导致负数的 &gt;&gt; 是算术移位（左边补符号位），与 C 的无符号行为不同；位运算只对整数有效。优先级陷阱是最大坑（且 Python 与 C/C++ 相反）：Python 中 `x &amp; y == 0` 是 `(x&amp;y)==0`，C/C++ 中是 `x &amp; (y==0)`，跨语言代码务必加括号。Python 位运算结果 bit 数可变，做『固定宽度』掩码时要手动 &amp; 全 1 掩码。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>优先级：Python 中 `&amp;` 高于比较（`x &amp; y == 0` 即 `(x&amp;y)==0`）；C/C++ 中相反（`x &amp; y == 0` 是 `x &amp; (y==0)`），跨语言迁移必加括号</li><li>Python 中 `~5` 得 -6 而非 C 无符号语义，做固定宽度取反要 `~x &amp; mask`</li><li>负数 `&gt;&gt;` 是算术移位，无限符号位扩展，可能与你预期不符</li><li>`1 &lt;&lt; 1 + 1` 等于 4：加法优先级高于移位；想表达 (1&lt;&lt;1)+1 要加括号</li><li>忘记 int 无限位宽：`x | 0x80000000` 对负数等场景结果超 32 位</li><li>判断奇偶用 x&amp;1 而不是 x%2（更快且语义一致）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1100</strong></td><td>2</td><td>高低位交换：把 32 位整数前 16 位与后 16 位互换，位运算/移位入门</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1100" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1100</a></td></tr><tr><td>Luogu</td><td><strong>P2114</strong></td><td>4</td><td>起床困难综合症：若干位运算操作后求最大值，按位贪心经典，训练位运算性质</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2114" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2114</a></td></tr><tr><td>LeetCode</td><td><strong>136</strong></td><td>2</td><td>只出现一次的数字：用异或自反性 x^x=0 一次遍历找出唯一出现一次的数</td><td class="u"><a href="https://leetcode.cn/problems/single-number/" target="_blank" rel="noopener">https://leetcode.cn/problems/single-number/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-bit-op-basics" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "掌握补码与五种基本位运算"}}, {"data": {"id": "s2", "label": "lowbit / 置位 / 清位 / 翻转 / 判位模板"}}, {"data": {"id": "s3", "label": "牢记优先级陷阱，统一加括号"}}, {"data": {"id": "s4", "label": "用于状态压缩：集合操作=位运算"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es2->s3", "source": "s2", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-bit-op-basics'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="bitset-compression.html" title="压位依赖位运算基础和bitset操作">bitset压位<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="submask-enum.html" title="子集枚举需掌握位运算与异或性质">子集枚举<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="bit-tricks.html" title="位运算技巧是基础位运算的进阶应用">位运算技巧<span class="etype">前置依赖</span></a><a class="chip e-cooccurrence" href="space-optimization.html" title="bitset压位是空间优化常用手段">空间优化<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">cph</span><span class="v-ok">&#10003;</span> <a href="https://usaco.guide/CPH.pdf#page=105" target="_blank" rel="noopener">https://usaco.guide/CPH.pdf#page=105</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/bit/" target="_blank" rel="noopener">https://oi-wiki.org/math/bit/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/algebra/bit-manipulation.html" target="_blank" rel="noopener">https://cp-algorithms.com/algebra/bit-manipulation.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

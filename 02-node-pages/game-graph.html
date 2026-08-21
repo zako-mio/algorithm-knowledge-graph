@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>博弈图与必胜必败态 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-6.html">博弈论族</a> / <span>博弈图与必胜必败态</span></div>
+  <h1>博弈图与必胜必败态</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="sg-function.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">sg-function</span></a>
+    <a class="nav-index" href="../03-groups/G-E-6.html"><span class="dir">组内第 3 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="anti-nim.html"><span class="dir">下一个 / 组内</span><span class="v">anti-nim</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">把公平组合游戏的状态画成有向无环图：无后继态为 P（先手必败）；存在后继为 P 的是 N（必胜）；所有后继都是 N 的才是 P；O(|V|+|E|) 逆拓扑标记</div><p>博弈图：公平组合游戏的所有状态作为顶点，状态 x 到后继 y 连有向边（一次合法操作）。若游戏有限且无平局，博弈图是有向无环图（DAG）。必胜必败态（N/P 态）由归纳规则定义：① 无后继的状态是 P 态（先手无路可走而失败）；② 存在至少一个后继为 P 的状态是 N 态；③ 所有后继都是 N 的状态是 P 态。通过逆拓扑序（从出度为 0 的顶点开始反图 BFS）可在 O(|V|+|E|) 内标记所有状态。该框架是 Nim 定理、SG 函数与有向图游戏的共同基础。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把整个游戏倒着看：终点状态是&#x27;已知输&#x27;（P）。一个状态只要有一条通向&#x27;已知输&#x27;的路，先手走那条路就赢（N）。如果一个状态的所有出口都通向&#x27;对手能赢&#x27;，那无论先手怎么走都会输（P）。这就成了图上反向传播的标注过程——像在 DAG 上倒着染色。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>三条规则构成良定义归纳：对 DAG 按拓扑序反向处理，每个状态的后继都已被标好。N/P 互斥且完备：任何非空后继集合要么含 P（则本身 N），要么全 N（则本身 P）。用反图 + 队列实现：初始把出度为 0 的点标 P 入队；弹出 u，对每个前驱 v：若 u 是 P 则 v 直接标 N；若 u 是 N 则给 v 的出度减一，v 的出度归零时（其所有后继都已知为 N）标 P。复杂度 O(V+E)。与 SG 的联系：SG=0 ⟺ P 态，SG≠0 ⟺ N 态。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>N/P 态的归纳刻画是组合博弈论最古老也最基础的结论，可追溯至 Zermelo（1913）关于棋类博弈无平局可判定的思想，Bouton（1901）在 Nim 的证明中已隐含使用，Sprague/Grundy 的 SG 理论将其数值化为 mex。OI Wiki 在 impartial-game 页『博弈图和状态』一节系统介绍，是理解后续所有博弈算法的入口。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># DAG 上标记 N/P 态（逆拓扑 + 反图队列）</span>
+indeg_out = [<span class="t-b">len</span>(succ[u]) <span class="t-k">for</span> u]      <span class="t-c"># 出度</span>
+state = [未知] * V                     <span class="t-c"># -1=P, 1=N</span>
+queue = [u <span class="t-k">for</span> u <span class="t-k">in</span> V <span class="t-k">if</span> outdeg[u]==<span class="t-n">0</span>]
+<span class="t-k">for</span> u <span class="t-k">in</span> queue: state[u] = P
+<span class="t-k">while</span> queue:
+  u = queue.<span class="t-f">pop</span>(<span class="t-n">0</span>)
+  <span class="t-k">for</span> v <span class="t-k">in</span> pred[u]:                   <span class="t-c"># 反图</span>
+    <span class="t-k">if</span> state[v] != 未知: <span class="t-k">continue</span>
+    <span class="t-k">if</span> state[u] == P: state[v] = N; queue.<span class="t-f">append</span>(v)
+    <span class="t-k">else</span>:
+      outdeg[v] -= <span class="t-n">1</span>
+      <span class="t-k">if</span> outdeg[v] == <span class="t-n">0</span>: state[v] = P; queue.<span class="t-f">append</span>(v)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+
+<span class="t-k">def</span> <span class="t-f">classify_dag</span>(n, graph):
+    <span class="t-s">&quot;&quot;&quot;在 DAG 上标记全部状态的 N/P 态。
+    graph[u] = u 的后继列表。
+    返回 state: 1=先手必胜(N), -1=先手必败(P)。
+    &quot;&quot;&quot;</span>
+    outdeg = [<span class="t-b">len</span>(graph[u]) <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    pred = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> v <span class="t-k">in</span> graph[u]:
+            pred[v].<span class="t-f">append</span>(u)
+
+    state = [<span class="t-n">0</span>] * n
+    q = <span class="t-f">deque</span>()
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">if</span> outdeg[u] == <span class="t-n">0</span>:
+            state[u] = -<span class="t-n">1</span>
+            q.<span class="t-f">append</span>(u)
+    <span class="t-k">while</span> q:
+        u = q.<span class="t-f">popleft</span>()
+        <span class="t-k">for</span> v <span class="t-k">in</span> pred[u]:
+            <span class="t-k">if</span> state[v] != <span class="t-n">0</span>:
+                <span class="t-k">continue</span>
+            <span class="t-k">if</span> state[u] == -<span class="t-n">1</span>:
+                state[v] = <span class="t-n">1</span>
+                q.<span class="t-f">append</span>(v)
+            <span class="t-k">else</span>:
+                outdeg[v] -= <span class="t-n">1</span>
+                <span class="t-k">if</span> outdeg[v] == <span class="t-n">0</span>:
+                    state[v] = -<span class="t-n">1</span>
+                    q.<span class="t-f">append</span>(v)
+    <span class="t-k">return</span> state
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 链式博弈 0-&gt;1-&gt;2-&gt;3（终点 3 无后继）</span>
+    g1 = [[<span class="t-n">1</span>], [<span class="t-n">2</span>], [<span class="t-n">3</span>], []]
+    s1 = <span class="t-f">classify_dag</span>(<span class="t-n">4</span>, g1)
+    <span class="t-k">assert</span> s1 == [<span class="t-n">1</span>, -<span class="t-n">1</span>, <span class="t-n">1</span>, -<span class="t-n">1</span>], s1
+
+    <span class="t-c"># 取 1 或 2 个石子的单堆游戏：状态 k 有后继 k-1,k-2</span>
+    g2 = [[], [<span class="t-n">0</span>], [<span class="t-n">0</span>, <span class="t-n">1</span>], [<span class="t-n">1</span>, <span class="t-n">2</span>], [<span class="t-n">2</span>, <span class="t-n">3</span>], [<span class="t-n">3</span>, <span class="t-n">4</span>]]
+    s2 = <span class="t-f">classify_dag</span>(<span class="t-n">6</span>, g2)
+    <span class="t-k">assert</span> s2 == [-<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, -<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>], s2  <span class="t-c"># SG: 0,1,2,0,1,2</span>
+
+    <span class="t-c"># 与 SG 表交叉验证：取 1..K 的游戏 SG(k)=k%(K+1)，N 态 ⟺ SG≠0</span>
+    <span class="t-k">def</span> <span class="t-f">sg_win</span>(k, K):
+        <span class="t-k">return</span> k % (K + <span class="t-n">1</span>) != <span class="t-n">0</span>
+
+    <span class="t-k">for</span> K <span class="t-k">in</span> [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>]:
+        g = [[<span class="t-b">max</span>(<span class="t-n">0</span>, k - d) <span class="t-k">for</span> d <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, K + <span class="t-n">1</span>) <span class="t-k">if</span> k &gt;= d] <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">12</span>)]
+        s = <span class="t-f">classify_dag</span>(<span class="t-n">12</span>, g)
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">12</span>):
+            <span class="t-k">assert</span> (s[k] == <span class="t-n">1</span>) == <span class="t-f">sg_win</span>(k, K), (K, k, s[k])
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">DAG 顶点可到 1e6、边 1e6，用 list 存邻接表与反图即可，PyPy 下 BFS O(V+E) 约 1s。state 用 -1/0/1 整数数组省内存。若只需判定单点胜负也可用记忆化 DFS，但逆拓扑 BFS 更稳定无递归深度风险。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(|V|+|E|)</td></tr><tr><th>空间复杂度</th><td>O(|V|+|E|)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">要求博弈图为 DAG（无平局、有限步）。若图有环（存在平局可能），N/P 标记会漏掉平局态，需用 game-on-graph 的三分类算法。状态空间巨大时（如连续量的 Nim 变体）无法显式建图，只能找规律或转 SG。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>P 态定义是『所有后继都是 N』，不是『存在后继是 N』（后者是 N 态）</li><li>标记过程必须用反图（pred），正图会漏更新</li><li>出度为 0 的顶点初始化为 P 态，别忘了入队</li><li>有环图不能直接跑该算法（会残留未知状态当作 P 导致错误），需三分类</li><li>state 用 0 表示未定，注意与真实 P(-1)/N(1) 区分</li><li>若状态含大量未达态（孤点）要按真实出度处理</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P2197</strong></td><td>2</td><td>Nim 模板：Nim 和判定的背后就是博弈图 P/N 归纳，理解该题即理解本节点</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2197" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2197</a></td></tr><tr><td>Luogu</td><td><strong>P6560</strong></td><td>6</td><td>[SBCOI2020] 时光的流逝：有环图上带必胜/必败/平局的博弈（game-on-graph 分类的 DAG 简化版前置）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P6560" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P6560</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-game-graph" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "model", "label": "把游戏建为博弈图（状态→后继）"}}, {"data": {"id": "np_rule", "label": "N/P 归纳规则（三条）"}}, {"data": {"id": "reverse_bfs", "label": "反图 + 出度队列标记全部状态"}}, {"data": {"id": "sg_link", "label": "与 SG 函数联系（SG=0 ⟺ P）"}}, {"data": {"id": "cycle", "label": "延伸: 有环图三分类见 game-on-graph"}}, {"data": {"id": "emodel->np_rule", "source": "model", "target": "np_rule"}}, {"data": {"id": "enp_rule->reverse_bfs", "source": "np_rule", "target": "reverse_bfs"}}, {"data": {"id": "ereverse_bfs->sg_link", "source": "reverse_bfs", "target": "sg_link"}}, {"data": {"id": "ereverse_bfs->cycle", "source": "reverse_bfs", "target": "cycle"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-game-graph'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="sg-function.html" title="博弈图标记是SG函数在图上的应用">SG函数/Sprague-Grundy定理<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="game-on-graph.html" title="有向图游戏是博弈图在有环图上的推广">有向图游戏<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/game-theory/impartial-game/" target="_blank" rel="noopener">https://oi-wiki.org/math/game-theory/impartial-game/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/game-theory/intro/" target="_blank" rel="noopener">https://oi-wiki.org/math/game-theory/intro/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch25 Game theory, pp.245-252</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

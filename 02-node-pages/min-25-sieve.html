@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Min_25 筛 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-9.html">数论高级族</a> / <span>Min_25 筛</span></div>
+  <h1>Min_25 筛</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-C-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="du-sieve.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">du-sieve</span></a>
+    <a class="nav-index" href="../03-groups/G-C-9.html"><span class="dir">组内第 5 / 11</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="powerful-number-sieve.html"><span class="dir">下一个 / 组内</span><span class="v">powerful-number-sieve</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">O(n^{3/4}/log n) 求积性函数前缀和，埃氏筛过程 + 有效点值压缩（Extended Eratosthenes Sieve）</div><p>Min_25 筛（Extended Eratosthenes Sieve）在亚线性时间 O(n^{3/4}/log n)（或 Θ(n^{1-ε})）计算一类积性函数的前缀和。适用条件：① f(p) 是关于 p 的多项式（可拆成若干个完全积性函数 p^k 的线性组合）；② f(p^c) 可快速求值。思路分两阶段：① 求 Fprime(n)=Σ_{p≤n} f(p) 的全部有效点值（只在 n//i 处取值，共 O(√n) 个）——用 G 数组模拟埃氏筛，把每个完全积性部分分开筛；② 按 F_k(n)=Σ_{lpf(i)≥p_k} f(i) 的递推递归/迭代求 F_1(n)，答案 = F_1(n)+f(1)。相比杜教筛无需构造 g，可处理 f(p)=p-1（φ）、f(p^k)=p^k(p^k-1)（P5325）等。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>埃氏筛的每一步都在‘删合数’。若我们只关心质数上的 f(p) 之和，可以用数组 G 记录‘剩余未被删掉的数的 f 值之和’，每筛一个质数 p 就从 G 里减去 p 贡献的合数部分。所有需要的值只在 n//i 的 O(√n) 个点上出现，配合下标压缩即可在亚线性时间内跑完整个埃氏筛过程。第二阶段再用递归把合数部分的贡献按最小质因子枚举回来。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>定义 G_k(n)=Σ_{i≤n, lpf(i)&gt;p_k 或 i 为质数} g(i)（g 为完全积性部分）。边界 G_0(n)=Σ_{i=2}^n g(i)。转移：G_k(n)=G_{k-1}(n) − [p_k²≤n]·g(p_k)·(G_{k-1}(n/p_k) − G_{k-1}(p_{k-1}))。对所有 n//i 点值分别做，筛到 p_ℓ 后剩余即质数。Fprime(n)=Σ a_i·G^{(k)}(n) 对多项式各幂次合并。第二阶段：F_k(n)=Σ_{i≥k, p_i²≤n} Σ_{c≥1, p_i^{c+1}≤n} [f(p_i^c)F_{i+1}(n/p_i^c) + f(p_i^{c+1})] + Fprime(n) − Fprime(p_{k-1})。复杂度：Fprime 阶段 O(Σ√(n/x)/log…) = O(n^{3/4}/log n)；F_k 阶段对每个点枚举 p 的平方根范围。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Min_25 筛得名自日本网友 Min_25（hatenablog 博客，2020 年前后活跃），首次系统整理该思想（又称 Extended Eratosthenes Sieve）。其‘分块 G 数组’与洲阁筛第一部分的实现本质相同。中国 OI 圈经 Luogu P5325 模板题传播。OI Wiki《Min_25 筛》页给出完整推导、两种 F_k 求法（直接递推 / 后缀和优化）与复杂度证明（朱震霆 2018 集训队论文）。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 以 f(p)=p^2-p (即 P5325 f(p^k)=p^k(p^k-1)) 为例</span>
+<span class="t-c"># 阶段1: Fprime</span>
+w = 数论分块得到所有 n//<span class="t-f">i</span> (<span class="t-f">O</span>(sqrt n))
+<span class="t-k">for</span> 幂次 s <span class="t-k">in</span> {<span class="t-n">1</span>,<span class="t-n">2</span>}:
+  G_s[i] = sum_{<span class="t-n">2.</span>.w[i]} j^s   <span class="t-c"># 初始所有整数</span>
+  <span class="t-k">for</span> k,p <span class="t-k">in</span> primes:            <span class="t-c"># 埃筛</span>
+    <span class="t-k">if</span> p*p &gt; n: <span class="t-k">break</span>
+    <span class="t-k">for</span> i: <span class="t-k">if</span> w[i] &lt; p*p: <span class="t-k">break</span>
+      G_s[i] -= p^s * (G_s[<span class="t-b">id</span>(w[i]//p)] - sp_s[k-<span class="t-n">1</span>])
+Fprime[i] = G2[i] - G1[i]
+<span class="t-c"># 阶段2: F_1(n)</span>
+<span class="t-k">def</span> <span class="t-f">S</span>(x, k):   <span class="t-c"># F_k(x)</span>
+  ans = <span class="t-f">Fprime</span>(<span class="t-b">id</span>(x)) - <span class="t-f">Fprime</span>(p_{k-<span class="t-n">1</span>})
+  <span class="t-k">for</span> i&gt;=k, p_i*p_i &lt;= x:
+    pe = p_i
+    <span class="t-k">for</span> c&gt;=<span class="t-n">1</span> <span class="t-k">while</span> pe*p_i &lt;= x:
+      ans += <span class="t-f">f</span>(pe)*<span class="t-f">S</span>(x//pe, i+<span class="t-n">1</span>) + <span class="t-f">f</span>(pe*p_i)
+      pe *= p_i
+  <span class="t-k">return</span> ans
+ans = <span class="t-f">S</span>(n, <span class="t-n">0</span>) + <span class="t-n">1</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-s">&quot;&quot;&quot;Min_25 筛: O(n^{3/4}/log n) 求积性函数前缀和.
+原理: 埃氏筛过程. 对 f(p^k) 可快速求值、f(p) 为多项式(完全积性函数线性组合)的积性函数 f.
+流程:
+  1. 数论分块得到所有有效点 w = n//i (O(sqrt n) 个);
+  2. 用 G 数组模拟埃筛, 求 Fprime(n)=sum_{p&lt;=n} f(p) 的所有有效点值;
+  3. 递归/迭代求 F_k(n) = sum_{i&lt;=n, lpf(i)&gt;=p_k} f(i), 答案 = F_1(n)+1.
+示例: f(p^k)=p^k(p^k-1) (Luogu P5325 模板).
+&quot;&quot;&quot;</span>
+<span class="t-k">import</span> math
+
+
+<span class="t-k">class</span> Min25:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, n):
+        self.n = n
+        self.sqn = <span class="t-b">int</span>(math.<span class="t-f">isqrt</span>(n))
+        self.primes = []
+        self.sprime = []        <span class="t-c"># 前缀质数和的 1/2 次幂</span>
+        self.w = []             <span class="t-c"># 有效点值 n//i (去重)</span>
+        self.id1 = {}
+        self.id2 = {}
+        self.g = []             <span class="t-c"># g[id][k]: 第 k 次埃筛后剩余和(这里存一维滚动)</span>
+        self.<span class="t-f">_sieve</span>()
+        self._g_vals = {}
+
+    <span class="t-k">def</span> <span class="t-f">_sieve</span>(self):
+        n = self.sqn
+        is_p = [<span class="t-k">True</span>] * (n + <span class="t-n">1</span>)
+        is_p[<span class="t-n">0</span>] = is_p[<span class="t-n">1</span>] = <span class="t-k">False</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, <span class="t-b">int</span>(n ** <span class="t-n">0.5</span>) + <span class="t-n">1</span>):
+            <span class="t-k">if</span> is_p[i]:
+                <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i * i, n + <span class="t-n">1</span>, i):
+                    is_p[j] = <span class="t-k">False</span>
+        self.primes = [i <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>) <span class="t-k">if</span> is_p[i]]
+
+    <span class="t-k">def</span> <span class="t-f">_id</span>(self, x):
+        <span class="t-k">if</span> x &lt;= self.sqn:
+            <span class="t-k">return</span> self.id1[x]
+        <span class="t-k">return</span> self.id2[self.n // x]
+
+    <span class="t-k">def</span> <span class="t-f">build</span>(self, h, h2):
+        <span class="t-s">&quot;&quot;</span>&quot;<span class="t-f">h</span>(n)=sum_{i&lt;=n, isprime} <span class="t-f">f</span>(i) 所需的基础完全积性部分.
+        这里固定演示 <span class="t-f">f</span>(p)=<span class="t-f">p</span>(p-<span class="t-n">1</span>)=p^<span class="t-n">2</span>-p, 拆成 p^<span class="t-n">2</span> 与 p 两个完全积性函数.
+        h/h2: 对应 <span class="t-n">1</span> 与 i 的<span class="t-s">&quot;所有整数前缀和&quot;</span>函数 (用于 G0).
+        实际实现针对每个幂次单独跑一遍埃筛.<span class="t-s">&quot;&quot;&quot;
+        # 收集有效点
+        l = 1
+        w = []
+        while l &lt;= self.n:
+            v = self.n // l
+            w.append(v)
+            if v &lt;= self.sqn:
+                self.id1[v] = len(w) - 1
+            else:
+                self.id2[l] = len(w) - 1
+            l = self.n // v + 1
+        self.w = w
+
+        # 对 f(p)=p^2-p 的每个幂次分别跑埃筛: g2 (p^2) 和 g1 (p)
+        # G0(v) = sum_{2&lt;=i&lt;=v} i^s, s=2 或 1
+        m = len(w)
+        g2 = [0] * m
+        g1 = [0] * m
+        for i, v in enumerate(w):
+            g2[i] = (v * (v + 1) * (2 * v + 1) // 6) - 1   # sum_{2..v} i^2
+            g1[i] = (v * (v + 1) // 2) - 1                 # sum_{2..v} i
+        sp1 = [0]; sp2 = [0]
+        for p in self.primes:
+            sp1.append(sp1[-1] + p)
+            sp2.append(sp2[-1] + p * p)
+        self.sp1, self.sp2 = sp1, sp2
+        self.sf = [0] * len(self.primes)   # sf[k] = Fprime(primes[k]) (0-based)
+        for k, p in enumerate(self.primes):
+            self.sf[k] = (sp2[k + 1] - sp1[k + 1])
+        # 埃筛转移: 对第 k 个质数 p_k, g[v] -= p^s * (g[v/p] - sp[k-1])
+        for k, p in enumerate(self.primes):
+            pk2 = p * p
+            if pk2 &gt; self.n:
+                break
+            for i, v in enumerate(w):
+                if v &lt; pk2:
+                    break
+                g2[i] -= p * p * (g2[self._id(v // p)] - sp2[k])
+                g1[i] -= p * (g1[self._id(v // p)] - sp1[k])
+        # Fprime(v) = g2[v] - g1[v] = sum_{p&lt;=v} (p^2 - p)
+        self.g = [g2[i] - g1[i] for i in range(m)]
+        self.g2, self.g1 = g2, g1
+
+    def S(self, x, k):
+        &quot;&quot;&quot;</span>F_{k}(x): sum_{i&lt;=x, <span class="t-f">lpf</span>(i)&gt;=p_k} <span class="t-f">f</span>(i). 递归(记忆化).<span class="t-s">&quot;&quot;&quot;
+        if x &lt;= 1 or self.primes[k - 1] &gt; x:
+            return 0
+        if k == 0:
+            ans = self.g[self._id(x)]
+        else:
+            ans = self.g[self._id(x)] - self.sf[k - 1]
+        for i in range(k, len(self.primes)):
+            p = self.primes[i]
+            if p * p &gt; x:
+                break
+            pe = p
+            for e in range(1, 20):
+                if pe * p &gt; x:
+                    break
+                # 项1: f(p^e) * F_{i+1}(x / p^e)
+                ans += (pe * (pe - 1)) * self.S(x // pe, i + 1)
+                # 项2: f(p^{e+1})
+                pe2 = pe * p
+                ans += pe2 * (pe2 - 1)
+                pe = pe2
+        return ans
+
+    def prefix_sum(self):
+        &quot;&quot;&quot;</span>返回 sum_{i=<span class="t-n">1.</span>.n} <span class="t-f">f</span>(i).<span class="t-s">&quot;&quot;</span>&quot;
+        <span class="t-k">return</span> self.<span class="t-f">S</span>(self.n, <span class="t-n">0</span>) + <span class="t-n">1</span>
+
+
+<span class="t-k">def</span> <span class="t-f">brute_prefix</span>(n):
+    <span class="t-k">def</span> <span class="t-f">f</span>(n):
+        <span class="t-c"># f(p^k)=p^k(p^k-1), 积性</span>
+        res = <span class="t-n">1</span>
+        d = <span class="t-n">2</span>
+        x = n
+        <span class="t-k">while</span> d * d &lt;= x:
+            c = <span class="t-n">0</span>
+            <span class="t-k">while</span> x % d == <span class="t-n">0</span>:
+                x //= d
+                c += <span class="t-n">1</span>
+            <span class="t-k">if</span> c:
+                res *= (d ** c) * (d ** c - <span class="t-n">1</span>)
+            d += <span class="t-n">1</span>
+        <span class="t-k">if</span> x &gt; <span class="t-n">1</span>:
+            res *= x * (x - <span class="t-n">1</span>)
+        <span class="t-k">return</span> res
+    <span class="t-k">return</span> <span class="t-b">sum</span>(<span class="t-f">f</span>(i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>))
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">for</span> n <span class="t-k">in</span> [<span class="t-n">10</span>, <span class="t-n">20</span>, <span class="t-n">100</span>, <span class="t-n">1000</span>, <span class="t-n">5000</span>]:
+        m = <span class="t-f">Min25</span>(n)
+        m.<span class="t-f">build</span>(<span class="t-k">None</span>, <span class="t-k">None</span>)
+        got = m.<span class="t-f">prefix_sum</span>()
+        exp = <span class="t-f">brute_prefix</span>(n)
+        <span class="t-k">assert</span> got == exp, (n, got, exp)
+    <span class="t-b">print</span>(<span class="t-s">&quot;min-25-sieve: all tests passed (f(p^k)=p^k(p^k-1))&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">有效点压缩：id1[id(v)] for v≤√n，id2[n//v] for v&gt;√n（v=n//i）。G 数组只开 O(√n)。每轮埃筛对 G 的全部点做一次（可用前缀和技巧只对受影响点更新）。递归 S 用 dict 记忆化（对每个 (x,k) 可能重复）。PyPy 下对 n=1e11 量级可跑；n 更大注意 G 数组与幂次计算的整数溢出（Python 无溢出但慢）。实现要点：对 f(p) 每个幂次单独跑一遍埃筛再合并。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n^{3/4}/log n)（Fprime 阶段）；F_k 直接递推 Θ(n^{1-ε})，后缀和优化同前</td></tr><tr><th>空间复杂度</th><td>O(√n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① 要求 f(p) 能写成低次多项式（完全积性线性组合）；② 要求 f(p^c) 快速可求；③ 实现细节多（下标压缩、幂次分离、递归边界）易错；④ 对任意积性函数不适用（需满足上述结构）；⑤ 常数较大，小 n 不如杜教筛。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>下标压缩 id1/id2 映射写错（v 与 n//v 混用）</li><li>对 f(p) 多项式各幂次分开筛后忘记合并</li><li>G 数组只更新受 p 影响的点（w[i]&lt;p² 提前 break）</li><li>F_k 递归对 f(p^{e+1}) 项与 f(p^e)F_{i+1} 项重复/遗漏</li><li>Fprime(p_{k-1}) 用质数和而非 Fprime 前缀（需 sf[] 数组）</li><li>递归 S 无记忆化导致指数级重复</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P5325</strong></td><td>5</td><td>【模板】Min_25 筛：f(p^k)=p^k(p^k-1)，模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5325" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5325</a></td></tr><tr><td>Luogu</td><td><strong>P4213</strong></td><td>4</td><td>杜教筛模板：φ/μ 前缀和（Min_25 亦可解，f(p)=p-1 / -1）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4213" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4213</a></td></tr><tr><td>LibreOJ</td><td><strong>6053</strong></td><td>5</td><td>简单的函数：f(p^k)=p xor c，OI Wiki 例题（需对 p=2 特判）</td><td class="u"><a href="https://loj.ac/p/6053" target="_blank" rel="noopener">https://loj.ac/p/6053</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-min-25-sieve" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "vals", "label": "数论分块收集有效点 n//i + id 压缩"}}, {"data": {"id": "gstep", "label": "G 数组埃筛各幂次 -> Fprime 点值"}}, {"data": {"id": "fk", "label": "F_k 递推: 枚举最小质因子+指数, 递归"}}, {"data": {"id": "answer", "label": "答案 = F_1(n) + f(1)"}}, {"data": {"id": "ext", "label": "扩展: 与杜教筛/PN筛对比, 洲阁筛, 大 n 优化"}}, {"data": {"id": "evals->gstep", "source": "vals", "target": "gstep"}}, {"data": {"id": "egstep->fk", "source": "gstep", "target": "fk"}}, {"data": {"id": "efk->answer", "source": "fk", "target": "answer"}}, {"data": {"id": "eanswer->ext", "source": "answer", "target": "ext"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-min-25-sieve'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/min-25/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/min-25/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/du/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/du/</a></li><li><span class="srctype">论文</span><span class="v-ok">&#10003;</span> <span class="ref">朱震霆 2018 集训队论文《一些特殊的数论函数求和问题》</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

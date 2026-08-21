@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>模逆元 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-7.html">数论基础族</a> / <span>模逆元</span></div>
+  <h1>模逆元</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-C-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="mod-arithmetic.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">mod-arithmetic</span></a>
+    <a class="nav-index" href="../03-groups/G-C-7.html"><span class="dir">组内第 6 / 10</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="binary-exponentiation.html"><span class="dir">下一个 / 组内</span><span class="v">binary-exponentiation</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">求a在模m下的逆元，方法：扩展欧几里得/费马小定理/线性递推</div><p>模逆元（Modular Multiplicative Inverse）：对 a 与模数 m 互素，存在唯一的 b 使 a·b ≡ 1 (mod m)，记 b = a^(-1) mod m。它是模意义下除法的实现方式：a/b ≡ a·b^(-1) (mod m)。求单个逆元用扩展欧几里得（通用）或费马小定理（m 为质数）；求多个/前 n 个逆元可用前缀积法 O(n+log m) 或线性递推 O(n)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>普通实数中除 b 等于乘 1/b。模世界里「1/b」就是满足 b·x≡1 的 x——一个数乘上它等于乘了单位元 1。费马小定理说质数 p 下 a^(p-1)≡1，于是 a·a^(p-2)≡1，逆元就是 a^(p-2)。扩展欧几里得则是直接把方程 ax+my=1 解出来。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>(1) 扩展欧几里得：解 ax+my=gcd(a,m)=1，得 x 即逆元，O(log m)，最通用；(2) 费马小定理：p 为质数且 a%p≠0 时 a^(-1)≡a^(p-2)，O(log p)；(3) 线性递推：inv[1]=1，inv[i]=-(m//i)·inv[m%i] mod m（m 为质数），O(n) 预处理前 n 个；(4) 前缀积法：对所有 a_i 一次 exgcd 求总积的逆元再反向回推，O(n+log m)，适合任意 m 且 gcd 条件满足时。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>逆元概念与同余理论同源（高斯《算术研究》），费马小定理由 Pierre de Fermat 于 17 世纪提出，欧拉推广为欧拉定理。模逆元是 RSA 公钥密码体制的核心运算（求 e 的逆元 d），也是竞赛中组合数取模（Lucas）、多项式求逆等高级工具的地基。OI Wiki 与 CP-Algorithms 均专题讲解。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 方法1: exgcd</span>
+<span class="t-f">inv</span>(a, m): (g, x, y) = <span class="t-f">exgcd</span>(a, m); 断言 g==<span class="t-n">1</span>; <span class="t-k">return</span> x % m
+
+<span class="t-c"># 方法2: 费马小定理（m 为质数）</span>
+<span class="t-f">inv</span>(a, p) = <span class="t-b">pow</span>(a, p-<span class="t-n">2</span>, p)
+
+<span class="t-c"># 方法3: 线性递推前 n 个逆元（m 为质数）</span>
+inv[<span class="t-n">1</span>] = <span class="t-n">1</span>
+<span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-n">2.</span>.n: inv[i] = (m - m//i) * inv[m%i] % m
+
+<span class="t-c"># 方法4: 前缀积法 O(n+log m)</span>
+pref[<span class="t-n">0</span>]=<span class="t-n">1</span>; <span class="t-k">for</span> i: pref[i]=pref[i-<span class="t-n">1</span>]*a[i] % m
+inv_pref[n] = <span class="t-f">exgcd</span>(pref[n], m).x
+<span class="t-k">for</span> i=n.<span class="t-n">.1</span>: inv_a[i]=inv_pref[i]*pref[i-<span class="t-n">1</span>] % m; inv_pref[i-<span class="t-n">1</span>]=inv_pref[i]*a[i] % m</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">exgcd</span>(a, b):
+    <span class="t-k">if</span> b == <span class="t-n">0</span>:
+        <span class="t-k">return</span> a, <span class="t-n">1</span>, <span class="t-n">0</span>
+    g, x, y = <span class="t-f">exgcd</span>(b, a % b)
+    <span class="t-k">return</span> g, y, x - (a // b) * y
+
+
+<span class="t-k">def</span> <span class="t-f">inv_exgcd</span>(a, m):
+    <span class="t-s">&quot;&quot;&quot;扩展欧几里得求逆元（任意模数，需互素）&quot;&quot;&quot;</span>
+    g, x, _ = <span class="t-f">exgcd</span>(a, m)
+    <span class="t-k">if</span> g != <span class="t-n">1</span>:
+        <span class="t-k">return</span> <span class="t-k">None</span>
+    <span class="t-k">return</span> x % m
+
+
+<span class="t-k">def</span> <span class="t-f">inv_fermat</span>(a, p):
+    <span class="t-s">&quot;&quot;&quot;费马小定理求逆元（p 为质数）&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> <span class="t-b">pow</span>(a, p - <span class="t-n">2</span>, p)
+
+
+<span class="t-k">def</span> <span class="t-f">invs_linear</span>(n, p):
+    <span class="t-s">&quot;&quot;&quot;O(n) 求 1..n 在模 p（质数）下的逆元&quot;&quot;&quot;</span>
+    inv = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    inv[<span class="t-n">1</span>] = <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        inv[i] = (p - p // i) * inv[p % i] % p
+    <span class="t-k">return</span> inv
+
+
+<span class="t-k">def</span> <span class="t-f">invs_prefix</span>(arr, m):
+    <span class="t-s">&quot;&quot;&quot;前缀积法求数组 arr 中每个数的逆元（要求每个元素与 m 互素）&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(arr)
+    pref = [<span class="t-n">1</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        pref[i + <span class="t-n">1</span>] = pref[i] * arr[i] % m
+    g, inv_all, _ = <span class="t-f">exgcd</span>(pref[n], m)
+    <span class="t-k">if</span> g != <span class="t-n">1</span>:
+        <span class="t-k">raise</span> <span class="t-b">ValueError</span>(<span class="t-s">&quot;some element not coprime with m&quot;</span>)
+    inv_all %= m
+    inv_arr = [<span class="t-n">0</span>] * n
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n - <span class="t-n">1</span>, -<span class="t-n">1</span>, -<span class="t-n">1</span>):
+        inv_arr[i] = inv_all * pref[i] % m
+        inv_all = inv_all * arr[i] % m
+    <span class="t-k">return</span> inv_arr
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    p = <span class="t-n">10</span>**<span class="t-n">9</span> + <span class="t-n">7</span>
+    <span class="t-k">assert</span> <span class="t-f">inv_exgcd</span>(<span class="t-n">3</span>, <span class="t-n">7</span>) == <span class="t-n">5</span>
+    <span class="t-k">assert</span> <span class="t-f">inv_exgcd</span>(<span class="t-n">3</span>, <span class="t-n">7</span>) == <span class="t-f">inv_fermat</span>(<span class="t-n">3</span>, <span class="t-n">7</span>) == <span class="t-n">5</span>
+    <span class="t-k">assert</span> <span class="t-f">inv_exgcd</span>(<span class="t-n">2</span>, <span class="t-n">4</span>) <span class="t-k">is</span> <span class="t-k">None</span>  <span class="t-c"># gcd(2,4)=2≠1</span>
+    <span class="t-k">assert</span> (<span class="t-f">inv_fermat</span>(<span class="t-n">5</span>, p) * <span class="t-n">5</span>) % p == <span class="t-n">1</span>
+
+    n = <span class="t-n">20</span>
+    inv = <span class="t-f">invs_linear</span>(n, p)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">assert</span> (i * inv[i]) % p == <span class="t-n">1</span>
+
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">1</span>)
+    arr = [random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">10</span>**<span class="t-n">9</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">10</span>)]
+    inv_arr = <span class="t-f">invs_prefix</span>(arr, p)
+    <span class="t-k">for</span> a, b <span class="t-k">in</span> <span class="t-b">zip</span>(arr, inv_arr):
+        <span class="t-k">assert</span> (a * b) % p == <span class="t-n">1</span>
+
+    <span class="t-c"># 与 pow(a, -1, m) 交叉验证（Python 3.8+）</span>
+    <span class="t-k">for</span> m <span class="t-k">in</span> [<span class="t-n">7</span>, <span class="t-n">11</span>, <span class="t-n">1009</span>, <span class="t-n">10007</span>]:
+        <span class="t-k">for</span> a <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, m):
+            <span class="t-k">if</span> <span class="t-f">__import__</span>(<span class="t-s">&#x27;math&#x27;</span>).<span class="t-f">gcd</span>(a, m) == <span class="t-n">1</span>:
+                <span class="t-k">assert</span> <span class="t-f">inv_exgcd</span>(a, m) == <span class="t-b">pow</span>(a, -<span class="t-n">1</span>, m), (a, m)
+    <span class="t-c"># 大质数抽查</span>
+    <span class="t-k">assert</span> <span class="t-f">inv_exgcd</span>(<span class="t-n">5</span>, <span class="t-n">1000000007</span>) == <span class="t-b">pow</span>(<span class="t-n">5</span>, -<span class="t-n">1</span>, <span class="t-n">1000000007</span>)
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">竞赛中直接用 pow(a, -1, m)（Python 3.8+ 内置，C 实现，内部 exgcd 扩展版）最快；求逆元数组用 invs_linear 的 O(n) 递推（PyPy 下 n=1e7 约 1s）。费马小定理 pow(a,p-2,p) 也快。注意 pow(a,-1,m) 在 a,m 不互素时会抛 ValueError。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>单个逆元 O(log m)；线性递推/前缀积 O(n) 或 O(n+log m)</td></tr><tr><th>空间复杂度</th><td>单个 O(1)；批量 O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">逆元存在当且仅当 gcd(a,m)=1。线性递推法仅适用于质数模数；前缀积法要求每个元素均与 m 互素。对非质数合数模的多个逆元需逐个 exgcd 或使用 CRT。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>忘记判断 gcd(a,m)==1，对不存在逆元的 a 强算导致结果错误</li><li>费马小定理误用于合数模数</li><li>线性递推 inv[i]=(m-m//i)*inv[m%i]%m 的下标越界（m%i 可能大于 i？不会，但需要 p%i 已算好，故 i&lt;p）</li><li>前缀积法反向回推时逆元累乘方向写反</li><li>把 pow(a,-1,m) 写成 pow(a,m-2,m) 用于非质数模数</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3811</strong></td><td>4</td><td>【模板】乘法逆元：三种求法均可，线性递推模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3811" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3811</a></td></tr><tr><td>Luogu</td><td><strong>P1082</strong></td><td>4</td><td>【模板】同余方程 ax≡1(mod b)：exgcd 求逆元</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1082" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1082</a></td></tr><tr><td>LOJ</td><td><strong>110</strong></td><td>4</td><td>乘法逆元：线性递推预处理 1..n 逆元</td><td class="u"><a href="https://loj.ac/problem/110" target="_blank" rel="noopener">https://loj.ac/problem/110</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-modular-inverse" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "existence", "label": "判定 gcd(a,m)==1"}}, {"data": {"id": "single", "label": "单逆元: exgcd 或费马小定理"}}, {"data": {"id": "batch", "label": "批量: 线性递推或前缀积法"}}, {"data": {"id": "divide", "label": "应用: 模意义下除法 a/b"}}, {"data": {"id": "eexistence->single", "source": "existence", "target": "single"}}, {"data": {"id": "eexistence->batch", "source": "existence", "target": "batch"}}, {"data": {"id": "esingle->divide", "source": "single", "target": "divide"}}, {"data": {"id": "ebatch->divide", "source": "batch", "target": "divide"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-modular-inverse'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="ext-euclidean.html" title="模逆元可用扩展欧几里得求解(求ax≡1的x)">扩展欧几里得<span class="etype">前置依赖</span></a><a class="chip e-combination" href="fermat-little-theorem.html" title="模素数p时逆元=a^(p-2) mod p(费马小定理)">费马小定理<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/inverse/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/inverse/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/algebra/module-inverse.html" target="_blank" rel="noopener">https://cp-algorithms.com/algebra/module-inverse.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch21 Number theory (p207-216)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,110 @@
+{
+ "id": "pell-equation",
+ "name": "佩尔方程",
+ "group": "G-C-9",
+ "stage": "frontier",
+ "priority": "P3",
+ "depth_tier": "brief",
+ "brief": "x^2-Dy^2=1 的整数解，连分数法求解，最小解递推通项",
+ "what": "佩尔方程指不定方程 x^2-Dy^2=1（狭义 Pell 方程），其中 D 为正整数且不是完全平方数；广义 Pell 方程形如 x^2-Dy^2=N（N≠0）。解的全体与实二次整数环 x+y√D 的单位元一一对应：x+y√D 的范数恰为 x^2-Dy^2。全部整数解由基本解（fundamental solution，第一象限内 x+y√D 最小的正整数解）通过 x_k+y_k√D=(x_1+y_1√D)^k 生成，再取 ± 与倒数（对称性）即得全体解。求解用连分数：对 √D 做 PQa 展开，第一个循环节末尾（Q_k=1）处取渐近分数即得基本解。",
+ "why": {
+  "intuition": "把方程解 (x,y) 看成二次整数 z=x+y√D。范数 N(z)=x^2-Dy^2 保持乘法（Brahmagupta 恒等式），于是『解×解=解』——知道一组解就能用乘法幂出无穷多解。佩尔方程求基本解，本质是找实二次整数环里最小的非平凡单位元。连分数之所以相关：√D 的渐近分数 p_k/q_k 是 √D 的最佳有理逼近，且恰好在循环节末尾出现 p_k^2-Dq_k^2=±1。",
+  "principle": "① 基本解存在性：对 √D 做简单连分数展开，其循环节长度 ℓ；若 ℓ 为偶数，第 ℓ 个余项的渐近分数 (A_{ℓ-1},B_{ℓ-1}) 即基本解；若 ℓ 为奇数，则 A_{2ℓ-1}+B_{2ℓ-1}√D=(A_{ℓ-1}+B_{ℓ-1}√D)^2，据此直接从 ℓ 处的渐近分数平方得到基本解。② 通解：x_k+y_k√D=±(x_1+y_1√D)^k，k∈Z。③ 负佩尔方程 x^2-Dy^2=-1 有解当且仅当循环节长度 ℓ 为奇数。④ PQa 算法：递推 P_{k+1}=a_kQ_k-P_k, Q_{k+1}=(D-P_{k+1}^2)/Q_k, a_{k+1}=⌊(P_{k+1}+√D)/Q_{k+1}⌋ 从 (P_0,Q_0)=(0,1) 起步，直到 (-1)^k Q_k=1。⑤ 广义方程 x^2-Dy^2=N 先求各等价类基本解，再乘上 Pell 方程解的幂生成全类。",
+  "history": "方程以英国数学家 John Pell（17 世纪）命名，但归功实属误传——解法主要来自印度数学家 Bhāskara II（12 世纪，Chakravala 算法）和 Fermat/Euler 时代的数学。欧拉曾将方法误归于 Pell 而得名。中国古代『百鸡问题』与『牛吃草问题』也被视为佩尔方程原型。Lagrange 证明了佩尔方程总有非平凡解。"
+ },
+ "how": {
+  "pseudocode": "# 用连分数（PQa）求 Pell 方程 x^2-Dy^2=1 的基本解\ndef pell_fundamental(D):\n  assert not is_square(D)\n  a0 = int(sqrt(D)); P, Q = 0, 1; a = a0\n  # 递推渐近分数 p/q (注意: 与标准连分数符号对齐)\n  # 用标准连分数求第 k 个渐近分数\n  p_prev2, p_prev1 = 0, 1\n  q_prev2, q_prev1 = 1, 0\n  for k in range(...):   # 直到 Q==1 且 k>0\n    p = a*p_prev1 + p_prev2\n    q = a*q_prev1 + q_prev2\n    # 检测循环节末尾\n    P_next = a*Q - P; Q_next = (D - P_next^2)//Q\n    P, Q, a = P_next, Q_next, (P_next + int(sqrt(D)))//Q_next\n    if Q == 1 and k >= 1:\n      return (p, q)\n# 注意: 若循环节 ℓ 为奇数，(p,q) 满足 p^2-Dq^2=-1，取 (p^2+Dq^2, 2pq)",
+  "python": "import math\n\n\ndef pell_fundamental(D: int):\n    \"\"\"返回 Pell 方程 x^2-Dy^2=1 的基本解 (x1,y1).\n    D 为正且非完全平方数.\n    原理: 对 sqrt(D) 做连分数(PQa)展开, 找到循环节长度 ell;\n    基本解是第 ell-1 个渐近分数; ell 为奇数时该渐近分数满足\n    x^2-Dy^2=-1, 平方后得到 +1 基本解.\"\"\"\n    r = math.isqrt(D)\n    assert r * r != D, \"D must not be a perfect square\"\n    P, Q, a = 0, 1, r\n    p_pp, p_p = 0, 1   # p_{-2}, p_{-1}\n    q_pp, q_p = 1, 0   # q_{-2}, q_{-1}\n    convs = []\n    k = 0\n    while True:\n        p = a * p_p + p_pp\n        q = a * q_p + q_pp\n        convs.append((p, q))\n        p_pp, p_p = p_p, p\n        q_pp, q_p = q_p, q\n        P2 = a * Q - P\n        Q2 = (D - P2 * P2) // Q\n        P, Q = P2, Q2\n        a = (P2 + r) // Q\n        k += 1\n        if Q == 1 and k >= 1:\n            x, y = convs[k - 1]\n            if x * x - D * y * y == 1:\n                return (x, y)\n            return (x * x + D * y * y, 2 * x * y)\n\n\ndef pell_solutions(D, n):\n    \"\"\"返回前 n 组 x^2-Dy^2=1 的正整数解.\"\"\"\n    x1, y1 = pell_fundamental(D)\n    res = []\n    x, y = 1, 0\n    for _ in range(n):\n        # x_k + y_k*sqrt(D) = (x1+y1*sqrt(D))^k\n        x, y = x * x1 + D * y * y1, x * y1 + y * x1\n        res.append((x, y))\n    return res\n\n\nif __name__ == \"__main__\":\n    # D=2: 3^2-2*2^2=1 => 基本解 (3,2)\n    assert pell_fundamental(2) == (3, 2)\n    # D=3: 2^2-3*1^2=1 => (2,1)\n    assert pell_fundamental(3) == (2, 1)\n    # D=5: 9^2-5*4^2=81-80=1 => (9,4)\n    assert pell_fundamental(5) == (9, 4)\n    # D=7: 8^2-7*3^2=64-63=1 => (8,3)\n    assert pell_fundamental(7) == (8, 3)\n    # D=13: 649^2-13*180^2 = 421201-421200=1\n    assert pell_fundamental(13) == (649, 180)\n    # D=14: 15^2-14*4^2=225-224=1\n    assert pell_fundamental(14) == (15, 4)\n    # D=41: 2049^2-41*320^2=1\n    assert pell_fundamental(41) == (2049, 320)\n\n    # 通解自测: D=2 前 4 组解\n    sols = pell_solutions(2, 4)\n    expected = [(3, 2), (17, 12), (99, 70), (577, 408)]\n    assert sols == expected, sols\n\n    # 随机交叉验证: 暴力枚举小范围找最小解\n    import random\n    random.seed(7)\n    for _ in range(40):\n        D = random.randint(2, 80)\n        if math.isqrt(D) ** 2 == D:\n            continue\n        x1, y1 = pell_fundamental(D)\n        assert x1 * x1 - D * y1 * y1 == 1, (D, x1, y1)\n        brute = None\n        for x in range(1, 200000):\n            y2 = x * x - 1\n            if y2 % D == 0:\n                y = math.isqrt(y2 // D)\n                if y * y == y2 // D and y > 0:\n                    brute = (x, y)\n                    break\n        if brute is not None:\n            assert brute == (x1, y1), (D, brute, (x1, y1))\n    print(\"All tests passed.\")",
+  "pypy_notes": "D 很大时基本解 x1,y1 会指数增长（约 e^{O(√D)}），Python 大整数可处理，C++ 需 __int128 或高精。PQa 每步 O(1) 大整数乘法，循环节长度 O(√D)。用 math.isqrt 而非 float sqrt 避免精度丢失。",
+  "complexity": {
+   "time": "连分数循环节 O(√D) 步，每步大整数乘法；实际瓶颈在大整数位数",
+   "space": "O(√D)（仅存当前三项即可 O(1) 额外空间）"
+  },
+  "limitations": "D 不能是完全平方数；基本解可能极大，超 long long 需 Python 大整数。负佩尔方程无解的判断没有简单判据（需要整个循环节长度）。竞赛中佩尔方程多与连分数结合出题，P3 低频。"
+ },
+ "examples": [
+  {
+   "oj": "SPOJ",
+   "pid": "PELL2",
+   "url": "https://www.spoj.com/problems/PELL2/",
+   "difficulty": 4,
+   "key_point": "Pell (Mid pelling)：求 x^2-Dy^2=1 最小解，经典连分数/PQa 模板（OI Wiki 例题）"
+  },
+  {
+   "oj": "SPOJ",
+   "pid": "EQU2",
+   "url": "https://www.spoj.com/problems/EQU2/",
+   "difficulty": 5,
+   "key_point": "Yet Another Equation：广义佩尔方程 x^2-Dy^2=N（OI Wiki 例题）"
+  }
+ ],
+ "pitfalls": [
+  "忘记处理循环节长度为奇数的情况（当前得到的是 -1 解，需平方得到 +1 基本解）",
+  "用 float 求 √D 丢精度，必须用 math.isqrt",
+  "D 为完全平方数时方程退化（退化为 (x+ky)(x-ky)=1），直接判掉",
+  "把连分数的渐近分数下标对错：基本解出现在循环节末尾，不是任何位置",
+  "y=0 的平凡解 (±1,0) 要单独处理，正解要求 y>0"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "def",
+    "label": "方程 x^2-Dy^2=1 与二次整数环映射"
+   },
+   {
+    "id": "cf",
+    "label": "对 √D 做连分数(PQa)展开"
+   },
+   {
+    "id": "period",
+    "label": "检测循环节末尾 Q_k=1"
+   },
+   {
+    "id": "fund",
+    "label": "奇偶周期处理得到基本解"
+   },
+   {
+    "id": "gen",
+    "label": "x_k+y_k√D=(x_1+y_1√D)^k 生成通解"
+   },
+   {
+    "id": "neg",
+    "label": "负Pell(ℓ奇数有解)/广义Pell 扩展"
+   }
+  ],
+  "edges": [
+   {
+    "from": "def",
+    "to": "cf"
+   },
+   {
+    "from": "cf",
+    "to": "period"
+   },
+   {
+    "from": "period",
+    "to": "fund"
+   },
+   {
+    "from": "fund",
+    "to": "gen"
+   },
+   {
+    "from": "fund",
+    "to": "neg"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/math/number-theory/pell-equation/",
+   "verified": true
+  },
+  {
+   "type": "wikipedia",
+   "url": "https://en.wikipedia.org/wiki/Pell%27s_equation",
+   "verified": true
+  }
+ ]
+}

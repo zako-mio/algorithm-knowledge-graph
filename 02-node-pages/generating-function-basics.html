@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生成函数基础 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-13.html">生成函数族</a> / <span>生成函数基础</span></div>
+  <h1>生成函数基础</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-13</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="symbolic-method.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">symbolic-method</span></a>
+    <a class="nav-index" href="../03-groups/G-C-13.html"><span class="dir">组内第 4 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="generating-function-shift.html"><span class="dir">下一个 / 组内</span><span class="v">generating-function-shift</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">形式幂级数环与生成函数框架：定义、加乘卷积、求导积分、逆元、复合、常见展开式，OGF/EGF 的前置</div><p>生成函数基础=形式幂级数（formal power series）环 R[[x]] 上的运算框架 + 生成函数作为组合工具的总纲。形式幂级数 f=Σ_{n≥0} f_n x^n：加法=按项加；乘法=卷积 (fg)_n=Σ_{i=0}^n f_i g_{n−i}；形式导数 f&#x27;=Σ n f_n x^{n−1}；形式不定积分 ∫(x^k)=x^{k+1}/(k+1)；乘法逆元 f^{-1} 存在 ⟺ f_0≠0（系数递推 (f^{-1})_n = −f_0^{-1}Σ_{i&gt;0} f_i (f^{-1})_{n−i}）；复合 f(g(x)) 在 g 常数项为 0 时良定义；复合逆 g 满足 f(g)=g(f)=x 需 f_0=0,f_1≠0（拉格朗日反演 [x^n]g(x)^k=k/n·[x^{n−k}]((x/f(x))^n)）。常见展开式（幂级数展开，形式恒等）：e^x=Σx^n/n!；(1+x)^a=Σ C(a,n)x^n；1/(1−x)=Σx^n；ln(1+x)=Σ(−1)^{n−1}x^n/n；sin/cos/arctan/arcsin 等。生成函数定义：A(x)=Σ a_n k_n(x)，核函数 k_n(x)=x^n 给 OGF、x^n/n! 给 EGF、1/n^x 给狄利克雷生成函数。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把无限数列当『一个多项式』来运算，就把组合问题变成代数问题。形式幂级数不关心收敛——x 只是占位符，系数才是要算的东西。这样 e^x、1/(1−x) 这些『函数』在代数世界里只是满足特定卷积关系的系数流，可以安全地加减乘除求导积分。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>R[[x]] 是环：加法交换群 + 卷积乘法（有 1，无零因子）。形式导数满足 Leibniz 法则、链式法则，形式积分是导数的右逆。逆元：1/(f)=g ⟺ f·g=1，逐系数解出 g_n=−f_0^{-1}Σ_{i=1}^n f_i g_{n−i}。复合 f(g(x)) 良定义需 g_0=0 使每个 x^n 只来自有限项。复合逆 + 拉格朗日反演：若 f(g)=x 且 f_0=0,f_1≠0，则 [x^n]g^k = k/n [x^{n−k}](x/f(x))^n，用于解隐含方程与生成函数系数。这些运算使『生成函数=工具』的整个框架自洽。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>形式幂级数由 Cauchy（1821）与后来的形式分析学派确立严谨地位；Euler 用生成函数解分拆/递推问题；Laplace（1812）命名『生成函数』。OI Wiki《多项式与生成函数》页以『引入→形式幂级数环→运算→生成函数』完整编排，是 OGF/EGF、多项式全套算法的总入口。现代竞赛里生成函数 + NTT 是多项式计数的标准范式。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 形式幂级数运算 (系数列表 a, 低次在前)</span>
+
+<span class="t-k">def</span> <span class="t-f">fadd</span>(a,b): ...            <span class="t-c"># 按项加</span>
+
+<span class="t-k">def</span> <span class="t-f">fmul</span>(a,b):                <span class="t-c"># 卷积 O(n^2)</span>
+  c=[<span class="t-n">0</span>]*(<span class="t-b">len</span>(a)+<span class="t-b">len</span>(b)-<span class="t-n">1</span>)
+  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(a)):
+    <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(b)): c[i+j]+=a[i]*b[j]
+  <span class="t-k">return</span> c
+
+<span class="t-k">def</span> <span class="t-f">fderiv</span>(a): <span class="t-k">return</span> [i*a[i] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>,<span class="t-b">len</span>(a))]
+
+<span class="t-k">def</span> <span class="t-f">finteg</span>(a): <span class="t-k">return</span> [<span class="t-n">0</span>]+[a[k]//(k+<span class="t-n">1</span>) <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(a))]
+
+<span class="t-k">def</span> <span class="t-f">finv</span>(a, n):               <span class="t-c"># 逆元, 需 a[0]!=0</span>
+  g=[<span class="t-b">pow</span>(a[<span class="t-n">0</span>],-<span class="t-n">1</span>,MOD)]
+  <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>,n):
+    s=<span class="t-b">sum</span>(a[i]*g[k-i] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>,k+<span class="t-n">1</span>))
+    g.<span class="t-f">append</span>((-s*<span class="t-b">pow</span>(a[<span class="t-n">0</span>],-<span class="t-n">1</span>,MOD))%MOD)
+  <span class="t-k">return</span> g
+
+<span class="t-k">def</span> <span class="t-f">compose</span>(f,g):             <span class="t-c"># f(g), 需 g[0]==0, O(n^2)</span>
+  res=[<span class="t-n">0</span>]*<span class="t-b">len</span>(f)
+  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(f)-<span class="t-n">1</span>,-<span class="t-n">1</span>,-<span class="t-n">1</span>):
+    res = <span class="t-f">fmul</span>(res, g[:<span class="t-b">len</span>(f)])
+    res[<span class="t-n">0</span>]+=f[i]
+  <span class="t-k">return</span> res[:<span class="t-b">len</span>(f)]</code></pre><h3>Python 实现</h3><pre><code class="python">MOD = <span class="t-n">998244353</span>
+
+
+<span class="t-k">def</span> <span class="t-f">fadd</span>(a, b):
+    n = <span class="t-b">max</span>(<span class="t-b">len</span>(a), <span class="t-b">len</span>(b))
+    <span class="t-k">return</span> [((a[i] <span class="t-k">if</span> i &lt; <span class="t-b">len</span>(a) <span class="t-k">else</span> <span class="t-n">0</span>) + (b[i] <span class="t-k">if</span> i &lt; <span class="t-b">len</span>(b) <span class="t-k">else</span> <span class="t-n">0</span>)) % MOD <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+
+
+<span class="t-k">def</span> <span class="t-f">fmul</span>(a, b):
+    c = [<span class="t-n">0</span>] * (<span class="t-b">len</span>(a) + <span class="t-b">len</span>(b) - <span class="t-n">1</span>)
+    <span class="t-k">for</span> i, x <span class="t-k">in</span> <span class="t-b">enumerate</span>(a):
+        <span class="t-k">for</span> j, y <span class="t-k">in</span> <span class="t-b">enumerate</span>(b):
+            c[i + j] = (c[i + j] + x * y) % MOD
+    <span class="t-k">return</span> c
+
+
+<span class="t-k">def</span> <span class="t-f">fderiv</span>(a):
+    <span class="t-k">return</span> [(i * a[i]) % MOD <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-b">len</span>(a))]
+
+
+<span class="t-k">def</span> <span class="t-f">finteg</span>(a):
+    out = [<span class="t-n">0</span>]
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(a)):
+        out.<span class="t-f">append</span>(a[k] * <span class="t-b">pow</span>(k + <span class="t-n">1</span>, MOD - <span class="t-n">2</span>, MOD) % MOD)
+    <span class="t-k">return</span> out
+
+
+<span class="t-k">def</span> <span class="t-f">finv</span>(a, n):
+    <span class="t-s">&quot;&quot;&quot;模 MOD 下 a 的乘法逆元前 n 项, 需 a[0] != 0.&quot;&quot;&quot;</span>
+    a = (a + [<span class="t-n">0</span>] * n)[:n]
+    inv0 = <span class="t-b">pow</span>(a[<span class="t-n">0</span>], MOD - <span class="t-n">2</span>, MOD)
+    g = [inv0]
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n):
+        s = <span class="t-n">0</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, k + <span class="t-n">1</span>):
+            s = (s + a[i] % MOD * g[k - i]) % MOD
+        g.<span class="t-f">append</span>((-s * inv0) % MOD)
+    <span class="t-k">return</span> g
+
+
+<span class="t-k">def</span> <span class="t-f">fcompose</span>(f, g, n):
+    <span class="t-s">&quot;&quot;&quot;f(g(x)) mod x^n, 要求 g[0]==0. O(n^2) Horner 形式.&quot;&quot;&quot;</span>
+    g = (g + [<span class="t-n">0</span>] * n)[:n]
+    res = [<span class="t-n">0</span>] * n
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(f) - <span class="t-n">1</span>, -<span class="t-n">1</span>, -<span class="t-n">1</span>):
+        <span class="t-c"># res = res * g + f[i]</span>
+        nres = [<span class="t-n">0</span>] * n
+        <span class="t-k">for</span> a <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> b <span class="t-k">in</span> <span class="t-b">range</span>(n - a):
+                nres[a + b] = (nres[a + b] + res[a] * g[b]) % MOD
+        res = nres
+        res[<span class="t-n">0</span>] = (res[<span class="t-n">0</span>] + f[i]) % MOD
+    <span class="t-k">return</span> res[:n]
+
+
+<span class="t-k">def</span> <span class="t-f">fpow_series</span>(a, n):
+    <span class="t-s">&quot;&quot;&quot;exp 级数 e^a 前 n 项(朴素 O(n^2)), a[0] 应处理(标准做法 a[0]=0).
+    实现: b&#x27; = a&#x27; * b.&quot;&quot;&quot;</span>
+    a = (a + [<span class="t-n">0</span>] * (n - <span class="t-b">len</span>(a)))[:n]
+    <span class="t-k">if</span> a[<span class="t-n">0</span>] != <span class="t-n">0</span>:
+        <span class="t-k">raise</span> <span class="t-b">ValueError</span>(<span class="t-s">&quot;exp needs a[0]==0&quot;</span>)
+    b = [<span class="t-n">1</span>]
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n):
+        s = <span class="t-n">0</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, k + <span class="t-n">1</span>):
+            s = (s + i * a[i] * b[k - i]) % MOD
+        b.<span class="t-f">append</span>(s * <span class="t-b">pow</span>(k, MOD - <span class="t-n">2</span>, MOD) % MOD)
+    <span class="t-k">return</span> b
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 逆元: 1/(1-x) = 1,1,1,...</span>
+    inv = <span class="t-f">finv</span>([<span class="t-n">1</span>, MOD - <span class="t-n">1</span>], <span class="t-n">6</span>)
+    <span class="t-k">assert</span> inv == [<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>]
+    <span class="t-c"># 1/(1-2x) = 1,2,4,8,...</span>
+    inv2 = <span class="t-f">finv</span>([<span class="t-n">1</span>, MOD - <span class="t-n">2</span>], <span class="t-n">5</span>)
+    <span class="t-k">assert</span> inv2 == [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">8</span>, <span class="t-n">16</span>]
+    <span class="t-c"># 导数积分: d/dx (1,1,1,1) = (1,2,3)</span>
+    <span class="t-k">assert</span> <span class="t-f">fderiv</span>([<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>]) == [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>]
+    <span class="t-c"># 复合: exp 的复合 e^{x}... 简单验证 f(x)=1+x 复合 g(x)=x^2: f(g)=1+x^2</span>
+    comp = <span class="t-f">fcompose</span>([<span class="t-n">1</span>, <span class="t-n">1</span>], [<span class="t-n">0</span>, <span class="t-n">0</span>, <span class="t-n">1</span>], <span class="t-n">5</span>)
+    <span class="t-k">assert</span> comp == [<span class="t-n">1</span>, <span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">0</span>, <span class="t-n">0</span>]
+    <span class="t-c"># 幂级数 exp: exp(x) 系数 = 1/k!</span>
+    <span class="t-k">from</span> math <span class="t-k">import</span> factorial
+    e = <span class="t-f">fpow_series</span>([<span class="t-n">0</span>, <span class="t-n">1</span>] + [<span class="t-n">0</span>] * <span class="t-n">6</span>, <span class="t-n">6</span>)
+    <span class="t-k">assert</span> e == [<span class="t-b">pow</span>(<span class="t-f">factorial</span>(k), MOD - <span class="t-n">2</span>, MOD) <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">6</span>)]
+    <span class="t-c"># 常见展开: (1-x)^-1 与 (1-x)^-2 卷积</span>
+    <span class="t-k">assert</span> <span class="t-f">fmul</span>([<span class="t-n">1</span>] * <span class="t-n">4</span>, [<span class="t-n">1</span>] * <span class="t-n">4</span>)[:<span class="t-n">4</span>] == [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>]
+    <span class="t-b">print</span>(<span class="t-s">&quot;generating-function-basics: all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">朴素 O(n²) 运算适合 n≤2000 教学/小规模；实际竞赛 NTT 加速 O(n log n)。逆元迭代公式每步 O(n)，整体 O(n²)；牛顿迭代 O(n log n)。求导积分在模素数下需逆元。fcompose O(n³)（Horner + 内层卷积），竞赛需特殊算法（见 comp-rev）。Python 版注意全部取模与负号处理。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>加 O(n)；乘/逆/exp 朴素 O(n²)；NTT 优化 O(n log n)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① 形式幂级数『不收敛』的约定要与解析函数区分（不能随意代入 x 求值）；② 逆元需常数项非零；③ 复合需内函数常数项为 0；④ 复合/复合逆朴素实现慢，需专用算法；⑤ 模非素数时无逆元/阶乘逆元，需其他手法。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>逆元忘检查常数项是否为 0</li><li>复合时内函数常数项非 0 导致系数定义不清</li><li>把形式幂级数当普通函数代入数值求值</li><li>求导/积分的系数平移（导数降一次，积分加 [0]）</li><li>取模运算中负数未转正</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P5205</strong></td><td>5</td><td>【模板】多项式开根：牛顿迭代/形式幂级数运算综合，OI Wiki elementary-func 例题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5205" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5205</a></td></tr><tr><td>LOJ</td><td><strong>172</strong></td><td>4</td><td>多项式基础综合题（intro 页提及），练习加乘逆元等基础操作</td><td class="u"><a href="https://loj.ac/p/172" target="_blank" rel="noopener">https://loj.ac/p/172</a></td></tr><tr><td>Luogu</td><td><strong>P4512</strong></td><td>5</td><td>【模板】多项式除法：余数与商，需要逆元，形式幂级数运算前置</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4512" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4512</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-generating-function-basics" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "generating-function-basics", "label": "generating-function-basics"}}, {"data": {"id": "ogf", "label": "ogf"}}, {"data": {"id": "egf", "label": "egf"}}, {"data": {"id": "symbolic-method", "label": "symbolic-method"}}, {"data": {"id": "poly-compose-inverse", "label": "poly-compose-inverse"}}, {"data": {"id": "elementary-generating-functions", "label": "elementary-generating-functions"}}, {"data": {"id": "egenerating-function-basics->ogf", "source": "generating-function-basics", "target": "ogf"}}, {"data": {"id": "egenerating-function-basics->egf", "source": "generating-function-basics", "target": "egf"}}, {"data": {"id": "egenerating-function-basics->symbolic-method", "source": "generating-function-basics", "target": "symbolic-method"}}, {"data": {"id": "egenerating-function-basics->poly-compose-inverse", "source": "generating-function-basics", "target": "poly-compose-inverse"}}, {"data": {"id": "egenerating-function-basics->elementary-generating-functions", "source": "generating-function-basics", "target": "elementary-generating-functions"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-generating-function-basics'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="ogf.html" title="OGF需要形式幂级数基本运算基础">OGF(普通生成函数)<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="egf.html" title="EGF需要形式幂级数基本运算基础">EGF(指数生成函数)<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/poly/fundamental/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/fundamental/</a></li><li><span class="srctype">oiwiki-intro</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/poly/intro/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/intro/</a></li><li><span class="srctype">oiwiki-intro-raw</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/intro.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/intro.md</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Formal_power_series" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Formal_power_series</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

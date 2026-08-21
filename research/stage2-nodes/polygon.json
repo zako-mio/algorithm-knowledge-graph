@@ -1,0 +1,125 @@
+{
+ "id": "polygon",
+ "name": "Polygon出题平台",
+ "group": "G-E-9",
+ "stage": "advanced",
+ "priority": "P3",
+ "depth_tier": "brief",
+ "brief": "Codeforces多人协作出题平台：版本管理+validator/generator/checker/solutions环环相扣+数据自动生成+对拍(stress)",
+ "what": "Polygon(polygon.codeforces.com)是Codeforces官方出题平台，支持多人协作、版本管理，是CF出题的唯一入口。其出题管线环环相扣：validator(数据校验) → generator(数据生成) → checker(评测) → solutions(标程/错解标记) → tests(测试数据)。在Polygon中：Files上传源码(generator/checker/validator/interactor)，Tests页用脚本'generator [参数] > test编号'自动生成数据(输出自动由标程生成)，Stresses页对拍找反例，Invocation页跑solution验证，General Info/Statement页填时间空间限制与TeX题面。数据用'少量带命令行参数的generator批量生成'而非手造，pretests需手动添加且为tests子集。题目打包后可导出为CF/其他OJ可用的格式。",
+ "why": {
+  "intuition": "出题最怕三件事：数据错、错解AC、正解TLE。Polygon把'出题'做成流水线并引入版本管理：改错数据有历史可回滚，错解AC会自动警告，validator在生成前就拦截非法数据。多人协作时不用互传文件，改动留痕。",
+  "principle": "核心流程：(1)General Info设时限/内存/类型/标签; Statement用TeX子集写题面(非Markdown); (2)Files上传validator/generator/checker(或选内置checker如ncmp/rcmp4); (3)Validator Tests/Checker Tests可加样本验证逻辑; (4)Tests页写生成脚本如 gen -n10 > 1, gen -n100 > $  (自动编号), 标程自动产出out; 勾选Use in statements则成为样例; (5)Solutions上传多个solution, 标记'正确/错误(应WA/TLE/RE)', Polygon自动跑所有solution于所有数据并警告'错解AC/正解未AC'; (6)Stresses配置对拍脚本(pattern支持[10..100]范围), 跑出反例可一键加入数据。全部组件绑定版本, 修改即产生新Rev。",
+  "history": "Polygon由Mike Mirzayanov创建, 是Codeforces多年出题沉淀的产物, 与testlib.h深度绑定(全部内置组件即testlib程序)。已成为国际出题事实标准, ICPC区域赛/CF官方题均经Polygon出产。OI Wiki的polygon页给出中文完整教程。"
+ },
+ "how": {
+  "pseudocode": "# 出题流程(概念模板)\n1. 创建题目, General Info 设时限/内存\n2. Files 上传 gen.cpp / val.cpp / chk.cpp / std.cpp\n3. Tests 页:\n   gen -n10   > 1\n   gen -n100  > $        # $ = 自动编号\n   gen -n1000 -t=chain > $   # 命名参数\n   勾选样例数据 'Use in statements'\n4. Solutions 上传正解与错解, 标注预期结果\n5. Stresses 配置对拍脚本, 收集反例\n6. Invocation 验证所有solution\n7. 打包导出题目包",
+  "python": "\"\"\"Polygon 出题流程的本地等价物(离线快速原型)参考实现.\n自测: 验证数据生成/对拍脚本模式逻辑.\n\"\"\"\nimport random\nimport re\nimport subprocess\nimport sys\nimport os\nfrom pathlib import Path\n\n\n# ---------- 数据生成脚本模式解析 ----------\ndef parse_test_script(line, test_index):\n    \"\"\"解析Polygon式生成脚本: 'gen -n10 > 1' 或 'gen -n100 > $'.\n    返回 (generator, args_list, out_index)\n    \"\"\"\n    m = re.match(r\"^(\\S+)\\s+(.*?)\\s*>\\s*(\\$|\\d+)$\", line.strip())\n    if not m:\n        raise ValueError(f\"bad script: {line}\")\n    gen, args, out = m.group(1), m.group(2), m.group(3)\n    out_idx = test_index if out == \"$\" else int(out)\n    args_list = re.findall(r\"(?:-\\w+)\\s*(?:=|\\s)?(\\S*)\", args) if args else []\n    return gen, args_list, out_idx\n\n\ndef gen_data(script_lines, workdir):\n    \"\"\"模拟Polygon Tests页批量生成: 逐条执行并写文件.\n    返回生成的测试点编号列表.\n    \"\"\"\n    out_idx = 0\n    produced = []\n    for line in script_lines:\n        gen, args, idx = parse_test_script(line, out_idx)\n        out_idx += 1\n        # 本地用echo模拟generator输出\n        data = f\"{gen} {' '.join(args)}\\n\".encode()\n        (Path(workdir) / f\"{idx}\").write_bytes(data)\n        produced.append(idx)\n    return produced\n\n\n# ---------- Stress 脚本范围模式 ----------\ndef expand_script_pattern(pattern, seed):\n    \"\"\"展开 '[10..100]' 为随机值(等价Polygon Stresses pattern).\"\"\"\n    random.seed(seed)\n\n    def repl(m):\n        lo, hi = int(m.group(1)), int(m.group(2))\n        return str(random.randint(lo, hi))\n\n    return re.sub(r\"\\[(\\d+)..(\\d+)\\]\", repl, pattern)\n\n\nif __name__ == \"__main__\":\n    import shutil\n    workdir = \"/tmp/opencode/batch13/_polygon_test\"\n    shutil.rmtree(workdir, ignore_errors=True)\n    os.makedirs(workdir, exist_ok=True)\n\n    # 脚本解析\n    g, a, i = parse_test_script(\"gen -n10 > 1\", 0)\n    assert (g, i) == (\"gen\", 1), (g, i)\n    g2, a2, i2 = parse_test_script(\"gen -n100 -t=chain > $\", 3)\n    assert i2 == 3 and g2 == \"gen\"\n\n    # 批量生成\n    produced = gen_data([\"gen -n10 > 1\", \"gen -n100 > $\"], workdir)\n    assert produced == [1, 1]  # 第二条用$取当前计数器1\n    assert (Path(workdir) / \"1\").exists()\n\n    # stress 范围展开\n    p = expand_script_pattern(\"gen -n[10..100] -k[1..5]\", seed=7)\n    assert re.search(r\"-n\\d+\", p) and re.search(r\"-k\\d+\", p)\n\n    shutil.rmtree(workdir, ignore_errors=True)\n    print(\"polygon(参考): ALL TESTS PASSED\")\n",
+  "pypy_notes": "Polygon本身是web平台(生成/校验/评测在云端), 无需Python脚本; 离线原型可用本文件逻辑理解生成脚本与stress pattern。",
+  "complexity": {
+   "time": "数据生成/校验/评测开销由题目数据规模决定",
+   "space": "O(测试数据总量)"
+  },
+  "limitations": "题面仅支持TeX子集(非Markdown); pretests需手动添加; 所有组件强绑定版本, 修改需重新评测; 多人编辑需注意Edit session冲突(Discard会不可恢复)。"
+ },
+ "examples": [
+  {
+   "oj": "OI Wiki",
+   "pid": "Polygon使用教程",
+   "url": "https://oi-wiki.org/tools/polygon/",
+   "difficulty": 0,
+   "key_point": "Polygon题目管理/Statement/Files/Checker/Tests/Stresses全流程"
+  },
+  {
+   "oj": "Polygon",
+   "pid": "官方平台",
+   "url": "https://polygon.codeforces.com",
+   "difficulty": 0,
+   "key_point": "实际出题操作入口"
+  },
+  {
+   "oj": "Codeforces",
+   "pid": "Polygon帮助",
+   "url": "https://polygon.codeforces.com/docs/freemarker-manual",
+   "difficulty": 0,
+   "key_point": "生成脚本与Freemarker批量生成官方文档"
+  }
+ ],
+ "pitfalls": [
+  "题面不能写Markdown, 必须用TeX(如\\textbf{})",
+  "数据推荐用带参数的generator批量生成, 避免手写一堆文件",
+  "给CF出题必须手动添加pretests测试集且是tests子集",
+  "Edit session的Discard不可恢复, 慎用",
+  "改生成器/校验器后需重新跑所有相关solution验证"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "info",
+    "label": "General Info设限制"
+   },
+   {
+    "id": "files",
+    "label": "上传validator/gen/checker"
+   },
+   {
+    "id": "statement",
+    "label": "写TeX题面+样例"
+   },
+   {
+    "id": "tests",
+    "label": "生成脚本批量造数据"
+   },
+   {
+    "id": "solutions",
+    "label": "上传正解/错解标记"
+   },
+   {
+    "id": "stress",
+    "label": "对拍找反例"
+   },
+   {
+    "id": "package",
+    "label": "打包导出"
+   }
+  ],
+  "edges": [
+   {
+    "from": "info",
+    "to": "files"
+   },
+   {
+    "from": "files",
+    "to": "tests"
+   },
+   {
+    "from": "info",
+    "to": "statement"
+   },
+   {
+    "from": "tests",
+    "to": "solutions"
+   },
+   {
+    "from": "solutions",
+    "to": "stress"
+   },
+   {
+    "from": "stress",
+    "to": "package"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/tools/polygon/",
+   "verified": true
+  },
+  {
+   "type": "polygon",
+   "url": "https://polygon.codeforces.com",
+   "verified": true
+  }
+ ]
+}

@@ -1,0 +1,97 @@
+{
+  "id": "enumerate",
+  "name": "枚举与暴力",
+  "group": "G-A-1",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "系统枚举所有可能，常结合剪枝优化",
+  "what": "枚举（enumerate）/暴力（brute force）：系统性地把解空间的所有候选尝试一遍，逐个判定是否满足条件。要点：①给出解空间（要枚举哪些要素）；②减少枚举空间（合理上下界）；③选择合适的枚举顺序（如求最大素数从大到小）。优化路径：缩小枚举范围 → 消除冗余顺序 → 用桶/哈希把 O(n^2) 降为 O(n)（如两数之和）。位运算枚举子集、DFS 回溯（排列/组合）是其重要分支。",
+  "why": {
+    "intuition": "枚举是『笨但正确』的保底策略，也是所有算法正确性验证的对拍基准。核心思维：把『猜答案』变成系统化的试错——先想清楚可能的情况有哪些，再想怎么不重不漏地扫完。",
+    "principle": "不重不漏：枚举次序与边界保证每个候选恰好被评估一次。复杂度 = 候选数 × 单次判定代价。常见降维：排序+双指针、哈希桶（空间换时间）、前缀和、剪枝。OI Wiki 经典例：和为 0 的数对——先枚举两数 O(n^2)，通过限制 j<i 减半，再用桶 met[] 记录已见值降为 O(n)。",
+    "history": "枚举是算法的最朴素形式，计算机早期即用于穷举（如毕达哥拉斯三元组、素数判定）。现代竞赛中枚举常作为对拍基准与状态空间的 DFS 展开；子集枚举用位运算、排列枚举用递归回溯，是回溯/剪枝/搜索的基石。"
+  },
+  "how": {
+    "pseudocode": "# 两数之和为0：从 O(n^2) 到 O(n)\nmet = set()\nans = 0\nfor x in a:\n    if -x in met: ans += 1     # 存在互补 → 数对\n    met.add(x)\n\n# 枚举子集（位运算）\nfor mask in range(1 << n):\n    subset = {i for i in range(n) if mask >> i & 1}\n\n# 排列枚举（递归回溯）\ndef dfs(perm):\n    if len(perm) == n: 处理(perm); return\n    for x in 可选集合: dfs(perm + [x])",
+    "python": "def count_zero_pairs_naive(a):\n    \"\"\"两数之和为 0 的数对个数（暴力 O(n^2)）\"\"\"\n    n = len(a)\n    ans = 0\n    for i in range(n):\n        for j in range(i + 1, n):\n            if a[i] + a[j] == 0:\n                ans += 1\n    return ans\n\n\ndef count_zero_pairs_hash(a):\n    \"\"\"哈希优化 O(n)：统计 i<j 且 a[i]+a[j]==0 的数对（含多个 0 的情形）\"\"\"\n    from collections import Counter\n    cnt = Counter()\n    ans = 0\n    for x in a:\n        ans += cnt[-x]\n        cnt[x] += 1\n    return ans\n\n\ndef subsets(nums):\n    \"\"\"枚举全部子集（位运算）\"\"\"\n    n = len(nums)\n    out = []\n    for mask in range(1 << n):\n        out.append([nums[i] for i in range(n) if mask >> i & 1])\n    return out\n\n\ndef permutations(nums):\n    \"\"\"枚举全部排列（递归回溯）\"\"\"\n    n = len(nums)\n    res = []\n    def dfs(path, used):\n        if len(path) == n:\n            res.append(path[:])\n            return\n        for i in range(n):\n            if not used[i]:\n                used[i] = True\n                path.append(nums[i])\n                dfs(path, used)\n                path.pop()\n                used[i] = False\n    dfs([], [False] * n)\n    return res\n\n\nif __name__ == \"__main__\":\n    import random\n    for _ in range(200):\n        a = [random.randint(-15, 15) for _ in range(random.randint(1, 60))]\n        assert count_zero_pairs_naive(a) == count_zero_pairs_hash(a), a\n    assert len(subsets([1, 2, 3])) == 8\n    assert len(permutations([1, 2, 3])) == 6\n    p = permutations([1, 2, 3])\n    assert p[0] == [1, 2, 3] and p[-1] == [3, 2, 1]\n    print(\"枚举（两数和O(n)/子集/排列）正确性 OK（200 组暴力对照）\")\n    a = [4, 3, -3, 2, -4, 0, 0]\n    print(f\"a={a} 和为0数对(哈希): {count_zero_pairs_hash(a)}\")\n    print(\"3元素子集:\", subsets([1, 2, 3]))\n",
+    "pypy_notes": "枚举性能瓶颈在层数：Python 内层循环慢，n 大时优先用数学/剪枝缩减候选。子集枚举 1<<n 适合 n≤22（PyPy 下可到 ~24）；排列 n! 适合 n≤10。回溯剪枝（可行性/最优性剪枝）是暴力上台阶的核心。",
+    "complexity": {
+      "time": "O(候选数 × 判定代价)，如两数和 O(n^2)→O(n)，子集 O(2^n)，排列 O(n!)",
+      "space": "O(1)~O(n)"
+    },
+    "limitations": "指数级候选规模限制 n 的取值（2^n / n! 必须很小）。仅当解空间可枚举且判定便宜时实用；否则需要剪枝、记忆化或更优算法。"
+  },
+  "examples": [
+    {
+      "oj": "OI-Wiki",
+      "pid": "basic/enumerate",
+      "url": "https://oi-wiki.org/basic/enumerate/",
+      "difficulty": 2,
+      "key_point": "枚举与暴力讲解"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1706",
+      "url": "https://www.luogu.com.cn/problem/P1706",
+      "difficulty": 2,
+      "key_point": "全排列/组合枚举模板"
+    },
+    {
+      "oj": "CPH",
+      "pid": "ch5 p57",
+      "url": "https://cses.fi/book/book.pdf",
+      "difficulty": 2,
+      "key_point": "生成子集与排列"
+    }
+  ],
+  "pitfalls": [
+    "枚举范围不收敛：解空间定得过大（如全量 1..1e9 而非合理边界）",
+    "重复计数：无序数对写成有序导致 ans 多一倍（先限制次序再乘系数）",
+    "递归回溯忘记还原状态（used[i]/path 未 pop）产生错误解"
+  ],
+  "step_dag": {
+    "nodes": [
+      "建模解空间",
+      "定范围",
+      "选顺序",
+      "去重剪枝",
+      "降维优化"
+    ],
+    "edges": [
+      [
+        "建模解空间",
+        "定范围"
+      ],
+      [
+        "定范围",
+        "选顺序"
+      ],
+      [
+        "选顺序",
+        "去重剪枝"
+      ],
+      [
+        "去重剪枝",
+        "降维优化"
+      ]
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/basic/enumerate/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch5 p57",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://www.luogu.com.cn/problem/P1706",
+      "verified": true
+    }
+  ]
+}

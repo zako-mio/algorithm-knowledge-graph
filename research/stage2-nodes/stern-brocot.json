@@ -1,0 +1,123 @@
+{
+  "id": "stern-brocot",
+  "name": "Stern-Brocot树/Farey序列",
+  "group": "G-E-7",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "枚举所有既约分数的二元搜索树：二分逼近实数，求最优分数逼近",
+  "what": "Stern–Brocot 树是枚举全部正的最简分数的二叉搜索树。以三元组 (0/1, 1/1, 1/0) 为根，每个节点 (a/b, p/q, c/d) 的左右子为 (a/b, (a+p)/(b+q), p/q) 与 (p/q, (p+c)/(q+d), c/d)。相邻分数满足 bc-ad=1。应用：在树上二分逼近实数，找分母不超过某上限的最优分数逼近；Farey 序列(分母≤n 的 [0,1] 最简分数)是它的有限前缀；与连分数紧密相关，可 O(log(p+q)) 定位分数。",
+  "why": {
+    "intuition": "两个相邻分数 a/b 与 c/d 之间永远插一个中位分数 (a+c)/(b+d)，它必然是最简的(bc-ad=1 保证互素)。反复在区间内插中位分数，就稠密地填满了 (0,∞) 的所有最简分数。查找某个实数 x 的最优逼近 = 在树上按大小二分走到某个精度，每走一步取当前区间端点的中位数。",
+    "principle": "单调性：a/b < (a+c)/(b+d) < c/d 恒成立(消分母即证)。最简性：bc-ad=1(行列式)在乘法 L=[[1,1],[0,1]], R=[[1,0],[1,1]] 下保持为1，由裴蜀定理知分子分母互素。完全性：任意 p/q 按二叉搜索路径必在有限步到达(否则 p+q 会增长矛盾)。分数查找快速算法把连续同向移动合并为 O(log(p+q))；无理数逼近取到边界时比较左右端点距离。",
+    "history": "Moritz Stern(1858)与 Achille Brocot(1861)独立发现。Calkin–Wilf 树是其兄弟结构(非二叉搜索但同层分数相同、编号为位逆序置换)。Farey 序列与连分数、Ford 圆几何相关联。CP-Algorithms 与 OI Wiki 均有完整页面，OI Wiki 还给出 UVa 10077、LOJ 6685 等经典习题与 AtCoder ABC333G 等二分逼近题。"
+  },
+  "how": {
+    "pseudocode": "# 分数逼近: 在 (a/b, c/d) 区间中位数逼近 x, 分母上限 D\n# 朴素: 每次比较中位数与 x\na, b, c, d = 0, 1, 1, 0      # 0/1 与 1/0\nwhile True:\n  p, q = a + c, b + d        # 中位分数\n  if b + d > D: break        # 分母超限\n  if p / q < x:\n    a, b = p, q              # 取右半\n  elif p / q > x:\n    c, d = p, q              # 取左半\n  else:\n    a, b, c, d = p, q, p, q  # 恰好命中\n# 比较 (a/b) 与 (c/d) 谁更接近 x",
+    "python": "def find_fraction(x, D):\n    \"\"\"在分母<=D 的最简分数中, 二分逼近实数 x。\n    返回 (p, q) 为最佳逼近(比较左右边界距离)。\n    \"\"\"\n    a, b, c, d = 0, 1, 1, 0  # 区间 (a/b, c/d)\n    while True:\n        p, q = a + c, b + d\n        if q > D:\n            break\n        if p < x * q:\n            a, b = p, q\n        elif p > x * q:\n            c, d = p, q\n        else:\n            a, b = p, q\n            c, d = p, q\n            break\n    # 比较左右边界哪个更接近 x\n    lv = abs(a - x * b) * d   # 交叉乘比较 |a/b - x| 与 |c/d - x|\n    rv = abs(c - x * d) * b\n    if lv <= rv:\n        return a, b\n    return c, d\n\n\ndef farey_sequence(n):\n    \"\"\"生成第 n 阶 Farey 序列([0,1] 分母<=n 的最简分数升序)。\"\"\"\n    a, b, c, d = 0, 1, 1, n\n    res = [(a, b)]\n    while c <= n:\n        k = (n + b) // d\n        a, c, b, d = c, k * c - a, d, k * d - b\n        res.append((a, b))\n    return res\n\n\ndef stern_diatomic(n):\n    \"\"\"Stern 双原子序列 a_n (OEIS A002487):\n    a0=0,a1=1, a2n=a_n, a2n+1=a_n+a_{n+1}。\n    用 fusc 迭代实现。\n    \"\"\"\n    if n == 0:\n        return 0\n    a, b = 1, 0\n    while n:\n        if n & 1:\n            b += a\n        else:\n            a += b\n        n >>= 1\n    return b\n\n\nif __name__ == '__main__':\n    # 3/4 = 0.75, 分母<=4 最佳逼近应为 3/4 本身\n    assert find_fraction(0.75, 4) == (3, 4)\n    # 无理数 sqrt(2)≈1.4142, 分母<=10 的最佳逼近\n    import math\n    sq2 = math.sqrt(2)\n    p, q = find_fraction(sq2, 10)\n    # 已知分母<=10 的最佳为 17/12? 分母超界; 手动枚举验证\n    best_p, best_q, best_err = 0, 1, float('inf')\n    for dd in range(1, 11):\n        pp = round(sq2 * dd)\n        if abs(pp / dd - sq2) < best_err:\n            best_p, best_q, best_err = pp, dd, abs(pp / dd - sq2)\n    assert p == best_p and q == best_q, (p, q, best_p, best_q)\n\n    # Farey 序列\n    f4 = farey_sequence(4)\n    expected = [(0, 1), (1, 4), (1, 3), (1, 2), (2, 3), (3, 4), (1, 1)]\n    assert f4 == expected, f4\n    assert len(farey_sequence(5)) == 11  # 1+sum_{k<=5} phi(k)=1+10\n\n    # Stern 双原子序列\n    sd = [stern_diatomic(i) for i in range(16)]\n    assert sd == [0, 1, 1, 2, 1, 3, 2, 3, 1, 4, 3, 5, 2, 5, 3, 4], sd\n\n    # 分数逼近: 1/pi 或任意有理数\n    assert find_fraction(1 / 3, 20) == (1, 3)\n    assert find_fraction(0.1, 50) in ((1, 10), (1, 10))\n\n    print('sqrt(2) best frac (denom<=10):', find_fraction(sq2, 10))\n    print('Farey(4):', f4)\n    print('Stern diatomic [0..15]:', sd)\n    print('All stern-brocot tests passed!')\n",
+    "pypy_notes": "分数逼近用交叉相乘比较避免浮点精度问题(整数比较); Farey 递推为纯整数 O(n); 分母 D 极大时二分逼近注意 p,q 增长用 Python 大整数无溢出。",
+    "complexity": {
+      "time": "分数查找朴素 O(P+Q)；快速合并同向移动 O(log(P+Q))；Farey 序列生成 O(|F_n|)=O(N²)",
+      "space": "O(1) 逼近; O(N²) Farey 序列存储"
+    },
+    "limitations": "逼近无理数时只保证收敛到任意精度, 但要输出'分母<=D 的最优逼近'需在边界比较左右端点距离; 朴素查找最坏 O(p+q) 分母大时不可用; 需结合连分数知识获得 O(log min(p,q)) 的定位; 非 [0,∞] 值域要预先伸缩。"
+  },
+  "examples": [
+    {
+      "oj": "AtCoder",
+      "pid": "ABC333G",
+      "url": "https://atcoder.jp/contests/abc333/tasks/abc333_g",
+      "difficulty": 4,
+      "key_point": "Nearest Fraction: Stern-Brocot树二分求分母<=N的最佳分数逼近, 现代经典"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P8058",
+      "url": "https://www.luogu.com.cn/problem/P8058",
+      "difficulty": 4,
+      "key_point": "BalkanOI2003 Farey序列: Farey序列构造/二分应用"
+    },
+    {
+      "oj": "UVa",
+      "pid": "10077",
+      "url": "https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=33&page=show_problem&problem=1018",
+      "difficulty": 3,
+      "key_point": "The Stern-Brocot Number System: 在树上输出LR路径定位分数"
+    }
+  ],
+  "pitfalls": [
+    "中位分数 (a+c)/(b+d) 在分母超限时即为最佳逼近的候选, 需与两端点比距离, 别直接返回中位数",
+    "交叉相乘比较距离: |a/b - x| 与 |c/d - x| 用 abs(a-x*b)*d 与 abs(c-x*d)*b, 别用浮点除法",
+    "区间初始为 (0/1, 1/0), 1/0 是无穷大记号, 分母为0 不是错误, 求 q 前判断",
+    "Farey 递推 k=(n+b)//d 的下取整必须精确, 别四舍五入",
+    "Stern 双原子序列的递推 a2n=a_n 是基于编号从1开始, 与 Calkin-Wilf 编号对应, 下标从0开始需特判"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "init_interval",
+        "label": "区间初始 (0/1, 1/0)"
+      },
+      {
+        "id": "mediant",
+        "label": "取中位分数 (a+c)/(b+d), 判分母上界"
+      },
+      {
+        "id": "compare",
+        "label": "比较中位数与目标 x(交叉相乘)"
+      },
+      {
+        "id": "shrink",
+        "label": "左偏取右半, 右偏取左半, 更新端点"
+      },
+      {
+        "id": "best",
+        "label": "分母到界后比较两端距离, 输出最优逼近"
+      }
+    ],
+    "edges": [
+      {
+        "from": "init_interval",
+        "to": "mediant"
+      },
+      {
+        "from": "mediant",
+        "to": "compare"
+      },
+      {
+        "from": "compare",
+        "to": "shrink"
+      },
+      {
+        "from": "shrink",
+        "to": "mediant"
+      },
+      {
+        "from": "mediant",
+        "to": "best"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/number-theory/stern-brocot/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/number-theory/stern-brocot.md",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/others/stern_brocot_tree_farey_sequences.html",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://en.wikipedia.org/wiki/Stern%E2%80%93Brocot_tree",
+      "verified": true
+    }
+  ]
+}

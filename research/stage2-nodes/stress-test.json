@@ -1,0 +1,122 @@
+{
+  "id": "stress-test",
+  "name": "对拍/压力测试",
+  "group": "G-E-4",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "生成随机数据→暴力/正解分别运行→比对输出找bug，竞赛调试核心手段",
+  "what": "对拍（压力测试）是竞赛调试的核心手段：编写数据生成器产生随机测试数据，分别运行暴力解法（保证正确但慢）和待测解法（可能含bug），比对两者输出。若输出不同则找到bug。OI Wiki推荐使用testlib库编写高质量数据生成器，确保可复现（相同参数相同输出）。对拍可自动化循环执行直到发现错误或达到足够测试次数。",
+  "why": {
+    "intuition": "对拍就像'双盲实验'：用两个独立的方法解决同一问题，如果结果一致则更有信心。结果不一致时，刚好找到了bug。",
+    "principle": "三组件：数据生成器（gen）、暴力解法（brute）、待测解法（solve）。循环：gen生成数据→分别跑brute和solve→diff比较输出→不一致则保存数据用于调试。",
+    "history": "对拍是竞赛选手的基本功。OI Wiki在'common-tricks'和'testlib'页面详细介绍了对拍方法。testlib库的generator确保跨平台可复现。"
+  },
+  "how": {
+    "pseudocode": "while True:\n  gen > test.in\n  brute < test.in > a.out\n  solve < test.in > b.out\n  if diff(a.out, b.out):\n    print('Found bug!'); break",
+    "python": "\"\"\"Stress testing template for competitive programming.\nGenerates random data, runs both brute-force and optimized solutions,\ncompares outputs to find bugs.\n\"\"\"\nimport subprocess\nimport random\nimport sys\nimport os\nimport tempfile\n\n# ============ In-process stress test (Python) ============\n\ndef stress_test(solve_func, brute_func, gen_func, tests=10000, verbose=True):\n    \"\"\"Run stress test comparing solve_func vs brute_func.\n    gen_func() returns test input.\n    Returns True if all tests pass.\n    \"\"\"\n    for t in range(tests):\n        data = gen_func()\n        try:\n            ans1 = solve_func(data)\n        except Exception as e:\n            if verbose:\n                print(f\"Test {t}: solve crashed on {data}: {e}\")\n            return False\n        ans2 = brute_func(data)\n        if ans1 != ans2:\n            if verbose:\n                print(f\"MISMATCH on test {t}!\")\n                print(f\"  Input:  {data}\")\n                print(f\"  Solve:  {ans1}\")\n                print(f\"  Brute:  {ans2}\")\n            return False\n    if verbose:\n        print(f\"All {tests} stress tests passed!\")\n    return True\n\n# ============ Subprocess stress test (for compiled programs) ============\n\ndef stress_test_subprocess(gen_exe, solve_exe, brute_exe, tests=1000):\n    \"\"\"Stress test using subprocess for compiled programs.\n    gen_exe: data generator (outputs to stdout)\n    solve_exe: optimized solution (reads stdin, writes stdout)\n    brute_exe: brute-force solution (reads stdin, writes stdout)\n    \"\"\"\n    for t in range(tests):\n        # Generate input\n        gen_proc = subprocess.run([gen_exe], capture_output=True, text=True)\n        input_data = gen_proc.stdout\n        # Run both solutions\n        solve_proc = subprocess.run([solve_exe], input=input_data,\n                                    capture_output=True, text=True)\n        brute_proc = subprocess.run([brute_exe], input=input_data,\n                                    capture_output=True, text=True)\n        if solve_proc.stdout != brute_proc.stdout:\n            print(f\"MISMATCH on test {t}!\")\n            print(f\"Input:\\n{input_data}\")\n            print(f\"Solve output:\\n{solve_proc.stdout}\")\n            print(f\"Brute output:\\n{brute_proc.stdout}\")\n            # Save the failing test case\n            with open(\"failing_test.in\", \"w\") as f:\n                f.write(input_data)\n            return False\n    print(f\"All {tests} subprocess stress tests passed!\")\n    return True\n\n# ============ Python-only subprocess stress test ============\n\ndef stress_test_python(gen_script, solve_script, brute_script, tests=1000):\n    \"\"\"Stress test for Python solutions using subprocess.\n    Each script is a .py file path.\n    gen_script outputs test data to stdout.\n    solve_script and brute_script read from stdin, write to stdout.\n    \"\"\"\n    for t in range(tests):\n        gen_proc = subprocess.run(\n            [sys.executable, gen_script],\n            capture_output=True, text=True\n        )\n        input_data = gen_proc.stdout\n        solve_proc = subprocess.run(\n            [sys.executable, solve_script],\n            input=input_data, capture_output=True, text=True\n        )\n        brute_proc = subprocess.run(\n            [sys.executable, brute_script],\n            input=input_data, capture_output=True, text=True\n        )\n        if solve_proc.stdout != brute_proc.stdout:\n            print(f\"MISMATCH on test {t}!\")\n            print(f\"Input:\\n{input_data}\")\n            print(f\"Solve: {solve_proc.stdout!r}\")\n            print(f\"Brute: {brute_proc.stdout!r}\")\n            with open(\"failing_test.in\", \"w\") as f:\n                f.write(input_data)\n            return False\n    print(f\"All {tests} Python stress tests passed!\")\n    return True\n\nif __name__ == \"__main__\":\n    # Example: stress test a sorting function\n    def gen():\n        n = random.randint(1, 20)\n        return [random.randint(-100, 100) for _ in range(n)]\n\n    def solve(data):\n        return sorted(data)\n\n    def brute(data):\n        # Simple bubble sort\n        arr = data[:]\n        for i in range(len(arr)):\n            for j in range(len(arr) - 1 - i):\n                if arr[j] > arr[j + 1]:\n                    arr[j], arr[j + 1] = arr[j + 1], arr[j]\n        return arr\n\n    ok = stress_test(solve, brute, gen, 1000)\n    assert ok\n    print(\"stress-test: ALL TESTS PASSED\")\n",
+    "pypy_notes": "Python subprocess对拍适合慢算法。对于C++程序，编译后用subprocess调用exe更快。也可用shell脚本while循环+diff。",
+    "complexity": {
+      "time": "每次测试=gen+brute+solve的时间",
+      "space": "取决于数据规模"
+    },
+    "limitations": "暴力解法必须保证正确。数据生成器需覆盖边界情况。大数据可能超时。无法发现两个解法都有相同bug的情况。"
+  },
+  "examples": [
+    {
+      "oj": "OI-Wiki",
+      "pid": "contest/common-tricks",
+      "url": "https://oi-wiki.org/contest/common-tricks/",
+      "difficulty": 2,
+      "key_point": "官方对拍教程与模板"
+    }
+  ],
+  "pitfalls": [
+    "数据生成器质量决定测试效果：需覆盖边界（n=1, n=最大值, 全相同等）",
+    "testlib的rnd保证跨平台可复现，Python random需固定seed",
+    "暴力解法本身可能有bug",
+    "浮点比较需设置epsilon",
+    "两个解法可能有相同的错误（巧合一致）"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "st1",
+        "label": "编写数据生成器gen"
+      },
+      {
+        "id": "st2",
+        "label": "编写暴力解法brute"
+      },
+      {
+        "id": "st3",
+        "label": "循环：gen生成数据"
+      },
+      {
+        "id": "st4",
+        "label": "分别运行brute和solve"
+      },
+      {
+        "id": "st5",
+        "label": "diff比较输出"
+      },
+      {
+        "id": "st6",
+        "label": "不一致→保存数据→调试"
+      },
+      {
+        "id": "st7",
+        "label": "一致→继续循环"
+      }
+    ],
+    "edges": [
+      {
+        "from": "st1",
+        "to": "st2",
+        "type": "next"
+      },
+      {
+        "from": "st2",
+        "to": "st3",
+        "type": "next"
+      },
+      {
+        "from": "st3",
+        "to": "st4",
+        "type": "next"
+      },
+      {
+        "from": "st4",
+        "to": "st5",
+        "type": "next"
+      },
+      {
+        "from": "st5",
+        "to": "st6",
+        "type": "mismatch"
+      },
+      {
+        "from": "st5",
+        "to": "st7",
+        "type": "match"
+      },
+      {
+        "from": "st7",
+        "to": "st3",
+        "type": "loop"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/contest/common-tricks/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/tools/testlib/generator/",
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "id": "dp-opt-wqs",
+  "name": "WQS二分/凸优化DP",
+  "group": "G-A-12",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "带数量限制的凸DP，二分惩罚系数消除限制",
+  "what": "WQS 二分（Aliens Trick / 带权二分 / 凸优化 DP）处理一类'恰好选 k 个'（或至多 k 个）的最优化 DP：若去除数量限制后问题可解，且最优价值 v(k) 关于 k 是凹（或凸）函数，则对每个被选元素附加惩罚 λ（每选一个价值 -λ），解无数量限制问题得到最优个数 g(λ)。因为 g(λ) 关于 λ 单调，可二分 λ 使 g(λ)=k，答案 = 惩罚问题的价值 + λ·k。单次无限制问题 O(T)，总复杂度 O(T log C)，比 O(nk) 的二维 DP 快得多。",
+  "why": {
+    "intuition": "数量限制就像'多选一个的边际收益递减'(凹函数)。给每个选择加个统一惩罚 λ，等于给'选 k 个'这条曲线叠加一条斜率为 -λ 的直线，最大值点会随着 λ 变大而往 k 变小的方向移动。二分 λ 就能精确定位到恰好取 k 个的那个点。",
+    "principle": "设 v(k) 为恰选 k 个的最优值。定义 h(λ)=max_k (v(k)-λk)，即惩罚问题的答案。v 凹 ⇔ h(λ) 的最优 k 关于 λ 单调。二分 λ 求使最优 k=目标数的最小 λ，则答案 = h(λ)+λk。共线情形需保证求解 h(λ) 时记录的 k 是最大（或最小）的 argmax，再按 'k>=目标'/'k<=目标' 调整二分边界。凸性可用四边形不等式、交换论证或通过构造区间分拆证明。",
+    "history": "WQS 二分由中国选手王钦石（Wang Qiushi）在 2011 年左右提出并命名，2013 年入选国家队候选队论文《浅析一类二分方法》。国外称为 Aliens Trick（源于 AtCoder AGC 某外星人题）。OI Wiki 的 wqs-binary-search 页面系统整理了凸性证明三种方法（状态转移方程、四边形不等式、交换论证）与共线处理。"
+  },
+  "how": {
+    "pseudocode": "# 模板: 恰选 k 个, 价值 v(k) 凹\nlo, hi = 惩罚下界, 惩罚上界\nans = None\nwhile lo <= hi:\n    mid = (lo+hi)//2\n    val, cnt = solve_with_penalty(mid)  # 每选一个价值-mid, 解无数量限制\n    if cnt >= k:        # 选多了: 惩罚(负斜率)应加大\n        ans = val + mid*k   # 还原真实价值\n        lo = mid + 1\n    else:\n        hi = mid - 1\nreturn ans",
+    "python": "import random\n\n\ndef plant_trees_brute(a, m):\n    \"\"\"P1484 种树: n 个坑, 至多种 m 棵, 不相邻, 求最大收益和.\n    暴力 DP O(n*m).\"\"\"\n    n = len(a)\n    dp = [[0] * (m + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        for j in range(0, m + 1):\n            dp[i][j] = dp[i - 1][j]\n            if j >= 1:\n                if i - 2 >= 0:\n                    dp[i][j] = max(dp[i][j], dp[i - 2][j - 1] + a[i - 1])\n                elif i == 1:\n                    dp[i][j] = max(dp[i][j], a[0])\n    return max(dp[n][j] for j in range(m + 1))\n\n\ndef plant_trees_wqs(a, m):\n    \"\"\"WQS 二分(P1484 至多 m 棵).\n    对每个惩罚 c: 每选一棵价值 -c, 无数量限制 DP 求 h(c)=max(v(k)-ck) 及\n    kmin(c)=argmax 中最小的 k。二分求最小 c>=0 使 kmin(c)<=m, ans=h(c)+c*m.\"\"\"\n    n = len(a)\n\n    def solve(c):\n        # dp0: 不种当前坑; dp1: 种当前坑. 各带 (价值, 棵数)\n        # 初始允许 0 棵\n        dp0v, dp0c = 0, 0\n        dp1v, dp1c = -10 ** 18, 0\n        for x in a:\n            # 不种当前: 取 dp0/dp1 中价值大者; 相同时取棵数小者(最小 argmax)\n            if dp0v > dp1v or (dp0v == dp1v and dp0c <= dp1c):\n                ndp0v, ndp0c = dp0v, dp0c\n            else:\n                ndp0v, ndp0c = dp1v, dp1c\n            # 种当前: 只能从 dp0 来\n            ndp1v = dp0v + x - c\n            ndp1c = dp0c + 1\n            dp0v, dp0c = ndp0v, ndp0c\n            dp1v, dp1c = ndp1v, ndp1c\n        if dp0v > dp1v or (dp0v == dp1v and dp0c <= dp1c):\n            return dp0v, dp0c\n        return dp1v, dp1c\n\n    lo, hi = 0, 10 ** 9\n    ans = None\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        v, cnt = solve(mid)\n        if cnt <= m:\n            ans = v + mid * m\n            hi = mid - 1\n        else:\n            lo = mid + 1\n    return ans\n\n\nif __name__ == \"__main__\":\n    for _ in range(300):\n        n = random.randint(1, 9)\n        a = [random.randint(-8, 8) for _ in range(n)]\n        m = random.randint(0, (n + 1) // 2)\n        bv = plant_trees_brute(a, m)\n        wv = plant_trees_wqs(a, m)\n        if wv != bv:\n            print(\"MISMATCH\", a, m, \"brute=\", bv, \"wqs=\", wv)\n            break\n    else:\n        print(\"plant_trees WQS vs brute: all matched!\")\n    print(\"a=[1..5], m=2 ->\", plant_trees_wqs([1, 2, 3, 4, 5], 2),\n          \"brute:\", plant_trees_brute([1, 2, 3, 4, 5], 2))\n",
+    "pypy_notes": "solve_with_penalty 内部是 O(n) 或 O(n log n) 贪心/DP，整个 WQS 二分 O(n log C)。Python 1e5 级 30~40 次二分可过；内层要避免高开销写法，PyPy 优势明显。",
+    "complexity": {
+      "time": "O(T log C), T 为单次无限制问题复杂度, C 为惩罚值域",
+      "space": "O(n)"
+    },
+    "limitations": "必须满足价值关于个数凸/凹（需要证明，非凸会二分出错误答案）。共线（多个 k 取到相同最大值）时需要固定 argmax 方向，否则二分会振荡。惩罚值域要包含最优斜率。恰好 k 个 vs 至多 k 个边界处理不同。二维限制（同时限个数和另一参数）需升级为三分/特殊处理，复杂度上升。Python 若 T 较大(如 O(n log n)) 总时间可能吃紧。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1484",
+      "url": "https://www.luogu.com.cn/problem/P1484",
+      "difficulty": 4,
+      "key_point": "种树: 至多 m 棵不相邻最大收益, WQS 模板题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2619",
+      "url": "https://www.luogu.com.cn/problem/P2619",
+      "difficulty": 4,
+      "key_point": "国家集训队 Tree I: 恰好 k 条白边的最小生成树, WQS+MST"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "739E",
+      "url": "https://codeforces.com/problemset/problem/739/E",
+      "difficulty": 5,
+      "key_point": "Gosha is hunting: 二维 WQS(球与种子双惩罚), 经典进阶题"
+    }
+  ],
+  "pitfalls": [
+    "未证明 v(k) 凸性就二分, 非凸时结果错误",
+    "共线情形没固定 argmax(取最大/最小 k), 二分会死循环或答错",
+    "还原答案时错用 cnt 而非 k: 必须是 val + mid*k",
+    "恰好 k 个与至多 k 个的边界(初始惩罚范围)混淆",
+    "惩罚整数二分时斜率可能为半整数, 需处理小数斜率"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "verify_convex",
+        "label": "证明 v(k) 凸/凹(交换论证/四边形不等式)"
+      },
+      {
+        "id": "drop_limit",
+        "label": "设计无数量限制问题+惩罚代价的解法"
+      },
+      {
+        "id": "binary_search",
+        "label": "二分惩罚 λ, 内层求解 h(λ) 与最优个数"
+      },
+      {
+        "id": "handle_ties",
+        "label": "共线时固定 argmax 方向并调整终止条件"
+      },
+      {
+        "id": "restore",
+        "label": "还原答案 = h(λ) + λk"
+      }
+    ],
+    "edges": [
+      {
+        "from": "verify_convex",
+        "to": "drop_limit"
+      },
+      {
+        "from": "drop_limit",
+        "to": "binary_search"
+      },
+      {
+        "from": "binary_search",
+        "to": "handle_ties"
+      },
+      {
+        "from": "handle_ties",
+        "to": "restore"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/opt/wqs-binary-search/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/dp/opt/wqs-binary-search.md",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://codeforces.com/blog/entry/98334",
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旋转卡壳 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-1.html">凸包族</a> / <span>旋转卡壳</span></div>
+  <h1>旋转卡壳</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-1</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="convex-hull.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">convex-hull</span></a>
+    <a class="nav-index" href="../03-groups/G-D-1.html"><span class="dir">组内第 2 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="half-plane-intersection.html"><span class="dir">下一个 / 组内</span><span class="v">half-plane-intersection</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">在凸包上枚举对踵点，O(n) 求凸包直径/最小矩形覆盖</div><p>旋转卡壳（Rotating Calipers）是在凸包上求解与凸包几何性质相关极值问题的线性算法族。核心思想：逆时针枚举凸包的每条边，同时维护一个指针指向&#x27;离当前边最远&#x27;的顶点（对踵点），由于凸包上&#x27;离边最远点&#x27;随边的旋转单调移动，指针总共只会前进 O(n) 步，从而在 O(n) 内求出凸包直径（最远点对距离平方）、最小面积矩形覆盖等。必须先求出凸包（Andrew/Graham），再在凸包上运行。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>想象用两把平行卡尺从两边夹住凸包，一边贴合一条边，另一边顶在对面的顶点上；卡尺绕凸包转一圈，每次&#x27;边—对踵点&#x27;的距离就是该方向上的宽度，最大值即直径。因为凸包是凸的，当边旋转时对踵点只会沿凸包单向移动（不会倒转），所以用一个&#x27;单调指针&#x27;就能线性维护最优点——这是分治与双指针思想的几何版。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>对凸包顶点按逆时针 p0..p_{m-1} 存储。对每条边 (i, i+1)，用叉积绝对值 |cross(p_i, p_{i+1}, p_j)| 度量点 p_j 到该边所在直线的&#x27;两倍三角形面积&#x27;（同底边，面积大小正比于高），在 j 处比较 j+1 是否更远，是则前进。直径候选为 dist(p_i, p_j) 与 dist(p_{i+1}, p_j)。正确性：凸包直径必然出现在某对&#x27;边—对踵点&#x27;之间（最远点对至少有一个点是某条边的对踵点），且单调指针保证每个对踵对至少被访问一次。最小矩形覆盖还需对每条边同时维护左右两侧用点积投影度量的最远点（l 与 r），面积 = (边方向的宽度)×(垂直方向的投影跨度)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Rotating Calipers 术语与概念由 Godfried Toussaint 于 1983 年在论文《Solving geometric problems with the rotating calipers》(MELECON &#x27;83) 中系统提出；其思想渊源可追溯至 Shamos 1978 年的计算几何博士论文中凸多边形直径的线性算法。此后被扩展为求解凸多边形最小面积外接矩形、两凸多边形最近/最远距离、并集周长等一大族问题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># hull: 凸包逆时针顶点列表, m = len(hull)</span>
+<span class="t-c"># 求直径（最远点对距离平方）</span>
+<span class="t-k">def</span> <span class="t-f">rotating_calipers_diameter</span>(hull):
+    <span class="t-k">if</span> m == <span class="t-n">1</span>: <span class="t-k">return</span> <span class="t-n">0</span>
+    <span class="t-k">if</span> m == <span class="t-n">2</span>: <span class="t-k">return</span> <span class="t-f">dist2</span>(hull[<span class="t-n">0</span>], hull[<span class="t-n">1</span>])
+    j = <span class="t-n">1</span>; best = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(m):
+        ni = (i+<span class="t-n">1</span>) % m
+        <span class="t-k">while</span> |<span class="t-f">cross</span>(hull[i], hull[ni], hull[(j+<span class="t-n">1</span>)%m])| &gt; |<span class="t-f">cross</span>(hull[i], hull[ni], hull[j])|:
+            j = (j+<span class="t-n">1</span>) % m
+        best = <span class="t-b">max</span>(best, <span class="t-f">dist2</span>(hull[i], hull[j]), <span class="t-f">dist2</span>(hull[ni], hull[j]))
+    <span class="t-k">return</span> best</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+
+
+<span class="t-k">def</span> <span class="t-f">cross</span>(o, a, b):
+    <span class="t-k">return</span> (a[<span class="t-n">0</span>]-o[<span class="t-n">0</span>])*(b[<span class="t-n">1</span>]-o[<span class="t-n">1</span>]) - (a[<span class="t-n">1</span>]-o[<span class="t-n">1</span>])*(b[<span class="t-n">0</span>]-o[<span class="t-n">0</span>])
+
+
+<span class="t-k">def</span> <span class="t-f">dist2</span>(a, b):
+    <span class="t-k">return</span> (a[<span class="t-n">0</span>]-b[<span class="t-n">0</span>])**<span class="t-n">2</span> + (a[<span class="t-n">1</span>]-b[<span class="t-n">1</span>])**<span class="t-n">2</span>
+
+
+<span class="t-k">def</span> <span class="t-f">convex_hull</span>(points):
+    pts = <span class="t-b">sorted</span>(<span class="t-b">set</span>(points))
+    <span class="t-k">if</span> <span class="t-b">len</span>(pts) &lt;= <span class="t-n">1</span>:
+        <span class="t-k">return</span> pts
+    lower = []
+    <span class="t-k">for</span> p <span class="t-k">in</span> pts:
+        <span class="t-k">while</span> <span class="t-b">len</span>(lower) &gt;= <span class="t-n">2</span> <span class="t-k">and</span> <span class="t-f">cross</span>(lower[-<span class="t-n">2</span>], lower[-<span class="t-n">1</span>], p) &lt;= <span class="t-n">0</span>:
+            lower.<span class="t-f">pop</span>()
+        lower.<span class="t-f">append</span>(p)
+    upper = []
+    <span class="t-k">for</span> p <span class="t-k">in</span> <span class="t-b">reversed</span>(pts):
+        <span class="t-k">while</span> <span class="t-b">len</span>(upper) &gt;= <span class="t-n">2</span> <span class="t-k">and</span> <span class="t-f">cross</span>(upper[-<span class="t-n">2</span>], upper[-<span class="t-n">1</span>], p) &lt;= <span class="t-n">0</span>:
+            upper.<span class="t-f">pop</span>()
+        upper.<span class="t-f">append</span>(p)
+    res = []
+    <span class="t-k">for</span> p <span class="t-k">in</span> lower[:-<span class="t-n">1</span>] + upper[:-<span class="t-n">1</span>]:
+        <span class="t-k">if</span> <span class="t-k">not</span> res <span class="t-k">or</span> res[-<span class="t-n">1</span>] != p:
+            res.<span class="t-f">append</span>(p)
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">diameter</span>(hull):
+    <span class="t-s">&quot;&quot;&quot;凸包直径：最远点对距离的平方。hull 为逆时针凸包。&quot;&quot;&quot;</span>
+    m = <span class="t-b">len</span>(hull)
+    <span class="t-k">if</span> m == <span class="t-n">1</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    <span class="t-k">if</span> m == <span class="t-n">2</span>:
+        <span class="t-k">return</span> <span class="t-f">dist2</span>(hull[<span class="t-n">0</span>], hull[<span class="t-n">1</span>])
+    j = <span class="t-n">1</span>
+    best = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(m):
+        ni = (i + <span class="t-n">1</span>) % m
+        <span class="t-k">while</span> <span class="t-b">abs</span>(<span class="t-f">cross</span>(hull[i], hull[ni], hull[(j+<span class="t-n">1</span>) % m])) &gt; <span class="t-b">abs</span>(<span class="t-f">cross</span>(hull[i], hull[ni], hull[j])):
+            j = (j + <span class="t-n">1</span>) % m
+        best = <span class="t-b">max</span>(best, <span class="t-f">dist2</span>(hull[i], hull[j]), <span class="t-f">dist2</span>(hull[ni], hull[j]))
+    <span class="t-k">return</span> best
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-k">import</span> random
+    <span class="t-c"># 正方形对角线</span>
+    sq = [(<span class="t-n">0</span>, <span class="t-n">0</span>), (<span class="t-n">10</span>, <span class="t-n">0</span>), (<span class="t-n">10</span>, <span class="t-n">10</span>), (<span class="t-n">0</span>, <span class="t-n">10</span>)]
+    h = <span class="t-f">convex_hull</span>(sq)
+    <span class="t-k">assert</span> <span class="t-f">diameter</span>(h) == <span class="t-n">200</span>, <span class="t-f">diameter</span>(h)
+    <span class="t-c"># 与 O(n^2) 暴力对拍</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        pts = [(random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100</span>), random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100</span>)) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">40</span>)]
+        hull = <span class="t-f">convex_hull</span>(pts)
+        brute = <span class="t-b">max</span>(<span class="t-f">dist2</span>(a, b) <span class="t-k">for</span> a <span class="t-k">in</span> pts <span class="t-k">for</span> b <span class="t-k">in</span> pts)
+        <span class="t-k">assert</span> <span class="t-f">diameter</span>(hull) == brute, (<span class="t-f">diameter</span>(hull), brute)
+    <span class="t-c"># 退化</span>
+    <span class="t-k">assert</span> <span class="t-f">diameter</span>(<span class="t-f">convex_hull</span>([(<span class="t-n">1</span>, <span class="t-n">1</span>)])) == <span class="t-n">0</span>
+    <span class="t-k">assert</span> <span class="t-f">diameter</span>(<span class="t-f">convex_hull</span>([(<span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">4</span>, <span class="t-n">5</span>)])) == <span class="t-n">25</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;rotating-calipers all tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">整数坐标全流程整数运算（叉积、距离平方），无精度问题；求&#x27;直径&#x27;时距离用平方表示，开根只在输出时做一次。Python 的 % 取模与函数调用较多，可把 cross 内联提升常数性能；PyPy 下双指针循环可轻松跑 1e6 级凸包顶点。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n)（在凸包上，凸包构建另需 O(n log n)）</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">必须先构建凸包；凸包顶点数 &lt; 3 时直径定义退化需特判；多组平行等距边时 while 条件用 &gt; 可能漏掉并列对踵点（用 &gt;= 会在并列时多走几步但结果仍正确）；求浮点坐标的最小矩形覆盖时叉积/点积比较需 eps，且输出四角要小心数值误差。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>忘记先求凸包直接在原点上跑双指针会得到错误答案</li><li>指针初始化 j=1 要从凸包第二点开始，否则第一条边的对踵点遗漏</li><li>凸包退化（顶点 &lt; 3）时 diameter 需特判</li><li>并列最远点时 while 用 &gt; 可能跳过部分对踵对；对拍验证</li><li>求最小矩形时左右投影点 l、r 的单调性要独立维护，不能共用一个指针</li><li>输出距离时漏开根（题目要求整数平方时除外）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1452</strong></td><td>3</td><td>Beauty Contest：凸包 + 旋转卡壳求最大距离（直径模板）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1452" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1452</a></td></tr><tr><td>Luogu</td><td><strong>P3187</strong></td><td>5</td><td>最小矩形覆盖：维护对踵点 + 左右投影点，O(n) 求最小面积外接矩形</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3187" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3187</a></td></tr><tr><td>AtCoder</td><td><strong>abc130_f</strong></td><td>4</td><td>Minimum Bounding Box：凸包枚举方向求最小外接矩形（卡壳思路）</td><td class="u"><a href="https://atcoder.jp/contests/abc130/tasks/abc130_f" target="_blank" rel="noopener">https://atcoder.jp/contests/abc130/tasks/abc130_f</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-rotating-calipers" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "hull", "label": "先求凸包（逆时针）"}}, {"data": {"id": "init", "label": "对踵点指针初始化 j=1"}}, {"data": {"id": "advance", "label": "按叉积面积单调推进对踵点"}}, {"data": {"id": "upd", "label": "更新直径/面积候选"}}, {"data": {"id": "rect", "label": "（进阶）最小矩形：维护左右投影点"}}, {"data": {"id": "ehull->init", "source": "hull", "target": "init"}}, {"data": {"id": "einit->advance", "source": "init", "target": "advance"}}, {"data": {"id": "eadvance->upd", "source": "advance", "target": "upd"}}, {"data": {"id": "eupd->advance", "source": "upd", "target": "advance"}}, {"data": {"id": "eupd->rect", "source": "upd", "target": "rect"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-rotating-calipers'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="convex-hull.html" title="旋转卡壳在凸包上枚举对踵点">凸包(Andrew/Graham)<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/rotating-calipers.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/rotating-calipers.md</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch29</span></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/geometry/minkowski.html" target="_blank" rel="noopener">https://cp-algorithms.com/geometry/minkowski.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

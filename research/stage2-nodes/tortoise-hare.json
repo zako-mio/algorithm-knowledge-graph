@@ -1,0 +1,114 @@
+{
+  "id": "tortoise-hare",
+  "name": "Floyd环检测",
+  "group": "G-E-7",
+  "stage": "intermediate",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "龟兔赛跑算法：快慢指针检测链表/序列环，O(n)O(1)找环起点与周期",
+  "what": "Floyd 环检测(龟兔赛跑算法)用快慢两个指针检测链表或函数式序列是否有环：慢指针每步走 1，快指针每步走 2，若相遇则有环。相遇后慢指针重置到起点，两指针各走 1 步，再次相遇处即环起点。全程 O(n) 时间 O(1) 空间。也可推广到检测序列进入循环的周期。",
+  "why": {
+    "intuition": "快指针速度是慢指针 2 倍，若存在环，两者必定在环上相遇(快指针追上慢指针)。因为每步距离差增 1，总会在某圈赶上。找到环后，设链长(到环入口)=a、环长=L，相遇点距入口 b，则有快指针路程=2×慢路程，解出慢指针再走 (L-b) 步到入口；重置慢指针到头部后两指针等速，必在入口相遇。",
+    "principle": "①存在性：慢走 x 步，快走 2x 步，两者在环上时相距随步数线性缩小，直到相遇。②起点：设相遇点慢指针已走 a+b(a=头部到入口, b=入口到相遇点)，快指针走 2(a+b)=a+b+kL(绕 k 圈)，得 a = kL - b，即从头部再走 a 步(与从相遇点继续走)同时到达入口。③周期：检测到环后继续以步长 1 计数一圈即得环长。",
+    "history": "算法 1960 年代由 Robert W. Floyd 提出，因其'兔子与乌龟'的速度比喻得名。CP-Algorithms 的 tortoise_and_hare 页详述存在性与环起点两阶段的数学证明。在链表面试题(LeetCode 141/142)、伪随机序列周期检测(Brent 算法为其变体)、函数迭代找循环等场景广泛使用。"
+  },
+  "how": {
+    "pseudocode": "# 阶段1: 检测环\ndef has_cycle(head):\n  slow = fast = head\n  while fast and fast.next:\n    slow = slow.next\n    fast = fast.next.next\n    if slow == fast:\n      return True\n  return False\n\n# 阶段2: 找环起点\ndef cycle_start(head):\n  slow = fast = head\n  while fast and fast.next:\n    slow = slow.next; fast = fast.next.next\n    if slow == fast:\n      break\n  if not fast or not fast.next:\n    return None\n  slow = head\n  while slow != fast:\n    slow = slow.next; fast = fast.next\n  return slow",
+    "python": "class ListNode:\n    def __init__(self, val=0):\n        self.val = val\n        self.next = None\n\n\ndef build_list(values, cycle_to=None):\n    \"\"\"建链表。cycle_to 为环入口结点下标(负索引从尾起), None 则无环。\"\"\"\n    head = None\n    nodes = []\n    for v in values:\n        nd = ListNode(v)\n        nodes.append(nd)\n    for i in range(len(nodes) - 1):\n        nodes[i].next = nodes[i + 1]\n    if cycle_to is not None:\n        nodes[-1].next = nodes[cycle_to]\n    return nodes[0] if nodes else None\n\n\ndef has_cycle(head):\n    \"\"\"检测链表是否有环。\"\"\"\n    slow = fast = head\n    while fast is not None and fast.next is not None:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            return True\n    return False\n\n\ndef cycle_start(head):\n    \"\"\"返回环入口结点, 无环返回 None。\"\"\"\n    slow = fast = head\n    while fast is not None and fast.next is not None:\n        slow = slow.next\n        fast = fast.next.next\n        if slow is fast:\n            break\n    if fast is None or fast.next is None:\n        return None\n    slow = head\n    while slow is not fast:\n        slow = slow.next\n        fast = fast.next\n    return slow\n\n\ndef cycle_length(head):\n    \"\"\"环长(在环内数一圈)。无环返回0。\"\"\"\n    entry = cycle_start(head)\n    if entry is None:\n        return 0\n    cur = entry.next\n    length = 1\n    while cur is not entry:\n        cur = cur.next\n        length += 1\n    return length\n\n\nif __name__ == '__main__':\n    # 无环\n    h = build_list([1, 2, 3, 4])\n    assert has_cycle(h) is False\n    assert cycle_start(h) is None\n    assert cycle_length(h) == 0\n\n    # 有环: 1->2->3->4->2\n    h2 = build_list([1, 2, 3, 4], cycle_to=1)\n    assert has_cycle(h2) is True\n    assert cycle_start(h2).val == 2\n    assert cycle_length(h2) == 3\n\n    # 环在头部: 1->1\n    h3 = build_list([1], cycle_to=0)\n    assert has_cycle(h3) is True\n    assert cycle_start(h3).val == 1\n    assert cycle_length(h3) == 1\n\n    # 较长的链+环\n    h4 = build_list(list(range(10)), cycle_to=4)  # 0..9, 9->4\n    assert has_cycle(h4) is True\n    assert cycle_start(h4).val == 4\n    assert cycle_length(h4) == 6\n\n    # 函数迭代序列环检测: x_{n+1} = (x*2+1) % 13 检测进入循环\n    seen = {}\n    x = 1\n    seq = []\n    while x not in seen:\n        seen[x] = len(seq)\n        seq.append(x)\n        x = (x * 2 + 1) % 13\n    # 用 Floyd 求序列环(对照)\n    def f(v):\n        return (v * 2 + 1) % 13\n    slow = fast = 1\n    # 找相遇\n    for _ in range(30):\n        slow = f(slow)\n        fast = f(f(fast))\n        if slow == fast:\n            break\n    print('seq head->cycle:', seq)\n    print('meeting value  :', slow, ' cycle entry from dict:', x)\n\n    print('cycle tests: h2 entry=2 len=3; h4 entry=4 len=6; all OK')\n    print('All tortoise-hare tests passed!')\n",
+    "pypy_notes": "链表指针在 Python 中是对象引用, 节点操作慢; 大数据量建议数组模拟链表(next 数组)提升性能; 循环迭代序列检测用函数式 f(x) 时注意快指针走两步要 f(f(x))。",
+    "complexity": {
+      "time": "O(N) — 快指针至多 2N 步; 找起点 O(N)",
+      "space": "O(1) — 仅两个指针变量"
+    },
+    "limitations": "链表环检测无法知道环的'结构', 仅返回入口/长度; 需要统计环内节点数时需另数一圈; 快指针每步2次可能跳过单个节点但数学上仍能追上; 对函数式序列(无链表)适用但需映射可计算。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "141",
+      "url": "https://leetcode.cn/problems/linked-list-cycle/",
+      "difficulty": 1,
+      "key_point": "环形链表: 检测是否有环, Floyd 基础题"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "142",
+      "url": "https://leetcode.cn/problems/linked-list-cycle-ii/",
+      "difficulty": 2,
+      "key_point": "环形链表II: 找环入口, Floyd 两阶段完整版"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "2008G",
+      "url": "https://codeforces.com/problemset/problem/2008/G",
+      "difficulty": 3,
+      "key_point": "Sakurako's Chefir: 函数迭代周期检测场景(数组模拟链环)"
+    }
+  ],
+  "pitfalls": [
+    "阶段1 循环条件 fast 与 fast.next 都要判 None, 否则无环链末尾访问 None.next 抛错",
+    "找环起点阶段 slow 重置到 head 后两指针等速(各走1), 别再让 fast 走 2 步",
+    "环长统计要先把入口存下来再转一圈, 别在找起点时顺手计数",
+    "Python 用对象引用比较 `is` 而不是 ==(值相同但不同节点), 值重复时 == 会误判",
+    "序列/函数式检测: 快指针两步必须写 f(f(x)), 慢一步 f(x), 别混步数"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "init",
+        "label": "slow=fast=head"
+      },
+      {
+        "id": "move",
+        "label": "快慢指针分别走 2 步 / 1 步"
+      },
+      {
+        "id": "meet",
+        "label": "相遇? 判环存在(遇 None 则无环)"
+      },
+      {
+        "id": "reset",
+        "label": "slow 重置 head, 双指针等速各走1"
+      },
+      {
+        "id": "entry",
+        "label": "再次相遇处即环入口"
+      }
+    ],
+    "edges": [
+      {
+        "from": "init",
+        "to": "move"
+      },
+      {
+        "from": "move",
+        "to": "meet"
+      },
+      {
+        "from": "meet",
+        "to": "reset"
+      },
+      {
+        "from": "reset",
+        "to": "entry"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/others/tortoise_and_hare.html",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://en.wikipedia.org/wiki/Cycle_detection",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://leetcode.cn/problems/linked-list-cycle-ii/",
+      "verified": true
+    }
+  ]
+}

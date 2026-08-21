@@ -1,0 +1,123 @@
+{
+ "id": "splay",
+ "name": "Splay(伸展树)",
+ "group": "G-A-8",
+ "stage": "advanced",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "伸展操作将访问节点旋至根，均摊O(log n)，LCT基础",
+ "what": "Splay 树（伸展树）由 Daniel Sleator 与 Robert Tarjan 于 1985 年发明，是一种自调整平衡二叉搜索树。每次访问（查找/插入/删除/查询）后，都通过伸展(splay)操作把被访问节点旋转到根，树结构随之自调整。任意连续 m 次操作总时间 O((m+n) log n)，即均摊 O(log n)，无需额外平衡信息、常数小，且是 LCT（Link-Cut Tree）的基础。",
+ "why": {
+  "intuition": "「刚访问的节点很可能很快再次被访问」——把最近访问的节点提到根，使后续访问路径变短。长期看，频繁访问的节点总在浅层，低频节点在深层，天然满足访问局部性，无需维护任何高度/大小信息，纯靠旋转自适应。",
+  "principle": "伸展操作由三种基本步骤组成：①zig：x 的父节点 p 是根时，直接单旋 x；②zig-zig：x 与 p 同为左/右子时，先旋 p 再旋 x（连续同向双旋）；③zig-zag：x 与 p 方向相反时，先旋 x 再旋 x（两次单旋）。zig 仅在 x 深度为奇数时作为最后一步执行。每步使 x 离根更近。均摊分析用势能法：设势能 Φ = Σ log(size 子树)，一次 splay 的均摊代价为 O(log n)，从而 m 次操作均摊 O((m+n)log n)。访问路径上的所有节点信息沿路自下而上更新，因此 splay 到根可完成整条路径的信息维护（LCT 关键）。",
+  "history": "1985 年由 Sleator 与 Tarjan 提出（论文 Self-Adjusting Binary Search Trees），开创自调整数据结构流派。1987 年用于网络流 Dinic 扩展；后来成为 LCT 的基础（1997 年 Sleator-Tarjan 提出动态树）。OI 界因其实现在数组模拟下简洁、支持区间操作而广为使用，LOJ/P3369 等模板皆以其为范例。"
+ },
+ "how": {
+  "pseudocode": "rotate(x):           # 单旋：x 与父交换位置（左/右两种）\n  y = fa[x]; z = fa[y]\n  若 x 是 y 的右子: y.right = x.left; x.left = y\n  否则:           y.left = x.right; x.right = y\n  fa[x] = z; 更新 y.size, x.size; fa[y] = x\n  (z 相应左右指针指向 x)\n\nsplay(x, goal=0):   # 将 x 旋到 goal 之下(默认根)\n  while fa[x] != goal:\n    y = fa[x]; z = fa[y]\n    if z == goal: rotate(x)                # zig\n    elif dir(x)==dir(y): rotate(y); rotate(x)  # zig-zig\n    else: rotate(x); rotate(x)                  # zig-zag\n\ninsert(val):\n  按 BST 找到空位插入 x; splay(x)\n\nfind(val):\n  按 BST 找 x; splay(x)   # 不存在则 splay 最后访问节点\n\ndelete(val):\n  splay(待删节点); 断开左右子树再合并\n\n区间操作(l,r): 将 l-1 splay 到根，r+1 splay 到根右子，则 [l,r] 整体在 r+1 的左子树",
+  "python": "class SplayTree:\n    def __init__(self):\n        self.val = [0]   # 哨兵0：占位；节点 1-indexed\n        self.ch = [[0, 0]]\n        self.fa = [0]\n        self.size = [0]\n        self.rev = [False]\n        for v in (-10**18, 10**18):\n            self._new(v)\n        self.root = 1\n        self.ch[1][1] = 2\n        self.fa[2] = 1\n        self._pull(1)\n\n    def _new(self, v):\n        self.val.append(v)\n        self.ch.append([0, 0])\n        self.fa.append(0)\n        self.size.append(1)\n        self.rev.append(False)\n        return len(self.val) - 1\n\n    def _pull(self, x):\n        self.size[x] = 1 + self.size[self.ch[x][0]] + self.size[self.ch[x][1]]\n\n    def _dir(self, x):\n        f = self.fa[x]\n        return 1 if self.ch[f][1] == x else 0\n\n    def _push(self, x):\n        if self.rev[x]:\n            l, r = self.ch[x][0], self.ch[x][1]\n            self.ch[x][0], self.ch[x][1] = r, l\n            if l:\n                self.rev[l] ^= True\n            if r:\n                self.rev[r] ^= True\n            self.rev[x] = False\n\n    def _rotate(self, x):\n        y = self.fa[x]\n        d = self._dir(x)\n        z = self.fa[y]\n        b = self.ch[x][d ^ 1]\n        if z:\n            self.ch[z][self._dir(y)] = x\n        self.fa[x] = z\n        self.ch[x][d ^ 1] = y\n        self.fa[y] = x\n        self.ch[y][d] = b\n        if b:\n            self.fa[b] = y\n        self._pull(y)\n        self._pull(x)\n\n    def _splay_to(self, x, goal=0):\n        path = []\n        cur = x\n        while cur and cur != goal:\n            path.append(cur)\n            cur = self.fa[cur]\n        for node in reversed(path):\n            self._push(node)\n        while self.fa[x] != goal:\n            y = self.fa[x]\n            z = self.fa[y]\n            if z and z != goal:\n                if self._dir(x) == self._dir(y):\n                    self._rotate(y)\n                else:\n                    self._rotate(x)\n            self._rotate(x)\n        if goal == 0:\n            self.root = x\n\n    def _splay(self, x):\n        self._splay_to(x, 0)\n\n    def _find_node(self, k):\n        x = self.root\n        while True:\n            self._push(x)\n            l = self.ch[x][0]\n            if self.size[l] + 1 == k:\n                return x\n            if k <= self.size[l]:\n                x = l\n            else:\n                k -= self.size[l] + 1\n                x = self.ch[x][1]\n\n    def _find(self, k):\n        x = self._find_node(k)\n        self._splay(x)\n        return x\n\n    def insert(self, val):\n        x = self.root\n        while True:\n            self._push(x)\n            if val < self.val[x]:\n                if not self.ch[x][0]:\n                    self.ch[x][0] = self._new(val)\n                    self.fa[self.ch[x][0]] = x\n                    self._splay(self.ch[x][0])\n                    return\n                x = self.ch[x][0]\n            else:\n                if not self.ch[x][1]:\n                    self.ch[x][1] = self._new(val)\n                    self.fa[self.ch[x][1]] = x\n                    self._splay(self.ch[x][1])\n                    return\n                x = self.ch[x][1]\n\n    def reverse_range(self, l, r):\n        a = self._find(l - 1)\n        b = self._find_node(r + 1)\n        self._splay_to(b, a)\n        node = self.ch[self.ch[self.root][1]][0]\n        if node:\n            self.rev[node] ^= True\n            self._push(node)\n\n    def inorder(self):\n        out = []\n        def dfs(x):\n            if not x:\n                return\n            self._push(x)\n            dfs(self.ch[x][0])\n            out.append(self.val[x])\n            dfs(self.ch[x][1])\n        dfs(self.root)\n        return out\n\n\nif __name__ == \"__main__\":\n    import random\n    s = SplayTree()\n    for v in [3, 1, 4, 1, 5, 9, 2, 6]:\n        s.insert(v)\n    mid = s.inorder()\n    assert mid == sorted([-10**18, 10**18, 3, 1, 4, 1, 5, 9, 2, 6]), mid\n    t = SplayTree()\n    for v in [10, 20, 30, 40, 50]:\n        t.insert(v)\n    t.reverse_range(2, 4)\n    got = t.inorder()[1:-1]\n    assert got == [30, 20, 10, 40, 50], got\n    rng = random.Random(3)\n    base = list(range(1, 30))\n    t2 = SplayTree()\n    for v in base:\n        t2.insert(v)\n    exp = base[:]\n    for step in range(200):\n        l = rng.randint(2, len(base) - 1)\n        r = rng.randint(l, len(base))\n        t2.reverse_range(l, r)\n        exp[l - 2:r - 1] = exp[l - 2:r - 1][::-1]\n    assert t2.inorder()[1:-1] == exp\n    print(\"All tests passed.\")\n",
+  "pypy_notes": "Splay 用数组模拟时注意 0 作为空指针哨兵，所有 val 数组 1-indexed；_splay 收尾逻辑要保证最后一步是 zig/zig-zig（奇数深度时多旋一次）。区间操作借助 ±inf 两个哨兵避免 l-1/r+1 越界。PyPy 下整体常数较大，但均摊保证稳定。",
+  "complexity": {
+   "time": "单次操作最坏 O(n)，m 次连续操作均摊 O(log n)（势能法证明）",
+   "space": "O(n)"
+  },
+  "limitations": "单次操作无最坏保证，不适合实时性要求强的场景；代码较长易错（旋转/哨兵/下传顺序）。主要价值：LCT 基础、区间翻转/区间插入删除（序列 Splay）。纯平衡树需求下 Python 选手通常更愿用 FHQ-Treap。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P3391",
+   "url": "https://www.luogu.com.cn/problem/P3391",
+   "difficulty": 5,
+   "key_point": "文艺平衡树：区间翻转，序列 Splay 经典题"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P2042",
+   "url": "https://www.luogu.com.cn/problem/P2042",
+   "difficulty": 7,
+   "key_point": "NOI2005 维护数列：区间插入/删除/翻转/最大子段和"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P2596",
+   "url": "https://www.luogu.com.cn/problem/P2596",
+   "difficulty": 6,
+   "key_point": "ZJOI2006 书架：按编号定位+splay到根"
+  },
+  {
+   "oj": "LOJ",
+   "pid": "105",
+   "url": "https://loj.ac/problem/105",
+   "difficulty": 5,
+   "key_point": "文艺平衡树模板：区间翻转 splay 实现"
+  }
+ ],
+ "pitfalls": [
+  "splay 循环里把 zig-zig/zig-zag 分支顺序写错，导致旋转次数不对称",
+  "哨兵 -inf/+inf 未建立导致区间边界访问空节点",
+  "下传懒标记 push 时机错误：splay/旋转前未 push 路径上节点",
+  "删除后未 splay 导致均摊复杂度退化（每个操作后都必须伸展）"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "struct",
+    "label": "数组模拟结构+双哨兵"
+   },
+   {
+    "id": "rotate",
+    "label": "单旋 rotate 与方向判断"
+   },
+   {
+    "id": "splay",
+    "label": "zig/zig-zig/zig-zag 伸展核心"
+   },
+   {
+    "id": "bst_ops",
+    "label": "insert/find/delete 后伸展"
+   },
+   {
+    "id": "seq",
+    "label": "区间操作:按秩定位+splay到根"
+   },
+   {
+    "id": "lct",
+    "label": "LCT 中的虚实链切换基础"
+   }
+  ],
+  "edges": [
+   {
+    "from": "struct",
+    "to": "rotate"
+   },
+   {
+    "from": "rotate",
+    "to": "splay"
+   },
+   {
+    "from": "splay",
+    "to": "bst_ops"
+   },
+   {
+    "from": "bst_ops",
+    "to": "seq"
+   },
+   {
+    "from": "splay",
+    "to": "lct"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/splay/",
+   "verified": true
+  },
+  {
+   "type": "paper",
+   "ref": "Sleator & Tarjan, Self-Adjusting Binary Search Trees, JACM 1985",
+   "verified": true
+  }
+ ]
+}

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hopcroft-Karp算法 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-6.html">二分图与匹配族</a> / <span>Hopcroft-Karp算法</span></div>
+  <h1>Hopcroft-Karp算法</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-B-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="km-algorithm.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">km-algorithm</span></a>
+    <a class="nav-index" href="../03-groups/G-B-6.html"><span class="dir">组内第 4 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="general-match.html"><span class="dir">下一个 / 组内</span><span class="v">general-match</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">二分图匹配，多增广路O(E√V)</div><p>Hopcroft-Karp（HK）算法是二分图最大匹配的最优算法之一，复杂度 O(E√V)。它把 Kuhn 的单次单增广路升级为『每一轮找到多条互不相交的最短增广路（阻塞流）同时增广』：先 BFS 从所有未匹配左部点建层次图（dist），只到找到第一个含未匹配右部点的层为止；再按层次严格递增的限制做 DFS 找若干条点不相交的最短增广路一起翻转。最短增广路长度每轮严格增加，总轮数 O(√V)，故总复杂度 O(E√V)。实际上它是 Dinic 求二分图匹配（容量 1 网络）的特例。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>Kuhn 每次只找一条增广路，而很多右部点在同一轮里明明可以并行让座。HK 用 BFS 把『最短增广路』看成一整层的匹配机会：层次图里从每个未匹配左部点出发，找到的所有最短增广路互不相交，一次性全增广。因为每轮用的都是最短增广路，最短长度严格递增，而长度不会超过 √V 次，所以轮次被限制在 O(√V)。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 层次图：将匹配边定向为右→左、非匹配边定向为左→右，从所有未匹配左部点 BFS，dist 记录层号，遇到未匹配右部点即停（found=True），若 BFS 结束没找到 → 当前匹配最大；② DFS(u) 沿 dist[v]=dist[u]+1 的边推进，只走未访问点，找到未匹配右部点则完成一条增广路并翻转（用 pairU/pairV）；③ 一轮内收集尽量多的点不相交最短增广路（即 Dinic 的阻塞流）；④ 复杂度证明：增广路长度每轮严格递增（对称差论证 |P&#x27;| ≥ |P|+2|P∩P&#x27;|），长度至多增加 3|M|^0.5 次，故轮数 O(√V)，每轮 O(E)，总 O(E√V)。随机图中大概率 O(E log V)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>John E. Hopcroft 与 Richard M. Karp 于 1973 年在 SIAM J. Comput. 发表『An n^{5/2} algorithm for maximum matchings in bipartite graphs』。该算法奠定了二分图匹配在稀疏大图上的标准做法，也被视为网络流算法在单位容量图上的先声（后与 Dinic 联系）。OI Wiki 与 CP-Algorithms 均有标准实现。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">pairU[u] = -<span class="t-n">1</span> (左部 u 匹配的右部); pairV[v] = -<span class="t-n">1</span>
+
+<span class="t-f">bfs</span>():
+  q = 所有未匹配左部点, dist=<span class="t-n">0</span>
+  dist[NIL] = -<span class="t-n">1</span>; found = <span class="t-k">False</span>
+  <span class="t-k">while</span> q:
+    u = <span class="t-f">pop</span>(q)
+    <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+      w = pairV[v]
+      <span class="t-k">if</span> w == -<span class="t-n">1</span>: found = <span class="t-k">True</span>          <span class="t-c"># 找到未匹配右部点</span>
+      <span class="t-k">elif</span> dist[w] == -<span class="t-n">1</span>:
+        dist[w] = dist[u] + <span class="t-n">1</span>; <span class="t-f">push</span>(q, w)
+  <span class="t-k">return</span> found
+
+<span class="t-f">dfs</span>(u):
+  <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+    w = pairV[v]
+    <span class="t-k">if</span> w == -<span class="t-n">1</span> <span class="t-k">or</span> (dist[w] == dist[u]+<span class="t-n">1</span> <span class="t-k">and</span> <span class="t-f">dfs</span>(w)):
+      pairU[u] = v; pairV[v] = u; <span class="t-k">return</span> <span class="t-k">True</span>
+  dist[u] = -<span class="t-n">1</span>; <span class="t-k">return</span> <span class="t-k">False</span>
+
+matching = <span class="t-n">0</span>
+<span class="t-k">while</span> <span class="t-f">bfs</span>():
+  <span class="t-k">for</span> u <span class="t-k">in</span> 左部点:
+    <span class="t-k">if</span> pairU[u] == -<span class="t-n">1</span> <span class="t-k">and</span> <span class="t-f">dfs</span>(u): matching += <span class="t-n">1</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+
+<span class="t-k">def</span> <span class="t-f">hopcroft_karp</span>(left_n, right_m, adj):
+    <span class="t-s">&quot;&quot;&quot;Hopcroft-Karp 求二分图最大匹配，O(E√V)。
+    adj[u]: 左部点 u 的右部点邻居列表。返回 (匹配数, pairU, pairV)。&quot;&quot;&quot;</span>
+    pairU = [-<span class="t-n">1</span>] * left_n
+    pairV = [-<span class="t-n">1</span>] * right_m
+    NIL = left_n
+    dist = [-<span class="t-n">1</span>] * (left_n + <span class="t-n">1</span>)
+
+    <span class="t-k">def</span> <span class="t-f">bfs</span>():
+        q = <span class="t-f">deque</span>()
+        found = <span class="t-k">False</span>
+        <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(left_n):
+            <span class="t-k">if</span> pairU[u] == -<span class="t-n">1</span>:
+                dist[u] = <span class="t-n">0</span>
+                q.<span class="t-f">append</span>(u)
+            <span class="t-k">else</span>:
+                dist[u] = -<span class="t-n">1</span>
+        dist[NIL] = -<span class="t-n">1</span>
+        <span class="t-k">while</span> q:
+            u = q.<span class="t-f">popleft</span>()
+            <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+                w = pairV[v]
+                <span class="t-k">if</span> w == -<span class="t-n">1</span>:
+                    found = <span class="t-k">True</span>
+                <span class="t-k">elif</span> dist[w] == -<span class="t-n">1</span>:
+                    dist[w] = dist[u] + <span class="t-n">1</span>
+                    q.<span class="t-f">append</span>(w)
+        <span class="t-k">return</span> found
+
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(u):
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            w = pairV[v]
+            <span class="t-k">if</span> w == -<span class="t-n">1</span> <span class="t-k">or</span> (dist[w] == dist[u] + <span class="t-n">1</span> <span class="t-k">and</span> <span class="t-f">dfs</span>(w)):
+                pairU[u] = v
+                pairV[v] = u
+                <span class="t-k">return</span> <span class="t-k">True</span>
+        dist[u] = -<span class="t-n">1</span>
+        <span class="t-k">return</span> <span class="t-k">False</span>
+
+    res = <span class="t-n">0</span>
+    <span class="t-k">while</span> <span class="t-f">bfs</span>():
+        <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(left_n):
+            <span class="t-k">if</span> pairU[u] == -<span class="t-n">1</span> <span class="t-k">and</span> <span class="t-f">dfs</span>(u):
+                res += <span class="t-n">1</span>
+    <span class="t-k">return</span> res, pairU, pairV
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-k">import</span> random
+
+    <span class="t-k">def</span> <span class="t-f">kuhn</span>(n, m, adj):
+        <span class="t-k">match</span> = [-<span class="t-n">1</span>] * m
+
+        <span class="t-k">def</span> <span class="t-f">tr</span>(u, vis):
+            <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+                <span class="t-k">if</span> vis[v]:
+                    <span class="t-k">continue</span>
+                vis[v] = <span class="t-k">True</span>
+                <span class="t-k">if</span> <span class="t-k">match</span>[v] == -<span class="t-n">1</span> <span class="t-k">or</span> <span class="t-f">tr</span>(<span class="t-k">match</span>[v], vis):
+                    <span class="t-k">match</span>[v] = u
+                    <span class="t-k">return</span> <span class="t-k">True</span>
+            <span class="t-k">return</span> <span class="t-k">False</span>
+
+        r = <span class="t-n">0</span>
+        <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> <span class="t-f">tr</span>(u, [<span class="t-k">False</span>] * m):
+                r += <span class="t-n">1</span>
+        <span class="t-k">return</span> r
+
+    random.<span class="t-f">seed</span>(<span class="t-n">5</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">20</span>)
+        m = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">20</span>)
+        adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(m):
+                <span class="t-k">if</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.25</span>:
+                    adj[u].<span class="t-f">append</span>(v)
+        r1, _, _ = <span class="t-f">hopcroft_karp</span>(n, m, adj)
+        r2 = <span class="t-f">kuhn</span>(n, m, adj)
+        <span class="t-k">assert</span> r1 == r2, (n, m, adj, r1, r2)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;hopcroft-karp: All tests passed.&#x27;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">实现注意：BFS 的 found 逻辑与 dist 更新要在遇到未匹配右部点时不展开其后续；DFS 的 dist[u]=-1 剪枝（走过的失败左部点标记避免重复）。邻接表尽量紧凑；n,m 到 1e5、E 到 5e5 时 O(E√V) 在 PyPy 下是标准做法。Python 递归 dfs 深度最大 √V，安全，但可改显式栈。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(E√V)（O(√V) 轮 × 每轮 BFS+DFS 共 O(E)）；随机图大概率 O(E log V)</td></tr><tr><th>空间复杂度</th><td>O(V+E) 邻接表 + O(V) dist/pair 数组</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只适用二分图（一般图需带花树）。若图已接近完全（E~n²）或 n 小，Kuhn 常数更小。BFS 提前终止的优化（遇到未匹配右部点不扩展）在某些图反而更慢（OI Wiki 提示）。只求最大匹配基数/方案，无权值。需配合 bipartite-check 确认二分性。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>BFS 中未匹配右部点只是置 found=True，不能再沿它的 pairV（-1）入队</li><li>DFS 必须先判 pairV[v]==-1 或（dist[w]==dist[u]+1 且 dfs(w)），条件顺序错误会走非层次边</li><li>每轮 while bfs() 后要重新对未匹配左部点 dfs，不能用缓存的上轮 dist</li><li>dist 数组大小 left_n+1（含 NIL 哨兵），索引越界是常见 bug</li><li>找最大匹配数要在找到后就累加，不能在 while 结束后再数 pairU</li><li>图巨大时 Python 递归 dfs 每次新建 list 会慢，尽量复用数组</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Library Checker</td><td><strong>bipartitematching</strong></td><td>3</td><td>Matching on Bipartite Graph 模板题：HK 标准模板，OI Wiki 参考实现题</td><td class="u"><a href="https://judge.yosupo.jp/problem/bipartitematching" target="_blank" rel="noopener">https://judge.yosupo.jp/problem/bipartitematching</a></td></tr><tr><td>Luogu</td><td><strong>P3386</strong></td><td>3</td><td>【模板】二分图最大匹配：Kuhn 与 HK 均可，HK 用于大数据模板</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3386" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3386</a></td></tr><tr><td>Luogu</td><td><strong>P1640</strong></td><td>4</td><td>【SCOI2010】连续攻击游戏：属性-编号二分图匹配，图大时 HK 优于 Kuhn</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1640" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1640</a></td></tr><tr><td>LOJ</td><td><strong>6002</strong></td><td>3</td><td>最小路径覆盖：DAG 拆点后二分图匹配，|V|-最大匹配，HK 加速</td><td class="u"><a href="https://loj.ac/p/6002" target="_blank" rel="noopener">https://loj.ac/p/6002</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-hopcroft-karp" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "level", "label": "BFS 建层次图，遇未匹配右部点即停"}}, {"data": {"id": "blossom_free", "label": "按 dist 严格递增 DFS 找多条不相交增广路"}}, {"data": {"id": "augment", "label": "一并翻转阻塞流，匹配数增加"}}, {"data": {"id": "rounds", "label": "最短增广路长度严格递增 → O(√V) 轮"}}, {"data": {"id": "dinic", "label": "关联：Dinic 单位容量网络流特例"}}, {"data": {"id": "elevel->blossom_free", "source": "level", "target": "blossom_free"}}, {"data": {"id": "eblossom_free->augment", "source": "blossom_free", "target": "augment"}}, {"data": {"id": "eaugment->rounds", "source": "augment", "target": "rounds"}}, {"data": {"id": "erounds->level", "source": "rounds", "target": "level"}}, {"data": {"id": "eaugment->dinic", "source": "augment", "target": "dinic"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-hopcroft-karp'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="hungarian.html" title="同为二分图匹配，HK多路增广更优O(E√V)">匈牙利算法(Kuhn)<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/graph-matching/bigraph-match/" target="_blank" rel="noopener">https://oi-wiki.org/graph/graph-matching/bigraph-match/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/graph-matching/bigraph-match.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/graph-matching/bigraph-match.md</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">Hopcroft &amp; Karp 1973, An n^{5/2} algorithm for maximum matchings in bipartite graphs</span></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CLRS ch26.3 (bipartite matching via max flow)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

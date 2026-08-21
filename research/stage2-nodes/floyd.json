@@ -1,0 +1,78 @@
+{
+  "id": "floyd",
+  "name": "Floyd-Warshall算法",
+  "group": "G-B-2",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "全源最短路，DP三重循环O(V³)，可处理负权",
+  "what": "Floyd-Warshall 算法（又称 Floyd）求任意两点间（全源）最短路径，O(V³)。它用动态规划：令 dis[k][i][j] 表示只允许经过前 k 个节点（编号 ≤k）中转时 i 到 j 的最短路，转移 dis[k][i][j]=min(dis[k-1][i][j], dis[k-1][i][k]+dis[k-1][k][j])，滚掉第一维后即为三重循环 dis[i][j]=min(dis[i][j], dis[i][k]+dis[k][j])。可处理负权边，并在循环结束后检测负环（dis[i][i]<0）。常用于点数较少（n≤500）的全源最短路、传递闭包、最小环等。",
+  "why": {
+    "intuition": "把『所有点』当做一个一个加入的『允许中转点』。新加入点 k 时，检查每一对 (i,j)：经 k 中转是否更短。因为每步只依赖上一次的结果，三重循环里 k 在最外层是精妙的『以 k 为最大中转点编号』的 DP 顺序，保证每个中转点恰好被考虑一次。",
+    "principle": "① 状态 dis[k][i][j]：只用 {0..k} 中节点做中转时 i→j 最短路；② 转移 dis[k]=min(dis[k-1], dis[k-1][i][k]+dis[k-1][k][j])，即 k 要么不在中转路径里，要么被使用；③ 滚掉 k 维得标准三重循环（k 外层），原因是 k 层只用上一层的 i,k 与 k,j，原地更新不破坏正确性；④ 路径重建：记录 nxt[i][j] 为从 i 到 j 路径上的下一节点，松弛时同步更新；⑤ 负环：若某 dis[i][i]<0，说明存在总权为负的闭合路径（负环）。",
+    "history": "算法以 Robert Floyd 命名（1962 年发表于 Communications of the ACM），但本质是 Stephen Warshall（1962）传递闭包思想的推广；同时 Bernard Roy（1959）也独立发表。是四大经典最短路算法（Dijkstra/Bellman-Ford/Floyd/Johnson）中唯一的全源 DP 方法，教材（CLRS、CPH ch13）标准内容。"
+  },
+  "how": {
+    "pseudocode": "# 三重循环 (k 外层)\ndis = 距离矩阵; 无边记 INF; dis[i][i]=0\nfor k in range(n):\n  for i in range(n):\n    if dis[i][k] == INF: continue\n    for j in range(n):\n      if dis[k][j] == INF: continue\n      dis[i][j] = min(dis[i][j], dis[i][k]+dis[k][j])\n\n# 负环检测: 结束后存在 dis[i][i] < 0\n# 路径重建:\nnxt[i][j] 初始 = j (若有边)\nif 松弛: nxt[i][j] = nxt[i][k]",
+    "python": "def floyd(n, edges):\n    \"\"\"Floyd-Warshall: 返回 dis 距离矩阵 (可处理负权, 不含负环)。\n    edges: [(u,v,w),...] 0-indexed\"\"\"\n    INF = float('inf')\n    dis = [[INF] * n for _ in range(n)]\n    for i in range(n):\n        dis[i][i] = 0\n    for u, v, w in edges:\n        dis[u][v] = min(dis[u][v], w)\n    for k in range(n):\n        for i in range(n):\n            if dis[i][k] == INF:\n                continue\n            ik = dis[i][k]\n            for j in range(n):\n                if dis[k][j] == INF:\n                    continue\n                nd = ik + dis[k][j]\n                if nd < dis[i][j]:\n                    dis[i][j] = nd\n    return dis\n\n\ndef floyd_has_neg_cycle(n, edges):\n    \"\"\"检测负环: Floyd 结束后存在 dis[i][i]<0\"\"\"\n    dis = floyd(n, edges)\n    for i in range(n):\n        if dis[i][i] < 0:\n            return True\n    return False\n\n\ndef floyd_path(n, edges, s, t):\n    \"\"\"Floyd + 路径重建: 返回 (dist, path 节点列表); 不可达返回 (inf, [])\"\"\"\n    INF = float('inf')\n    dis = [[INF] * n for _ in range(n)]\n    nxt = [[-1] * n for _ in range(n)]\n    for i in range(n):\n        dis[i][i] = 0\n    for u, v, w in edges:\n        if w < dis[u][v]:\n            dis[u][v] = w\n            nxt[u][v] = v\n    for k in range(n):\n        for i in range(n):\n            if dis[i][k] == INF:\n                continue\n            for j in range(n):\n                if dis[k][j] == INF:\n                    continue\n                nd = dis[i][k] + dis[k][j]\n                if nd < dis[i][j]:\n                    dis[i][j] = nd\n                    nxt[i][j] = nxt[i][k]\n    if dis[s][t] == INF:\n        return INF, []\n    path = []\n    cur = s\n    while cur != -1:\n        path.append(cur)\n        if cur == t:\n            break\n        cur = nxt[cur][t]\n    return dis[s][t], path\n\n\nif __name__ == \"__main__\":\n\n    def dijkstra_all(adj, n):\n        import heapq\n        out = []\n        for s in range(n):\n            dis = [float('inf')] * n\n            dis[s] = 0\n            pq = [(0, s)]\n            while pq:\n                d, u = heapq.heappop(pq)\n                if d > dis[u]:\n                    continue\n                for v, w in adj[u]:\n                    if d + w < dis[v]:\n                        dis[v] = d + w\n                        heapq.heappush(pq, (dis[v], v))\n            out.append(dis)\n        return out\n\n    import random\n    random.seed(11)\n    for _ in range(150):\n        n = random.randint(1, 7)\n        edges = []\n        adj = [[] for _ in range(n)]\n        for i in range(n):\n            for j in range(n):\n                if i != j and random.random() < 0.35:\n                    w = random.randint(1, 8)\n                    edges.append((i, j, w))\n                    adj[i].append((j, w))\n        disF = floyd(n, edges)\n        disD = dijkstra_all(adj, n)\n        for i in range(n):\n            for j in range(n):\n                a, b = disF[i][j], disD[i][j]\n                if a == float('inf') or b == float('inf'):\n                    assert a == b, (i, j, a, b)\n                else:\n                    assert a == b, (i, j, a, b)\n\n    # 负环检测\n    assert floyd_has_neg_cycle(3, [(0, 1, 1), (1, 2, -1), (2, 0, -2)]) is True\n    assert floyd_has_neg_cycle(3, [(0, 1, 1), (1, 2, -1), (2, 0, 1)]) is False\n\n    # 路径重建\n    edges = [(0, 1, 2), (0, 2, 5), (1, 3, 1), (2, 3, 2), (1, 2, 1)]\n    d, p = floyd_path(4, edges, 0, 3)\n    assert d == 3 and p == [0, 1, 3], (d, p)\n    print(\"All tests passed.\")",
+    "pypy_notes": "三重循环用局部变量 ik=dis[i][k] 与 nd 减少索引；跳过 INF 提前 continue 显著提速。稠密图 n≤500 时三重 1.25e8 次运算 PyPy 约 2-3s，可接受；更大只能换 Johnson 或 n 次 Dijkstra。内层 j 循环用 range 而非 list 切片。",
+    "complexity": {
+      "time": "O(V³)",
+      "space": "O(V²) 距离矩阵；路径重建额外 O(V²)"
+    },
+    "limitations": "V 大时 O(V³) 不可行（n≤500 以内为宜，n=1000 约 1e9 操作超时）。可处理负权但不能含负环（检测到负环即无有限最短路）。对含负环的图，floyd 无法给出答案，需先判负环。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1119",
+      "url": "https://www.luogu.com.cn/problem/P1119",
+      "difficulty": 4,
+      "key_point": "灾后重建：按时间逐点开放中转点，恰好对应 Floyd 的 k 循环"
+    },
+    {
+      "oj": "CSES",
+      "pid": "Shortest Routes II",
+      "url": "https://cses.fi/problemset/task/1672",
+      "difficulty": 3,
+      "key_point": "全源最短路模板（Floyd），n≤500 标准题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4768",
+      "url": "https://www.luogu.com.cn/problem/P4768",
+      "difficulty": 6,
+      "key_point": "最短路径+离线：结合 Kruskal 重构树，Floyd 思路的推广"
+    }
+  ],
+  "pitfalls": [
+    "k 必须在最外层——把 k 放内层会得到错误结果",
+    "重边取 min 建矩阵，否则丢边",
+    "INF 太大导致 inf+w 溢出（Python float 无此问题，但 int INF 需足够大）",
+    "负环时 dis[i][i]<0，但无负环图从任意 i 出发回到 i 应为 0",
+    "路径重建忘记初始化 nxt 或在松弛时同步更新",
+    "n 超过 ~500 时 O(V³) 超时，需换 Johnson/SPFA"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "dp_state", "label": "状态 dis[k][i][j]: 只用≤k 中转" },
+      { "id": "k_outer", "label": "k 最外层三重循环顺序" },
+      { "id": "relax_loop", "label": "转移 min(直接, 经 k)" },
+      { "id": "neg_cycle", "label": "负环检测 dis[i][i]<0" },
+      { "id": "path_rebuild", "label": "nxt 数组路径重建" },
+      { "id": "min_cycle", "label": "扩展: 最小环" }
+    ],
+    "edges": [
+      { "from": "dp_state", "to": "k_outer" },
+      { "from": "k_outer", "to": "relax_loop" },
+      { "from": "relax_loop", "to": "neg_cycle" },
+      { "from": "relax_loop", "to": "path_rebuild" },
+      { "from": "path_rebuild", "to": "min_cycle" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/graph/shortest-path/", "verified": true },
+    { "type": "cpalg", "url": "https://cp-algorithms.com/graph/all-pair-shortest-path-floyd-warshall.html", "verified": true },
+    { "type": "book", "ref": "CPH ch13 pp133-142", "verified": true }
+  ]
+}

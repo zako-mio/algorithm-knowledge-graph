@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Powerful Number 筛 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-9.html">数论高级族</a> / <span>Powerful Number 筛</span></div>
+  <h1>Powerful Number 筛</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-C-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="min-25-sieve.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">min-25-sieve</span></a>
+    <a class="nav-index" href="../03-groups/G-C-9.html"><span class="dir">组内第 6 / 11</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="meissel-lehmer.html"><span class="dir">下一个 / 组内</span><span class="v">meissel-lehmer</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">O(n^{3/4}) 求积性函数前缀和，基于 PN 分解 f=g*h，h 仅在 PN 处非零</div><p>Powerful Number（PN）筛是杜教筛的扩展，求一类积性函数前缀和。PN 定义：n 的每个质因子指数 e_i≥2（即不存在质因子只出现一次）。性质：① 所有 PN 可写成 a²b³；② n 以内 PN 至多 O(√n) 个。算法：构造积性函数 g，满足 g(p)=f(p) 且 G(n)=Σg 易求（常用杜教筛）。令 h=f/g（Dirichlet 卷积除法），则 h(p)=0，且 h 只在 PN 处非零。于是 F(n)=Σ_{d≤n, d 为 PN} h(d)·G(⌊n/d⌋)。步骤：枚举全部 PN（DFS 素数指数≥2）、递推求 h(p^c)（用 f(p^c)=Σ_{i=0}^c g(p^i)h(p^{c-i}) 反推）、O(1)/杜教筛求 G(⌊n/d⌋)，累加。复杂度 O(√n·(log n)) + G 查询成本；用杜教筛求 G 时为 O(n^{2/3})。典型例：f(p^k)=p^k(p^k-1)，取 g=id·φ。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>杜教筛要求构造的 g 让 f*g 好算。PN 筛换了个角度：让 g 与 f 在‘质数点上完全一致’（g(p)=f(p)），于是两者的差异函数 h=f/g 在质数上为 0。积性函数的‘质数点相同’意味着 h 只在那些‘处处高次’的数（Powerful Number）上有值——而这样的数只有 O(√n) 个！把 f 的前缀和拆成 h(d)·G(n/d) 累加，G 用杜教筛，两边都是亚线性。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 构造 g 满足 g(p)=f(p)、g 积性、G(n) 易求；② h=f/g（卷积除法）：h(p)=f(p)-g(p)=0，且 h 为积性 → h 仅在 PN 处非零；③ F(n)=Σ_{d≤n} h(d)G(⌊n/d⌋)=Σ_{d PN} h(d)G(⌊n/d⌋)；④ h(p^c) 由 f(p^c)=Σ_{i=0}^c g(p^i)h(p^{c-i}) 反推（h(p)=0 打底）；⑤ 枚举 PN：DFS 每个素数指数≥2，乘积≤n。性质证明：PN 可写 a²b³（指数 2 或 3 归并）；数量 O(√n)（Σ_{a≤√n} (n/a²)^{1/3} 积分）。复杂度：枚举 O(√n) 个 PN，每个查 G O(1)/杜教筛。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Powerful Number 筛是杜教筛思想的进一步发展，常见于中国 OI 圈高端数论题。名称源于 Powerful Number 的既有数学概念。OI Wiki《Powerful Number 筛》页系统给出构造 g 的两种 h(p^c) 求法（直接公式 vs 枚举反推）、PN 枚举与复杂度分析，例题 Luogu P5325（Min_25 模板亦可解）与 LibreOJ 6053。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 步骤</span>
+<span class="t-n">1.</span> 线性筛 <span class="t-f">sqrt</span>(n) 内素数
+<span class="t-n">2.</span> 构造 <span class="t-f">g</span> (<span class="t-f">g</span>(p)=<span class="t-f">f</span>(p), G 易求, 常用杜教筛)
+<span class="t-n">3.</span> 对每个素数 p 递推 <span class="t-f">h</span>(p^c):
+   <span class="t-f">h</span>(p^c) = <span class="t-f">f</span>(p^c) - sum_{i=<span class="t-n">1.</span>.c} <span class="t-f">g</span>(p^i)*<span class="t-f">h</span>(p^{c-i})   <span class="t-c"># h(p)=0</span>
+<span class="t-n">4.</span> DFS 枚举所有 PN d: 每个素数指数&gt;=<span class="t-n">2</span> 累乘
+   ans += <span class="t-f">h</span>(d) * <span class="t-f">G</span>(n // d)
+<span class="t-k">def</span> <span class="t-f">dfs</span>(idx, d, hval):
+  <span class="t-k">if</span> idx == <span class="t-b">len</span>(primes): ans += hval*<span class="t-f">G</span>(n//d); <span class="t-k">return</span>
+  <span class="t-f">dfs</span>(idx+<span class="t-n">1</span>, d, hval)            <span class="t-c"># 不含 primes[idx]</span>
+  p = primes[idx]; pe = p*p
+  <span class="t-k">for</span> e <span class="t-k">in</span> <span class="t-n">2.</span>.:                  <span class="t-c"># 指数&gt;=2</span>
+    <span class="t-k">if</span> pe &gt; n//d: <span class="t-k">break</span>
+    <span class="t-f">dfs</span>(idx+<span class="t-n">1</span>, d*pe, hval*<span class="t-f">h</span>(p^e))
+    pe *= p
+<span class="t-c"># 例: f(p^k)=p^k(p^k-1), g=id*phi -&gt; h(p^k)=(k-1)(p-1)p^k</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-s">&quot;&quot;&quot;Powerful Number 筛: 求积性函数 f 前缀和.
+核心: 构造积性函数 g, g(p)=f(p) 且 G(n) 易求 (一般杜教筛). 
+定义 h = f/g (Dirichlet 卷积除法), 则 h 仅在 Powerful Number 处非零.
+F(n) = sum_{d PN, d&lt;=n} h(d) * G(n//d).
+PN 个数 O(sqrt n). 这里演示 f(p^k)=p^k(p^k-1) (P5325 模板): g = id*phi, 
+G(n) = sum i*phi(i), 由 (id*phi)*id = id^2 得杜教筛递推.
+&quot;&quot;&quot;</span>
+<span class="t-k">import</span> math
+
+
+<span class="t-k">class</span> PNSieve:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, n):
+        self.n = n
+        self.sqn = <span class="t-b">int</span>(math.<span class="t-f">isqrt</span>(n))
+        self.primes = []
+        self.<span class="t-f">_sieve</span>()
+        <span class="t-c"># 杜教筛 G(n)=sum i*phi(i) 的记忆化</span>
+        self.phi_prefix = {}
+        self.<span class="t-f">_precompute_phi</span>()
+
+    <span class="t-k">def</span> <span class="t-f">_sieve</span>(self):
+        m = self.sqn
+        is_p = [<span class="t-k">True</span>] * (m + <span class="t-n">1</span>)
+        is_p[<span class="t-n">0</span>] = is_p[<span class="t-n">1</span>] = <span class="t-k">False</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, <span class="t-b">int</span>(m ** <span class="t-n">0.5</span>) + <span class="t-n">1</span>):
+            <span class="t-k">if</span> is_p[i]:
+                <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i * i, m + <span class="t-n">1</span>, i):
+                    is_p[j] = <span class="t-k">False</span>
+        self.primes = [i <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, m + <span class="t-n">1</span>) <span class="t-k">if</span> is_p[i]]
+
+    <span class="t-k">def</span> <span class="t-f">_precompute_phi</span>(self):
+        m = self.sqn
+        phi = <span class="t-b">list</span>(<span class="t-b">range</span>(m + <span class="t-n">1</span>))
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, m + <span class="t-n">1</span>):
+            <span class="t-k">if</span> phi[i] == i:
+                <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, m + <span class="t-n">1</span>, i):
+                    phi[j] -= phi[j] // i
+        s = <span class="t-n">0</span>
+        self.phi_pre = [<span class="t-n">0</span>] * (m + <span class="t-n">1</span>)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, m + <span class="t-n">1</span>):
+            s += i * phi[i]
+            self.phi_pre[i] = s
+
+    <span class="t-k">def</span> <span class="t-f">G</span>(self, n):
+        <span class="t-s">&quot;&quot;&quot;G(n) = sum_{i&lt;=n} i*phi(i). 杜教筛: (id*phi)*id = id^2.&quot;&quot;&quot;</span>
+        <span class="t-k">if</span> n &lt;= self.sqn:
+            <span class="t-k">return</span> self.phi_pre[n]
+        <span class="t-k">if</span> n <span class="t-k">in</span> self.phi_prefix:
+            <span class="t-k">return</span> self.phi_prefix[n]
+        ans = n * (n + <span class="t-n">1</span>) * (<span class="t-n">2</span> * n + <span class="t-n">1</span>) // <span class="t-n">6</span>   <span class="t-c"># sum i^2</span>
+        l = <span class="t-n">2</span>
+        <span class="t-k">while</span> l &lt;= n:
+            r = n // (n // l)
+            ans -= (r * (r + <span class="t-n">1</span>) // <span class="t-n">2</span> - (l - <span class="t-n">1</span>) * l // <span class="t-n">2</span>) * self.<span class="t-f">G</span>(n // l)
+            l = r + <span class="t-n">1</span>
+        self.phi_prefix[n] = ans
+        <span class="t-k">return</span> ans
+
+    <span class="t-k">def</span> <span class="t-f">h_pk</span>(self, p, k):
+        <span class="t-s">&quot;&quot;&quot;h(p^k). 由 f(p^k)=p^k(p^k-1), g=id*phi, f=g*h 反推.
+        已知 h(p^k) = (k-1)(p-1)*p^k (OI Wiki 推导结果).&quot;&quot;&quot;</span>
+        <span class="t-k">if</span> k == <span class="t-n">1</span>:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        <span class="t-k">return</span> (k - <span class="t-n">1</span>) * (p - <span class="t-n">1</span>) * (p ** k)
+
+    <span class="t-k">def</span> <span class="t-f">run</span>(self):
+        <span class="t-s">&quot;&quot;&quot;DFS 枚举所有 Powerful Number d&lt;=n, 累加 h(d)*G(n//d).&quot;&quot;&quot;</span>
+        self.ans = <span class="t-n">0</span>
+
+        <span class="t-k">def</span> <span class="t-f">dfs</span>(idx, d, hval):
+            <span class="t-k">if</span> idx &gt;= <span class="t-b">len</span>(self.primes):
+                self.ans += hval * self.<span class="t-f">G</span>(self.n // d)
+                <span class="t-k">return</span>
+            <span class="t-c"># 不引入 primes[idx] 的分支</span>
+            <span class="t-f">dfs</span>(idx + <span class="t-n">1</span>, d, hval)
+            <span class="t-c"># 引入 primes[idx] 的 &gt;=2 次方 (PN 要求每个质因子指数&gt;=2)</span>
+            p = self.primes[idx]
+            pe = p * p
+            <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, <span class="t-n">40</span>):
+                <span class="t-k">if</span> pe &gt; self.n // d:
+                    <span class="t-k">break</span>
+                h_pk = self.<span class="t-f">h_pk</span>(p, k)
+                <span class="t-f">dfs</span>(idx + <span class="t-n">1</span>, d * pe, hval * h_pk)
+                pe *= p
+        <span class="t-f">dfs</span>(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>)
+        <span class="t-k">return</span> self.ans
+
+
+<span class="t-k">def</span> <span class="t-f">brute_prefix</span>(n):
+    <span class="t-k">def</span> <span class="t-f">f</span>(x):
+        res = <span class="t-n">1</span>
+        d = <span class="t-n">2</span>
+        y = x
+        <span class="t-k">while</span> d * d &lt;= y:
+            c = <span class="t-n">0</span>
+            <span class="t-k">while</span> y % d == <span class="t-n">0</span>:
+                y //= d; c += <span class="t-n">1</span>
+            <span class="t-k">if</span> c:
+                res *= (d ** c) * (d ** c - <span class="t-n">1</span>)
+            d += <span class="t-n">1</span>
+        <span class="t-k">if</span> y &gt; <span class="t-n">1</span>:
+            res *= y * (y - <span class="t-n">1</span>)
+        <span class="t-k">return</span> res
+    <span class="t-k">return</span> <span class="t-b">sum</span>(<span class="t-f">f</span>(i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>))
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">for</span> n <span class="t-k">in</span> [<span class="t-n">10</span>, <span class="t-n">30</span>, <span class="t-n">100</span>, <span class="t-n">1000</span>, <span class="t-n">5000</span>, <span class="t-n">100000</span>]:
+        ps = <span class="t-f">PNSieve</span>(n)
+        got = ps.<span class="t-f">run</span>()
+        exp = <span class="t-f">brute_prefix</span>(n)
+        <span class="t-k">assert</span> got == exp, (n, got, exp)
+    <span class="t-b">print</span>(<span class="t-s">&quot;powerful-number-sieve: all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">DFS 遍历 PN 时用迭代/栈避免深递归（素数个数 log 量级，安全）。h(p^c) 可预计算二维表（p 与指数）供 DFS 查。G 用杜教筛（记忆化 dict），n//d 的取值又是 ⌊n/k⌋ 形式，可复用杜教筛的 memo。PyPy 下注意 dict 键为大整数时哈希开销。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(√n·log n) 预处理 h(p^c) + O(√n) PN 枚举 × G 查询（杜教筛时总 O(n^{2/3})）</td></tr><tr><th>空间复杂度</th><td>O(√n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① 需构造合适的 g（g(p)=f(p) 且 G 易求），对 f 的结构有要求；② 若 G 用杜教筛则总复杂度受杜教筛限制；③ h(p^c) 递推易错（卷积方向）；④ 枚举 PN 的 DFS 细节（指数上界 pe≤n/d）需注意；⑤ 对非 PN 支撑的 f（f 在质数点本身复杂）不适用。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>h(p) 应为 0 而误算为 f(p)（卷积除法反推时从 h(p)=0 起）</li><li>h(p^c) 反推漏了 Σ_{i=1..c} 的 g(p^i)h(p^{c-i}) 项</li><li>DFS 枚举 PN 时包含质因子指数=1 的数（非 PN）</li><li>G(n//d) 未用杜教筛 memo 导致重复计算</li><li>指数循环上界写成 pe≤n 而非 pe≤n//d</li><li>g 选择错误（g(p)≠f(p)）导致 h 不只在 PN 非零</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P5325</strong></td><td>5</td><td>【模板】Min_25 筛：f(p^k)=p^k(p^k-1)，PN 筛亦可解（g=id·φ）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5325" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5325</a></td></tr><tr><td>LibreOJ</td><td><strong>6053</strong></td><td>5</td><td>简单的函数：构造 g 处理 f(p)=p xor c 的 PN 筛解法</td><td class="u"><a href="https://loj.ac/p/6053" target="_blank" rel="noopener">https://loj.ac/p/6053</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-powerful-number-sieve" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "construct-g", "label": "构造 g: g(p)=f(p), G 杜教筛易求"}}, {"data": {"id": "hpk", "label": "反推 h(p^c): f=g*h 卷积, h(p)=0"}}, {"data": {"id": "enumerate", "label": "DFS 枚举全部 PN (指数>=2, 乘积\u003c=n)"}}, {"data": {"id": "accumulate", "label": "累加 h(d)*G(n//d)"}}, {"data": {"id": "ext", "label": "扩展: 与 Min_25/杜教筛选型, 贝尔级数"}}, {"data": {"id": "econstruct-g->hpk", "source": "construct-g", "target": "hpk"}}, {"data": {"id": "ehpk->enumerate", "source": "hpk", "target": "enumerate"}}, {"data": {"id": "eenumerate->accumulate", "source": "enumerate", "target": "accumulate"}}, {"data": {"id": "eaccumulate->ext", "source": "accumulate", "target": "ext"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-powerful-number-sieve'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/powerful-number/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/powerful-number/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/du/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/du/</a></li><li><span class="srctype">article</span><span class="v-ok">&#10003;</span> <a href="https://www.cnblogs.com/wallbreaker5th/p/13901487.html" target="_blank" rel="noopener">https://www.cnblogs.com/wallbreaker5th/p/13901487.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>算法知识图谱 · 调研阶段留档报告</title>
+<style>
+  :root { --bg:#0f1117; --panel:#161a22; --border:#2a2f3a; --text:#e6e8ee; --dim:#9aa3b2; --accent:#4f8cff; --ok:#2fb98a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; line-height:1.8; }
+  header { background:var(--panel); border-bottom:1px solid var(--border); padding:28px 32px; }
+  header h1 { font-size:24px; margin-bottom:6px; }
+  header p { color:var(--dim); font-size:14px; }
+  main { padding:28px 32px; max-width:1100px; margin:0 auto; }
+  h2 { font-size:19px; margin:32px 0 14px; color:#cfd6e4; border-bottom:1px solid var(--border); padding-bottom:8px; }
+  h3 { font-size:16px; margin:22px 0 10px; color:var(--accent); }
+  h4 { font-size:14px; margin:16px 0 8px; color:#cfd6e4; }
+  p { margin:8px 0; }
+  li { margin:4px 0 4px 22px; }
+  table { border-collapse:collapse; margin:12px 0; width:100%; font-size:13px; }
+  th { background:#1d2a3f; border:1px solid var(--border); padding:8px 10px; text-align:left; color:#cfd6e4; }
+  td { border:1px solid var(--border); padding:8px 10px; }
+  pre { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:12px 16px; overflow-x:auto; font-size:12px; margin:10px 0; }
+  code { background:#1d2a3f; border-radius:4px; padding:1px 5px; font-size:12px; }
+  blockquote { border-left:3px solid var(--accent); background:var(--panel); padding:10px 14px; margin:10px 0; border-radius:0 8px 8px 0; color:var(--dim); }
+  a { color:var(--accent); text-decoration:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>算法知识图谱 · 调研阶段留档报告</h1>
+  <p>任务目录：2026-08/0820-algorithm-knowledge-graph · 留档日期：2026-08-21</p>
+</header>
+<main>
+<h1>算法知识图谱 · 调研阶段留档报告</h1>
+
+<blockquote>任务目录：<code>2026-08/0820-algorithm-knowledge-graph/</code></blockquote>
+<blockquote>留档日期：2026-08-21</blockquote>
+<blockquote>复杂度：[COMPLEXITY: 13/20] → Deep</blockquote>
+
+<p>---</p>
+
+<h2>一、当时情况</h2>
+
+<p>用户准备算法比赛（主目标 ICPC/CCPC 竞赛系，兼大厂笔试 + LeetCode 周赛），语言为 Python。核心诉求：制作一个<b>全面囊括算法知识及其关系</b>的知识图谱，复用 <code>0820-plugin-dag-rc8</code> 的 DAG 基础设施模式（动态 DAG 图 + 多 HTML 文件承载每个知识点），每页内容要求<b>高度人类可读</b>（what-why-how + 示例展示 + 注意要点），需<b>多渠道联网搜索 + 交叉验证 + 参考书下载</b>，覆盖新兴与经典知识。</p>
+
+<p>用户水平：基础已建/中级（掌握排序/二分/栈队列/链表/树，能独立刷 LeetCode Medium，DP/图论/高级数据结构生疏）。时间导向：长远准备优先（不为一周冲刺牺牲深度），冲刺路径作为&quot;临赛聚焦&quot;优先级叠加层保留。</p>
+
+<p>环境状态：已有 rc8 成熟 DAG 知识图谱基础设施（数据格式 <code>{meta,groups,layers,nodes,edges}</code> + 构建脚本链 + cytoscape 交互图 + 质量门控 + headless 验证）；先例项目 <code>0813-笔试复习</code>（ML/AI 面试向）与 <code>0813-红黑树原理学习</code>（单点深潜）；WSL2 代理 <code>172.29.0.1:7890</code> 已配置。</p>
+
+<h2>二、制定计划</h2>
+
+<h3>需求分析（grill-me，16 条决策收敛）</h3>
+
+<li>竞赛目标：ICPC/CCPC 主 + 笔试/LeetCode 兼</li>
+<li>水平定位：基础中级，图谱重点投放 DP/图论/高级数据结构与竞赛套路</li>
+<li>时间导向：长远准备优先，冲刺路径作为叠加层</li>
+<li>语言：纯 Python（含 PyPy 注意事项），接受常数因子短板</li>
+<li>范围：ICPC 全量主题域（DS/算法范式/图论/字符串/数学/几何）+ 技巧元层</li>
+<li>粒度：三级下钻（组级粗粒度 → 组内变体 DAG 中粒度 → HTML 页内细粒度小节）</li>
+<li>内容深度分级：P0=deep / P1-2=standard / P3=brief</li>
+<li>边语义：多类型（前置依赖/变体演进/组合应用/考点共现）+ 组内连续导航</li>
+<li>调研信源：权威源（OI Wiki/CP-Alg/进阶指南/CPH）+ 经典书 best-effort + 前沿追踪</li>
+<li>基础设施：参考重构（rc8 为参考，重新设计数据模型）</li>
+<li>分组：混合（12-15 细化域组 + 学习阶段标记）</li>
+<li>冲刺标记：P0-P3 优先级字段 + 交互图可切换视图</li>
+<li>输出：独立新目录</li>
+<li>例题：真实竞赛题（CF/AtCoder/LC/洛谷 题号+链接+难度+考点）</li>
+<li>产出：AI 全自动 + 用户抽查</li>
+<li>页内步骤迷你图：保留（算法步骤分解 DAG）</li>
+
+<h3>调研计划（两阶段串行接力 + 检查点）</h3>
+
+<li><b>Stage 1 域调研</b>：5 路并行（数据结构与算法范式/图论/字符串数学/几何与高级DS/技巧元层与前沿）→ 产出节点/边/组清单</li>
+<li><b>Stage 2 点调研</b>：按组聚合分批（26 批，波次 6 并行）→ 产出每节点完整内容 schema</li>
+<li><b>质量门控</b>：JSON 合法/DAG 无环/断链 0/Python 可跑/信源覆盖/跨节点一致</li>
+<li><b>检查点</b>：Stage 1 后用户抽查清单；Stage 2 后用户抽查节点</li>
+
+<h3>网络与并发预研（实测）</h3>
+
+<li>OI Wiki 正确域名 <code>oi-wiki.org</code>（<code>.com</code> 不可达）；GitHub raw 可用（直取原始 MD）</li>
+<li>CF API bulk 缓存不可行（&gt;120s 超时）→ 例题主源改 Luogu/AtCoder/LC.cn，CF 仅题号引用 + Google 定位</li>
+<li>CF 页面 403（Cloudflare）→ 题面用 Luogu 镜像或 browser-harness</li>
+<li>并发对策：全量信源 curl+UA 扛并发，统一 UA 头，波次 5-8 并行</li>
+
+<h2>三、执行情况</h2>
+
+<h3>委派执行（42 次子 Agent 调用，全程遵循委派协议）</h3>
+
+<table><thead><tr><th>阶段</th><th>委派</th><th>结果</th></tr></thead><tbody>
+<tr><td>源索引</td><td>2 子 Agent（OI Wiki 树 465md / CPH 目录 30 章）</td><td>✅</td></tr>
+<tr><td>Stage 1</td><td>5 路并行域调研</td><td>4 成功，Shard B 首次空返回重跑成功</td></tr>
+<tr><td>聚合</td><td>1 子 Agent（合并+冲突检测）</td><td>✅ 61 组/411 节点/327 边，57 冲突</td></tr>
+<tr><td>裁决</td><td>1 子 Agent（去重应用）</td><td>✅ 60 组/372 节点/318 边</td></tr>
+<tr><td>Stage 2 试点</td><td>1 子 Agent（线段树族 9 节点）</td><td>✅ 模板验证可规模化</td></tr>
+<tr><td>Stage 2 量产</td><td>26 批 × 波次 6 并行</td><td>批次 1/2/20/21 首次失败，重跑全部成功</td></tr>
+<tr><td>质量门控</td><td>1 子 Agent（全量审计）</td><td>发现问题 6 类</td></tr>
+<tr><td>规范化</td><td>1 子 Agent（修复 104 文件）</td><td>✅ remaining 0</td></tr>
+</tbody></table>
+
+<h3>关键过程事件</h3>
+
+<li><b>Shard B 图论首次空返回</b>：子 Agent 中途未落盘 → 按故障容错重跑成功（加负载管理提示）</li>
+<li><b>批次 1/2/20/21 失败</b>：同样中途返回未落盘 → 重跑全部成功</li>
+<li><b>质量门控发现问题</b>：14 节点 29 处子字段缺口、14 处深度档映射偏离、4 条空白 example url、102 条 examples 字段命名不一致、16 条 book source 引用误放、20 单源节点 → 规范化修复 104 文件</li>
+<li><b>子 Agent 自修复 40+ 逻辑 bug</b>：ODT split 顺序、单调队列期望值、CDQ 索引、带修莫队旧值记录、高斯消元 pivot、splay 懒标记顺序等</li>
+
+<h3>数据产出过程</h3>
+
+<li>源索引：OI Wiki 465 md 按 12+2 域分组；CP-Alg 170 页按 13 类；CPH 30 章 296 页</li>
+<li>Stage 1：5 shard → 聚合 → 冲突裁决（25 dup_id 按域归属去重 + 14 semantic 合并）</li>
+<li>Stage 2：372 节点内容（每节点 8-15 字段完整 schema），Python 全部 py_compile + 实跑自测</li>
+
+<h2>四、完成情况</h2>
+
+<h3>交付物清单</h3>
+
+<table><thead><tr><th>产物</th><th>路径</th><th>数量</th></tr></thead><tbody>
+<tr><td>设计决策留档</td><td>`00-plan/design-decisions.md`</td><td>16 条决策</td></tr>
+<tr><td>调研计划</td><td>`00-plan/research-plan.md`</td><td>含 schema/委派契约/质量门控</td></tr>
+<tr><td>图谱清单</td><td>`research/stage1-inventory/inventory.json` + `.md`</td><td>60 组/372 节点/318 边</td></tr>
+<tr><td>节点内容库</td><td>`research/stage2-nodes/*.json`</td><td>372 个</td></tr>
+<tr><td>源索引</td><td>`research/sources/`</td><td>oiwiki-index/cpalg-sitemap/cph-toc/books</td></tr>
+<tr><td>质量门控报告</td><td>`research/cross-validation/stage2-quality-gate.md`</td><td>审计 + 修复记录</td></tr>
+</tbody></table>
+
+<h3>验证结果</h3>
+
+<li>372/372 节点 JSON 有效，Python 372/372 编译通过 + 实跑自测</li>
+<li>DAG 无环（prerequisite 边拓扑排序通过）；断链 0；group-node 双向一致</li>
+<li>深度档：deep 105 / standard 216 / brief 51（P0 全 deep）</li>
+<li>优先级：P0 94(25.3%) / P1 113 / P2 117 / P3 48</li>
+<li>信源：97.9% verified=true；核心机制 ≥2 源；例题 1037 条真实（HTTP 实测）</li>
+
+<h3>遗留项</h3>
+
+<li>商业书（CLRS/刘汝佳/进阶指南）按 best-effort 原则未入库（无合法免费下载），以 OI Wiki 引用替代</li>
+<li>3 个工具类节点（common-mistakes/fast-output/interactive-debug）单源标注 single_source=true</li>
+<li>部分 CF 例题 URL 无法直读验证（403 反爬），以洛谷镜像/知名模板题确认</li>
+
+<h2>五、反思/分析/建议</h2>
+
+<h3>收获认知</h3>
+
+<li><b>委派协议的价值被实证</b>：42 次子 Agent 调用 + 调度者只做编排/聚合/裁决，主 Agent 上下文未爆，全程零&quot;凭记忆写内容&quot;——每节点内容都是子 Agent curl 直读 OI Wiki/CP-Alg 原文后撰写，这正是&quot;调研质量决定图谱质量&quot;的落地。</li>
+<li><b>子 Agent 自修复能力是质量保障</b>：40+ 逻辑 bug 在实跑自测中被发现并修复（而非凭直觉断言正确），证明&quot;不报告成功除非有新鲜验证证据&quot;的纪律在子 Agent 层也生效。</li>
+<li><b>波次执行 + 落盘校验是容错关键</b>：6 次批次失败（子 Agent 中途返回）都靠&quot;磁盘状态核实 + 重跑&quot;恢复，从未丢失已产出数据；<code>_batch-plan.json</code> 作为批次跟踪文件是重要基建。</li>
+<li><b>网络预研前置省了大量返工</b>：CF API 不可用、OI Wiki 域名纠正、CF 403 对策，都在量产前测清，子 Agent prompt 里直接注入联网规范。</li>
+<li><b>质量门控要分两层</b>：内容生成时的自验证（py_compile+实跑）+ 全量审计（字段/一致性/命名归一）——后者抓到 6 类规范化问题，若不修会污染下游 HTML 生成。</li>
+
+<h3>过程建议</h3>
+
+<li><b>子 Agent 批次失败模式</b>：返回中途状态（&quot;I&#x27;ll create a generator script&quot;）但未落盘的情况反复出现，建议后续在 prompt 中强化&quot;必须先写文件再返回&quot;（已在重跑 prompt 中加&quot;必须写文件&quot;强化，效果显著）。</li>
+<li><b>批次粒度</b>：14 节点/批 + 6 并行/波是甜点区；过大的组（26 节点）拆开后更稳。</li>
+<li><b>后续构建阶段建议</b>：基于 372 节点内容库生成 HTML 页时，直接读 stage2-nodes/*.json（数据源已规范化），模板复用 rc8 的 cytoscape 交互图 + 页内步骤 DAG；冲刺视图用 priority 字段过滤；组内连续导航用 group 字段分组排序。</li>
+
+<h3>对未来类似任务的建议</h3>
+
+<li>大规模内容生产任务：先小批量试点验证模板（本任务试点 9 节点），再波次量产，避免返工</li>
+<li>联网调研：先做信源可达性实测 + 并发对策，把结论注入子 Agent prompt</li>
+<li>质量门控：分&quot;生成时自验证 + 全量审计&quot;两层，审计报告驱动规范化修复</li>
+
+</main>
+</body>
+</html>

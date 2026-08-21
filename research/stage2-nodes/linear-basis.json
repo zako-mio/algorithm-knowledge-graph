@@ -1,0 +1,70 @@
+{
+  "id": "linear-basis",
+  "name": "线性基",
+  "group": "G-C-14",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "异或空间基，O(n log max)插入，求最大/最小/第k小异或值",
+  "what": "线性基是线性空间的一组基（极大线性无关组）。竞赛中常用异或线性基（GF(2)域上的基）：给定一组数，构造一组基使得任意数的子集异或都能由基的子集异或表示。性质：基中任意非空子集异或不为0；基中各数二进制最高位不同。支持查询最大/最小/第k小异或值、判断某数能否被异或表出、求异或值排名等。",
+  "why": {
+    "intuition": "线性基好比'异或空间'的坐标系。给定一组数，它们能异或出的所有值构成一个'空间'，线性基就是这个空间的最小'坐标轴'集——用最少的基向量表示所有可能的异或值。",
+    "principle": "贪心插入：对每个数从高位到低位扫描，若该位为1且基中该位为空则存入，否则异或消去该位。查询最大异或时从高位到低位贪心：若异或后变大则异或。求第k小需先将基化简为行简化阶梯形。",
+    "history": "线性基源于线性代数的基概念。OI Wiki将异或线性基作为GF(2)域上线性空间的应用。高斯消元法也可构造线性基，结果为行简化阶梯形。"
+  },
+  "how": {
+    "pseudocode": "insert(x):\n  for i in bits-1..0:\n    if x>>i&1:\n      if basis[i]==0: basis[i]=x; return True\n      x ^= basis[i]\n  return False\n\nmax_xor(start):\n  ans = start\n  for i in bits-1..0:\n    if ans^basis[i] > ans: ans^=basis[i]\n  return ans",
+    "python": "class XorBasis:\n    \"\"\"XOR linear basis over GF(2). Supports max/min/kth XOR queries.\"\"\"\n    def __init__(self, bits=60):\n        self.basis = [0] * bits\n        self.bits = bits\n        self.size = 0\n\n    def insert(self, x):\n        \"\"\"Insert x into the basis. Returns True if rank increased.\"\"\"\n        for i in range(self.bits - 1, -1, -1):\n            if not (x >> i & 1):\n                continue\n            if self.basis[i] == 0:\n                self.basis[i] = x\n                self.size += 1\n                return True\n            x ^= self.basis[i]\n        return False\n\n    def max_xor(self, start=0):\n        \"\"\"Maximum XOR of any subset, starting from given value.\"\"\"\n        ans = start\n        for i in range(self.bits - 1, -1, -1):\n            if (ans ^ self.basis[i]) > ans:\n                ans ^= self.basis[i]\n        return ans\n\n    def min_xor(self):\n        \"\"\"Minimum nonzero XOR of any subset.\"\"\"\n        for i in range(self.bits):\n            if self.basis[i] != 0:\n                return self.basis[i]\n        return 0\n\n    def contains(self, x):\n        \"\"\"Check if x can be represented as XOR of some subset.\"\"\"\n        for i in range(self.bits - 1, -1, -1):\n            if (x >> i & 1) and self.basis[i]:\n                x ^= self.basis[i]\n        return x == 0\n\n    def kth_xor(self, k):\n        \"\"\"k-th smallest XOR value (1-indexed). Requires reduction first.\"\"\"\n        self._reduce()\n        ans = 0\n        cnt = 0\n        for i in range(self.bits):\n            if self.basis[i]:\n                if (k >> cnt) & 1:\n                    ans ^= self.basis[i]\n                cnt += 1\n        return ans\n\n    def _reduce(self):\n        \"\"\"Reduce basis to simplified row echelon form.\"\"\"\n        for i in range(self.bits - 1, -1, -1):\n            if self.basis[i]:\n                for j in range(i + 1, self.bits):\n                    if self.basis[j] & (1 << i):\n                        self.basis[j] ^= self.basis[i]\n\nif __name__ == \"__main__\":\n    xb = XorBasis(20)\n    for x in [633, 211, 169, 841, 1008]:\n        xb.insert(x)\n    assert xb.max_xor() > 0\n    assert xb.contains(633)\n    assert xb.contains(633 ^ 211)\n    assert not xb.contains(633 ^ 211 ^ 999)  # 999 not in span\n    # Empty basis\n    xb2 = XorBasis(10)\n    assert xb2.max_xor(5) == 5  # start value when basis empty\n    assert xb2.min_xor() == 0\n    # k-th XOR\n    xb3 = XorBasis(10)\n    for x in [1, 2, 4]:\n        xb3.insert(x)\n    xb3._reduce()\n    # All XOR values: 0,1,2,3,4,5,6,7 sorted\n    assert xb3.kth_xor(1) == 1\n    assert xb3.kth_xor(2) == 2\n    assert xb3.kth_xor(4) == 4\n    print(\"linear-basis: ALL TESTS PASSED\")\n",
+    "pypy_notes": "位运算在PyPy上很快。bits取60覆盖long long范围。求第k小需先_reduce化简。Python大整数位运算无溢出问题。",
+    "complexity": {
+      "time": "插入O(log maxV)，查询O(log maxV)",
+      "space": "O(log maxV)"
+    },
+    "limitations": "仅适用于GF(2)域（异或）。实数线性基需不同实现。第k小查询需先化简基。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3812",
+      "url": "https://www.luogu.com.cn/problem/P3812",
+      "difficulty": 4,
+      "key_point": "子集异或最大值模板题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4151",
+      "url": "https://www.luogu.com.cn/problem/P4151",
+      "difficulty": 6,
+      "key_point": "线性基+图论求路径异或最大值"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3212",
+      "url": "https://www.luogu.com.cn/problem/P3212",
+      "difficulty": 7,
+      "key_point": "线性基在概率期望中的应用"
+    }
+  ],
+  "pitfalls": [
+    "插入顺序不影响基的大小（rank），但影响基的具体值",
+    "求第k小前必须调用_reduce化简为简化阶梯形",
+    "空基的最大异或查询返回start值本身",
+    "min_xor返回最小非零异或值，空集异或为0不计"
+  ],
+  "step_dag": {
+    "nodes": [],
+    "edges": []
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/linear-algebra/basis/",
+      "verified": true
+    },
+    {
+      "type": "luogu",
+      "url": "https://www.luogu.com.cn/problem/P3812",
+      "verified": true
+    }
+  ]
+}

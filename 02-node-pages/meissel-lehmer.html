@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meissel–Lehmer 素数计数 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-9.html">数论高级族</a> / <span>Meissel–Lehmer 素数计数</span></div>
+  <h1>Meissel–Lehmer 素数计数</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-C-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="powerful-number-sieve.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">powerful-number-sieve</span></a>
+    <a class="nav-index" href="../03-groups/G-C-9.html"><span class="dir">组内第 7 / 11</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="pell-equation.html"><span class="dir">下一个 / 组内</span><span class="v">pell-equation</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">亚线性 O(n^{2/3}/log²n) 计算 π(x)（≤x 素数个数），递归容斥 φ(x,a) + P₂</div><p>Meissel–Lehmer 算法在亚线性时间内计算素数计数函数 π(x)=#{p≤x}。思想：定义 φ(x,a)=所有≤x 且最小质因子&gt;p_a 的数的个数，P_k(x,a)=恰有 k 个可重质因子且都&gt;p_a 的数的个数。取 a=π(x^{1/3})，有 π(x)=φ(x,a)+a−1−P₂(x,a)。其中 φ 用递归/容斥（φ(x,b)=φ(x,b−1)−φ(⌊x/p_b⌋,b−1)）配合『普通叶子/特殊叶子』终止条件优化；P₂ 枚举质数对 (p,q) 用 π 前缀表求和。整体 O(x^{2/3}/log²x) 时间、O(x^{1/3}log³x) 空间（取 y=x^{1/3}）。更进一步的 Lehmer 公式与 Lagarias-Miller-Odlyzko (LMO) 变体达到 O(x^{2/3}/log²x) 级别。竞赛/科研中用于 n 极大（如 1e18）的素数计数。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>直接数质数要筛到 x，太慢。换个思路：所有 ≤x 的数 = 质数 ∪ 合数。合数必有 ≤√x 的小质因子。φ(x,a) 数出‘不含任何小质因子(≤p_a)的数’——这些只剩 1、质数(&gt;p_a) 和两个较大质数的乘积。于是 π(x) ≈ φ(x,a) 加上漏掉的、再减掉多算的，通过 P₂ 精确修正。递归时用容斥逐步剥掉质因子 p_1..p_a，类似‘埃氏筛的计数版本’。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>φ(x,b)=φ(x,b−1)−φ(⌊x/p_b⌋,b−1)（能被 p_b 整除的数排除）。递归终止条件 2：b=0 且 n≤y，或 n&gt;y 时停止，把叶子分成‘普通叶子’(n≤y, 贡献 μ(n)⌊x/n⌋) 与‘特殊叶子’(n&gt;y, 贡献 μ(n)φ(x/n, π(δ(n))−1))，从而 S₀ 用 Möbius 前缀 O(y loglog x) 求，S 再拆 S₁,S₂,S₃（按 p 与 x^{1/3},x^{1/4} 分界）用 π 表分块求。P₂(x,a)=Σ_{y&lt;p≤√x}(π(x/p)−π(p)+1)。最终 π(x)=S₀+S+a−1−P₂。总复杂度取 y=x^{1/3}log³x loglog x：O(x^{2/3}/log²x)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>1893 年 Ernst Meissel 用类似方法手工计算 π(10^9)；1959 年 Derrick Lehmer 改进并计算 π(10^10) 以内的素数。1980s Lagarias, Miller 与 Odlyzko 提出更快的 LMO 方法。经典函数 count_primes（kactl/模板）实现 Lehmer 版：π(x)=φ(x,a)+a−1−P₂。OI Wiki《Meissel–Lehmer》页基于论文 Computing π(x): the Meissel, Lehmer, Lagarias, Miller, Odlyzko method 详细推导。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 经典 Lehmer 版 (可查表工程实现):</span>
+<span class="t-f">phi</span>(x, s):   <span class="t-c"># 最小质因子&gt;p_s 的数个数</span>
+  <span class="t-k">if</span> s == <span class="t-n">0</span>: <span class="t-k">return</span> x
+  <span class="t-k">if</span> s == <span class="t-n">1</span>: <span class="t-k">return</span> x - x//<span class="t-n">2</span>
+  <span class="t-k">if</span> s == <span class="t-n">2</span>: <span class="t-k">return</span> x - x//<span class="t-n">2</span> - x//<span class="t-n">3</span> + x//<span class="t-n">6</span>
+  <span class="t-k">if</span> x &lt; primes[s-<span class="t-n">1</span>]**<span class="t-n">2</span>: <span class="t-k">return</span> <span class="t-f">pi</span>(x) - s + <span class="t-n">1</span>
+  <span class="t-k">return</span> <span class="t-f">phi</span>(x, s-<span class="t-n">1</span>) - <span class="t-f">phi</span>(x//primes[s-<span class="t-n">1</span>], s-<span class="t-n">1</span>)
+
+<span class="t-f">pi</span>(x):
+  <span class="t-k">if</span> x &lt; N: <span class="t-k">return</span> pi_arr[x]          <span class="t-c"># 预筛表</span>
+  a = <span class="t-f">pi</span>(x**(<span class="t-n">1</span>/<span class="t-n">3</span>)); b = <span class="t-f">pi</span>(<span class="t-f">isqrt</span>(x))
+  ans = <span class="t-f">phi</span>(x, a) + a - <span class="t-n">1</span> - <span class="t-f">P2</span>(x, a)  <span class="t-c"># P2 枚举质数对</span>
+  <span class="t-k">return</span> ans
+<span class="t-c"># P2(x,a) = sum_{p in (p_a, sqrt(x)]} (pi(x//p) - pi(p) + 1)</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-s">&quot;&quot;&quot;Meissel-Lehmer 亚线性求 pi(x): 素数个数.
+实现经典递归版 (用于中小 x 教学; 工程级加速见 OI Wiki 分块优化):
+  pi(x) = phi(x, a) + a - 1 - P2(x, a),  a = pi(x^{1/3}), y = x^{1/3}
+配合 phi(x, a) 递归 + P2 双素数对计数.&quot;&quot;&quot;</span>
+<span class="t-k">import</span> math
+
+
+<span class="t-k">def</span> <span class="t-f">sieve_primes</span>(limit):
+    is_p = [<span class="t-k">True</span>] * (limit + <span class="t-n">1</span>)
+    <span class="t-k">if</span> limit &gt;= <span class="t-n">0</span>: is_p[<span class="t-n">0</span>] = <span class="t-k">False</span>
+    <span class="t-k">if</span> limit &gt;= <span class="t-n">1</span>: is_p[<span class="t-n">1</span>] = <span class="t-k">False</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, <span class="t-b">int</span>(limit ** <span class="t-n">0.5</span>) + <span class="t-n">1</span>):
+        <span class="t-k">if</span> is_p[i]:
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i * i, limit + <span class="t-n">1</span>, i):
+                is_p[j] = <span class="t-k">False</span>
+    <span class="t-k">return</span> [i <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, limit + <span class="t-n">1</span>) <span class="t-k">if</span> is_p[i]]
+
+
+<span class="t-k">class</span> MeisselLehmer:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, maxn=<span class="t-n">10</span>**<span class="t-n">8</span>):
+        <span class="t-c"># 预筛到 maxn, 供 pi 查询</span>
+        self.primes = <span class="t-f">sieve_primes</span>(maxn)
+        self.pi_arr = [<span class="t-n">0</span>] * (maxn + <span class="t-n">1</span>)
+        j = <span class="t-n">0</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(maxn + <span class="t-n">1</span>):
+            <span class="t-k">while</span> j &lt; <span class="t-b">len</span>(self.primes) <span class="t-k">and</span> self.primes[j] &lt;= i:
+                j += <span class="t-n">1</span>
+            self.pi_arr[i] = j
+
+    <span class="t-k">def</span> <span class="t-f">phi</span>(self, x, a):
+        <span class="t-s">&quot;&quot;&quot;&lt;=x 且最小质因子 &gt; p_a 的数的个数.&quot;&quot;&quot;</span>
+        <span class="t-k">if</span> a == <span class="t-n">0</span>:
+            <span class="t-k">return</span> x
+        <span class="t-k">if</span> a == <span class="t-n">1</span>:
+            <span class="t-k">return</span> x - x // <span class="t-n">2</span>
+        <span class="t-k">if</span> a == <span class="t-n">2</span>:
+            <span class="t-k">return</span> x - x // <span class="t-n">2</span> - x // <span class="t-n">3</span> + x // <span class="t-n">6</span>
+        <span class="t-k">if</span> x &lt; self.primes[a - <span class="t-n">1</span>] ** <span class="t-n">2</span>:
+            <span class="t-c"># 小 x: 直接数</span>
+            <span class="t-k">return</span> self.<span class="t-f">pi_small</span>(x) - a + <span class="t-n">1</span>
+        <span class="t-c"># 递归: phi(x,a) = phi(x,a-1) - phi(x/p_a, a-1)</span>
+        <span class="t-k">return</span> self.<span class="t-f">phi</span>(x, a - <span class="t-n">1</span>) - self.<span class="t-f">phi</span>(x // self.primes[a - <span class="t-n">1</span>], a - <span class="t-n">1</span>)
+
+    <span class="t-k">def</span> <span class="t-f">pi_small</span>(self, x):
+        <span class="t-k">if</span> x &lt; <span class="t-b">len</span>(self.pi_arr):
+            <span class="t-k">return</span> self.pi_arr[x]
+        <span class="t-k">raise</span> <span class="t-b">ValueError</span>(<span class="t-s">&quot;x too large&quot;</span>)
+
+    <span class="t-k">def</span> <span class="t-f">pi</span>(self, x):
+        <span class="t-k">if</span> x &lt; <span class="t-b">len</span>(self.pi_arr):
+            <span class="t-k">return</span> self.pi_arr[x]
+        <span class="t-k">return</span> self.<span class="t-f">pi_sublinear</span>(x)
+
+    <span class="t-k">def</span> <span class="t-f">pi_sublinear</span>(self, x):
+        <span class="t-c"># 主定理: 取 y=x^{1/3}, a=pi(y)</span>
+        y = <span class="t-b">int</span>(x ** (<span class="t-n">1.0</span> / <span class="t-n">3.0</span>))
+        <span class="t-k">while</span> (y + <span class="t-n">1</span>) ** <span class="t-n">3</span> &lt;= x: y += <span class="t-n">1</span>
+        <span class="t-k">while</span> y ** <span class="t-n">3</span> &gt; x: y -= <span class="t-n">1</span>
+        a = self.<span class="t-f">pi_small</span>(y)
+        <span class="t-c"># P2(x,a) = sum_{p in (y, sqrt x], p&lt;=q, pq&lt;=x} 1</span>
+        p2 = <span class="t-n">0</span>
+        lo = y + <span class="t-n">1</span>
+        hi = <span class="t-b">int</span>(math.<span class="t-f">isqrt</span>(x))
+        <span class="t-k">if</span> lo &lt;= hi:
+            primes_in = [p <span class="t-k">for</span> p <span class="t-k">in</span> self.primes <span class="t-k">if</span> lo &lt;= p &lt;= hi]
+            <span class="t-k">for</span> p <span class="t-k">in</span> primes_in:
+                p2 += self.<span class="t-f">pi_small</span>(x // p) - self.<span class="t-f">pi_small</span>(p) + <span class="t-n">1</span>
+        phi_xa = self.<span class="t-f">phi</span>(x, a)
+        <span class="t-k">return</span> phi_xa + a - <span class="t-n">1</span> - p2
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    ml = <span class="t-f">MeisselLehmer</span>(<span class="t-n">10</span>**<span class="t-n">6</span>)
+    <span class="t-c"># 已知 pi 值</span>
+    known = {<span class="t-n">0</span>: <span class="t-n">0</span>, <span class="t-n">1</span>: <span class="t-n">0</span>, <span class="t-n">2</span>: <span class="t-n">1</span>, <span class="t-n">3</span>: <span class="t-n">2</span>, <span class="t-n">10</span>: <span class="t-n">4</span>, <span class="t-n">100</span>: <span class="t-n">25</span>, <span class="t-n">1000</span>: <span class="t-n">168</span>,
+             <span class="t-n">10000</span>: <span class="t-n">1229</span>, <span class="t-n">100000</span>: <span class="t-n">9592</span>, <span class="t-n">10</span>**<span class="t-n">6</span>: <span class="t-n">78498</span>}
+    <span class="t-k">for</span> x, v <span class="t-k">in</span> known.<span class="t-f">items</span>():
+        <span class="t-k">assert</span> ml.<span class="t-f">pi_small</span>(x) == v, (x, ml.<span class="t-f">pi_small</span>(x), v)
+        <span class="t-k">assert</span> ml.<span class="t-f">pi</span>(x) == v, (x, ml.<span class="t-f">pi</span>(x), v)
+    <span class="t-c"># 跨阈值的亚线性分支 (x &gt; 10^6 走 phi/P2 路径), 用独立筛验证</span>
+    <span class="t-k">for</span> x <span class="t-k">in</span> [<span class="t-n">2</span> * <span class="t-n">10</span>**<span class="t-n">6</span>, <span class="t-n">5</span> * <span class="t-n">10</span>**<span class="t-n">6</span>]:
+        cnt = <span class="t-b">len</span>(<span class="t-f">sieve_primes</span>(x))
+        got = ml.<span class="t-f">pi</span>(x)
+        <span class="t-k">assert</span> got == cnt, (x, got, cnt)
+    <span class="t-b">print</span>(<span class="t-s">&quot;meissel-lehmer: all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">预筛表 pi_arr 到 1e6~1e7 用一次埃筛（数组 int）。phi 递归深度 ≤ a ≈ log x，安全。P2 枚举 (y,√x] 内质数，对每个 p 查 pi(x//p)（大 x 时 x//p 超出表 → 需要亚线性分支递归，工程实现会缓存）。注意 x^{1/3} 用整数立方根（while 修正）避免浮点误差。大 x 时 pi 查询自身递归，务必 memo。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(x^{2/3}/log²x)；预处理 O(N)（N=筛表上限）</td></tr><tr><th>空间复杂度</th><td>O(x^{1/3}log³x)（y=x^{1/3} 取法）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① 实现复杂，φ 递归与 P₂ 的边界/终止条件易错；② 需要 π 表支持子查询，递归+记忆化；③ 只求 π(x)，不能推广到其他积性函数前缀和（那用杜教筛/Min_25/PN）；④ 浮点根号误差需整数修正；⑤ 工程模板（如 kactl count_primes）已高度优化，手写易被常数超越。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>φ 递归终止条件用错导致指数级展开</li><li>x^{1/3}、√x 用浮点算导致边界差 1</li><li>P2 枚举质数对时对 p 的上界/下界（p&gt;p_a）弄错</li><li>pi 查询超表未递归/未记忆化导致递归爆炸</li><li>Möbius 前缀 S₀ 的容斥符号 μ(n) 写错</li><li>预筛表 N 太小导致频繁触发亚线性递归（常数差）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P5901</strong></td><td>4</td><td>素数个数（模板）：求 ≤1e11 素数个数，Meissel-Lehmer/DP 筛模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5901" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5901</a></td></tr><tr><td>HDU</td><td><strong>5901 Count primes</strong></td><td>5</td><td>Count primes：求 π(1e11) 级素数个数，Meissel-Lehmer 经典题</td><td class="u"><a href="https://acm.hdu.edu.cn/showproblem.php?pid=5901" target="_blank" rel="noopener">https://acm.hdu.edu.cn/showproblem.php?pid=5901</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-meissel-lehmer" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "pi-table", "label": "预筛 pi 前缀表(1e6~1e7)"}}, {"data": {"id": "phi", "label": "φ(x,a) 递归容斥(终止条件+叶子分类)"}}, {"data": {"id": "p2", "label": "P2 质数对枚举求和"}}, {"data": {"id": "combine", "label": "π(x) = φ + a - 1 - P2"}}, {"data": {"id": "ext", "label": "扩展: Lehmer 公式/LMO 方法/与其它筛法对比"}}, {"data": {"id": "epi-table->phi", "source": "pi-table", "target": "phi"}}, {"data": {"id": "epi-table->p2", "source": "pi-table", "target": "p2"}}, {"data": {"id": "ephi->combine", "source": "phi", "target": "combine"}}, {"data": {"id": "ep2->combine", "source": "p2", "target": "combine"}}, {"data": {"id": "ecombine->ext", "source": "combine", "target": "ext"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-meissel-lehmer'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/meissel-lehmer/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/meissel-lehmer/</a></li><li><span class="srctype">论文</span><span class="v-ok">&#10003;</span> <a href="https://dl.acm.org/doi/abs/10.1090/s0025-5718-96-00674-6" target="_blank" rel="noopener">https://dl.acm.org/doi/abs/10.1090/s0025-5718-96-00674-6</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">kactl / count_primes 模板（Meissel-Lehmer 工程实现）</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

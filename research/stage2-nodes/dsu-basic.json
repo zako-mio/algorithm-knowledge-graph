@@ -1,0 +1,78 @@
+{
+  "id": "dsu-basic",
+  "name": "并查集(路径压缩+按秩合并)",
+  "group": "G-A-4",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "近 O(1) 合并/查询集合，路径压缩 + 按大小/按秩合并，均摊 O(α(n))；模板题 P3367，Kruskal 最小生成树基石",
+  "what": "并查集（Disjoint Set Union, DSU / Union-Find）：管理互不相交集合的森林结构。每个元素一个节点，树根代表集合；支持 ①查询 find(x) 返回 x 所在集合代表（根），用于判断两元素是否同集合；②合并 unite(x,y) 把两元素所在集合合并。两大优化：**路径压缩**（find 时把路径上节点直接连到根，下次 O(1)）与**按大小/按秩合并**（把小集合/浅树合并到大集合/深树下，防止退化）。两者结合后单次操作均摊 O(α(n))（反阿克曼函数，极小常数）。模板题 Luogu P3367。也是 Kruskal 最小生成树、判环、离线连通性、带权并查集的基础。",
+  "why": {
+    "intuition": "集合用树存，根做代表。找集合 = 一路向上爬到根；合并 = 把一棵树的根挂到另一棵树的根下。问题：若总是『长得高』的树挂到『矮』的下面，树会越来越深，find 退化成链 O(n)。两个优化各堵一个坑：按大小合并保证树高 O(log n)（小并大，每个节点向上翻倍，最多 log n 次换父）；路径压缩在查询时顺手把沿途节点拉平，均摊接近 O(1)。",
+    "principle": "pa[x] 存父节点，根 pa[x]==x。find 递归/迭代：`if pa[x]!=x: pa[x]=find(pa[x])`（递归路径压缩）或迭代版（每次 pa[x]=pa[pa[x]] 路径减半）。unite(x,y)：rx=find(x), ry=find(y)；若同根返回；按大小合并则 size[rx]<size[ry] 交换，令 pa[ry]=rx, size[rx]+=size[ry]。复杂度证明（Tarjan 1984）：仅路径压缩最坏 O(m log n)，平均 O(mα(n))；仅启发式合并 O(m log n)；两者结合 O(mα(n))。势能法证明见 OI Wiki dsu-complexity 页。空间 O(n)。",
+    "history": "并查集思想可追溯到 1959 年前后的等价类合并；路径压缩与按秩合并的复杂度分析由 Tarjan 等人在 1970-80 年代完成（Ackermann 函数反函数首次出现在并查集分析）。CPH 第 4 章（p53）作为基础数据结构介绍。OI Wiki ds/dsu 与 CP-Alg dsu 页均有详细讨论。Kruskal 算法、离线 RMQ、带权并查集（食物链 P2024）等均构建其上。"
+  },
+  "how": {
+    "pseudocode": "class Dsu:\n    pa  = [0..n-1]   # 父节点，根指向自己\n    sz  = [1]*n      # 集合大小（按大小合并）\n\n    def find(x):                       # 递归路径压缩\n        if pa[x] != x:\n            pa[x] = find(pa[x])\n        return pa[x]\n\n    def unite(a, b):\n        ra, rb = find(a), find(b)\n        if ra == rb: return\n        if sz[ra] < sz[rb]: ra, rb = rb, ra   # 小的挂到大下\n        pa[rb] = ra\n        sz[ra] += sz[rb]",
+    "python": "class Dsu:\n    def __init__(self, n):\n        self.pa = list(range(n))\n        self.sz = [1] * n\n\n    def find(self, x):\n        if self.pa[x] != x:\n            self.pa[x] = self.find(self.pa[x])\n        return self.pa[x]\n\n    def find_iter(self, x):\n        # 迭代路径压缩（避免递归爆栈，链式毒瘤数据安全）\n        while self.pa[x] != x:\n            self.pa[x] = self.pa[self.pa[x]]  # 路径减半\n            x = self.pa[x]\n        return x\n\n    def unite(self, a, b):\n        ra, rb = self.find(a), self.find(b)\n        if ra == rb:\n            return\n        if self.sz[ra] < self.sz[rb]:\n            ra, rb = rb, ra\n        self.pa[rb] = ra\n        self.sz[ra] += self.sz[rb]\n\n    def same(self, a, b):\n        return self.find(a) == self.find(b)\n\n\ndef main():\n    dsu = Dsu(10)\n    assert not dsu.same(0, 1)\n    dsu.unite(0, 1)\n    dsu.unite(1, 2)\n    assert dsu.same(0, 2)\n    assert not dsu.same(0, 3)\n    dsu.unite(3, 4)\n    dsu.unite(4, 2)\n    assert dsu.same(3, 0)\n    # 连通块数量\n    roots = {dsu.find(i) for i in range(10)}\n    assert len(roots) == 6  # 0..4 连成一块，5..9 各自\n    # 与朴素对拍：随机合并验证 same 一致性\n    import random\n    random.seed(0)\n    n = 200\n    d = Dsu(n)\n    comp = list(range(n))  # 朴素等价类\n\n    def union_naive(a, b):\n        ca, cb = comp[a], comp[b]\n        for i in range(n):\n            if comp[i] == cb:\n                comp[i] = ca\n\n    for _ in range(500):\n        a, b = random.randrange(n), random.randrange(n)\n        d.unite(a, b)\n        union_naive(a, b)\n        assert d.same(a, b) == (comp[a] == comp[b])\n    print(\"dsu-basic OK\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "pypy_notes": "递归 find 在链状毒瘤数据下会爆递归栈（PyPy 默认递归上限约 1000），竞赛中建议用迭代版 find_iter（路径减半）或 sys.setrecursionlimit(1<<20)。PyPy 对 while 循环友好。P3367 数据 n,m 达 1e5~2e5，Python 直接过。若需极致，可用『路径压缩+按大小』并用迭代 find；不要同时维护 rank 与 size 两套（选其一即可）。",
+    "complexity": {
+      "time": "单次 find/unite 均摊 O(α(n)) ≈ O(1)；m 次操作 O(m·α(n))",
+      "space": "O(n)"
+    },
+    "limitations": "并查集无法以较低复杂度分离集合（不可逆），只支持合并+查询。离线场景可配合线段树分治做『撤销』（但那需只启发式合并不用路径压缩）。只判连通时用启发式即可；需维护集合内其他信息（带权、大小、边权）需扩展结构。Python 递归 find 可能爆栈，务必迭代版。路径压缩+按秩合并不可直接可持久化（大量指针修改），可持久化并查集用只启发式合并。",
+    "examples": []
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3367",
+      "url": "https://www.luogu.com.cn/problem/P3367",
+      "difficulty": 3,
+      "key_point": "【模板】并查集：路径压缩+按大小合并直接过，OI Wiki 参考实现题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2820",
+      "url": "https://www.luogu.com.cn/problem/P2820",
+      "difficulty": 3,
+      "key_point": "局域网：Kruskal 最小生成树用并查集判环/连通"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2024",
+      "url": "https://www.luogu.com.cn/problem/P2024",
+      "difficulty": 6,
+      "key_point": "食物链：带权并查集（维护模 3 关系），并查集进阶经典"
+    }
+  ],
+  "pitfalls": [
+    "find 忘记路径压缩导致树退化成链，大数据 TLE",
+    "unite 时不判同根直接连会形成自环/环路，size 计数错误",
+    "按大小合并时把大集合挂到小集合下，树高退化 O(n)",
+    "递归 find 在毒瘤数据爆栈，用迭代路径减半或加大 recursionlimit",
+    "忘记初始化 pa[i]=i（根指向自己），find 死循环或返回错误",
+    "多组测试用例时未重建 Dsu 对象，残留上一组的状态",
+    "只维护 rank 不维护 size 时，合并要严格按秩，别混用"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "s1", "label": "初始化 pa[i]=i, sz[i]=1"},
+      {"id": "s2", "label": "find：递归或迭代路径压缩"},
+      {"id": "s3", "label": "unite：判同根+按大小合并"},
+      {"id": "s4", "label": "应用：判连通 / Kruskal 判环 / 连通块计数"},
+      {"id": "s5", "label": "进阶：带权并查集 / 离线回滚"}
+    ],
+    "edges": [
+      {"from": "s1", "to": "s2"},
+      {"from": "s2", "to": "s3"},
+      {"from": "s3", "to": "s4"},
+      {"from": "s4", "to": "s5"}
+    ]
+  },
+  "sources": [
+    {"type": "oiwiki", "url": "https://oi-wiki.org/ds/dsu/", "verified": true},
+    {"type": "cpalg", "url": "https://cp-algorithms.com/data_structures/disjoint_set_union.html", "verified": true},
+    {"type": "book", "ref": "CPH ch4 p53", "verified": true}
+  ]
+}

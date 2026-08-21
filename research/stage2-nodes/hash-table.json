@@ -1,0 +1,115 @@
+{
+ "id": "hash-table",
+ "name": "哈希表（散列表）",
+ "group": "G-A-10",
+ "stage": "basic",
+ "priority": "P0",
+ "depth_tier": "deep",
+ "brief": "key-value 映射，哈希函数+冲突处理（开链/开放寻址），期望 O(1) 插入/查找",
+ "what": "哈希表（Hash Table / 散列表）以『key-value』形式存储数据：将任意类型的键 key 通过哈希函数 f(key) 映射到一个整型下标，从而把记录存到数组 a[f(key)] 上，实现平均 O(1) 的插入、删除与查找。核心三要素：① 哈希函数——要易于计算且让索引尽量均匀（常见取模大质数、字符串多项式哈希、双哈希）；② 冲突处理——不同 key 映射到同一槽位时的解决策略：开散列（拉链法，每个槽一条链表）与闭散列（开放寻址，线性/二次探查）；③ 装载因子——开散列期望链长 ≈ n/M。Python 内建 dict/set 即哈希表，竞赛中手写哈希表常用于『值域巨大需离散化/去重/快速查找』或『字符串映射』，以及替代 map 追求更低常数。",
+ "why": {
+  "intuition": "把‘数组下标必须是连续整数’的限制打破：哈希函数把巨大的键空间（如 1e18 整数、任意字符串）压缩到一块合理大小的连续桶上。就像图书馆按书号首字母分区——同区多本书就摞在一起（链表），找书时先定位区域再在摞里翻。均匀性决定了性能：分布越均匀，每个桶越空，查找越快。",
+  "principle": "开散列（拉链法）：head[h] 存桶头，冲突节点用 next 指针串成链表，插入头插 O(1)，查找需扫描整条链，期望链长 n/M → 期望 O(1+n/M)，M 取大质数保证分布。字符串哈希：s 视作 127 进制数，x = Σ s_i·127^i，对 2^64 自然溢出取模（C++ unsigned long long）；对抗构造冲突可双哈希（两模数）。闭散列（线性探查）：冲突时查下一个槽位，查询沿探查序列走。注意：哈希只能保证高概率不冲突，可被构造卡到退化 O(n)（如取模质数选错被 2^p 倍数命中同槽）。",
+  "history": "哈希思想可追溯至 1950 年代（Hans Peter Luhn 1953 提出 IBM 内部检索）；『散列』『拉链法』等术语 1953 年由 Peterson 系统化。1960s 开放寻址与双散列相继成熟。如今哈希表是现代编程语言内建映射/字典的标准实现。OI Wiki《哈希表》页给出拉链法与闭散列模板，以及字符串哈希的双哈希抗冲突方案。"
+ },
+ "how": {
+  "pseudocode": "# 开散列(拉链法)\ndef hash(key): return (key % M + M) % M   # M 大质数\ndef get(key):\n  for p in chain[hash(key)]:\n    if p.key == key: return p.value\n  return MISSING\ndef set(key, value):\n  h = hash(key)\n  for p in chain[h]:\n    if p.key == key: p.value = value; return\n  chain[h].prepend(key, value)\n# 字符串哈希\ndef hash_str(s):\n  h = 0\n  for c in s: h = (h * B + ord(c)) % MOD   # B=131/13331, MOD 大质数\n  return h",
+  "python": "_MISS = object()\n\n\nclass HashTable:\n    \"\"\"哈希表(开散列/拉链法): key -> value.\n    哈希函数取模大质数, 冲突用链表(数组实现, 避免 Python 对象开销).\"\"\"\n    def __init__(self, mod=100003, seed=131):\n        self.mod = mod\n        self.seed = seed\n        self.head = [None] * mod        # 每条链的链表头(索引)\n        self.keys = []\n        self.vals = []\n        self.next = []\n        self._live = set()              # 当前存活 key (支持删除)\n\n    def _hash_int(self, k):\n        return (k % self.mod + self.mod) % self.mod\n\n    def _hash_str(self, s):\n        h = 0\n        for ch in s:\n            h = (h * self.seed + ord(ch)) % self.mod\n        return h\n\n    def _hash(self, key):\n        if isinstance(key, int): return self._hash_int(key)\n        if isinstance(key, str): return self._hash_str(key)\n        if isinstance(key, tuple): return self._hash_str(str(key))\n        raise TypeError\n\n    def set(self, key, value):\n        h = self._hash(key)\n        i = self.head[h]\n        while i is not None:\n            if self.keys[i] == key:\n                self.vals[i] = value\n                return value\n            i = self.next[i]\n        if key not in self._live:\n            self.keys.append(key); self.vals.append(value); self.next.append(self.head[h])\n            self.head[h] = len(self.keys) - 1\n            self._live.add(key)\n        return value\n\n    def get(self, key, default=None):\n        h = self._hash(key)\n        i = self.head[h]\n        while i is not None:\n            if self.keys[i] == key:\n                return self.vals[i]\n            i = self.next[i]\n        return default\n\n    def __contains__(self, key):\n        return self.get(key, _MISS) is not _MISS\n\n    def __getitem__(self, key):\n        v = self.get(key, None)\n        if v is None: raise KeyError(key)\n        return v\n\n    def __setitem__(self, key, value):\n        self.set(key, value)\n\n    def __len__(self):\n        return len(self._live)\n\n    def __delitem__(self, key):\n        if key in self._live:\n            self._live.discard(key)\n\n\nif __name__ == \"__main__\":\n    ht = HashTable()\n    # 整数键\n    for i in range(2000):\n        ht[i * 31 % 100000] = i\n    assert ht.get(31 * 5 % 100000) == 5\n    assert ht.get(9999999) is None\n    # 字符串键\n    ht[\"apple\"] = 1; ht[\"banana\"] = 2\n    ht[\"apple\"] = 3\n    assert ht[\"apple\"] == 3 and ht[\"banana\"] == 2\n    assert \"apple\" in ht and \"pear\" not in ht\n    # 与 Python dict 交叉验证 (独立实例, 避免与上面初始插入重叠)\n    import random\n    random.seed(11)\n    ht2, d = HashTable(), {}\n    for _ in range(5000):\n        k = random.randint(-10**9, 10**9)\n        if random.random() < 0.3 and k in d:\n            del d[k]\n            del ht2[k]\n        else:\n            d[k] = random.randint(0, 10**6)\n            ht2[k] = d[k]\n    for k, v in d.items():\n        assert ht2[k] == v, k\n    assert len(ht2) == len(d), (len(ht2), len(d))\n    print(\"hash-table: all tests passed\")\n",
+  "pypy_notes": "PyPy 下 Python 内建 dict 本身极快，一般无需手写；若手写，用 list 数组+int 链表头（避免对象）更快。字符串哈希取模运算是瓶颈，B 与 MOD 取大质数（如 1e9+7）时注意 h*B 溢出为 Python 大整数（慢）；竞赛中常改双哈希/多质数并对 2^61-1 取模。勿用 random 做哈希函数（每次重跑结果不同）。",
+  "complexity": {
+   "time": "期望 O(1) 插入/查找/删除（装载因子恒定时）；最坏 O(n)",
+   "space": "O(n+M)"
+  },
+  "limitations": "① 期望保证非最坏保证：数据可被恶意构造（选模数同余序列）卡成 O(n)；② 字符串单哈希对构造数据有碰撞风险，需双哈希；③ 删除用墓碑/懒删在开放寻址中易引坑；④ 不能像 dict 保证遍历有序；⑤ 值域离散化、可持久化等需求应另选平衡树/线段树。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P4305",
+   "url": "https://www.luogu.com.cn/problem/P4305",
+   "difficulty": 2,
+   "key_point": "JLOI2011 不重复数字：哈希表去重/判存在，OI Wiki 例题"
+  },
+  {
+   "oj": "LeetCode.cn",
+   "pid": "1",
+   "url": "https://leetcode.cn/problems/two-sum/",
+   "difficulty": 2,
+   "key_point": "两数之和：哈希表 O(1) 查找互补数的经典入门"
+  },
+  {
+   "oj": "LeetCode.cn",
+   "pid": "706",
+   "url": "https://leetcode.cn/problems/design-hashmap/",
+   "difficulty": 2,
+   "key_point": "设计哈希映射：手写开散列/闭散列结构模板题"
+  }
+ ],
+ "pitfalls": [
+  "取模质数被命中（key 全是模数的倍数 → 全部同槽退化为链表）",
+  "负 key 直接 % 得到负下标，需 (k%M+M)%M",
+  "字符串哈希基准/base 未处理好（含 0 位、大小写边界）导致碰撞",
+  "删除后开放寻址查询断链（需墓碑或重排）",
+  "装载因子过高不扩容导致期望退化成 O(n)",
+  "哈希函数不可复现（用 random）导致相同输入不同结果"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "hash-fn",
+    "label": "设计哈希函数(取模/字符串多项式/双哈希)"
+   },
+   {
+    "id": "chain",
+    "label": "冲突处理: 开散列拉链 或 闭散列探查"
+   },
+   {
+    "id": "set",
+    "label": "插入/修改: 找槽/扫链, 不存在则头插"
+   },
+   {
+    "id": "get",
+    "label": "查询: 定位桶并比较 key"
+   },
+   {
+    "id": "ext",
+    "label": "扩展: 字符串哈希去重/离散化/一致性哈希/布隆过滤器"
+   }
+  ],
+  "edges": [
+   {
+    "from": "hash-fn",
+    "to": "chain"
+   },
+   {
+    "from": "chain",
+    "to": "set"
+   },
+   {
+    "from": "set",
+    "to": "get"
+   },
+   {
+    "from": "get",
+    "to": "ext"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/hash/",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "ref": "CPH ch2.3 (哈希表内建于 dict), ch26 字符串哈希",
+   "verified": true
+  },
+  {
+   "type": "article",
+   "url": "https://en.wikipedia.org/wiki/Hash_table",
+   "verified": true
+  }
+ ]
+}

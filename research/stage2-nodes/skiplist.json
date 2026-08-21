@@ -1,0 +1,108 @@
+{
+ "id": "skiplist",
+ "name": "跳表（Skip List）",
+ "group": "G-A-10",
+ "stage": "intermediate",
+ "priority": "P3",
+ "depth_tier": "brief",
+ "brief": "多层有序链表随机化，期望 O(log n) 查找/插入/删除，实现简单于平衡树",
+ "what": "跳表（Skip List）由 William Pugh 1989 年发明，是对有序链表的随机化改进：每个节点以概率 p 出现在更高层，形成多层的有序链表（底层是完整链表）。查找从顶层开始，逐层下降到最后一层，跳过大量节点，期望 O(log n)。插入/删除等价于一次查找+局部指针修改。期望空间 O(n)。相比 AVL/红黑树，跳表实现简单、无旋转、并发友好，因此被 Redis 用作有序集合 zset 的底层实现之一。Python 中 `sortedcontainers` 与 LeetCode 1206 即考察手写跳表。",
+ "why": {
+  "intuition": "普通链表找元素像‘顺着单行道一个个问’；跳表在链表上加了几条‘高架桥’（高层链表），每条桥跳过更多节点。先坐高架（高层）快速靠近，再走地面（底层）精确定位——类似二分但结构是随机化分层的。",
+  "principle": "设每层节点以概率 p 升到下一层，最高层期望高度 O(log_p n)。查找：从最高层开始，在每层水平前进到‘最后一个 key<目标’的节点再下坠一层，到第 0 层后检查后继。插入：先记录各层‘需改前驱’的 update[]，随机生成节点层数 lv（几何分布，上限 MAXL），若 lv>当前层则提升表高，再逐层插入。删除同理。期望复杂度证明：从底层爬到 L(n) 层的期望步数上界 (L(n)-1)/p，之后水平步数期望 O(1/p)，故总 O(log n)。最坏（所有节点同层）退化为 O(n)。",
+  "history": "William Pugh 于 1989 年在论文 “Skip lists: a probabilistic alternative to balanced trees” 中提出，作为平衡树的简单替代。后被 Redis、LevelDB（内存表）、并发无锁跳表广泛采用。OI Wiki《跳表》页给出完整实现与复杂度证明（期望空间 O(n)、期望时间 O(log n)、最坏 O(n)）。"
+ },
+ "how": {
+  "pseudocode": "MAXL = 32; P = 0.5\ndef randomLevel():\n  lv = 1\n  while random() < P and lv < MAXL: lv += 1\n  return lv\ndef find_prev(key):\n  prev = []\n  p = head\n  for i in range(level-1, -1, -1):\n    while p.nxt[i] and p.nxt[i].key < key: p = p.nxt[i]\n    prev[i] = p\n  return prev\ndef set(key, val):\n  prev = find_prev(key)\n  if prev[0].nxt[0].key == key: prev[0].nxt[0].val = val; return\n  lv = randomLevel(); if lv>level: 补 head 指针, level=lv\n  node = Node(key, val, lv)\n  for i in range(lv): node.nxt[i]=prev[i].nxt[i]; prev[i].nxt[i]=node",
+  "python": "import random\n\n\nclass SkipNode:\n    __slots__ = ('key', 'val', 'nxt')\n    def __init__(self, key, val, level):\n        self.key = key\n        self.val = val\n        self.nxt = [None] * level\n\n\nclass SkipList:\n    \"\"\"跳表 (升序有序映射). 期望 O(log n) 查询/插入/删除, 期望 O(n) 空间.\n    p=1/2 随机层数; 哨兵头节点层高 MAXL.\"\"\"\n    MAXL = 32\n    P = 0.5\n\n    def __init__(self):\n        self.level = 1\n        self.head = SkipNode(None, None, self.MAXL)\n        self._len = 0\n\n    def _random_level(self):\n        lv = 1\n        while random.random() < self.P and lv < self.MAXL:\n            lv += 1\n        return lv\n\n    def _find_prev(self, key):\n        \"\"\"返回每一层中最后一个 key < 目标 的节点.\"\"\"\n        prev = [None] * self.level\n        p = self.head\n        for i in range(self.level - 1, -1, -1):\n            while p.nxt[i] is not None and p.nxt[i].key < key:\n                p = p.nxt[i]\n            prev[i] = p\n        return prev\n\n    def get(self, key, default=None):\n        p = self.head\n        for i in range(self.level - 1, -1, -1):\n            while p.nxt[i] is not None and p.nxt[i].key < key:\n                p = p.nxt[i]\n        nxt = p.nxt[0]\n        return nxt.val if nxt is not None and nxt.key == key else default\n\n    def __contains__(self, key):\n        return self.get(key) is not None\n\n    def set(self, key, value):\n        prev = self._find_prev(key)\n        nxt = prev[0].nxt[0]\n        if nxt is not None and nxt.key == key:\n            nxt.val = value\n            return value\n        lv = self._random_level()\n        if lv > self.level:\n            for i in range(self.level, lv):\n                prev.append(self.head)\n            self.level = lv\n        node = SkipNode(key, value, lv)\n        for i in range(lv):\n            node.nxt[i] = prev[i].nxt[i]\n            prev[i].nxt[i] = node\n        self._len += 1\n        return value\n\n    def pop(self, key):\n        prev = self._find_prev(key)\n        nxt = prev[0].nxt[0]\n        if nxt is None or nxt.key != key:\n            return None\n        for i in range(self.level):\n            if prev[i].nxt[i] is nxt:\n                prev[i].nxt[i] = nxt.nxt[i]\n        self._len -= 1\n        while self.level > 1 and self.head.nxt[self.level - 1] is None:\n            self.level -= 1\n        return nxt.val\n\n    def __len__(self):\n        return self._len\n\n    def min_key(self):\n        n = self.head.nxt[0]\n        return n.key if n is not None else None\n\n\nif __name__ == \"__main__\":\n    sl = SkipList()\n    # 基本操作\n    for i in range(1000):\n        sl.set(i, i * i)\n    assert sl.get(500) == 250000\n    assert sl.get(5000) is None\n    assert sl.min_key() == 0\n    assert len(sl) == 1000\n    sl.set(500, -1)\n    assert sl.get(500) == -1\n    assert sl.pop(500) == -1 and sl.get(500) is None\n    assert len(sl) == 999\n\n    # 与 dict 交叉验证\n    import random\n    random.seed(99)\n    d = {}\n    sl2 = SkipList()\n    for _ in range(20000):\n        r = random.random()\n        k = random.randint(-10**9, 10**9)\n        if r < 0.5 or k not in d:\n            d[k] = random.randint(0, 10**6)\n            sl2.set(k, d[k])\n        elif r < 0.7:\n            del d[k]\n            sl2.pop(k)\n        else:\n            assert sl2.get(k) == d[k], k\n        assert len(sl2) == len(d), (len(sl2), len(d))\n    for k, v in d.items():\n        assert sl2.get(k) == v, k\n    print(\"skiplist: all tests passed\")\n",
+  "pypy_notes": "random() 调用频率高（每个插入一次层数采样），PyPy 下 random 模块足够快；若追求极速可用快速伪随机（如线性同余）替换。MAXL 设为 32（2^32 足够）；P 取 1/4 可降低内存。删除后要把表顶空层回收（while level>1 and head.nxt[level-1] is None: level-=1），否则后续遍历浪费。",
+  "complexity": {
+   "time": "期望 O(log n) 查询/插入/删除；最坏 O(n)",
+   "space": "期望 O(n)；最坏 O(n log n)"
+  },
+  "limitations": "① 最坏情况退化 O(n)（构造出同层长链）；② Python 对象开销大，小数据不如 dict；③ 随机层数实现要保证几何分布质量；④ 不如平衡树提供严格最坏界，不适用于对时间上界极敏感的场景；⑤ 有序遍历（中序）仍需沿第 0 层线性走。"
+ },
+ "examples": [
+  {
+   "oj": "LeetCode.cn",
+   "pid": "1206",
+   "url": "https://leetcode.cn/problems/design-skiplist/",
+   "difficulty": 3,
+   "key_point": "设计跳表：手写 search/add/erase 完整模板题"
+  },
+  {
+   "oj": "book",
+   "pid": "Redis ZSET",
+   "url": "https://redis.io/docs/data-types/sorted-sets/",
+   "difficulty": 3,
+   "key_point": "Redis 有序集合基于跳表实现，体现实际工业应用"
+  }
+ ],
+ "pitfalls": [
+  "randomLevel 未设上限导致超高层节点（MAXL 截断）",
+  "插入时忘记录 update[]，导致新节点断链",
+  "提升表高时 head 新层指针未初始化（指向自己/None 要一致）",
+  "删除后未回收空顶层，查找时访问 None 越界",
+  "哨兵 head 的 nxt 数组长度与 MAXL 不符（应建满 MAXL 层）",
+  "get/set 中 key 相等判断误用 < 导致相同 key 插入重复节点"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "level",
+    "label": "randomLevel() 几何分布采样层数"
+   },
+   {
+    "id": "find",
+    "label": "逐层下降定位(记录 update)"
+   },
+   {
+    "id": "insert",
+    "label": "提升表高 + 各层指针插入"
+   },
+   {
+    "id": "delete",
+    "label": "沿 update 逐层移除 + 回收顶层"
+   },
+   {
+    "id": "ext",
+    "label": "扩展: Redis ZSET/并发无锁跳表/跳表+哈希(有序map)"
+   }
+  ],
+  "edges": [
+   {
+    "from": "level",
+    "to": "find"
+   },
+   {
+    "from": "find",
+    "to": "insert"
+   },
+   {
+    "from": "insert",
+    "to": "delete"
+   },
+   {
+    "from": "delete",
+    "to": "ext"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/skiplist/",
+   "verified": true
+  },
+  {
+   "type": "paper",
+   "url": "https://www.cl.cam.ac.uk/teaching/2005/Algorithms/skiplists.pdf",
+   "verified": true
+  },
+  {
+   "type": "article",
+   "url": "https://en.wikipedia.org/wiki/Skip_list",
+   "verified": true
+  }
+ ]
+}

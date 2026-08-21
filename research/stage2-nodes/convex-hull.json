@@ -1,0 +1,120 @@
+{
+ "id": "convex-hull",
+ "name": "凸包(Andrew/Graham)",
+ "group": "G-D-1",
+ "stage": "intermediate",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "O(nlogn) 求点集凸包，Andrew 单调链与 Graham 扫描两种实现",
+ "what": "凸包是包含点集中所有点的最小凸多边形。求解思路是把点按序扫描，用单调栈维护'一路左转'的凸壳：Andrew 单调链按 x 为第一关键字、y 为第二关键字排序，先扫出下凸壳再扫出上凸壳合并；Graham 扫描则取最低点（y 最小、x 次小）为极，其余点按极角排序后逐个压栈，遇到右转就弹栈。两者均为 O(n log n)（瓶颈是排序），且被证明是渐近最优的。凸包是旋转卡壳、凸包优化(CHT)、半平面交、闵可夫斯基和等几乎所有计算几何高级算法的前置结构。",
+ "why": {
+  "intuition": "想象用一根橡皮筋把点集绷紧，松开后橡皮筋的轮廓就是凸包。'左转/右转'直觉：从凸包上一点沿逆时针走，每一步都是左转；一旦出现右转就说明中间那个点凹进去了，可以被移除。Andrew 分上下壳扫描：从最左下走到最右上构成下壳（像船底），从最右上走回最左下构成上壳（像船顶），因为上下壳的转向约定相反，所以要用两次方向相反的扫描。",
+  "principle": "Andrew：排序后升序扫一遍用叉积条件 (p[stk[-2]]→p[stk[-1]])×(p[stk[-1]]→p[i]) ≤ 0 弹栈得到下凸壳（弹掉共线点可选 ≤ 或 <），记录 size 后降序再扫一遍得到上凸壳，两壳拼接（头尾重复一个点）得到完整凸包。正确性来自凸多边形上相邻三点的叉积符号恒定非负。Graham：P0 为最低点，其余点按极角排序；因为扫描顺序即极角序，任意相邻三点在凸包上必然左转，右转则中间点出栈。复杂度瓶颈均为排序 O(n log n)。若要求凸包包含所有共线边界点，把弹栈条件从 < 改成 ≤ 或单独处理极径最大点序列。",
+  "history": "Graham 扫描由 Ronald Graham 于 1972 年发表；Andrew 单调链（Monotone Chain）由 Andrew 于 1979 年提出。二者都是计算几何最早的经典算法，被写入 Preparata & Shamos《Computational Geometry》(1985) 等教材。因为排序下界，O(n log n) 被证明是点集凸包的渐近最优复杂度（除非输入有序或允许随机化/在线处理）。"
+ },
+ "how": {
+  "pseudocode": "# Andrew 单调链\npts.sort() by (x, y)\nlower = []\nfor p in pts:\n    while len(lower)>=2 and cross(lower[-2], lower[-1], p) <= 0: lower.pop()\n    lower.append(p)\nupper = []\nfor p in reversed(pts):\n    while len(upper)>=2 and cross(upper[-2], upper[-1], p) <= 0: upper.pop()\n    upper.append(p)\nhull = lower[:-1] + upper[:-1]   # 逆时针，含所有凸包顶点\n\n# cross(o,a,b) = (a-o)×(b-o)\n# 用 <= 0 弹栈 → 不保留共线边界点；用 < 0 → 保留",
+  "python": "# -*- coding: utf-8 -*-\n\n\ndef cross(o, a, b):\n    return (a[0]-o[0])*(b[1]-o[1]) - (a[1]-o[1])*(b[0]-o[0])\n\n\ndef convex_hull(points, keep_collinear=False):\n    \"\"\"Andrew 单调链。返回逆时针凸包顶点（首尾不重复）。\n    keep_collinear=True 时保留共线边界点。\n    \"\"\"\n    cmp = lambda x: x <= 0 if not keep_collinear else x < 0\n    pts = sorted(set(points))\n    if len(pts) <= 1:\n        return pts\n    lower = []\n    for p in pts:\n        while len(lower) >= 2 and cmp(cross(lower[-2], lower[-1], p)):\n            lower.pop()\n        lower.append(p)\n    upper = []\n    for p in reversed(pts):\n        while len(upper) >= 2 and cmp(cross(upper[-2], upper[-1], p)):\n            upper.pop()\n        upper.append(p)\n    hull = lower[:-1] + upper[:-1]\n    # 去掉拼接处的连续重复点（全共线/退化时会出现）\n    res = []\n    for p in hull:\n        if not res or res[-1] != p:\n            res.append(p)\n    return res\n\n\ndef polygon_area(poly):\n    s = 0.0\n    n = len(poly)\n    for i in range(n):\n        x1, y1 = poly[i]\n        x2, y2 = poly[(i+1) % n]\n        s += x1*y2 - x2*y1\n    return abs(s) / 2.0\n\n\ndef pip_ray(p, poly):\n    x, y = p\n    inside = False\n    n = len(poly)\n    for i in range(n):\n        x1, y1 = poly[i]\n        x2, y2 = poly[(i+1) % n]\n        if (y1 > y) != (y2 > y):\n            xi = x1 + (x2-x1)*(y-y1)/(y2-y1)\n            if x < xi:\n                inside = not inside\n    return inside\n\n\nif __name__ == '__main__':\n    sq = [(0, 0), (1, 0), (1, 1), (0, 1)]\n    h = convex_hull(sq)\n    assert len(h) == 4 and abs(polygon_area(h) - 1.0) < 1e-9\n    # 共线点只保留两端\n    col = [(0, 0), (1, 1), (2, 2)]\n    h2 = convex_hull(col)\n    assert len(h2) == 2, h2\n    # 矩形边界上有内部共线点：keep_collinear 时保留\n    rect = [(0, 0), (2, 0), (1, 0), (2, 2), (0, 2), (1, 2)]\n    h3 = convex_hull(rect)\n    assert len(h3) == 4, h3\n    h3c = convex_hull(rect, keep_collinear=True)\n    assert (1, 0) in h3c and (1, 2) in h3c and len(h3c) == 6, h3c\n    # 随机点全部被覆盖\n    import random\n    pts = [(random.randint(-50, 50), random.randint(-50, 50)) for _ in range(300)]\n    hull = convex_hull(pts)\n    for p in pts:\n        ok = True\n        for i in range(len(hull)):\n            if cross(hull[i], hull[(i+1) % len(hull)], p) < -1e-9:\n                ok = False\n                break\n        assert ok, p\n    for i in range(len(hull)):\n        assert cross(hull[i], hull[(i+1) % len(hull)], hull[(i+2) % len(hull)]) >= -1e-9\n    print('convex-hull all tests passed')\n",
+  "pypy_notes": "Python 实现注意：(1) 去重用 set 或排序后去重，重复点会破坏单调栈不变量；(2) 整点坐标用整数叉积（不涉及除法）天然无精度损失，凸包模板应全程整数运算；(3) 超过 1e6 点时不建议 Python 硬扛，PyPy 下常数仍大，大 N 换 C++。",
+  "complexity": {
+   "time": "O(n log n)，瓶颈为排序；单调栈部分线性",
+   "space": "O(n)"
+  },
+  "limitations": "浮点坐标下叉积判符号受 eps 影响，共线点归属需明确约定（保留与否）；退化情况：n≤1、所有点共线、重复点需特判；若要求输出周长/面积注意首尾顶点是否重复；Andrew 对 y 轴平行的竖直线族也适用（排序已处理），但 Graham 对重合极角需要按距离排序。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P2742",
+   "url": "https://www.luogu.com.cn/problem/P2742",
+   "difficulty": 3,
+   "key_point": "【模板】二维凸包：Andrew 模板题，求凸包周长"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P1452",
+   "url": "https://www.luogu.com.cn/problem/P1452",
+   "difficulty": 3,
+   "key_point": "Beauty Contest：凸包 + 旋转卡壳求直径（凸包前置）"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P3829",
+   "url": "https://www.luogu.com.cn/problem/P3829",
+   "difficulty": 4,
+   "key_point": "信用卡凸包：将圆角图形规约为偏移后的点集凸包 + 周长"
+  }
+ ],
+ "pitfalls": [
+  "排序后未去重导致栈内重复点/退化（先 set 去重）",
+  "弹栈条件 <= 与 < 的选择决定是否保留共线边界点，题目语义要提前确认",
+  "上下壳拼接时去掉重复的首尾点，否则周长/面积会算错",
+  "浮点坐标直接比较 == 判重会误判，整点问题用整数或 eps 判重",
+  "Graham 的极角排序需处理极角相等时按距离排序",
+  "凸包顶点数 < 3 时（退化）调用旋转卡壳等算法要特判"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "sort",
+    "label": "按 (x,y) 双关键字排序"
+   },
+   {
+    "id": "dedup",
+    "label": "去重/判共线退化"
+   },
+   {
+    "id": "lower",
+    "label": "单调栈扫下凸壳"
+   },
+   {
+    "id": "upper",
+    "label": "逆序扫上凸壳"
+   },
+   {
+    "id": "merge",
+    "label": "拼接为完整凸包"
+   }
+  ],
+  "edges": [
+   {
+    "from": "sort",
+    "to": "dedup"
+   },
+   {
+    "from": "sort",
+    "to": "lower"
+   },
+   {
+    "from": "sort",
+    "to": "upper"
+   },
+   {
+    "from": "lower",
+    "to": "merge"
+   },
+   {
+    "from": "upper",
+    "to": "merge"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/convex-hull.md",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/convex-hull.html",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "url": "",
+   "ref": "CPH ch29",
+   "verified": true
+  }
+ ]
+}

@@ -1,0 +1,115 @@
+{
+ "id": "miller-rabin",
+ "name": "Miller–Rabin 素性测试",
+ "group": "G-C-9",
+ "stage": "advanced",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "概率性素性测试 O(k log n)，费马小定理+二次探测定理，可确定性判定 2^64 内整数",
+ "what": "Miller–Rabin 素性测试用于判定大整数是否为素数。将费马小定理 a^(n-1)≡1 的指数 n-1 分解为 u·2^t，结合二次探测定理（奇素数 p 下 x²≡1 的解只有 ±1）检查：若对基底 a 有 a^u≡1 或某个 a^(u·2^i)≡-1 (mod n)，则通过该轮。随机 k 个基底，合数通过所有轮的概率 ≤ 4^(-k)。关键结论：对 64 位整数，取基底 {2,325,9375,28178,450775,9780504,1795265022} 是【确定性的】；对 32 位取 {2,7,61} 或前 4 个素数即可。单轮 O(log n) 次模乘。它是 Pollard-Rho 分解大整数时的前置素性判定，Python 中 pow(a, e, n) 内建快速模幂，大整数优势明显。",
+ "why": {
+  "intuition": "费马小定理说素数 n 对任何 a 都有 a^(n-1)≡1。反过来‘a^(n-1)≡1 推出 n 素数’并不成立（Carmichael 数会全骗过）。Miller–Rabin 的加强：把指数一路‘剥因子 2’再开平方回查——素数在平方根回路上必然撞见 ±1，而合数常在某个平方根处‘露馅’。就好像检查一扇门：所有素数门都能正常打开，但每道‘二次探测锁’多拦一道，伪造者（强伪素数）很难每一把锁都配齐钥匙。",
+  "principle": "设 n-1=u·2^t，u 奇。检查基底 a：x₀=a^u mod n；若 x₀≡1 或任意 xᵢ≡n-1 (i<t) 则通过（n 可能是素数）；否则存在非平凡平方根 → n 合数。二次探测定理保证素数必通过；证明（OI Wiki / CP-Algorithms）指出对奇合数，能通过测试的基底至多占 φ(n)/4，故 k 轮误判 ≤4^(-k)。确定性界：GRH 下测 [2,2ln²n] 全部；实际工程对 <2^32 用 {2,7,61}，<2^64 用 7 元组或前 12 个素数，均确定性正确（最小反例 3215031751=151·751·28351 骗过 {2,3,5,7}）。",
+  "history": "1976 年 Gary Miller 提出基于广义黎曼猜想的确定性素性测试；1980 年 Michael Rabin 将其改造为无条件概率算法（每轮 3/4 通过率）。此后经多轮基底优化形成实用的确定性变体（1980s 多位作者；7 元组基底来自 2015 年前后对 2^64 穷举验证）。CP-Algorithms 与 OI Wiki《素数》页均有标准实现与 2^64 确定性基底表。"
+ },
+ "how": {
+  "pseudocode": "BASES_64 = [2,325,9375,28178,450775,9780504,1795265022]\ndef is_prime(n):\n  if n < 2: return False\n  for p in [2,3,5,7,11,13,17,19,23,29,31,37]:\n    if n % p == 0: return n == p\n  d, s = n-1, 0\n  while d % 2 == 0: d //= 2; s += 1\n  for a in BASES_64:\n    a %= n\n    if a == 0: continue\n    x = pow(a, d, n)\n    if x == 1 or x == n-1: continue\n    for _ in range(s-1):\n      x = x*x % n\n      if x == n-1: break\n    else: return False\n  return True",
+  "python": "import random\n\n\ndef is_prime_mr(n, bases=None):\n    \"\"\"Miller-Rabin 素性测试.\n    - bases=None 时使用确定性基底: [2,325,9375,28178,450775,9780504,1795265022],\n      对 < 2^64 的所有整数确定性正确.\n    - bases 可传入自定义基底列表 (如随机基底做概率测试).\n    小整数直接试除/特判.\"\"\"\n    if n < 2: return False\n    small = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]\n    for p in small:\n        if n % p == 0:\n            return n == p\n    d, s = n - 1, 0\n    while d % 2 == 0:\n        d //= 2\n        s += 1\n    if bases is None:\n        bases = [2, 325, 9375, 28178, 450775, 9780504, 1795265022]\n    for a in bases:\n        a %= n\n        if a == 0:\n            continue\n        x = pow(a, d, n)\n        if x == 1 or x == n - 1:\n            continue\n        ok = False\n        for _ in range(s - 1):\n            x = x * x % n\n            if x == n - 1:\n                ok = True\n                break\n        if not ok:\n            return False\n    return True\n\n\ndef is_prime_probabilistic(n, k=12):\n    \"\"\"概率版: 随机 k 个基底. 误判概率 <= 4^{-k}.\"\"\"\n    if n < 2: return False\n    if n in (2, 3): return True\n    if n % 2 == 0: return False\n    d, s = n - 1, 0\n    while d % 2 == 0:\n        d //= 2\n        s += 1\n    for _ in range(k):\n        a = random.randint(2, n - 2)\n        x = pow(a, d, n)\n        if x == 1 or x == n - 1:\n            continue\n        for _ in range(s - 1):\n            x = x * x % n\n            if x == n - 1:\n                break\n        else:\n            return False\n    return True\n\n\nif __name__ == \"__main__\":\n    # 已知小素数/合数\n    primes = [2, 3, 5, 7, 11, 13, 17, 19, 97, 9973, 1000003, 2147483647]\n    comps = [1, 4, 6, 9, 341, 561, 1105, 1729, 41041, 825265, 3215031751]\n    for p in primes:\n        assert is_prime_mr(p), p\n    for c in comps:\n        assert not is_prime_mr(c), c\n\n    # 强伪素数: 3215031751 = 151*751*28351, 是基底 {2,3,5,7} 的最小伪素数,\n    # 但 7 基底确定性集 {2,325,...} 能正确判出合数.\n    assert not is_prime_mr(3215031751), \"3215031751 = 151*751*28351\"\n    # 展示 {2,3,5,7} 4 基底集确实被这个数骗过 (它是 32 位确定性界的最小反例)\n    assert is_prime_mr(3215031751, bases=[2, 3, 5, 7]) == True\n\n    # 2^64 附近的确定性验证\n    mersenne_primes = [3, 7, 31, 127, 8191, 131071, 524287, 2147483647,\n                       2305843009213693951, 618970019642690137449562111]\n    for p in mersenne_primes:\n        assert is_prime_mr(p), p\n\n    # 随机交叉验证: 与试除法一致\n    import random\n    random.seed(2026)\n    def trial(x):\n        if x < 2: return False\n        i = 2\n        while i * i <= x:\n            if x % i == 0: return False\n            i += 1\n        return True\n    for _ in range(3000):\n        n = random.randint(1, 10**7)\n        assert is_prime_mr(n) == trial(n), n\n    # 概率版\n    for _ in range(500):\n        n = random.randint(1, 10**6)\n        assert is_prime_probabilistic(n) == trial(n), n\n    print(\"miller-rabin: all tests passed\")\n",
+  "pypy_notes": "Python pow(a,d,n) 内建模幂是 C 级实现，务必使用而非手写快速幂。小质数预筛（前 12 个素数整除检查）能拦截 ~90% 的合数，大幅加速。大整数乘法在 PyPy 下为大整数运算，2^64 内仍轻松；上万位大数建议用 gmpy2 加速。确定性基底对 n 取模（a %= n）并跳过 a==0 的情况。",
+  "complexity": {
+   "time": "O(k log n) 次模乘（k 基底数）；2^64 确定性仅需 7 轮",
+   "space": "O(1)"
+  },
+  "limitations": "① 概率版理论上有误判概率（需多轮随机基底）；② 确定性界仅对 2^64 内成立，更大整数需更多基底或改用 AKS/ECPP；③ 极端情况下 pow 的大整数乘法慢（超 2^128 建议 gmpy2）；④ 错误基底选择（如只用 {2,3}）会漏判 341、561 等强伪素数。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P4718",
+   "url": "https://www.luogu.com.cn/problem/P4718",
+   "difficulty": 4,
+   "key_point": "【模板】Pollard-Rho 算法：Miller-Rabin + Pollard-Rho 求最大质因子（前置素性判定）"
+  },
+  {
+   "oj": "CP-Algorithms",
+   "pid": "Primality tests",
+   "url": "https://cp-algorithms.com/algebra/primality_tests.html",
+   "difficulty": 3,
+   "key_point": "标准实现 + 2^64 确定性基底表 + 32位 4 基底说明"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P1075",
+   "url": "https://www.luogu.com.cn/problem/P1075",
+   "difficulty": 2,
+   "key_point": "质因数分解入门：验证素数与分解配合（小数据）"
+  }
+ ],
+ "pitfalls": [
+  "忘了先处理小质因数（2,3）与 n<4 特判",
+  "指数分解时把 n-1 写成 n",
+  "检测 x==n-1 时误写 x==-1（Python 中 x 恒在 [0,n)）",
+  "基底未对 n 取模直接 pow（a 可能 ≥ n 影响正确性但 pow 会处理；跳过 a%n==0）",
+  "用 {2,3,5,7} 判定 32 位以上整数（3215031751 会骗过）",
+  "概率版固定随机种子导致对特定数误判不可复现排查"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "pre",
+    "label": "特判小整数 + 小质数整除预筛"
+   },
+   {
+    "id": "split",
+    "label": "n-1 = u·2^t 分解"
+   },
+   {
+    "id": "base",
+    "label": "逐基底检查: a^u 与平方回跳"
+   },
+   {
+    "id": "det",
+    "label": "确定性基底集 {2,325,...} 或 概率 k 轮"
+   },
+   {
+    "id": "ext",
+    "label": "扩展: Pollard-Rho 分解/强伪素数/大素数生成"
+   }
+  ],
+  "edges": [
+   {
+    "from": "pre",
+    "to": "split"
+   },
+   {
+    "from": "split",
+    "to": "base"
+   },
+   {
+    "from": "base",
+    "to": "det"
+   },
+   {
+    "from": "det",
+    "to": "ext"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/math/number-theory/prime/#millerrabin-素性测试",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/algebra/primality_tests.html",
+   "verified": true
+  },
+  {
+   "type": "article",
+   "url": "https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test",
+   "verified": true
+  }
+ ]
+}

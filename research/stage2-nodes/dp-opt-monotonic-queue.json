@@ -1,0 +1,115 @@
+{
+ "id": "dp-opt-monotonic-queue",
+ "name": "单调队列/栈优化DP",
+ "group": "G-A-12",
+ "stage": "intermediate",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "用单调队列维护滑动窗口最值加速转移，如多重背包",
+ "what": "单调队列优化 DP 适用于转移形如 f[i] = opt_{j∈[i-k, i-1]} { g(j) + w(i,j) } 且 w 的取值只依赖一个「窗口」内的候选集，或用「取模分组」把转移划分成若干独立序列的情形。核心是用双端队列维护候选下标，使队首恒为窗口内最优决策，入队时弹出不可能再成为最优的队尾（依据单调性），出队弹出越过窗口左界的队首。每个下标至多入队出队一次，均摊 O(1) 转移，总 O(n)。经典应用：滑动窗口最值、多重背包二进制/单调队列优化、CF372C Watching Fireworks。",
+ "why": {
+  "intuition": "朴素转移对每个 i 扫描窗口内 k 个候选 O(k)，n 个状态 O(nk)。观察候选值的「淘汰规则」：若 j1<j2 且 g(j1) ≤ g(j2)（对 min 问题），则 j1 永远不会比 j2 优（更靠前先出窗），可以永久删除。这样队列里只剩「单调递减」的候选，队首即全局最优。滑动窗口使队首位置过期后弹出。这就是「单调」二字的由来。",
+  "principle": "单调队列优化多重背包：多重背包 f[i][j] = max_{0≤t≤c} { f[i-1][j-t·v] + t·w }。按 j 对 v 取模分为 v 组，每组内令 j = q·v + r，转移变为 f[q] = max_t { f_prev[q-t] - (q-t)·w } + q·w——括号内是与 q 无关的「候选值」，随 q 递增用单调队列维护（队列元素 f_prev[pos]-pos·w 单调）。每个 q 的转移 O(1)，总 O(n·V)（V 为容量）。窗口宽度即物品数量 c，越界弹出队首。此外 CF372C 等「固定步长移动」问题也直接套用窗口最值。",
+  "history": "单调队列/单调栈是最早被系统化的 DP 与区间最值优化手段，广泛用于滑动窗口问题（1980s USACO 滑动窗口）与多重背包优化。OI Wiki 设专章（monotonic-queue-stack）并与单调栈并列介绍；多重背包单调队列优化是 NOIP/省选高频考点。"
+ },
+ "how": {
+  "pseudocode": "# 滑动窗口最值（min 版本）\nfor i in 0..n-1:\n  while dq 非空 and dq[0] < i-k: pop_left()      # 出窗\n  while dq 非空 and val(dq[-1]) >= a[i]: pop_right()  # 淘汰劣势\n  push(i)\n  窗口最值 = val(dq[0])\n\n# 多重背包单调队列优化\nfor 每件物品(v,w,c):\n  for r in 0..v-1:                       # 按容量余数分组\n    单调队列 q 存候选 {pos: f_prev[pos]-pos*w}\n    for q 从 r 开始按 +v 递增到 V:\n      弹出越过窗口(c)的队首\n      插入 f_prev[q]-q*w（维护单调）\n      f_cur[q] = 队首值 + q*w",
+  "python": "def sliding_max(a, k):\n    \"\"\"滑动窗口最大值，窗口为 [i-k+1, i]，O(n)。\"\"\"\n    from collections import deque\n    dq = deque()\n    res = []\n    for i, x in enumerate(a):\n        while dq and dq[0] < i - k + 1:\n            dq.popleft()\n        while dq and a[dq[-1]] <= x:\n            dq.pop()\n        dq.append(i)\n        res.append(a[dq[0]])\n    return res\n\n\ndef multiple_knapsack_monoq(n, V, items):\n    \"\"\"多重背包单调队列优化：O(n*V)。\n    items: [(value, weight, count)]，求容量 V 下最大价值。\n    \"\"\"\n    dp = [0] * (V + 1)          # 上一物品层\n    for v, w, c in items:\n        ndp = [0] * (V + 1)\n        for r in range(v):\n            from collections import deque\n            dq = deque()        # 存候选下标 pos（同一余数类）\n            for pos in range(r, V + 1, v):\n                # 窗口大小 c：pos 之前超出 c 步的候选作废\n                while dq and dq[0] < pos - c * v:\n                    dq.popleft()\n                val = dp[pos] - (pos // v) * w\n                while dq and dp[dq[-1]] - (dq[-1] // v) * w <= val:\n                    dq.pop()\n                dq.append(pos)\n                ndp[pos] = dp[dq[0]] - (dq[0] // v) * w + (pos // v) * w\n        dp = ndp\n    return dp[V]\n\n\ndef multiple_knapsack_naive(n, V, items):\n    \"\"\"朴素多重背包（对拍用）\"\"\"\n    dp = [0] * (V + 1)\n    for v, w, c in items:\n        ndp = dp[:]\n        for j in range(V + 1):\n            for t in range(1, c + 1):\n                if j >= t * v:\n                    ndp[j] = max(ndp[j], dp[j - t * v] + t * w)\n        dp = ndp\n    return dp[V]\n\n\ndef firework_dp(dist, c, times, shines):\n    \"\"\"CF372C 烟花表演变形：位置移动步长<=d 的 DP。\n    返回总最大亮度。此处 d=1 演示单调队列 O(m*n)。\n    \"\"\"\n    n = len(dist)\n    m = len(times)\n    dp = [shines[0] - abs(dist[i]) for i in range(n)]\n    for k in range(1, m):\n        span = times[k] - times[k - 1]\n        step = min(c, span)          # 每步可移动<=span，窗口半径\n        from collections import deque\n        dq = deque()\n        ndp = [0] * n\n        for i in range(n):\n            # 候选为 i-1 的前 step 个位置（一维简化演示）\n            while dq and dq[0] < i - step:\n                dq.popleft()\n            while dq and dp[dq[-1]] <= dp[i - 1]:\n                dq.pop()\n            dq.append(i - 1)\n            ndp[i] = dp[dq[0]] + shines[k] - abs(dist[i])\n        dp = ndp\n    return max(dp)\n\n\nif __name__ == \"__main__\":\n    import random\n    random.seed(21)\n    # 滑动窗口\n    a = [1, 3, -1, -3, 5, 3, 6, 7]\n    assert sliding_max(a, 3) == [1, 3, 3, 3, 5, 5, 6, 7]\n    for _ in range(50):\n        arr = [random.randint(-100, 100) for _ in range(200)]\n        k = random.randint(1, 20)\n        expect = [max(arr[max(0, i - k + 1):i + 1]) for i in range(len(arr))]\n        assert sliding_max(arr, k) == expect\n    # 多重背包单调队列 vs 朴素\n    items = [(2, 3, 4), (3, 4, 2), (1, 1, 5), (5, 2, 3)]\n    for _ in range(30):\n        its = [(random.randint(1, 8), random.randint(1, 8), random.randint(1, 6))\n               for __ in range(5)]\n        V = random.randint(1, 120)\n        got = multiple_knapsack_monoq(len(its), V, its)\n        exp = multiple_knapsack_naive(len(its), V, its)\n        assert got == exp, (got, exp)\n    print(\"All tests passed.\")",
+  "pypy_notes": "单调队列用 collections.deque 实现，均摊 O(1)。多重背包单调队列注意按余数 r 分组遍历，窗口判界用 pos < dq[0] 的候选作废（数量上限 c）。Python 大容量背包（V 达 1e7）内存紧张，可滚动数组 + int 数组（array 模块）。",
+  "complexity": {
+   "time": "滑动窗口/单调队列优化：O(n)；多重背包：O(n·V)",
+   "space": "O(n) 或 O(V)（滚动）"
+  },
+  "limitations": "适用前提：转移只依赖窗口内最值且窗口右端点单调；多重背包要求同一物品价值/重量为正整数（否则不可按组取模拆）。若窗口左端点不单调（可任意查询），需改用线段树/稀疏表。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P1886",
+   "url": "https://www.luogu.com.cn/problem/P1886",
+   "difficulty": 3,
+   "key_point": "滑动窗口/单调队列最值模板题"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P1776",
+   "url": "https://www.luogu.com.cn/problem/P1776",
+   "difficulty": 5,
+   "key_point": "宝物筛选：多重背包单调队列优化模板"
+  },
+  {
+   "oj": "Codeforces",
+   "pid": "372C",
+   "url": "https://codeforces.com/problemset/problem/372/C",
+   "difficulty": 5,
+   "key_point": "Watching Fireworks：固定步长移动+单调队列（OI Wiki 例题）"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P2254",
+   "url": "https://www.luogu.com.cn/problem/P2254",
+   "difficulty": 6,
+   "key_point": "NOI2005 瑰丽华尔兹：方向分段单调队列优化 DP"
+  }
+ ],
+ "pitfalls": [
+  "队首出窗判断用 < 还是 <= 导致窗口边界差 1",
+  "多重背包按余数分组时 r 循环遗漏导致部分容量未被更新",
+  "队列存下标而非值，比较时忘带回原值导致淘汰逻辑错误",
+  "把 min 问题当成 max 问题维护（单调性方向相反）"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "decompose",
+    "label": "转移方程按窗口/取模分组拆解"
+   },
+   {
+    "id": "candidate",
+    "label": "构造候选值（去 i 相关项）"
+   },
+   {
+    "id": "queue",
+    "label": "单调队列维护候选（淘汰规则）"
+   },
+   {
+    "id": "window",
+    "label": "窗口边界出队"
+   },
+   {
+    "id": "transfer",
+    "label": "O(1) 转移 + 还原 i 相关项"
+   }
+  ],
+  "edges": [
+   {
+    "from": "decompose",
+    "to": "candidate"
+   },
+   {
+    "from": "candidate",
+    "to": "queue"
+   },
+   {
+    "from": "queue",
+    "to": "window"
+   },
+   {
+    "from": "window",
+    "to": "transfer"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/dp/opt/monotonic-queue-stack/",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/dynamic_programming/monotonic_queue.html",
+   "verified": false
+  }
+ ]
+}

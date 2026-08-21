@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动态规划基础 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-11.html">动态规划基础族</a> / <span>动态规划基础</span></div>
+  <h1>动态规划基础</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-A-11</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-A-11.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-A-11.html"><span class="dir">组内第 1 / 15</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dp-memo.html"><span class="dir">下一个 / 组内</span><span class="v">dp-memo</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">最优子结构/无后效性/子问题重叠，状态定义与转移方程</div><p>动态规划（Dynamic Programming, DP）将原问题分解为重叠子问题，用状态描述子问题、用状态转移方程描述子问题间关系，按序求解避免重复计算。三要素：最优子结构（原问题最优解含子问题最优解）、无后效性（已解子问题不受后续决策影响）、子问题重叠（同一子问题被多次需要，可缓存）。DP 的本质是在状态构成的 DAG 上求最长/短路。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>以数字三角形为例：从顶到底最大路径和。暴力枚举所有路径是 2^r 指数级。但观察：到每个点 (i,j) 的最优路径只取决于到上一层 (i-1,j-1) 和 (i-1,j) 的最优值——这就是子问题。把每个点「从顶到该点的最大和」存下来，逐层往下推，只需 O(r²)。这就是 DP：把重复计算的子问题结果存起来，用小问题答案拼出大问题答案。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>DP 四步法：①阶段划分——把问题分成有序的阶段；②状态定义——dp[i] 或 dp[i][j] 描述阶段 i 的子问题；③状态转移——找出 dp[i] 由哪些更小状态转移而来（决策）；④按阶段顺序求解。图论视角：每个状态是 DAG 节点，决策是边，dp 值是节点权重，转移是边松弛。LCS 转移：dp[i][j] = dp[i-1][j-1]+1 (A_i=B_j) 否则 max(dp[i-1][j], dp[i][j-1])。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>术语 &#x27;dynamic programming&#x27; 由 Richard Bellman 1950s 提出（&#x27;programming&#x27; 指表格法，非编程）。Bellman 用它解决最优控制问题。算法竞赛中 DP 是核心范式，OI Wiki 以数字三角形（IOI1994）为入门例题，CPH 第7章系统讲解。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 数字三角形 DP</span>
+<span class="t-k">def</span> <span class="t-f">dp</span>(triangle):
+    r = <span class="t-b">len</span>(triangle)
+    f = [row[:] <span class="t-k">for</span> row <span class="t-k">in</span> triangle]  <span class="t-c"># f[i][j] = 从顶到(i,j)最大和</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, r):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>):
+            best = f[i-<span class="t-n">1</span>][j] <span class="t-k">if</span> j &lt; i <span class="t-k">else</span> -inf
+            <span class="t-k">if</span> j &gt; <span class="t-n">0</span>: best = <span class="t-b">max</span>(best, f[i-<span class="t-n">1</span>][j-<span class="t-n">1</span>])
+            f[i][j] += best
+    <span class="t-k">return</span> <span class="t-b">max</span>(f[r-<span class="t-n">1</span>])</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># 动态规划基础：数字三角形 + LCS（含自测）</span>
+
+<span class="t-k">def</span> <span class="t-f">triangle_dp</span>(triangle):
+    <span class="t-s">&quot;&quot;&quot;数字三角形: 从顶到底路径最大和
+    triangle[i] 是长度 i+1 的列表&quot;&quot;&quot;</span>
+    r = <span class="t-b">len</span>(triangle)
+    <span class="t-k">if</span> r == <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    f = [row[:] <span class="t-k">for</span> row <span class="t-k">in</span> triangle]  <span class="t-c"># f[i][j] = 从顶到 (i,j) 的最大和</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, r):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>):
+            <span class="t-c"># 只能从左上 (i-1,j-1) 或正上 (i-1,j)</span>
+            up_left = f[i - <span class="t-n">1</span>][j - <span class="t-n">1</span>] <span class="t-k">if</span> j &gt; <span class="t-n">0</span> <span class="t-k">else</span> <span class="t-b">float</span>(<span class="t-s">&#x27;-inf&#x27;</span>)
+            up = f[i - <span class="t-n">1</span>][j] <span class="t-k">if</span> j &lt; i <span class="t-k">else</span> <span class="t-b">float</span>(<span class="t-s">&#x27;-inf&#x27;</span>)
+            f[i][j] += <span class="t-b">max</span>(up_left, up)
+    <span class="t-k">return</span> <span class="t-b">max</span>(f[r - <span class="t-n">1</span>])
+
+<span class="t-k">def</span> <span class="t-f">lcs_length</span>(a, b):
+    <span class="t-s">&quot;&quot;&quot;最长公共子序列长度, O(nm)&quot;&quot;&quot;</span>
+    n, m = <span class="t-b">len</span>(a), <span class="t-b">len</span>(b)
+    dp = [[<span class="t-n">0</span>] * (m + <span class="t-n">1</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, m + <span class="t-n">1</span>):
+            <span class="t-k">if</span> a[i - <span class="t-n">1</span>] == b[j - <span class="t-n">1</span>]:
+                dp[i][j] = dp[i - <span class="t-n">1</span>][j - <span class="t-n">1</span>] + <span class="t-n">1</span>
+            <span class="t-k">else</span>:
+                dp[i][j] = <span class="t-b">max</span>(dp[i - <span class="t-n">1</span>][j], dp[i][j - <span class="t-n">1</span>])
+    <span class="t-k">return</span> dp[n][m]
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 数字三角形 (IOI1994 示例)</span>
+    tri = [
+        [<span class="t-n">7</span>],
+        [<span class="t-n">3</span>, <span class="t-n">8</span>],
+        [<span class="t-n">8</span>, <span class="t-n">1</span>, <span class="t-n">0</span>],
+        [<span class="t-n">2</span>, <span class="t-n">7</span>, <span class="t-n">4</span>, <span class="t-n">4</span>],
+        [<span class="t-n">4</span>, <span class="t-n">5</span>, <span class="t-n">2</span>, <span class="t-n">6</span>, <span class="t-n">5</span>],
+    ]
+    <span class="t-k">assert</span> <span class="t-f">triangle_dp</span>(tri) == <span class="t-n">30</span>  <span class="t-c"># 7→3→8→7→5</span>
+    <span class="t-c"># LCS</span>
+    <span class="t-k">assert</span> <span class="t-f">lcs_length</span>(<span class="t-s">&quot;abcde&quot;</span>, <span class="t-s">&quot;acde&quot;</span>) == <span class="t-n">4</span>
+    <span class="t-k">assert</span> <span class="t-f">lcs_length</span>(<span class="t-s">&quot;AGGTAB&quot;</span>, <span class="t-s">&quot;GXTXAYB&quot;</span>) == <span class="t-n">4</span>  <span class="t-c"># GTA</span>
+    <span class="t-c"># 单元素</span>
+    <span class="t-k">assert</span> <span class="t-f">triangle_dp</span>([[<span class="t-n">42</span>]]) == <span class="t-n">42</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;dp-basic OK&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">DP 二维数组在 PyPy 下若全 int 可享 list-strategy 紧凑存储，比 CPython 快且省内存。嵌套循环 JIT 友好，LCS O(nm) 在 PyPy 快 5-10 倍。注意大二维表 (&gt;5000×5000) 内存约 200MB，PyPy 可能更高，需改滚动数组。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>数字三角形 O(r²)；LCS O(nm)；LIS O(n²) 或 O(n log n)</td></tr><tr><th>空间复杂度</th><td>通常 O(状态数)，滚动优化 O(转移维度)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">1) 不满足最优子结构/无后效性的问题不能用 DP；2) 状态空间爆炸时需优化（状压/滚动/单调队列等）；3) 状态定义错误导致整个解错——这是 DP 最难点。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>状态定义不当——没有正确刻画子问题，导致转移方程写不出或错误</li><li>不满足无后效性（后续决策影响已算子问题）→ 需扩充状态维度消除后效</li><li>转移方程遗漏决策（如 LCS 只考虑了匹配忘记跳过）</li><li>二维数组未正确独立创建（引用陷阱）导致结果串扰</li><li>忽略边界/初始状态（如 dp[0][0] 未正确设置）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1216</strong></td><td>2</td><td>DP 最经典入门题：从顶到底路径最大和</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1216" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1216</a></td></tr><tr><td>Luogu</td><td><strong>P2782</strong></td><td>4</td><td>最长不下降子序列 O(n log n)，bisect 维护 d 数组</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2782" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2782</a></td></tr><tr><td>Luogu</td><td><strong>P2196</strong></td><td>4</td><td>DAG 最长路，拓扑序 DP</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2196" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2196</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dp-basic" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "阶段划分：按 i 从小到大（层数/前缀长度）"}}, {"data": {"id": "s2", "label": "状态定义：dp[i] 或 dp[i][j] 表征子问题"}}, {"data": {"id": "s3", "label": "枚举当前状态的所有决策（转移来源）"}}, {"data": {"id": "s4", "label": "写转移方程 dp[i] = opt(dp[小状态] + 代价)"}}, {"data": {"id": "s5", "label": "确定初始值（dp[0]/dp[1]）与答案位置"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es2->s3", "source": "s2", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}, {"data": {"id": "es4->s5", "source": "s4", "target": "s5"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dp-basic'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="dp-memo.html" title="记忆化搜索是DP的递归实现方式">记忆化搜索<span class="etype">变体</span></a><a class="chip e-prerequisite" href="dp-knapsack01.html" title="0-1背包是DP基础思想的经典应用">0-1背包<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="dp-linear.html" title="线性DP是DP基础在一维序列上的直接应用">线性DP(LIS/LCS)<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="dp-interval.html" title="区间DP是DP基础在区间合并问题上的应用">区间DP<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="dp-tree.html" title="树形DP是DP基础在树结构上的应用">树形DP<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="dp-state.html" title="状压DP是DP基础在状态压缩编码上的应用">状压DP<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="dp-count.html" title="计数DP是DP思想在计数问题上的应用">计数DP<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="dp-number.html" title="数位DP是DP基础在数位枚举上的应用">数位DP<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="dp-dag.html" title="DAG上DP是DP基础在有向无环图上的应用">DAG上的DP<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="dp-probability.html" title="概率DP是DP基础在概率/期望问题上的应用">概率/期望DP<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/basic/" target="_blank" rel="noopener">https://oi-wiki.org/dp/basic/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/dynamic_programming/intro-to-dp.html" target="_blank" rel="noopener">https://cp-algorithms.com/dynamic_programming/intro-to-dp.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch7 p75</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

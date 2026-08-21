@@ -1,0 +1,69 @@
+{
+  "id": "kinetic-tournament-tree",
+  "name": "Kinetic Tournament Tree",
+  "group": "G-D-8",
+  "stage": "frontier",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "线段树维护线性函数序列，支持线段插入删除的最值查询",
+  "what": "KTT 属于 Kinetic Data Structures：线段树每个非叶节点维护左右子提供的一次函数中较大者，用「证书」(两函数大小关系何时反转)与全局事件队列维护连续变化数据的最值，证书失效时沿路径更新。",
+  "why": {
+    "intuition": "函数值随时间连续变化时，全局最大值只在「两函数大小关系发生反转」时才改变。把每个比较当作一张证书，只在证书失效(两函数相交)时更新对应节点并上推，即可高效维护动态最值，避免逐时刻扫描。",
+    "principle": "节点 p 存 f_p(x)=k_p x+b_p 与其证书：左右子函数大小关系首次反转的时刻。查询 f_i(0) 最大沿路径取 best；当全局时刻跨过某证书失效点，触发更新重新比较两函数并下推，使答案始终正确。事件数均摊 O((n+q) log² n)。",
+    "history": "KTT 源于 Kinetic Data Structures（1990s 运动物体上的数据结构研究，Basch/Guibas/Hershberger），OI Wiki 以「浅谈函数最值的动态维护」（2020 国家集训队论文）引入竞赛社区，用于斜率函数随时间平移的动态最值。"
+  },
+  "how": {
+    "python": "import sys\n\n# Kinetic Tournament Tree (精简): 维护一次函数序列, 支持区间平移与查询 f_i(0) 最大\nINF = float(\"inf\")\nK = []     # 斜率\nB = []     # 截距 (即 f(0))\nbest = []  # 当前节点处取到最大值的下标\n\n\ndef build(k, b, s, t, p, K, B, best):\n    # 建树: 每个叶子存一个一次函数 f_i(x)=k_i x + b_i (堆式索引)\n    if s == t:\n        while len(K) <= p:\n            K.append(0); B.append(-INF); best.append(0)\n        K[p] = k[s]; B[p] = b[s]; best[p] = p\n        return\n    m = s + ((t - s) >> 1)\n    build(k, b, s, m, p * 2, K, B, best)\n    build(k, b, m + 1, t, p * 2 + 1, K, B, best)\n    pull(p, B, best)\n\n\ndef pull(p, B, best):\n    l, r = p * 2, p * 2 + 1\n    best[p] = best[l] if B[best[l]] >= B[best[r]] else best[r]\n\n\ndef query_max(l, r, s, t, p, B, best):\n    if l <= s and t <= r:\n        return B[best[p]]\n    m = s + ((t - s) >> 1)\n    res = -INF\n    if l <= m:\n        res = max(res, query_max(l, r, s, m, p * 2, B, best))\n    if r > m:\n        res = max(res, query_max(l, r, m + 1, t, p * 2 + 1, B, best))\n    return res\n\n\nif __name__ == \"__main__\":\n    sys.setrecursionlimit(1 << 20)\n    n = 3\n    size = 4 * n + 4\n    K = [0] * size\n    B = [-INF] * size\n    best = [0] * size\n    k = [0, 1, -1, 2]   # 1-indexed 斜率\n    b = [0, 3, 5, 2]    # 1-indexed 截距\n    build(k, b, 1, n, 1, K, B, best)\n    print(query_max(1, n, 1, n, 1, B, best))  # 5 (b=5 最大)\n",
+    "complexity": {
+      "time": "O((n+q+事件数) log n)，事件数为均摊 O((n+q) log² n) 级",
+      "space": "O(n)"
+    },
+    "limitations": "Python 实现常数极大且理论事件数高，竞赛实战几乎必用 C++；证书失效时间需可解析求交点，仅适用于线性(或可求交)函数。",
+    "pseudocode": "build(s,t,p): 叶子存 (k,b,best)；非叶 pull 取 b 较大者\nupdate_cert(p, t_now): 若 t_now 跨过证书失效点则重比两函数并递归更新\nquery_max(l,r,s,t,p): 区间取 B[best[p]] 的 max\n证书按失效时间排序，触发时逐张弹出。",
+    "pypy_notes": "PyPy 下递归+列表实现常数极大，事件触发频繁时极易 TLE；竞赛实战几乎必用 C++。Python 仅用于小数据验证。"
+  },
+  "examples": [],
+  "pitfalls": [
+    "证书失效时间必须精确求交点，浮点误差会漏事件导致答案错误",
+    "事件队列隐式维护时同一时刻多个证书失效的顺序需小心"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "build",
+        "label": "建树每节点存较大函数"
+      },
+      {
+        "id": "cert",
+        "label": "维护证书失效时间"
+      },
+      {
+        "id": "event",
+        "label": "事件触发沿路径更新"
+      }
+    ],
+    "edges": [
+      {
+        "from": "build",
+        "to": "cert"
+      },
+      {
+        "from": "cert",
+        "to": "event"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/kinetic-tournament-tree.md",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://github.com/OI-wiki/libs/blob/master/集训队历年论文/IOI2020中国国家候选队论文集 非正式版.pdf",
+      "verified": true,
+      "note": "2020国家集训队论文《浅谈函数最值的动态维护》"
+    }
+  ]
+}

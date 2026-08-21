@@ -1,0 +1,91 @@
+{
+  "id": "hungarian",
+  "name": "匈牙利算法(Kuhn)",
+  "group": "G-B-6",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "二分图最大匹配，增广路O(VE)",
+  "what": "匈牙利算法（Kuhn 算法）求二分图最大匹配（maximum bipartite matching）：从空匹配出发，反复寻找增广路并沿其翻转匹配，直到不存在增广路——由 Berge 引理，此时匹配最大。Kuhn 版本对每个左部未匹配点做一次 DFS 找增广路，单次 O(E)，总 O(VE)。实现极简：维护右部点的匹配对象 match[v]，DFS 尝试为左部点 u 找未匹配右部点，被占用的右部点则递归让它的左部匹配对象『挪窝』。是竞赛最常用的二分图匹配模板，也是网络流与 Hopcroft-Karp 的思想基石。",
+  "why": {
+    "intuition": "把右部点看成『座位』，左部点来抢座。有人坐了就去找坐着的那个左部点：你能换别的座吗？能就让座，不能就另寻。递归地『让座』构成一条交错路；当这条路的起点左部点和终点右部点都未匹配，就是增广路，沿路反转即可把匹配数 +1。没有增广路时（Berge 引理）就达到了最大。",
+    "principle": "① 匹配 M、增广路定义：交替路径且首尾都是未匹配点；② Berge 引理：M 最大 ⇔ 不存在相对于 M 的增广路（若存在则 M⊕P 更大；若 M' 更大，对称差 M⊕M' 的连通分量中必有从 M' 边多于 M 边的交替路，即增广路）；③ Kuhn 算法：对每个左部点 u 做一次 DFS（增广一次，最多 n 次增广），DFS 中 visited 标记本次已访问的右部点避免死循环，对右部点 v：若未匹配则匹配 u-v；否则递归 try(match[v]) 让座；④ 复杂度：n 次增广 × 每次 DFS O(E) = O(VE)。小优化：优先选未匹配右部点、visited 复用（每轮 O(E) 找到多条增广路）可常数级优化。",
+    "history": "1931 年 Kőnig 证明了二分图匹配基本定理；匈牙利算法（Hungarian algorithm）名称源于 Kőnig 与 Egerváry 的匈牙利工作。Kuhn 1955 年发表求解指派问题（最大权完美匹配）的算法，后来 'Kuhn 算法' 通常特指增广路法最大匹配（OI Wiki 与 CP-Algorithms 均如此分类），O(VE)。该算法是理解网络流增广、Hopcroft-Karp 的前提。"
+  },
+  "how": {
+    "pseudocode": "match[v] = -1 for v in 右部\n\ndef try_kuhn(u, visited):\n  for v in adj[u]:\n    if visited[v]: continue\n    visited[v] = True\n    if match[v] == -1 or try_kuhn(match[v], visited):\n      match[v] = u\n      return True\n  return False\n\nmatching = 0\nfor u in 左部:\n  visited = [False] * m\n  if try_kuhn(u, visited): matching += 1",
+    "python": "def hungarian_maximum_matching(left_n, right_m, adj):\n    \"\"\"Kuhn 算法求二分图最大匹配。\n    left_n/right_m: 左右部点数; adj[u]: 左部点 u 可连的右部点列表。\n    返回 (最大匹配数, match: 右部点 v 匹配的左部点, -1 表示未匹配)。\"\"\"\n    match = [-1] * right_m\n\n    def try_kuhn(u, visited):\n        for v in adj[u]:\n            if visited[v]:\n                continue\n            visited[v] = True\n            if match[v] == -1 or try_kuhn(match[v], visited):\n                match[v] = u\n                return True\n        return False\n\n    res = 0\n    for u in range(left_n):\n        if try_kuhn(u, [False] * right_m):\n            res += 1\n    return res, match\n\n\nif __name__ == '__main__':\n    # 手工例子: 左 {0,1,2}, 右 {0,1,2}\n    adj = [[0, 1], [1], [2]]\n    res, match = hungarian_maximum_matching(3, 3, adj)\n    assert res == 3, res\n    # 随机图与 Hopcroft-Karp/暴力交叉验证\n    import random\n    random.seed(5)\n\n    def brute_max(n, m, adj):\n        from itertools import combinations\n        edges = []\n        for u in range(n):\n            for v in adj[u]:\n                edges.append((u, v))\n        best = 0\n        for r in range(min(n, m) + 1):\n            for comb in combinations(edges, r):\n                lu = set(e[0] for e in comb)\n                rv = set(e[1] for e in comb)\n                if len(lu) == r and len(rv) == r:\n                    best = max(best, r)\n        return best\n\n    for _ in range(60):\n        n = random.randint(1, 5)\n        m = random.randint(1, 5)\n        adj = [[] for _ in range(n)]\n        for u in range(n):\n            for v in range(m):\n                if random.random() < 0.4:\n                    adj[u].append(v)\n        res, _ = hungarian_maximum_matching(n, m, adj)\n        assert res == brute_max(n, m, adj), (n, m, adj, res)\n    print('hungarian: All tests passed.')",
+    "pypy_notes": "注意每次 DFS 都要重置 visited 数组（[False]*m 每个 u 一次），这是 O(VE) 的来源。优化技巧：visited 时间戳（每轮用一个递增整数标记而非新建 list）可省常数；优先选未匹配右部点；左右部可交换取小的一侧做左部使复杂度 O(min(X,Y)·E)。用数组模拟栈替代递归可避免深递归。",
+    "complexity": {
+      "time": "O(V·E)（n 次增广，每次 DFS O(E)）；其中 V 是左部点数，可优化为 O(min(X,Y)·E)",
+      "space": "O(V+E) 邻接表 + O(右部点数) match 数组"
+    },
+    "limitations": "稠密图或大规模时 O(VE) 会超时，需用 Hopcroft-Karp O(E√V)。递归 DFS 在深图会爆栈（PyPy 需加大递归限制或改迭代）。只求最大匹配基数，若需求最大权匹配用 KM 算法。二分图性质是前提，一般图需带花树。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3386",
+      "url": "https://www.luogu.com.cn/problem/P3386",
+      "difficulty": 3,
+      "key_point": "【模板】二分图最大匹配：Kuhn 标准模板题（n,m 500，E 50000 恰好 O(VE) 可过）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1129",
+      "url": "https://www.luogu.com.cn/problem/P1129",
+      "difficulty": 4,
+      "key_point": "矩阵游戏：01 矩阵能否交换行列使对角线全 1，建模为行-列二分图完美匹配，OI Wiki 例题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1640",
+      "url": "https://www.luogu.com.cn/problem/P1640",
+      "difficulty": 4,
+      "key_point": "【SCOI2010】连续攻击游戏：属性-编号二分图匹配求最大连续值，经典建图"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "abc274_g",
+      "url": "https://atcoder.jp/contests/abc274/tasks/abc274_g",
+      "difficulty": 5,
+      "key_point": "Security Camera 3：网格行/列覆盖二分图建图（最大匹配=最小点覆盖），OI Wiki 习题"
+    },
+    {
+      "oj": "LOJ",
+      "pid": "6002",
+      "url": "https://loj.ac/p/6002",
+      "difficulty": 3,
+      "key_point": "最小路径覆盖：DAG 拆点二分图匹配，|V|-最大匹配，OI Wiki 习题"
+    }
+  ],
+  "pitfalls": [
+    "visited 数组忘重置会导致同一右部点被重复递归 → 错误/死循环",
+    "match 数组方向写反（match[左] vs match[右]）导致增广失败",
+    "递归让座 try_kuhn(match[v], visited) 忘记传 visited，导致循环依赖",
+    "左部点遍历到匹配点仍要尝试（可能换座得到更大的匹配），不能跳过已匹配左部点",
+    "二分图前提：非二分图直接跑会得到错误结果（需先 bipartite-check）",
+    "稠密大图 O(VE) 超时：n≥1e4 或 E 大时应换 Hopcroft-Karp"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "berge", "label": "Berge 引理：无增广路 ⇔ 最大匹配" },
+      { "id": "aug", "label": "DFS 找增广路：让座递归 (match[v])" },
+      { "id": "loop", "label": "枚举每个左部点增广一次，统计匹配数" },
+      { "id": "opt", "label": "优化：visited 复用/优先未匹配右部/取小侧做左部" },
+      { "id": "relate", "label": "关联：网络流、Hopcroft-Karp、最小点覆盖" }
+    ],
+    "edges": [
+      { "from": "berge", "to": "aug" },
+      { "from": "aug", "to": "loop" },
+      { "from": "loop", "to": "opt" },
+      { "from": "loop", "to": "relate" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/graph/graph-matching/bigraph-match/", "verified": true },
+    { "type": "oiwiki", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/graph-matching/bigraph-match.md", "verified": true },
+    { "type": "cpalg", "url": "https://cp-algorithms.com/graph/kuhn_maximum_bipartite_matching.html", "verified": true },
+    { "type": "book", "ref": "CPH ch20 pp191-204", "verified": true }
+  ]
+}

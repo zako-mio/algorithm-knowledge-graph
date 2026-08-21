@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>有向图游戏 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-6.html">博弈论族</a> / <span>有向图游戏</span></div>
+  <h1>有向图游戏</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="anti-nim.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">anti-nim</span></a>
+    <a class="nav-index" href="../03-groups/G-E-6.html"><span class="dir">组内第 5 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="zero-sum-game.html"><span class="dir">下一个 / 组内</span><span class="v">zero-sum-game</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">在任意有向图（可能含环）上移动的博弈：利用反图 BFS + 出度归零技巧，O(|V|+|E|) 线性分类每个顶点为必胜/必败/平局态</div><p>有向图游戏：给定有向图 G（顶点为状态，边为移动），从起始顶点出发，玩家轮流沿出边移动一步，无法移动者判定胜/负（按规则）。与 Nim/SG 的 DAG 情形不同，这里图允许有环，因此存在平局（双方都不犯错则永不停机）。每个顶点有三种可能：先手必胜（W）、先手必败（L）、平局（D）。分类规则：无出边顶点按规则定 W/L；有出边指向 L 的 → W；所有出边都指向 W 的 → L；其余为 D（无法确定时游戏可在环上无限进行）。O(|V|+|E|) 算法用反图 BFS + 出度递减实现。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>和 DAG 博弈图一样的&#x27;反向传播&#x27;，但有环打破了完备性：环上的顶点可能既到不了 L 也不被全 W 包围，就会&#x27;卡&#x27;在 D。技巧是给每个顶点维护剩余出度数：从确定态（出度为 0）开始反向剥洋葱，剥不掉的剩下全是平局。环像&#x27;死区&#x27;，只有从确定态能&#x27;波及&#x27;到的顶点才被着色。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>两条传播规则：① 从 L 态沿反边到达的未定顶点 → W（直接覆盖）；② 从 W 态沿反边到达的未定顶点，其出度减一，若出度归零（所有后继都已确认是 W）→ L。正确性：W 态的定义是有后继 L；L 态定义是所有后继 W。出度为 0 的顶点直接定 W 或 L（无移动者胜/负）。处理完队列后，剩余未定顶点既无到达 L 的出口（否则被标 W），又未被全 W 判定（否则出度会归零），只能形成环上循环 → D。该算法与拓扑排序同构，是 CP-Algorithms『Games on arbitrary graphs』与 OI Wiki 有向图游戏的推荐解法。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>有环图博弈的胜负平局三分类是算法博弈论基础结论，其 O(m) 逆拓扑 BFS 技巧在竞赛中广泛用于『追及/移动棋子』类问题。CP-Algorithms 将其专章收录（&#x27;Games on arbitrary graphs&#x27;），OI Wiki 在有向图游戏一节给出同样流程，用于 Luogu P6560（时光的流逝）等题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 输入: n 顶点，adj[u] 出边表，normal=True 表示无法移动者输（反常则取反初始）</span>
+outdeg[u] = <span class="t-b">len</span>(adj[u]); 反图 radj
+state[u] = <span class="t-n">0</span> (未定), <span class="t-n">1</span> (W), -<span class="t-n">1</span> (L)
+queue ← 所有 outdeg==<span class="t-n">0</span> 的 u，state[u] = -<span class="t-n">1</span> (无法移动者输，正常规则)
+<span class="t-k">while</span> queue:
+  u = <span class="t-f">pop</span>()
+  <span class="t-k">for</span> v <span class="t-k">in</span> radj[u]:
+    <span class="t-k">if</span> state[v] != <span class="t-n">0</span>: <span class="t-k">continue</span>
+    <span class="t-k">if</span> state[u] == -<span class="t-n">1</span>:
+      state[v] = <span class="t-n">1</span>; queue.<span class="t-f">push</span>(v)
+    <span class="t-k">else</span>:
+      outdeg[v] -= <span class="t-n">1</span>
+      <span class="t-k">if</span> outdeg[v] == <span class="t-n">0</span>:
+        state[v] = -<span class="t-n">1</span>; queue.<span class="t-f">push</span>(v)
+剩余 state==<span class="t-n">0</span> 的顶点 → 平局 D</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+
+<span class="t-k">def</span> <span class="t-f">classify_cycles</span>(n, adj, normal=<span class="t-k">True</span>):
+    <span class="t-s">&quot;&quot;&quot;任意有向图（可含环）的胜负平局三分类。
+    normal=True: 无法移动者输；False: 无法移动者赢（反常）。
+    返回 state: 1=先手必胜, -1=先手必败, 0=平局。
+    &quot;&quot;&quot;</span>
+    outdeg = [<span class="t-b">len</span>(adj[u]) <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    radj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            radj[v].<span class="t-f">append</span>(u)
+
+    state = [<span class="t-n">0</span>] * n
+    q = <span class="t-f">deque</span>()
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">if</span> outdeg[u] == <span class="t-n">0</span>:
+            state[u] = -<span class="t-n">1</span> <span class="t-k">if</span> normal <span class="t-k">else</span> <span class="t-n">1</span>
+            q.<span class="t-f">append</span>(u)
+    <span class="t-k">while</span> q:
+        u = q.<span class="t-f">popleft</span>()
+        <span class="t-k">for</span> v <span class="t-k">in</span> radj[u]:
+            <span class="t-k">if</span> state[v] != <span class="t-n">0</span>:
+                <span class="t-k">continue</span>
+            <span class="t-k">if</span> state[u] == -<span class="t-n">1</span>:
+                state[v] = <span class="t-n">1</span>
+                q.<span class="t-f">append</span>(v)
+            <span class="t-k">else</span>:
+                outdeg[v] -= <span class="t-n">1</span>
+                <span class="t-k">if</span> outdeg[v] == <span class="t-n">0</span>:
+                    state[v] = -<span class="t-n">1</span>
+                    q.<span class="t-f">append</span>(v)
+    <span class="t-k">return</span> state
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 无环：0-&gt;1-&gt;2-&gt;3（正常规则）</span>
+    s = <span class="t-f">classify_cycles</span>(<span class="t-n">4</span>, [[<span class="t-n">1</span>], [<span class="t-n">2</span>], [<span class="t-n">3</span>], []])
+    <span class="t-k">assert</span> s == [<span class="t-n">1</span>, -<span class="t-n">1</span>, <span class="t-n">1</span>, -<span class="t-n">1</span>], s
+
+    <span class="t-c"># 纯环 0&lt;-&gt;1：无出度 0 顶点，全部平局</span>
+    s2 = <span class="t-f">classify_cycles</span>(<span class="t-n">2</span>, [[<span class="t-n">1</span>], [<span class="t-n">0</span>]])
+    <span class="t-k">assert</span> s2 == [<span class="t-n">0</span>, <span class="t-n">0</span>], s2
+
+    <span class="t-c"># 环 1&lt;-&gt;2 + 出口 2-&gt;3：3 输, 2 赢, 1 所有后继(2)赢→输, 0 赢</span>
+    s3 = <span class="t-f">classify_cycles</span>(<span class="t-n">4</span>, [[<span class="t-n">1</span>], [<span class="t-n">2</span>], [<span class="t-n">1</span>, <span class="t-n">3</span>], []])
+    <span class="t-k">assert</span> s3[<span class="t-n">3</span>] == -<span class="t-n">1</span> <span class="t-k">and</span> s3[<span class="t-n">2</span>] == <span class="t-n">1</span> <span class="t-k">and</span> s3[<span class="t-n">1</span>] == -<span class="t-n">1</span> <span class="t-k">and</span> s3[<span class="t-n">0</span>] == <span class="t-n">1</span>, s3
+
+    <span class="t-c"># 反常规则翻转无出边顶点的初值：无环链 0-&gt;1-&gt;2-&gt;3</span>
+    s4 = <span class="t-f">classify_cycles</span>(<span class="t-n">4</span>, [[<span class="t-n">1</span>], [<span class="t-n">2</span>], [<span class="t-n">3</span>], []], normal=<span class="t-k">False</span>)
+    <span class="t-c"># 3: 无法移动者赢 → W(1)；2: 后继全 W → L；1: 有后继 L → W；0: L</span>
+    <span class="t-k">assert</span> s4 == [-<span class="t-n">1</span>, <span class="t-n">1</span>, -<span class="t-n">1</span>, <span class="t-n">1</span>], s4
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">邻接表与反图各 O(V+E) 内存，PyPy 下 V,E=1e6 约 1-2s。用数组存 state（-1/0/1）避免 dict。若图极稀疏且只查单点，可记忆化搜索但需显式判环（三色标记），不如全量 BFS 稳。注意递归 DFS 在 1e6 顶点会爆栈，用迭代队列。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(|V|+|E|)</td></tr><tr><th>空间复杂度</th><td>O(|V|+|E|)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">区分平局需要正确处理出度递减——漏减会误把环上点标成 L/W。反常规则（无法移动者赢）只需翻转初值。若有多个起点的目标型问题（类似追逐），建模时把目标态设为无出边即可。顶点数巨大但边稀疏时可只建可达子图。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>有环时不能直接当作 DAG 标记 N/P（残留未定会被误判），必须先跑出度归零流程</li><li>出度递减要放在 state[u]==1 分支，且检查归零后标 L；state[u]==-1 分支直接标 W 不递减</li><li>正常/反常规则决定无出边顶点的初值，别统一设 L</li><li>反图构建必须完整（每条正向边对应一条反向边）</li><li>平局态的判定是&#x27;流程结束仍 state==0&#x27;，不是在中间标记</li><li>多个测试用例共用一个图时 state/outdeg 要重新初始化</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P6560</strong></td><td>6</td><td>[SBCOI2020] 时光的流逝：有向图博弈三分类模板（正常规则），OI Wiki 习题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P6560" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P6560</a></td></tr><tr><td>CP-Algorithms</td><td><strong>Games on arbitrary graphs 例题</strong></td><td>6</td><td>官方章节：含环任意图上的 W/L/D 线性分类算法与证明</td><td class="u"><a href="https://cp-algorithms.com/game_theory/games_on_graphs.html" target="_blank" rel="noopener">https://cp-algorithms.com/game_theory/games_on_graphs.html</a></td></tr><tr><td>Luogu</td><td><strong>P6487</strong></td><td>6</td><td>[COCI 2010/2011] HRPA：阶梯型有向图博弈（OI Wiki 习题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P6487" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P6487</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-game-on-graph" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "sink", "label": "无出边顶点初始化 W/L"}}, {"data": {"id": "rules", "label": "W/L 传播规则（反边 BFS）"}}, {"data": {"id": "outdeg", "label": "出度递减判定 L 态"}}, {"data": {"id": "draw", "label": "剩余顶点为平局态"}}, {"data": {"id": "dag", "label": "对照: 无环博弈见 game-graph"}}, {"data": {"id": "esink->rules", "source": "sink", "target": "rules"}}, {"data": {"id": "erules->outdeg", "source": "rules", "target": "outdeg"}}, {"data": {"id": "eoutdeg->draw", "source": "outdeg", "target": "draw"}}, {"data": {"id": "esink->dag", "source": "sink", "target": "dag"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-game-on-graph'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="game-graph.html" title="有向图游戏是博弈图在有环图上的推广">博弈图与必胜必败态<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/game_theory/games_on_graphs.html" target="_blank" rel="noopener">https://cp-algorithms.com/game_theory/games_on_graphs.html</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/game-theory/impartial-game/" target="_blank" rel="noopener">https://oi-wiki.org/math/game-theory/impartial-game/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

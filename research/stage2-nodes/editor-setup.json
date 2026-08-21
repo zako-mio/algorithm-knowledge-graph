@@ -1,0 +1,74 @@
+{
+  "id": "editor-setup",
+  "name": "编辑器配置",
+  "group": "G-E-9",
+  "stage": "intermediate",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "VSCode/Vim/CLion等编辑器竞赛配置：编译任务、调试launch、代码片段、按键效率优化",
+  "what": "编辑器配置是竞赛效率基建。核心目标：让'写码-编译-测试-调试'在编辑器内一键完成。主流方案：(1)VS Code：安装C/C++扩展(编译+调试+IntelliSense)或C/C++ Compile Run/Code Runner扩展(单文件一键运行F6/F7/F8)，配置tasks.json(编译任务)与launch.json(调试配置，gdb/LLDB)，还可配clangd提供补全；(2)Vim/Neovim：掌握模式与键位(命令/插入/底线命令行/可视)、宏录制、.命令、normal命令，配合编译插件与快速跳转；(3)CLion/JetBrains：图形化CMake项目与调试。竞赛专属配置：CP模板代码片段(读入/输出模板)、按F5一键编译带-DDEBUG/-fsanitize、提交前自动切-O2、代码片段快速插入(如STL头文件、二分模板)。",
+  "why": {
+    "intuition": "编辑器是'战场工位'：工位越顺手，出枪越快。竞赛代码单文件为主、调试循环频繁，把'编译+跑样例+调试'绑成快捷键，把常用模板做成代码片段，能省下大量机械操作时间，把注意力留给算法。",
+    "principle": "VS Code配置要点：(1)tasks.json定义编译任务, 如 {\"label\":\"build\",\"command\":\"g++\",\"args\":[\"-std=c++17\",\"-g\",\"-Wall\",\"${file}\",\"-o\",\"${fileDirname}/${fileBasenameNoExtension}\"]}, 绑定Ctrl+Shift+B；(2)launch.json定义调试, F5启动, 用gdb选'g++ 生成和调试活动文件', 或LLDB(需CodeLLDB扩展)；(3)IntelliSense配置includePath/standard。Vim要点：hjkl移动、i/a/o进入插入、v/V/ctrl-v可视模式、dd/yy/p删除/复制/粘贴、宏q+寄存器录制重复操作、set nu/相对行号、语法高亮syntax on、编译映射:map <F5> :!g++ % -O2 -o a && ./a<CR>。代码片段(Snippets)：VS Code可写json片段, Vim用abbreviation或UltiSnips；竞赛常用头模板+read模板。",
+    "history": "编辑器配置随编辑器生态演进：VSCode因TypeScript/Electron与丰富扩展成为当代主流，Code Runner/C++ Compile Run专注单文件快速运行，clangd成为C++补全的事实标准之一；Vim以其全键盘效率在资深竞赛选手中长盛不衰。OI Wiki的editor/vscode与editor/vim页给出完整配置教程。"
+  },
+  "how": {
+    "pseudocode": "# VS Code tasks.json (编译任务)\n{\n  \"label\": \"build\",\n  \"type\": \"shell\",\n  \"command\": \"g++\",\n  \"args\": [\"-std=c++17\", \"-g\", \"-Wall\", \"-Wextra\", \"${file}\", \"-o\", \"${fileDirname}/${fileBasenameNoExtension}\"],\n  \"group\": \"build\"\n}\n# 快捷键: Ctrl+Shift+B 编译; F5 调试; F6/F7/F8 (Compile Run扩展)\n\n# Vim 映射\n:map <F5> :!g++ % -std=c++17 -O2 -o a && ./a<CR>\n:set number relativenumber\n:syntax on",
+    "python": "\"\"\"编辑器配置: 竞赛工作流辅助(模板生成/片段管理)参考实现.\n自测: 验证模板代码生成与快捷键配置文件生成逻辑.\n\"\"\"\nimport json\nimport os\nimport sys\nfrom pathlib import Path\n\n# ---------- 代码片段/模板管理 ----------\nTEMPLATES = {\n    \"c++17_std\": \"\"\"#include <bits/stdc++.h>\\nusing namespace std;\\nint main() {\\n    ios::sync_with_stdio(false);\\n    cin.tie(nullptr);\\n    // TODO\\n    return 0;\\n}\\n\"\"\",\n    \"py_fast\": \"\"\"import sys\\ninput = sys.stdin.readline\\n\\ndef solve():\\n    n = int(input())\\n    # TODO\\n\\nif __name__ == '__main__':\\n    solve()\\n\"\"\",\n}\n\n\ndef gen_template(lang):\n    \"\"\"按语言生成竞赛模板文件内容.\"\"\"\n    key = {\"cpp\": \"c++17_std\", \"py\": \"py_fast\"}.get(lang)\n    return TEMPLATES.get(key)\n\n\n# ---------- VSCode tasks.json 生成 ----------\ndef make_vscode_tasks():\n    \"\"\"生成VS Code编译任务配置(竞赛单文件).\"\"\"\n    return {\n        \"version\": \"2.0.0\",\n        \"tasks\": [{\n            \"label\": \"build\",\n            \"type\": \"shell\",\n            \"command\": \"g++\",\n            \"args\": [\"-std=c++17\", \"-g\", \"-Wall\", \"-Wextra\",\n                     \"${file}\", \"-o\",\n                     \"${fileDirname}/${fileBasenameNoExtension}\"],\n            \"group\": {\"kind\": \"build\", \"isDefault\": True},\n        }]\n    }\n\n\n# ---------- Vim 配置片段 ----------\ndef make_vim_cfg():\n    return (\n        \"set number relativenumber\\n\"\n        \"syntax on\\n\"\n        \"set tabstop=4 shiftwidth=4 expandtab\\n\"\n        \"map <F5> :!g++ % -std=c++17 -O2 -o a && ./a<CR>\\n\"\n    )\n\n\nif __name__ == \"__main__\":\n    # 模板生成\n    cpp = gen_template(\"cpp\")\n    py = gen_template(\"py\")\n    assert cpp and \"#include <bits/stdc++.h>\" in cpp\n    assert py and \"input = sys.stdin.readline\" in py\n\n    # VSCode tasks.json\n    t = make_vscode_tasks()\n    assert t[\"tasks\"][0][\"label\"] == \"build\"\n    assert \"-std=c++17\" in t[\"tasks\"][0][\"args\"]\n\n    # Vim配置\n    v = make_vim_cfg()\n    assert \"set number\" in v and \"<F5>\" in v\n\n    print(\"editor-setup: ALL TESTS PASSED\")\n",
+    "pypy_notes": "Python选手可直接用Code Runner一键运行; 注意VS Code集成终端默认使用CMD/PowerShell而非Git Bash(路径兼容性)。Vim的%代表当前文件名。",
+    "complexity": {
+      "time": "配置一次性成本; 运行时代价=编译/调试时间",
+      "space": "O(1) — 配置文件体积可忽略"
+    },
+    "limitations": "不同OS的g++/调试器路径不同(Windows需MinGW), 配置需按环境微调; Code Runner默认不启用'在终端运行', 需要输入时须勾选Run In Terminal; Vim学习曲线陡峭。"
+  },
+  "examples": [
+    {
+      "oj": "OI Wiki",
+      "pid": "VS Code配置",
+      "url": "https://oi-wiki.org/tools/editor/vscode/",
+      "difficulty": 0,
+      "key_point": "C/C++ Compile Run、Code Runner、C/C++扩展+launch.json调试配置"
+    },
+    {
+      "oj": "OI Wiki",
+      "pid": "Vim配置",
+      "url": "https://oi-wiki.org/tools/editor/vim/",
+      "difficulty": 0,
+      "key_point": "Vim模式/键位/宏/normal命令的竞赛向用法"
+    },
+    {
+      "oj": "VS Code",
+      "pid": "C++官方文档",
+      "url": "https://code.visualstudio.com/docs/languages/cpp",
+      "difficulty": 0,
+      "key_point": "微软官方C/C++与调试配置指南"
+    }
+  ],
+  "pitfalls": [
+    "VS Code集成终端用CMD/PowerShell而非Git Bash可能导致编译器找不到",
+    "Code Runner需勾选Run In Terminal才能交互式输入",
+    "tasks.json/launch.json的${file}等变量拼写错误会静默失效",
+    "开启-O2后gdb变量查看异常, 调试配置勿带-O2",
+    "Vim的宏/寄存器操作易混淆, 建议单独练习"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "install", "label": "安装编辑器+编译环境" },
+      { "id": "build", "label": "配置编译任务tasks.json/映射" },
+      { "id": "debug", "label": "配置调试launch.json/gdb" },
+      { "id": "snippet", "label": "配代码片段与模板" },
+      { "id": "verify", "label": "验证一键编译/调试流程" }
+    ],
+    "edges": [
+      { "from": "install", "to": "build" },
+      { "from": "build", "to": "debug" },
+      { "from": "debug", "to": "snippet" },
+      { "from": "snippet", "to": "verify" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/tools/editor/vscode/", "verified": true },
+    { "type": "oiwiki", "url": "https://oi-wiki.org/tools/editor/vim/", "verified": true }
+  ]
+}

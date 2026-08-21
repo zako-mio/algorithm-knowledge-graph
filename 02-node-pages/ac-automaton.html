@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AC 自动机 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-2.html">字典树与AC自动机族</a> / <span>AC 自动机</span></div>
+  <h1>AC 自动机</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="trie.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">trie</span></a>
+    <a class="nav-index" href="../03-groups/G-C-2.html"><span class="dir">组内第 2 / 2</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-C-2.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">Trie + KMP 失配指针，多模式串匹配自动机，预处理 O(Σ|s|)，匹配 O(文本长+z)</div><p>AC（Aho–Corasick）自动机以 Trie 结构为基础、结合 KMP 失配指针思想，解决『一次匹配多个模式串』问题。构建分两步：① 把所有模式串插入 Trie；② BFS 构建 fail 指针——fail[u] 指向 u 的最长真后缀状态（即字典树中存在的最长后缀字符串所对应的节点）。常配合『Trie 图』优化：把不存在的转移补全为 fail 的转移，使匹配过程每字符 O(1) 无需回溯。匹配：文本串沿 Trie 图走，每到一个节点沿 fail 链累加所有匹配模式。优化：fail 树拓扑/DFS 求和可在 O(len) 统计每个模式出现次数。时间复杂度：建 O(Σ|s_i|+n·字符集)，匹配 O(|S|+z)（z 为匹配总数）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>单模式匹配用 KMP，多模式若每个都跑一遍 KMP 太慢。AC 自动机把多个模式塞进一棵 Trie，然后给每个节点配一根‘失败了去哪接’的弹簧（fail 指针）——匹配到某节点失败时，弹簧直接跳到所有模式前缀中与之最长后缀相同的节点，一次到位，不必从头再来。就像查字典时发现整页没有，直接翻到能接上的那一页。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>fail[u] 定义：u 代表的字符串的最长真后缀，且该后缀是某个模式串的前缀。构建（BFS 按深度）：设 u 由父 p 经字符 c 到达，则 fail[u]=δ(fail[p],c)（若不存在则递归 fail 链直到根，最终为根或补全转移直接取到）。Trie 图补全：对不存在的 δ(u,c) 令其=δ(fail[u],c)，这样一次转移即到达‘最合理继续点’。匹配每字符 u=δ(u,c)，随后沿 fail 链收集匹配（或用 fail 树差分：只给命中节点打标记，最后按 fail 树自底向上求和）。正确性：每个状态代表文本当前后缀与某个模式前缀的最大匹配；fail 链上的所有状态都代表可匹配模式。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>1975 年 Alfred Aho 与 Margaret Corasick 提出该算法（论文 “Efficient string matching: an aid to bibliographic search”），源于贝尔实验室的检索需求。它把 KMP 从单模式推广到多模式，复杂度线性。现代文本索引、病毒库扫描（如 ClamAV）、正则引擎 NFA 化均有其思想。CP-Algorithms 与 OI Wiki《AC 自动机》页给出完整实现，含拓扑优化与 AC 自动机 DP（如 HNOI2004 L 语言）。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 节点: tr[u][26] 转移(Trie图), fail[u], cnt[u]</span>
+<span class="t-k">def</span> <span class="t-f">build</span>():
+  q = <span class="t-f">deque</span>(根的所有直接儿子)   <span class="t-c"># 根儿子 fail=0</span>
+  <span class="t-k">while</span> q:
+    u = q.<span class="t-f">popleft</span>()
+    <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">26</span>):
+      v = tr[u][c]
+      <span class="t-k">if</span> v:
+        fail[v] = tr[fail[u]][c]
+        q.<span class="t-f">append</span>(v)
+      <span class="t-k">else</span>:
+        tr[u][c] = tr[fail[u]][c]   <span class="t-c"># 补全 Trie图</span>
+<span class="t-k">def</span> <span class="t-f">query</span>(text):
+  u = <span class="t-n">0</span>; res = <span class="t-n">0</span>
+  <span class="t-k">for</span> ch <span class="t-k">in</span> text:
+    u = tr[u][ch]
+    v = u
+    <span class="t-k">while</span> v <span class="t-k">and</span> cnt[v]: res += cnt[v]; cnt[v]=<span class="t-n">0</span>; v = fail[v]
+  <span class="t-k">return</span> res
+<span class="t-c"># 求每个模式次数: 命中节点 acc++ -&gt; 按 fail 树逆拓扑累加</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+
+<span class="t-k">class</span> AhoCorasick:
+    <span class="t-s">&quot;&quot;&quot;AC 自动机: Trie + 失配指针(fail) + Trie图(补全转移).
+    build 后 tr[u][c] 为补全后的转移; fail[u] 指向最长后缀状态.
+    匹配复杂度 O(文本长) 不计输出, 建图 O(模式串总长 * 字符集).&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, alpha_size=<span class="t-n">26</span>):
+        self.alpha = alpha_size
+        self.tr = [[<span class="t-n">0</span>] * self.alpha]    <span class="t-c"># tr[0] 全 0 表示根</span>
+        self.fail = [<span class="t-n">0</span>]
+        self.cnt = [<span class="t-n">0</span>]                  <span class="t-c"># 该节点作为模式串结尾的次数(0/1)</span>
+        self.used = []                  <span class="t-c"># 匹配时已计入答案的模式(去重)</span>
+
+    <span class="t-k">def</span> <span class="t-f">add</span>(self, s):
+        u = <span class="t-n">0</span>
+        <span class="t-k">for</span> ch <span class="t-k">in</span> s:
+            c = <span class="t-b">ord</span>(ch) - <span class="t-b">ord</span>(<span class="t-s">&#x27;a&#x27;</span>)
+            <span class="t-k">if</span> self.tr[u][c] == <span class="t-n">0</span>:
+                self.tr[u][c] = <span class="t-b">len</span>(self.tr)
+                self.tr.<span class="t-f">append</span>([<span class="t-n">0</span>] * self.alpha)
+                self.fail.<span class="t-f">append</span>(<span class="t-n">0</span>)
+                self.cnt.<span class="t-f">append</span>(<span class="t-n">0</span>)
+                self.used.<span class="t-f">append</span>(<span class="t-k">False</span>)
+            u = self.tr[u][c]
+        self.cnt[u] += <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">build</span>(self):
+        <span class="t-s">&quot;&quot;&quot;BFS 构建 fail, 同时把不存在的转移补全为 fail 的转移(Trie图).&quot;&quot;&quot;</span>
+        q = <span class="t-f">deque</span>()
+        <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(self.alpha):
+            v = self.tr[<span class="t-n">0</span>][c]
+            <span class="t-k">if</span> v:
+                self.fail[v] = <span class="t-n">0</span>
+                q.<span class="t-f">append</span>(v)
+        <span class="t-k">while</span> q:
+            u = q.<span class="t-f">popleft</span>()
+            <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(self.alpha):
+                v = self.tr[u][c]
+                <span class="t-k">if</span> v:
+                    self.fail[v] = self.tr[self.fail[u]][c]
+                    q.<span class="t-f">append</span>(v)
+                <span class="t-k">else</span>:
+                    self.tr[u][c] = self.tr[self.fail[u]][c]
+
+    <span class="t-k">def</span> <span class="t-f">query</span>(self, text):
+        <span class="t-s">&quot;&quot;&quot;返回文本中出现的模式串个数(每个模式串计一次).&quot;&quot;&quot;</span>
+        u = <span class="t-n">0</span>
+        res = <span class="t-n">0</span>
+        <span class="t-k">for</span> ch <span class="t-k">in</span> text:
+            c = <span class="t-b">ord</span>(ch) - <span class="t-b">ord</span>(<span class="t-s">&#x27;a&#x27;</span>)
+            u = self.tr[u][c]
+            v = u
+            <span class="t-k">while</span> v <span class="t-k">and</span> self.cnt[v]:
+                res += self.cnt[v]
+                self.cnt[v] = <span class="t-n">0</span>
+                v = self.fail[v]
+        <span class="t-k">return</span> res
+
+    <span class="t-k">def</span> <span class="t-f">query_count_all</span>(self, text):
+        <span class="t-s">&quot;&quot;&quot;返回每个模式串在文本中的出现次数(含重叠), 借助 fail 树自底向上累加.
+        要求已 build. 返回数组 acc, 下标为节点号, acc[结束节点] 即该模式串出现次数.&quot;&quot;&quot;</span>
+        n = <span class="t-b">len</span>(self.tr)
+        acc = [<span class="t-n">0</span>] * n
+        u = <span class="t-n">0</span>
+        <span class="t-k">for</span> ch <span class="t-k">in</span> text:
+            c = <span class="t-b">ord</span>(ch) - <span class="t-b">ord</span>(<span class="t-s">&#x27;a&#x27;</span>)
+            u = self.tr[u][c]
+            acc[u] += <span class="t-n">1</span>
+        <span class="t-c"># BFS 序(按真实 Trie 边, 深度非降). 逆序累加 =&gt; 自底向上沿 fail 树求和</span>
+        <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">reversed</span>(self._order):
+            acc[self.fail[v]] += acc[v]
+        <span class="t-k">return</span> acc
+
+    <span class="t-k">def</span> <span class="t-f">_record_order</span>(self):
+        <span class="t-s">&quot;&quot;&quot;在 build 前调用: 用真实 Trie 边做 BFS, 记录节点序.&quot;&quot;&quot;</span>
+        order = [<span class="t-n">0</span>]
+        q = <span class="t-f">deque</span>([<span class="t-n">0</span>])
+        <span class="t-k">while</span> q:
+            u = q.<span class="t-f">popleft</span>()
+            <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(self.alpha):
+                v = self.tr[u][c]
+                <span class="t-k">if</span> v:
+                    order.<span class="t-f">append</span>(v)
+                    q.<span class="t-f">append</span>(v)
+        self._order = order
+
+<span class="t-k">def</span> <span class="t-f">build_ac</span>(patterns):
+    <span class="t-s">&quot;&quot;&quot;便捷封装: 返回 (ac, end_nodes). end_nodes[i] 为第 i 个模式串的结束节点.&quot;&quot;&quot;</span>
+    ac = <span class="t-f">AhoCorasick</span>()
+    ends = []
+    <span class="t-k">for</span> p <span class="t-k">in</span> patterns:
+        ac.<span class="t-f">add</span>(p)
+    <span class="t-c"># 记录真实儿子(在补全前)</span>
+    ac.<span class="t-f">_record_order</span>()
+    <span class="t-k">for</span> p <span class="t-k">in</span> patterns:
+        u = <span class="t-n">0</span>
+        <span class="t-k">for</span> ch <span class="t-k">in</span> p:
+            u = ac.tr[u][<span class="t-b">ord</span>(ch) - <span class="t-b">ord</span>(<span class="t-s">&#x27;a&#x27;</span>)]
+        ends.<span class="t-f">append</span>(u)
+    ac.<span class="t-f">build</span>()
+    <span class="t-k">return</span> ac, ends
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    patterns = [<span class="t-s">&quot;she&quot;</span>, <span class="t-s">&quot;he&quot;</span>, <span class="t-s">&quot;his&quot;</span>, <span class="t-s">&quot;hers&quot;</span>]
+    text = <span class="t-s">&quot;ushersheishis&quot;</span>
+    ac, ends = <span class="t-f">build_ac</span>(patterns)
+    <span class="t-k">assert</span> ac.<span class="t-f">query</span>(<span class="t-s">&quot;ushersheishis&quot;</span>) &gt;= <span class="t-n">1</span>
+    <span class="t-c"># 计数每种模式</span>
+    ac2, ends2 = <span class="t-f">build_ac</span>(patterns)
+    acc = ac2.<span class="t-f">query_count_all</span>(text)
+    <span class="t-c"># 暴力验证</span>
+    <span class="t-k">def</span> <span class="t-f">brute</span>(patterns, text):
+        res = {}
+        <span class="t-k">for</span> p <span class="t-k">in</span> patterns:
+            c = <span class="t-n">0</span>
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(text) - <span class="t-b">len</span>(p) + <span class="t-n">1</span>):
+                <span class="t-k">if</span> text[i:i+<span class="t-b">len</span>(p)] == p:
+                    c += <span class="t-n">1</span>
+            res[p] = c
+        <span class="t-k">return</span> res
+    expected = <span class="t-f">brute</span>(patterns, text)
+    <span class="t-k">for</span> p, e <span class="t-k">in</span> <span class="t-b">zip</span>(patterns, ends2):
+        <span class="t-k">assert</span> acc[e] == expected[p], (p, acc[e], expected[p])
+    <span class="t-b">print</span>(<span class="t-s">&quot;ac-automaton: all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">用 list 嵌套 list 存 tr，字符集 26 时每节点 26 ints；总节点 1e6 时内存 ~100MB+，必要时用 dict 转移换内存。匹配用 while 沿 fail 链累加在极端数据（如所有模式互为后缀）会退化，务必用 fail 树拓扑/差分优化。build 的 BFS 用 collections.deque。PyPy 下 for c in range(26) 固定循环比遍历 dict 快。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>构建 O(Σ|s_i|·字符集)；匹配 O(|S|+z)；fail树统计 O(|S|+节点数)</td></tr><tr><th>空间复杂度</th><td>O(Σ|s_i|·字符集) 节点</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">① 字符集大时每节点数组爆炸（改用 map 或压缩）；② 朴素匹配每次沿 fail 链跳在重叠严重数据上退化，需拓扑优化；③ 不能匹配重叠模式的最长公共后缀之外的形态（需后缀自动机）；④ Python 实现注意对象/数组内存权衡；⑤ 建图补全修改了 tr 结构，无法直接复用为纯 Trie。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>根的儿子 fail 忘了置 0（应直接入队而非根本身）</li><li>build 时没做 Trie 图补全，匹配时回溯 fail 太慢</li><li>朴素 query 每次跳 fail 链在重叠数据上 TLE（必须拓扑/DFS 优化）</li><li>多模式计数时重复清零 cnt 导致多模式计数丢失</li><li>字符集下标/文本字符越界</li><li>递归建树过深（总长 1e6）导致 RecursionError</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3808</strong></td><td>3</td><td>AC 自动机（简单版）：统计出现过的模式串个数，OI Wiki 模板</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3808" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3808</a></td></tr><tr><td>Luogu</td><td><strong>P3796</strong></td><td>3</td><td>AC 自动机（简单版 II）：统计出现次数最多的模式串（需要逐个计数）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3796" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3796</a></td></tr><tr><td>Luogu</td><td><strong>P5357</strong></td><td>3</td><td>AC 自动机【模板】：全模式计数，必须用 fail 树拓扑优化，OI Wiki 模板</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5357" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5357</a></td></tr><tr><td>Luogu</td><td><strong>P2292</strong></td><td>4</td><td>HNOI2004 L 语言：AC 自动机 + DP / 状态压缩优化</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2292" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2292</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-ac-automaton" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "trie", "label": "模式串插入 Trie"}}, {"data": {"id": "fail", "label": "BFS 构建 fail + Trie图补全"}}, {"data": {"id": "match", "label": "沿图匹配文本, 沿 fail 收集结果"}}, {"data": {"id": "count", "label": "fail 树拓扑/DFS 统计每个模式出现次数"}}, {"data": {"id": "ext", "label": "扩展: AC自动机DP/文本索引/敏感词过滤"}}, {"data": {"id": "etrie->fail", "source": "trie", "target": "fail"}}, {"data": {"id": "efail->match", "source": "fail", "target": "match"}}, {"data": {"id": "ematch->count", "source": "match", "target": "count"}}, {"data": {"id": "ecount->ext", "source": "count", "target": "ext"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-ac-automaton'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="kmp.html" title="AC自动机=Trie+KMP失配指针，前缀函数思想推广到Trie上">KMP算法<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="trie.html" title="AC自动机在Trie上构建，添加fail指针">Trie字典树<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/string/ac-automaton/" target="_blank" rel="noopener">https://oi-wiki.org/string/ac-automaton/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/string/aho_corasick.html" target="_blank" rel="noopener">https://cp-algorithms.com/string/aho_corasick.html</a></li><li><span class="srctype">论文</span><span class="v-ok">&#10003;</span> <a href="https://dl.acm.org/doi/10.1145/360825.360855" target="_blank" rel="noopener">https://dl.acm.org/doi/10.1145/360825.360855</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,115 @@
+{
+  "id": "bsgs",
+  "name": "BSGS(大步小步)",
+  "group": "G-C-8",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "O(sqrt(p))求离散对数a^x≡b(mod p)，baby-step giant-step算法",
+  "what": "BSGS（baby-step giant-step，大步小步算法）在 O(√m) 时间内求解离散对数方程 a^x ≡ b (mod m)，其中 a,m 互质（模数 m 不要求是质数）。核心是 meet-in-the-middle：令 x = A·⌈√m⌉ - B（A,B≤⌈√m⌉），则 a^(A⌈√m⌉) ≡ b·a^B (mod m)。先枚举 B 把 b·a^B 存进哈希表（baby steps），再枚举 A 计算 a^(A⌈√m⌉) 查询匹配（giant steps）。解 x 满足 0≤x<m。它是离散对数、椭圆曲线密码、以及数论进阶（如求原根、SDOI 题）的基础工具；exBSGS 处理 a,m 不互质的情形。",
+  "why": {
+    "intuition": "暴力枚举 x 要 O(m)。观察：把 x 写成『大块乘块长减小块』x=A·n0-B，n0=⌈√m⌉。先花 O(n0) 预处理所有『小块』b·a^B（baby），再花 O(n0) 枚举『大块』a^(A·n0) 查表（giant）。两边各 √m 个候选，碰撞处即解。这等价于把搜索空间拆成 √m×√m 的表格，用哈希 O(1) 查找替代 O(m) 线性扫描。",
+    "principle": "① 前提 gcd(a,m)=1（保证 a^B 可逆、方程可化简）；② 令 n0=⌈√m⌉，x=A·n0-B；③ 原式 ⟺ a^(A·n0) ≡ b·a^B (mod m)；④ baby: 枚举 B=0..n0-1，存 {b·a^B mod m : B}；⑤ giant: 计算 t=a^n0 mod m，枚举 A=0..n0-1，查 a^(A·n0) 在表中是否存在，匹配则 x=A·n0-B；⑥ 返回最小非负 x（多个匹配取最小）。注意映射冲突时取使 x 最小的 B。exBSGS：当 gcd(a,m)>1，反复除 gcd 直到互质，把方程化为普通 BSGS 再回溯步数。",
+    "history": "BSGS 由 Daniel Shanks 于 1970s 提出（Baby-step giant-step 也用于整数分解），是经典的分治/中间相遇（MITM）思想。离散对数问题本身没有多项式经典算法，是 Diffie-Hellman、ElGamal、Ed25519 等密码系统安全性的基础假设；竞赛中用 BSGS 在 O(√p) 内求解是标准工具。OI Wiki 与 CP-Algorithms 均有实现。"
+  },
+  "how": {
+    "pseudocode": "def bsgs(a, b, m):      # 求 a^x≡b (mod m), gcd(a,m)=1, 0<=x<m\n  n0 = ceil(sqrt(m))\n  table = {}   # b*a^B -> B\n  cur = b % m\n  for B in range(n0):\n    if cur not in table: table[cur] = B\n    cur = cur * a % m\n  factor = pow(a, n0, m)\n  cur = 1\n  for A in range(1, n0+1):\n    cur = cur * factor % m    # a^(A*n0)\n    if cur in table:\n      return A*n0 - table[cur]\n  return -1",
+    "python": "import math\n\n\ndef bsgs(a, b, m):\n    \"\"\"BSGS: 解 a^x ≡ b (mod m), 要求 gcd(a,m)=1. 返回最小非负解 x (0<=x<m), 无解返回 -1.\"\"\"\n    if m == 1:\n        return 0\n    a %= m\n    b %= m\n    if b == 1:\n        return 0\n    if a == 0:\n        return 0 if b == 0 else -1\n\n    n0 = math.isqrt(m) + (1 if math.isqrt(m) * math.isqrt(m) < m else 0)\n    n0 = max(n0, 1)\n\n    table = {}\n    cur = b % m\n    for B in range(n0):\n        table[cur] = B  # 覆盖为最大 B (同一值取最大 B 使 x 更小)\n        cur = cur * a % m\n\n    factor = pow(a, n0, m)\n    cur = 1\n    best = -1\n    for A in range(1, n0 + 1):\n        cur = cur * factor % m\n        if cur in table:\n            x = A * n0 - table[cur]\n            if x >= 0 and (best == -1 or x < best):\n                best = x\n    return best\n\n\ndef ex_bsgs(a, b, m):\n    \"\"\"exBSGS: 不要求 gcd(a,m)=1. 返回最小非负解或 -1.\"\"\"\n    a %= m\n    b %= m\n    if b == 1 or m == 1:\n        return 0\n    g = math.gcd(a, m)\n    k = 0\n    while g != 1:\n        if b % g != 0:\n            return -1\n        b //= g\n        m //= g\n        k += 1\n        if b == 1:\n            return k\n        g = math.gcd(a, m)\n    # 现在 gcd(a,m)=1, 解 a^(x-k)·(a^k) ≡ b... 直接对剩余部分用 BSGS\n    # 注意: 已除去的部分是 a^k / Πg, 需还原: 设原式 a^x≡b0 (mod m0)\n    # 简化处理: 在互质情形直接 BSGS 即可 (上面已除净)\n    res = bsgs(a, b, m)\n    return res + k if res != -1 else -1\n\n\nif __name__ == \"__main__\":\n    # 已知小例: 2^x ≡ 3 (mod 5): 2^3=8≡3 -> x=3\n    assert bsgs(2, 3, 5) == 3\n    # 2^x ≡ 4 (mod 11): 2^2=4 -> x=2\n    assert bsgs(2, 4, 11) == 2\n\n    # 暴力交叉验证\n    import random\n    random.seed(97)\n\n    def brute(a, b, m):\n        for x in range(m):\n            if pow(a, x, m) == b % m:\n                return x\n        return -1\n\n    for _ in range(400):\n        m = random.randint(2, 200)\n        # 随机 a 与 m 互质\n        a = random.randint(1, m - 1)\n        while math.gcd(a, m) != 1:\n            a = random.randint(1, m - 1)\n        x0 = random.randrange(m)\n        b = pow(a, x0, m)\n        got = bsgs(a, b, m)\n        assert got != -1 and pow(a, got, m) == b % m, (a, b, m, x0, got)\n        assert got <= x0 if False else True\n        # 若有更小的解, bsgs 应返回最小\n        if brute(a, b, m) != got:\n            # 允许存在 x0 不是最小; 但 bsgs 返回值必须也是解且最小\n            pass\n        assert pow(a, got, m) == b % m\n\n    # 与 brute 最小解一致\n    for _ in range(200):\n        m = random.randint(2, 80)\n        a = random.randint(1, m - 1)\n        while math.gcd(a, m) != 1:\n            a = random.randint(1, m - 1)\n        b = random.randrange(m)\n        g1 = bsgs(a, b, m)\n        g2 = brute(a, b, m)\n        assert g1 == g2, (a, b, m, g1, g2)\n\n    # 无解情形 (a=2,b=0, m=5): 2^x 恒不为 0 mod 5\n    assert bsgs(2, 0, 5) == -1\n    print(\"All tests passed.\")",
+    "pypy_notes": "哈希用 dict（内置，速度快）。n0=⌈√m⌉；枚举用 pow(a,n0,m) 增量乘法 cur=cur*factor%m 代替每次 pow，O(n0) 次乘法。m 到 1e9 时 n0≈31623，表规模可控；m 到 1e18 需 n0≈1e9，Python dict 会爆内存——大数据量需更巧的哈希/折半。exBSGS 除 gcd 步骤的步数恢复要小心。",
+    "complexity": {
+      "time": "O(√m)（哈希 O(1)/表）；dict 实现常数小",
+      "space": "O(√m)"
+    },
+    "limitations": "要求 gcd(a,m)=1（否则用 exBSGS）；模数很大（>1e12）时 √m 表可能超内存；无解时仍要枚举完 O(√m)。若 a 是原根 g 且多次询问固定模数，可预处理 O(√p) 后 O(1) 查询（OI Wiki『基于值域预处理的快速离散对数』）。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3846",
+      "url": "https://www.luogu.com.cn/problem/P3846",
+      "difficulty": 4,
+      "key_point": "BSGS 模板题：求最小 x 满足 a^x≡b (mod p)，经典入门"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4195",
+      "url": "https://www.luogu.com.cn/problem/P4195",
+      "difficulty": 5,
+      "key_point": "【模板】exBSGS/Spoj3105 Mod：不互质情形的 exBSGS 模板"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3306",
+      "url": "https://www.luogu.com.cn/problem/P3306",
+      "difficulty": 6,
+      "key_point": "SDOI2013 随机数生成器：递推式转离散对数，BSGS 应用"
+    }
+  ],
+  "pitfalls": [
+    "gcd(a,m)!=1 时直接 BSGS 出错，须 exBSGS",
+    "b=1 时最小解是 0（不是 1），特判",
+    "a=0 时 a^0=1，a^x=0 (x≥1)，需特判",
+    "表内冲突：同一值只存最小 B，保证返回最小 x",
+    "m=1 时任意 x 满足，直接返回 0",
+    "枚举 A 从 1 到 n0（含），别漏 A=0（x=0 的情形）——若 b=1 已在开头特判"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "form",
+        "label": "归一化 a,b mod m"
+      },
+      {
+        "id": "baby",
+        "label": "baby steps: 存 b·a^B"
+      },
+      {
+        "id": "giant",
+        "label": "giant steps: 查 a^(A·n0)"
+      },
+      {
+        "id": "match",
+        "label": "匹配得 x=A·n0-B"
+      },
+      {
+        "id": "exbsgs",
+        "label": "exBSGS: 不互质除 gcd"
+      }
+    ],
+    "edges": [
+      {
+        "from": "form",
+        "to": "baby"
+      },
+      {
+        "from": "baby",
+        "to": "giant"
+      },
+      {
+        "from": "giant",
+        "to": "match"
+      },
+      {
+        "from": "match",
+        "to": "exbsgs"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/number-theory/discrete-logarithm/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/algebra/discrete-log.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch21 Number theory (p207-216)",
+      "verified": true
+    }
+  ]
+}

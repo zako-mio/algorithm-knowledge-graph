@@ -1,0 +1,105 @@
+{
+  "id": "queue",
+  "name": "队列",
+  "group": "G-A-2",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "FIFO先进先出结构，BFS基础组件",
+  "what": "队列(Queue)是先进先出(FIFO, First In First Out)的线性数据结构：在队尾(rear)插入(enqueue)，在队首(front)删除(dequeue)。Python 中用 collections.deque 实现，支持 O(1) 的双端操作。是 BFS(广度优先搜索)的核心组件。",
+  "why": {
+    "intuition": "队列模拟'排队'——先来的先服务。这种'按到达顺序处理'的属性天然适合层序遍历(BFS)：同一层的节点按入队顺序依次处理，保证先处理的层先完成。",
+    "principle": "队列维护一个线性序列，只允许在队尾插入、队首删除。enqueue(x): 队尾追加；dequeue(): 队首移除并返回；front(): 查看队首。用 collections.deque 实现：append()=enqueue O(1)，popleft()=dequeue O(1)。关键应用：①BFS(层序遍历图/树，队列保证按距离顺序处理) ②拓扑排序(Kahn算法，入度为0的节点入队) ③滑动窗口(单调队列基础) ④双端队列(deque)支持双端操作。",
+    "history": "队列与栈同为最基础的线性数据结构。FIFO 语义对应现实中的排队模型。C++ STL 提供 std::queue(适配器，默认基于 deque)和 std::deque(双端队列)。Python 提供 collections.deque 作为高效双端队列。"
+  },
+  "how": {
+    "pseudocode": "enqueue(x): q.append(x)\ndequeue(): return q.popleft()\nfront(): return q[0]\nempty(): return len(q) == 0\n\n# BFS\nbfs(start):\n  q.enqueue(start)\n  visited[start] = True\n  while not q.empty():\n    u = q.dequeue()\n    for v in adj[u]:\n      if not visited[v]:\n        visited[v] = True\n        q.enqueue(v)",
+    "python": "from collections import deque\n\nclass Queue:\n    \"\"\"基于 deque 的队列实现。\"\"\"\n    def __init__(self):\n        self._data = deque()\n\n    def enqueue(self, x):\n        self._data.append(x)\n\n    def dequeue(self):\n        return self._data.popleft()\n\n    def front(self):\n        return self._data[0]\n\n    def empty(self):\n        return len(self._data) == 0\n\n    def size(self):\n        return len(self._data)\n\n\ndef bfs(adj, start, n):\n    \"\"\"广度优先搜索: 从 start 出发, 返回各节点到 start 的最短距离。\n    adj: 邻接表(0-indexed), n: 节点数\n    \"\"\"\n    dist = [-1] * n\n    q = Queue()\n    q.enqueue(start)\n    dist[start] = 0\n    while not q.empty():\n        u = q.dequeue()\n        for v in adj[u]:\n            if dist[v] == -1:\n                dist[v] = dist[u] + 1\n                q.enqueue(v)\n    return dist\n\n\ndef topo_sort(adj, indeg, n):\n    \"\"\"拓扑排序(Kahn算法): 返回拓扑序, 若有环返回空列表。\n    adj: 邻接表, indeg: 入度数组, n: 节点数\n    \"\"\"\n    q = Queue()\n    for i in range(n):\n        if indeg[i] == 0:\n            q.enqueue(i)\n    order = []\n    while not q.empty():\n        u = q.dequeue()\n        order.append(u)\n        for v in adj[u]:\n            indeg[v] -= 1\n            if indeg[v] == 0:\n                q.enqueue(v)\n    return order if len(order) == n else []\n\n\nif __name__ == '__main__':\n    # 测试队列基本操作\n    q = Queue()\n    for i in range(5):\n        q.enqueue(i)\n    print(f'Queue size: {q.size()}')  # 5\n    print(f'Front: {q.front()}')  # 0\n    while not q.empty():\n        print(q.dequeue(), end=' ')  # 0 1 2 3 4 (FIFO)\n    print()\n\n    # 测试BFS\n    # 图: 0-1, 0-2, 1-3, 2-3, 3-4\n    adj = [[1, 2], [3], [3], [4], []]\n    dist = bfs(adj, 0, 5)\n    print(f'BFS dist from 0: {dist}')  # [0, 1, 1, 2, 3]\n    assert dist == [0, 1, 1, 2, 3]\n\n    # 测试拓扑排序\n    # DAG: 0->1, 0->2, 1->3, 2->3, 3->4\n    adj2 = [[1, 2], [3], [3], [4], []]\n    indeg = [0, 1, 1, 2, 1]\n    order = topo_sort(adj2, indeg[:], 5)\n    print(f'Topo order: {order}')  # [0, 1, 2, 3, 4]\n    assert len(order) == 5\n    print('All tests passed!')\n",
+    "pypy_notes": "PyPy 对 deque 的 popleft/append JIT 优化好；BFS 中队列操作频繁，deque 是最佳选择；list.pop(0) 是 O(N) 绝对不要用。",
+    "complexity": {
+      "time": "enqueue/dequeue/front/empty/size 均 O(1)；BFS O(V+E)；拓扑排序 O(V+E)",
+      "space": "O(V) BFS/拓扑排序中队列最多存全部节点"
+    },
+    "limitations": "Python list 的 pop(0) 是 O(N) 不能当队列用，必须用 deque；队列大小无上限但受内存限制；BFS 的 dist 数组在 N>1e7 时可能内存不足。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "200",
+      "url": "https://leetcode.cn/problems/number-of-islands/",
+      "difficulty": 2,
+      "key_point": "岛屿数量: BFS/DFS 搜索连通分量"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "207",
+      "url": "https://leetcode.cn/problems/course-schedule/",
+      "difficulty": 2,
+      "key_point": "课程表: 拓扑排序判环"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "B3616",
+      "url": "https://www.luogu.com.cn/problem/B3616",
+      "difficulty": 1,
+      "key_point": "队列模板题: 数组模拟队列基本操作"
+    }
+  ],
+  "pitfalls": [
+    "用 list.pop(0) 当队列 → O(N) 每次 → 整体 O(N^2) TLE；必须用 deque.popleft()",
+    "BFS 忘记标记 visited → 重复入队 → 死循环/超时",
+    "BFS 中在出队时才标记 visited 而非入队时 → 同一节点可能多次入队 → TLE/MLE",
+    "拓扑排序忘记检测 len(order)!=n 的情况(有环时无拓扑序)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "enqueue",
+        "label": "入队(append到尾部)"
+      },
+      {
+        "id": "dequeue",
+        "label": "出队(popleft从头部)"
+      },
+      {
+        "id": "front",
+        "label": "查看队首([0])"
+      },
+      {
+        "id": "bfs",
+        "label": "应用(BFS/拓扑排序/滑动窗口)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "enqueue",
+        "to": "dequeue"
+      },
+      {
+        "from": "dequeue",
+        "to": "front"
+      },
+      {
+        "from": "front",
+        "to": "bfs"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/queue/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/data_structures/stack_queue_modification.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch4 p45"
+    }
+  ]
+}

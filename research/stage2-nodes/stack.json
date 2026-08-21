@@ -1,0 +1,105 @@
+{
+  "id": "stack",
+  "name": "栈",
+  "group": "G-A-2",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "LIFO后进先出结构，支持括号匹配/表达式求值等",
+  "what": "栈(Stack)是后进先出(LIFO, Last In First Out)的线性数据结构：只能在栈顶插入(push)和删除(pop)。Python 中用 list 的 append/pop 实现，或用 collections.deque。支持 O(1) 的栈顶访问。",
+  "why": {
+    "intuition": "栈模拟了'叠盘子'——最后放上去的最先拿走。这种'最近相关'的属性天然适合需要回溯到上一个状态的问题：括号匹配(最近的左括号配最近的右括号)、函数调用栈(最近调用的最先返回)、表达式求值(最近的操作数先参与运算)。",
+    "principle": "栈维护一个线性序列，只允许在称为'栈顶'的一端操作。push(x): 将 x 放在栈顶；pop(): 移除并返回栈顶；top()/peek(): 查看栈顶不删除。用数组(list)实现时，push=append O(1)，pop()=O(1)，均摊。Python list 的 pop() 从尾部删除是 O(1)。关键应用：①括号匹配(遇左括号入栈，遇右括号弹栈匹配) ②表达式求值(双栈: 操作数栈+运算符栈，Shunting-yard 算法) ③DFS 的非递归实现 ④单调栈(进阶)。",
+    "history": "栈是计算机科学中最基础的数据结构之一，与队列(FIFO)互为对偶。1960年代 ALGOL 的递归调用机制即依赖运行时栈。C++ STL 提供 std::stack(适配器，默认基于 deque)。Python 无专门的 Stack 类，用 list 或 deque 代替。"
+  },
+  "how": {
+    "pseudocode": "push(x): st.append(x)\npop(): return st.pop()\ntop(): return st[-1]\nempty(): return len(st) == 0\nsize(): return len(st)\n\n# 括号匹配\nfor ch in s:\n  if ch in '([{': st.push(ch)\n  elif ch in ')]}':\n    if st.empty() or not match(st.pop(), ch): return False\nreturn st.empty()",
+    "python": "from collections import deque\n\nclass Stack:\n    \"\"\"基于 deque 的栈实现(比 list 在头部插入更优, 这里仅尾部操作两者等效)。\"\"\"\n    def __init__(self):\n        self._data = deque()\n\n    def push(self, x):\n        self._data.append(x)\n\n    def pop(self):\n        return self._data.pop()\n\n    def top(self):\n        return self._data[-1]\n\n    def empty(self):\n        return len(self._data) == 0\n\n    def size(self):\n        return len(self._data)\n\n\ndef bracket_match(s):\n    \"\"\"括号匹配: 检查字符串中的括号是否正确配对。\n    支持: () [] {}\n    \"\"\"\n    pairs = {')': '(', ']': '[', '}': '{'}\n    st = Stack()\n    for ch in s:\n        if ch in '([{':\n            st.push(ch)\n        elif ch in ')]}':\n            if st.empty() or st.pop() != pairs[ch]:\n                return False\n    return st.empty()\n\n\ndef evaluate_rpn(tokens):\n    \"\"\"逆波兰表达式求值(后缀表达式)。\n    示例: ['2','1','+','3','*'] => (2+1)*3 = 9\n    \"\"\"\n    st = Stack()\n    for tok in tokens:\n        if tok in '+-*/':\n            b = st.pop()\n            a = st.pop()\n            if tok == '+':\n                st.push(a + b)\n            elif tok == '-':\n                st.push(a - b)\n            elif tok == '*':\n                st.push(a * b)\n            elif tok == '/':\n                st.push(int(a / b))  # 向零取整(竞赛惯例)\n        else:\n            st.push(int(tok))\n    return st.pop()\n\n\nif __name__ == '__main__':\n    # 测试栈基本操作\n    st = Stack()\n    for i in range(5):\n        st.push(i)\n    print(f'Stack size: {st.size()}')  # 5\n    print(f'Top: {st.top()}')  # 4\n    while not st.empty():\n        print(st.pop(), end=' ')  # 4 3 2 1 0\n    print()\n\n    # 测试括号匹配\n    assert bracket_match('(a[b]{c})') == True\n    assert bracket_match('([)]') == False\n    assert bracket_match('(((') == False\n    assert bracket_match('') == True\n    print('Bracket match: all tests passed')\n\n    # 测试逆波兰表达式\n    assert evaluate_rpn(['2', '1', '+', '3', '*']) == 9\n    assert evaluate_rpn(['4', '13', '5', '/', '+']) == 6  # 4 + (13/5=2) = 6\n    assert evaluate_rpn(['18']) == 18  # 单个操作数\n    print('RPN evaluate: all tests passed')\n",
+    "pypy_notes": "PyPy 对 list.append/pop 的 JIT 优化极好，性能接近 C；deque 在 PyPy 上也快；深递归用栈替代时注意 list 容量。N>1e6 的栈操作无性能瓶颈。",
+    "complexity": {
+      "time": "push/pop/top/empty/size 均 O(1)；括号匹配 O(N)；RPN 求值 O(N)",
+      "space": "O(N) 最坏情况(全部入栈未弹出)"
+    },
+    "limitations": "Python list 作为栈用时 pop() 从尾部 O(1)，但 pop(0) 从头部 O(N) → 需要队列语义时改用 deque；栈空间受递归深度限制(Python 默认 1000，需 sys.setrecursionlimit 提升)。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "20",
+      "url": "https://leetcode.cn/problems/valid-parentheses/",
+      "difficulty": 1,
+      "key_point": "有效的括号: 栈经典模板题，括号匹配"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "150",
+      "url": "https://leetcode.cn/problems/evaluate-reverse-polish-notation/",
+      "difficulty": 2,
+      "key_point": "逆波兰表达式求值: 栈模拟运算"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "155",
+      "url": "https://leetcode.cn/problems/min-stack/",
+      "difficulty": 2,
+      "key_point": "最小栈: 辅助栈同步维护最小值"
+    }
+  ],
+  "pitfalls": [
+    "Python list.pop() 在空栈上抛 IndexError，需先判 empty()",
+    "括号匹配忘记处理'栈非空但已遍历完'(如 '(((' 不匹配)",
+    "RPN 求值除法要注意取整方向(竞赛通常向零取整: int(a/b) 而非 a//b)",
+    "用 list 做栈时不要误用 pop(0)(O(N))，应 pop()(从尾部 O(1))"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "push",
+        "label": "入栈(append到尾部)"
+      },
+      {
+        "id": "pop",
+        "label": "出栈(从尾部弹出)"
+      },
+      {
+        "id": "top",
+        "label": "查看栈顶([-1])"
+      },
+      {
+        "id": "apply",
+        "label": "应用(括号匹配/表达式求值/DFS非递归)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "push",
+        "to": "pop"
+      },
+      {
+        "from": "pop",
+        "to": "top"
+      },
+      {
+        "from": "top",
+        "to": "apply"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/stack/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/data_structures/stack.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch4 p45"
+    }
+  ]
+}

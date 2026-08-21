@@ -1,0 +1,85 @@
+{
+  "id": "quick-sort",
+  "name": "快速排序",
+  "group": "G-A-1",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "分治排序，期望 O(n log n)，最坏 O(n^2)，常数小",
+  "what": "快速排序（quicksort）通过选取基准（pivot）把数组划分为『小于/大于』两部分后递归排序。期望/平均 O(n log n)，最坏 O(n^2)（每次取到最值做基准），空间 O(log n)（递归栈）。非稳定排序。工程上通过随机基准、三数取中、插入排序兜底、三路划分等优化，是 C 库 qsort 与多数语言内建排序的基础。",
+  "why": {
+    "intuition": "『选一个中间数，把小的放左边、大的放右边，然后只负责把两边各自排好』。与归并不同，划分本身就在『修位置』，所以无需合并步骤。平均情况下每个元素被比较约 O(log n) 次，故总代价 O(n log n)。",
+    "principle": "期望复杂度证明（经典引理）：设 X 为总比较次数，第 i 小与第 j 小的元素发生比较当且仅当两者之一是最先被选为基准的，概率 2/(j-i+1)。由期望线性性 E[X]=Σ 2/(j-i+1) = O(n log n)。最坏情况（每次基准都是极值）递推 T(n)=T(n-1)+Θ(n)=Θ(n^2)。三路快排（荷兰国旗划分）把相等元素集中到中间，处理大量重复值时最优可达 O(n)。",
+    "history": "1960 年由 Tony Hoare 发明，并在 Algol 中实现，是『快排』名字的来源。因其缓存局部性好、常数小，成为实用排序的首选。2009 年前后 Java 等标准库开始转向 Timsort/introsort，C++ std::sort 用 introsort（快排+堆排混合）保证最坏 O(n log n)。"
+  },
+  "how": {
+    "pseudocode": "quick_sort(a, l, r):            # 排序 [l, r)\n    if r - l <= 1: return\n    p = partition(a, l, r)        # 划分，返回基准最终下标\n    quick_sort(a, l, p)\n    quick_sort(a, p + 1, r)\n\npartition(a, l, r):               # Lomuto 划分\n    pivot = a[r - 1]\n    i = l\n    for j in range(l, r - 1):\n        if a[j] < pivot:\n            swap(a, i, j); i += 1\n    swap(a, i, r - 1)\n    return i",
+    "python": "import random\n\n\ndef partition(a, l, r):\n    \"\"\"Lomuto 划分，基准取区间最后一个元素，返回基准最终位置\"\"\"\n    pv = a[r - 1]\n    i = l\n    for j in range(l, r - 1):\n        if a[j] < pv:\n            a[i], a[j] = a[j], a[i]\n            i += 1\n    a[i], a[r - 1] = a[r - 1], a[i]\n    return i\n\n\ndef quick_sort(a, l=0, r=None):\n    \"\"\"快速排序 [l,r)，随机基准（期望 O(n log n)，防毒瘤数据卡成 O(n^2)）\"\"\"\n    if r is None:\n        r = len(a)\n    if r - l <= 1:\n        return a\n    p = random.randrange(l, r)\n    a[l], a[p] = a[p], a[l]\n    p = partition(a, l, r)\n    quick_sort(a, l, p)\n    quick_sort(a, p + 1, r)\n    return a\n\n\ndef quick_select(a, k, l=0, r=None):\n    \"\"\"快速选择：返回第 k 小元素（0-based），期望 O(n)\"\"\"\n    if r is None:\n        r = len(a)\n    while True:\n        p = random.randrange(l, r)\n        a[l], a[p] = a[p], a[l]\n        p = partition(a, l, r)\n        if p == k:\n            return a[p]\n        if p < k:\n            l = p + 1\n        else:\n            r = p\n\n\ndef quick_sort_3way(a, l=0, r=None):\n    \"\"\"三路快排：处理大量重复值不退化（荷兰国旗划分）\"\"\"\n    if r is None:\n        r = len(a)\n    if r - l <= 1:\n        return a\n    p = random.randrange(l, r)\n    a[l], a[p] = a[p], a[l]\n    pv = a[l]\n    lt, gt = l, r\n    i = l\n    while i < gt:\n        if a[i] < pv:\n            a[i], a[lt] = a[lt], a[i]\n            lt += 1\n            i += 1\n        elif a[i] > pv:\n            gt -= 1\n            a[i], a[gt] = a[gt], a[i]\n        else:\n            i += 1\n    quick_sort_3way(a, l, lt)\n    quick_sort_3way(a, gt, r)\n    return a\n\n\nif __name__ == \"__main__\":\n    random.seed(42)\n    for _ in range(300):\n        arr = [random.randint(0, 50) for _ in range(random.randint(0, 120))]\n        b = arr[:]\n        quick_sort(b)\n        assert b == sorted(arr), (arr, b)\n        b3 = arr[:]\n        quick_sort_3way(b3)\n        assert b3 == sorted(arr), (arr, b3)\n        if arr:\n            k = random.randrange(len(arr))\n            assert quick_select(arr[:], k) == sorted(arr)[k], (arr, k)\n    print(\"快排 / 三路快排 / 快速选择 全部正确 OK（300 组随机）\")\n    print(\"第 3 小（0-based）示例:\", quick_select([3, 1, 4, 1, 5, 9, 2, 6], 3))\n",
+    "pypy_notes": "递归深度最坏 O(n) 会爆栈，比赛可改成非递归（显式栈存区间）或随机化。Python 递归开销大，n 很大时手写循环式快排更稳。切片式快排（list 推导式分区）简洁但额外 O(n) 空间且慢，不推荐用于大 n。",
+    "complexity": {
+      "time": "期望/平均 O(n log n)，最坏 O(n^2)，三路快排含重复值最优 O(n)",
+      "space": "O(log n) 期望（递归栈），最坏 O(n)"
+    },
+    "limitations": "不稳定；朴素实现最坏 O(n^2) 会被毒瘤数据卡；需配合随机化/三数取中/三路划分。快速选择（partition 定位第 k 大）是重要衍生技巧。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1177",
+      "url": "https://www.luogu.com.cn/problem/P1177",
+      "difficulty": 3,
+      "key_point": "快速排序模板（需优化防卡）"
+    },
+    {
+      "oj": "OI-Wiki",
+      "pid": "basic/quick-sort",
+      "url": "https://oi-wiki.org/basic/quick-sort/",
+      "difficulty": 2,
+      "key_point": "快排期望复杂度证明"
+    }
+  ],
+  "pitfalls": [
+    "朴素选取首个元素做基准在升序/降序输入下退化为 O(n^2)，必须随机化或三数取中",
+    "Lomuto 划分对全相同元素退化为 O(n^2)（三路划分解决）",
+    "partition 返回值边界处理错误导致死循环（如区间未收敛）"
+  ],
+  "step_dag": {
+    "nodes": [
+      "选基准",
+      "划分",
+      "递归两侧",
+      "快速选择衍生"
+    ],
+    "edges": [
+      [
+        "选基准",
+        "划分"
+      ],
+      [
+        "划分",
+        "递归两侧"
+      ],
+      [
+        "划分",
+        "快速选择衍生"
+      ]
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/basic/quick-sort/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch3 p38",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://www.luogu.com.cn/problem/P1177",
+      "verified": true
+    }
+  ]
+}

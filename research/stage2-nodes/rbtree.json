@@ -1,0 +1,74 @@
+{
+  "id": "rbtree",
+  "name": "红黑树",
+  "group": "G-A-8",
+  "stage": "advanced",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "弱平衡BST，C++ std::map底层，竞赛中少用",
+  "what": "红黑树（Red-Black Tree）是一种自平衡二叉搜索树，每个节点有红/黑颜色，满足五条性质：①节点非红即黑；②根为黑；③NIL 叶子为黑；④红节点的子节点为黑（红节点不连续）；⑤任意节点到其所有后代 NIL 路径的黑节点数相等（黑高相等）。由此保证最长路径不超过最短路径的 2 倍，树高 ≤ 2·log2(n+1)，插入/删除均严格 O(log n)。是 4 阶 B 树（2-3-4 树）的二叉表示。C++ std::map/std::set 与 Java TreeMap 的底层实现。",
+  "why": {
+    "intuition": "黑高约束（性质⑤）保证从根到任何叶子的黑色节点一样多；性质④禁止两个连续红节点，因此最长路径（红黑交替）至多是最短路径（全黑）的 2 倍，树高 O(log n)。相比 AVL 的高度差 ≤1，红黑树允许更大的不平衡，因此旋转更少、写入性能好，特别适合频繁插入删除的实现（如 STL）。",
+    "principle": "插入：新节点着红，可能破坏性质④（父红叔红→变色并向上递归；父红叔黑→旋转）。删除：删除黑色节点会破坏黑高，用「双黑」处理，分四种情形（兄弟红/兄弟黑且侄子全黑/侄子有红）分别旋转+变色。平衡维护分为插入 2 情形、删除 4 情形。由于 2-3-4 树视角，红黑树等价于把 3/4 节点编码成带红色孩子的二叉节点。",
+    "history": "红黑树由 Rudolf Bayer 于 1972 年提出（原称 symmetric binary B-trees），1978 年由 Leonidas J. Guibas 与 Robert Sedgewick 正式命名并完善。因实现平衡代价低、删除友好，成为 C++ STL map/set、Java TreeMap、Linux 内核（CFS 调度器、epoll 红黑树）等工业级标准。竞赛中因实现复杂且 std::map 已内置，OI 界极少手写。"
+  },
+  "how": {
+    "pseudocode": "性质检查: 根黑 / 红父黑子 / 黑高一致\n\ninsert(z):\n  BST 插入，z 着红\n  while z 的父 p 为红:\n    u = p 的兄弟(叔)\n    if u 为红:  p,u 变黑，g 变红，z=g   # 变色上移\n    else:\n      if z 与 p 不在同一侧: 旋转 p，z=p  # LR/RL\n      p 变黑，g 变红，旋转 g             # LL/RR\n  根染黑\n\ndelete(z):\n  标准 BST 删除；若删的是黑节点引入双黑，按四情形\n  (兄弟红转 / 兄弟黑侄子全黑变红上移 / 侄子红旋转) 处理",
+    "python": "class RBNode:\n    __slots__ = ('val', 'red', 'left', 'right', 'parent')\n    def __init__(self, val):\n        self.val = val\n        self.red = True\n        self.left = None\n        self.right = None\n        self.parent = None\n\n\nclass RBTree:\n    def __init__(self):\n        self.NIL = RBNode(None)\n        self.NIL.red = False\n        self.root = self.NIL\n\n    def _leaf(self, v):\n        n = RBNode(v)\n        n.left = n.right = self.NIL\n        return n\n\n    def _left_rotate(self, x):\n        y = x.right\n        x.right = y.left\n        if y.left is not self.NIL:\n            y.left.parent = x\n        y.parent = x.parent\n        if x.parent is self.NIL:\n            self.root = y\n        elif x is x.parent.left:\n            x.parent.left = y\n        else:\n            x.parent.right = y\n        y.left = x\n        x.parent = y\n\n    def _right_rotate(self, x):\n        y = x.left\n        x.left = y.right\n        if y.right is not self.NIL:\n            y.right.parent = x\n        y.parent = x.parent\n        if x.parent is self.NIL:\n            self.root = y\n        elif x is x.parent.right:\n            x.parent.right = y\n        else:\n            x.parent.left = y\n        y.right = x\n        x.parent = y\n\n    def insert(self, v):\n        z = self._leaf(v)\n        y = self.NIL\n        x = self.root\n        while x is not self.NIL:\n            y = x\n            x = x.left if v < x.val else x.right\n        z.parent = y\n        if y is self.NIL:\n            self.root = z\n        elif v < y.val:\n            y.left = z\n        else:\n            y.right = z\n        self._insert_fix(z)\n\n    def _insert_fix(self, z):\n        while z.parent.red:\n            p = z.parent\n            g = p.parent\n            if p is g.left:\n                u = g.right\n                if u.red:                  # 叔红：变色上移\n                    p.red = u.red = False\n                    g.red = True\n                    z = g\n                else:                      # 叔黑：旋转\n                    if z is p.right:       # LR -> 转 LL\n                        z = p\n                        self._left_rotate(z)\n                    p = z.parent\n                    p.red = False\n                    g.red = True\n                    self._right_rotate(g)\n            else:                          # 对称：p 是右孩子\n                u = g.left\n                if u.red:\n                    p.red = u.red = False\n                    g.red = True\n                    z = g\n                else:\n                    if z is p.left:        # RL -> 转 RR\n                        z = p\n                        self._right_rotate(z)\n                    p = z.parent\n                    p.red = False\n                    g.red = True\n                    self._left_rotate(g)\n        self.root.red = False\n\n    def _transplant(self, u, v):\n        if u.parent is self.NIL:\n            self.root = v\n        elif u is u.parent.left:\n            u.parent.left = v\n        else:\n            u.parent.right = v\n        v.parent = u.parent\n\n    def _minimum(self, x):\n        while x.left is not self.NIL:\n            x = x.left\n        return x\n\n    def delete(self, v):\n        z = self._find(v)\n        if z is self.NIL:\n            return\n        y = z\n        y_red = y.red\n        if z.left is self.NIL:\n            x = z.right\n            self._transplant(z, z.right)\n        elif z.right is self.NIL:\n            x = z.left\n            self._transplant(z, z.left)\n        else:\n            y = self._minimum(z.right)\n            y_red = y.red\n            x = y.right\n            if y.parent is z:\n                x.parent = y\n            else:\n                self._transplant(y, y.right)\n                y.right = z.right\n                y.right.parent = y\n            self._transplant(z, y)\n            y.left = z.left\n            y.left.parent = y\n            y.red = z.red\n        if not y_red:\n            self._delete_fix(x)\n\n    def _delete_fix(self, x):\n        while x is not self.root and not x.red:\n            if x is x.parent.left:\n                w = x.parent.right\n                if w.red:                       # 情形1：兄弟红\n                    w.red = False\n                    x.parent.red = True\n                    self._left_rotate(x.parent)\n                    w = x.parent.right\n                if not w.left.red and not w.right.red:   # 情形2：侄子全黑\n                    w.red = True\n                    x = x.parent\n                else:                           # 情形3/4：侄子有红\n                    if not w.right.red:\n                        w.left.red = False\n                        w.red = True\n                        self._right_rotate(w)\n                        w = x.parent.right\n                    w.red = x.parent.red\n                    x.parent.red = False\n                    w.right.red = False\n                    self._left_rotate(x.parent)\n                    x = self.root\n            else:                               # 对称\n                w = x.parent.left\n                if w.red:\n                    w.red = False\n                    x.parent.red = True\n                    self._right_rotate(x.parent)\n                    w = x.parent.left\n                if not w.right.red and not w.left.red:\n                    w.red = True\n                    x = x.parent\n                else:\n                    if not w.left.red:\n                        w.right.red = False\n                        w.red = True\n                        self._left_rotate(w)\n                        w = x.parent.left\n                    w.red = x.parent.red\n                    x.parent.red = False\n                    w.left.red = False\n                    self._right_rotate(x.parent)\n                    x = self.root\n        x.red = False\n\n    def _find(self, v):\n        x = self.root\n        while x is not self.NIL:\n            if v == x.val:\n                return x\n            x = x.left if v < x.val else x.right\n        return self.NIL\n\n    def search(self, v):\n        return self._find(v) is not self.NIL\n\n    def inorder(self):\n        out = []\n        def dfs(x):\n            if x is self.NIL:\n                return\n            dfs(x.left)\n            out.append(x.val)\n            dfs(x.right)\n        dfs(self.root)\n        return out\n\n    def height(self):\n        def go(x):\n            if x is self.NIL:\n                return 0\n            return 1 + max(go(x.left), go(x.right))\n        return go(self.root)\n\n\ndef _rb_valid(t):\n    if t.root is t.NIL:\n        return True, 0\n    if t.root.red:\n        return False, 0\n    bh = None\n    def go(x):\n        nonlocal bh\n        if x is t.NIL:\n            return 1\n        if x.red and (x.left.red or x.right.red):\n            return None                      # 红不连续\n        l = go(x.left)\n        r = go(x.right)\n        if l is None or r is None or l != r:\n            return None                      # 黑高不一致\n        return l + (0 if x.red else 1)\n    b = go(t.root)\n    return b is not None, b or 0\n\n\nif __name__ == \"__main__\":\n    import random\n    random.seed(17)\n    t = RBTree()\n    arr = []\n    for _ in range(2000):\n        v = random.randint(0, 100000)\n        t.insert(v)\n        arr.append(v)\n    assert t.inorder() == sorted(arr)\n    ok, bh = _rb_valid(t)\n    assert ok, \"RB property broken\"\n    assert t.height() <= 2 * bh + 2, (t.height(), bh)\n    # 有序插入也保持平衡\n    t2 = RBTree()\n    for i in range(3000):\n        t2.insert(i)\n    ok2, bh2 = _rb_valid(t2)\n    assert ok2 and t2.height() < 40\n    # 删除一半\n    uniq = sorted(set(arr))\n    removed = set(uniq[:len(uniq) // 2])\n    for v in removed:\n        while t.search(v):\n            t.delete(v)\n    expect = sorted(a for a in arr if a not in removed)\n    assert t.inorder() == expect\n    ok3, _ = _rb_valid(t)\n    assert ok3\n    print(\"All tests passed.\")",
+    "pypy_notes": "红黑树在 Python 中实现复杂（父指针+NIL 哨兵+双黑修复），性能与可读性都不如 FHQ-Treap。竞赛 Python 直接用内置 sortedcontainers 或 bisect 即可，勿手写。此节点用于理解 std::map 与 2-3-4 树思想。",
+    "complexity": {
+      "time": "查找/插入/删除严格 O(log n)（树高 ≤2·log2(n+1)）",
+      "space": "O(n)"
+    },
+    "limitations": "实现与调试成本远高于其他平衡树；仅提供单点操作，无区间操作/可持久化扩展；竞赛中手写红黑树几乎无必要（std::map 已内置）。理解价值大于实用价值。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3369",
+      "url": "https://www.luogu.com.cn/problem/P3369",
+      "difficulty": 4,
+      "key_point": "普通平衡树：红黑树完整实现（OI Wiki 提供）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P6136",
+      "url": "https://www.luogu.com.cn/problem/P6136",
+      "difficulty": 5,
+      "key_point": "普通平衡树加强版：考验删除修复情形覆盖"
+    }
+  ],
+  "pitfalls": [
+    "NIL 哨兵不统一（每节点独立 NIL 或全局 NIL 混用）导致父指针错误",
+    "插入修复把 LR/RL 的中间旋转顺序写反",
+    "删除双黑修复漏掉兄弟红的情形导致黑高失衡",
+    "把黑高性质误当成「路径黑节点数」而忽略 NIL 叶子计数"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "prop", "label": "五性质与黑高概念"},
+      {"id": "rotate", "label": "左旋/右旋+父指针维护"},
+      {"id": "insert", "label": "插入变色/旋转两情形修复"},
+      {"id": "delete", "label": "删除双黑四情形修复"},
+      {"id": "b234", "label": "与2-3-4树等价映射"}
+    ],
+    "edges": [
+      {"from": "prop", "to": "rotate"},
+      {"from": "rotate", "to": "insert"},
+      {"from": "rotate", "to": "delete"},
+      {"from": "prop", "to": "b234"}
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/rbtree/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CLRS《算法导论》ch13 红黑树",
+      "verified": true
+    }
+  ]
+}

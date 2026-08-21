@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>红黑树 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-8.html">平衡二叉搜索树族</a> / <span>红黑树</span></div>
+  <h1>红黑树</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-A-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="wblt.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">wblt</span></a>
+    <a class="nav-index" href="../03-groups/G-A-8.html"><span class="dir">组内第 9 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-A-8.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">弱平衡BST，C++ std::map底层，竞赛中少用</div><p>红黑树（Red-Black Tree）是一种自平衡二叉搜索树，每个节点有红/黑颜色，满足五条性质：①节点非红即黑；②根为黑；③NIL 叶子为黑；④红节点的子节点为黑（红节点不连续）；⑤任意节点到其所有后代 NIL 路径的黑节点数相等（黑高相等）。由此保证最长路径不超过最短路径的 2 倍，树高 ≤ 2·log2(n+1)，插入/删除均严格 O(log n)。是 4 阶 B 树（2-3-4 树）的二叉表示。C++ std::map/std::set 与 Java TreeMap 的底层实现。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>黑高约束（性质⑤）保证从根到任何叶子的黑色节点一样多；性质④禁止两个连续红节点，因此最长路径（红黑交替）至多是最短路径（全黑）的 2 倍，树高 O(log n)。相比 AVL 的高度差 ≤1，红黑树允许更大的不平衡，因此旋转更少、写入性能好，特别适合频繁插入删除的实现（如 STL）。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>插入：新节点着红，可能破坏性质④（父红叔红→变色并向上递归；父红叔黑→旋转）。删除：删除黑色节点会破坏黑高，用「双黑」处理，分四种情形（兄弟红/兄弟黑且侄子全黑/侄子有红）分别旋转+变色。平衡维护分为插入 2 情形、删除 4 情形。由于 2-3-4 树视角，红黑树等价于把 3/4 节点编码成带红色孩子的二叉节点。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>红黑树由 Rudolf Bayer 于 1972 年提出（原称 symmetric binary B-trees），1978 年由 Leonidas J. Guibas 与 Robert Sedgewick 正式命名并完善。因实现平衡代价低、删除友好，成为 C++ STL map/set、Java TreeMap、Linux 内核（CFS 调度器、epoll 红黑树）等工业级标准。竞赛中因实现复杂且 std::map 已内置，OI 界极少手写。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">性质检查: 根黑 / 红父黑子 / 黑高一致
+
+<span class="t-f">insert</span>(z):
+  BST 插入，z 着红
+  <span class="t-k">while</span> z 的父 p 为红:
+    u = p 的兄弟(叔)
+    <span class="t-k">if</span> u 为红:  p,u 变黑，g 变红，z=g   <span class="t-c"># 变色上移</span>
+    <span class="t-k">else</span>:
+      <span class="t-k">if</span> z 与 p 不在同一侧: 旋转 p，z=p  <span class="t-c"># LR/RL</span>
+      p 变黑，g 变红，旋转 g             <span class="t-c"># LL/RR</span>
+  根染黑
+
+<span class="t-f">delete</span>(z):
+  标准 BST 删除；若删的是黑节点引入双黑，按四情形
+  (兄弟红转 / 兄弟黑侄子全黑变红上移 / 侄子红旋转) 处理</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> RBNode:
+    __slots__ = (<span class="t-s">&#x27;val&#x27;</span>, <span class="t-s">&#x27;red&#x27;</span>, <span class="t-s">&#x27;left&#x27;</span>, <span class="t-s">&#x27;right&#x27;</span>, <span class="t-s">&#x27;parent&#x27;</span>)
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, val):
+        self.val = val
+        self.red = <span class="t-k">True</span>
+        self.left = <span class="t-k">None</span>
+        self.right = <span class="t-k">None</span>
+        self.parent = <span class="t-k">None</span>
+
+
+<span class="t-k">class</span> RBTree:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self):
+        self.NIL = <span class="t-f">RBNode</span>(<span class="t-k">None</span>)
+        self.NIL.red = <span class="t-k">False</span>
+        self.root = self.NIL
+
+    <span class="t-k">def</span> <span class="t-f">_leaf</span>(self, v):
+        n = <span class="t-f">RBNode</span>(v)
+        n.left = n.right = self.NIL
+        <span class="t-k">return</span> n
+
+    <span class="t-k">def</span> <span class="t-f">_left_rotate</span>(self, x):
+        y = x.right
+        x.right = y.left
+        <span class="t-k">if</span> y.left <span class="t-k">is</span> <span class="t-k">not</span> self.NIL:
+            y.left.parent = x
+        y.parent = x.parent
+        <span class="t-k">if</span> x.parent <span class="t-k">is</span> self.NIL:
+            self.root = y
+        <span class="t-k">elif</span> x <span class="t-k">is</span> x.parent.left:
+            x.parent.left = y
+        <span class="t-k">else</span>:
+            x.parent.right = y
+        y.left = x
+        x.parent = y
+
+    <span class="t-k">def</span> <span class="t-f">_right_rotate</span>(self, x):
+        y = x.left
+        x.left = y.right
+        <span class="t-k">if</span> y.right <span class="t-k">is</span> <span class="t-k">not</span> self.NIL:
+            y.right.parent = x
+        y.parent = x.parent
+        <span class="t-k">if</span> x.parent <span class="t-k">is</span> self.NIL:
+            self.root = y
+        <span class="t-k">elif</span> x <span class="t-k">is</span> x.parent.right:
+            x.parent.right = y
+        <span class="t-k">else</span>:
+            x.parent.left = y
+        y.right = x
+        x.parent = y
+
+    <span class="t-k">def</span> <span class="t-f">insert</span>(self, v):
+        z = self.<span class="t-f">_leaf</span>(v)
+        y = self.NIL
+        x = self.root
+        <span class="t-k">while</span> x <span class="t-k">is</span> <span class="t-k">not</span> self.NIL:
+            y = x
+            x = x.left <span class="t-k">if</span> v &lt; x.val <span class="t-k">else</span> x.right
+        z.parent = y
+        <span class="t-k">if</span> y <span class="t-k">is</span> self.NIL:
+            self.root = z
+        <span class="t-k">elif</span> v &lt; y.val:
+            y.left = z
+        <span class="t-k">else</span>:
+            y.right = z
+        self.<span class="t-f">_insert_fix</span>(z)
+
+    <span class="t-k">def</span> <span class="t-f">_insert_fix</span>(self, z):
+        <span class="t-k">while</span> z.parent.red:
+            p = z.parent
+            g = p.parent
+            <span class="t-k">if</span> p <span class="t-k">is</span> g.left:
+                u = g.right
+                <span class="t-k">if</span> u.red:                  <span class="t-c"># 叔红：变色上移</span>
+                    p.red = u.red = <span class="t-k">False</span>
+                    g.red = <span class="t-k">True</span>
+                    z = g
+                <span class="t-k">else</span>:                      <span class="t-c"># 叔黑：旋转</span>
+                    <span class="t-k">if</span> z <span class="t-k">is</span> p.right:       <span class="t-c"># LR -&gt; 转 LL</span>
+                        z = p
+                        self.<span class="t-f">_left_rotate</span>(z)
+                    p = z.parent
+                    p.red = <span class="t-k">False</span>
+                    g.red = <span class="t-k">True</span>
+                    self.<span class="t-f">_right_rotate</span>(g)
+            <span class="t-k">else</span>:                          <span class="t-c"># 对称：p 是右孩子</span>
+                u = g.left
+                <span class="t-k">if</span> u.red:
+                    p.red = u.red = <span class="t-k">False</span>
+                    g.red = <span class="t-k">True</span>
+                    z = g
+                <span class="t-k">else</span>:
+                    <span class="t-k">if</span> z <span class="t-k">is</span> p.left:        <span class="t-c"># RL -&gt; 转 RR</span>
+                        z = p
+                        self.<span class="t-f">_right_rotate</span>(z)
+                    p = z.parent
+                    p.red = <span class="t-k">False</span>
+                    g.red = <span class="t-k">True</span>
+                    self.<span class="t-f">_left_rotate</span>(g)
+        self.root.red = <span class="t-k">False</span>
+
+    <span class="t-k">def</span> <span class="t-f">_transplant</span>(self, u, v):
+        <span class="t-k">if</span> u.parent <span class="t-k">is</span> self.NIL:
+            self.root = v
+        <span class="t-k">elif</span> u <span class="t-k">is</span> u.parent.left:
+            u.parent.left = v
+        <span class="t-k">else</span>:
+            u.parent.right = v
+        v.parent = u.parent
+
+    <span class="t-k">def</span> <span class="t-f">_minimum</span>(self, x):
+        <span class="t-k">while</span> x.left <span class="t-k">is</span> <span class="t-k">not</span> self.NIL:
+            x = x.left
+        <span class="t-k">return</span> x
+
+    <span class="t-k">def</span> <span class="t-f">delete</span>(self, v):
+        z = self.<span class="t-f">_find</span>(v)
+        <span class="t-k">if</span> z <span class="t-k">is</span> self.NIL:
+            <span class="t-k">return</span>
+        y = z
+        y_red = y.red
+        <span class="t-k">if</span> z.left <span class="t-k">is</span> self.NIL:
+            x = z.right
+            self.<span class="t-f">_transplant</span>(z, z.right)
+        <span class="t-k">elif</span> z.right <span class="t-k">is</span> self.NIL:
+            x = z.left
+            self.<span class="t-f">_transplant</span>(z, z.left)
+        <span class="t-k">else</span>:
+            y = self.<span class="t-f">_minimum</span>(z.right)
+            y_red = y.red
+            x = y.right
+            <span class="t-k">if</span> y.parent <span class="t-k">is</span> z:
+                x.parent = y
+            <span class="t-k">else</span>:
+                self.<span class="t-f">_transplant</span>(y, y.right)
+                y.right = z.right
+                y.right.parent = y
+            self.<span class="t-f">_transplant</span>(z, y)
+            y.left = z.left
+            y.left.parent = y
+            y.red = z.red
+        <span class="t-k">if</span> <span class="t-k">not</span> y_red:
+            self.<span class="t-f">_delete_fix</span>(x)
+
+    <span class="t-k">def</span> <span class="t-f">_delete_fix</span>(self, x):
+        <span class="t-k">while</span> x <span class="t-k">is</span> <span class="t-k">not</span> self.root <span class="t-k">and</span> <span class="t-k">not</span> x.red:
+            <span class="t-k">if</span> x <span class="t-k">is</span> x.parent.left:
+                w = x.parent.right
+                <span class="t-k">if</span> w.red:                       <span class="t-c"># 情形1：兄弟红</span>
+                    w.red = <span class="t-k">False</span>
+                    x.parent.red = <span class="t-k">True</span>
+                    self.<span class="t-f">_left_rotate</span>(x.parent)
+                    w = x.parent.right
+                <span class="t-k">if</span> <span class="t-k">not</span> w.left.red <span class="t-k">and</span> <span class="t-k">not</span> w.right.red:   <span class="t-c"># 情形2：侄子全黑</span>
+                    w.red = <span class="t-k">True</span>
+                    x = x.parent
+                <span class="t-k">else</span>:                           <span class="t-c"># 情形3/4：侄子有红</span>
+                    <span class="t-k">if</span> <span class="t-k">not</span> w.right.red:
+                        w.left.red = <span class="t-k">False</span>
+                        w.red = <span class="t-k">True</span>
+                        self.<span class="t-f">_right_rotate</span>(w)
+                        w = x.parent.right
+                    w.red = x.parent.red
+                    x.parent.red = <span class="t-k">False</span>
+                    w.right.red = <span class="t-k">False</span>
+                    self.<span class="t-f">_left_rotate</span>(x.parent)
+                    x = self.root
+            <span class="t-k">else</span>:                               <span class="t-c"># 对称</span>
+                w = x.parent.left
+                <span class="t-k">if</span> w.red:
+                    w.red = <span class="t-k">False</span>
+                    x.parent.red = <span class="t-k">True</span>
+                    self.<span class="t-f">_right_rotate</span>(x.parent)
+                    w = x.parent.left
+                <span class="t-k">if</span> <span class="t-k">not</span> w.right.red <span class="t-k">and</span> <span class="t-k">not</span> w.left.red:
+                    w.red = <span class="t-k">True</span>
+                    x = x.parent
+                <span class="t-k">else</span>:
+                    <span class="t-k">if</span> <span class="t-k">not</span> w.left.red:
+                        w.right.red = <span class="t-k">False</span>
+                        w.red = <span class="t-k">True</span>
+                        self.<span class="t-f">_left_rotate</span>(w)
+                        w = x.parent.left
+                    w.red = x.parent.red
+                    x.parent.red = <span class="t-k">False</span>
+                    w.left.red = <span class="t-k">False</span>
+                    self.<span class="t-f">_right_rotate</span>(x.parent)
+                    x = self.root
+        x.red = <span class="t-k">False</span>
+
+    <span class="t-k">def</span> <span class="t-f">_find</span>(self, v):
+        x = self.root
+        <span class="t-k">while</span> x <span class="t-k">is</span> <span class="t-k">not</span> self.NIL:
+            <span class="t-k">if</span> v == x.val:
+                <span class="t-k">return</span> x
+            x = x.left <span class="t-k">if</span> v &lt; x.val <span class="t-k">else</span> x.right
+        <span class="t-k">return</span> self.NIL
+
+    <span class="t-k">def</span> <span class="t-f">search</span>(self, v):
+        <span class="t-k">return</span> self.<span class="t-f">_find</span>(v) <span class="t-k">is</span> <span class="t-k">not</span> self.NIL
+
+    <span class="t-k">def</span> <span class="t-f">inorder</span>(self):
+        out = []
+        <span class="t-k">def</span> <span class="t-f">dfs</span>(x):
+            <span class="t-k">if</span> x <span class="t-k">is</span> self.NIL:
+                <span class="t-k">return</span>
+            <span class="t-f">dfs</span>(x.left)
+            out.<span class="t-f">append</span>(x.val)
+            <span class="t-f">dfs</span>(x.right)
+        <span class="t-f">dfs</span>(self.root)
+        <span class="t-k">return</span> out
+
+    <span class="t-k">def</span> <span class="t-f">height</span>(self):
+        <span class="t-k">def</span> <span class="t-f">go</span>(x):
+            <span class="t-k">if</span> x <span class="t-k">is</span> self.NIL:
+                <span class="t-k">return</span> <span class="t-n">0</span>
+            <span class="t-k">return</span> <span class="t-n">1</span> + <span class="t-b">max</span>(<span class="t-f">go</span>(x.left), <span class="t-f">go</span>(x.right))
+        <span class="t-k">return</span> <span class="t-f">go</span>(self.root)
+
+
+<span class="t-k">def</span> <span class="t-f">_rb_valid</span>(t):
+    <span class="t-k">if</span> t.root <span class="t-k">is</span> t.NIL:
+        <span class="t-k">return</span> <span class="t-k">True</span>, <span class="t-n">0</span>
+    <span class="t-k">if</span> t.root.red:
+        <span class="t-k">return</span> <span class="t-k">False</span>, <span class="t-n">0</span>
+    bh = <span class="t-k">None</span>
+    <span class="t-k">def</span> <span class="t-f">go</span>(x):
+        <span class="t-k">nonlocal</span> bh
+        <span class="t-k">if</span> x <span class="t-k">is</span> t.NIL:
+            <span class="t-k">return</span> <span class="t-n">1</span>
+        <span class="t-k">if</span> x.red <span class="t-k">and</span> (x.left.red <span class="t-k">or</span> x.right.red):
+            <span class="t-k">return</span> <span class="t-k">None</span>                      <span class="t-c"># 红不连续</span>
+        l = <span class="t-f">go</span>(x.left)
+        r = <span class="t-f">go</span>(x.right)
+        <span class="t-k">if</span> l <span class="t-k">is</span> <span class="t-k">None</span> <span class="t-k">or</span> r <span class="t-k">is</span> <span class="t-k">None</span> <span class="t-k">or</span> l != r:
+            <span class="t-k">return</span> <span class="t-k">None</span>                      <span class="t-c"># 黑高不一致</span>
+        <span class="t-k">return</span> l + (<span class="t-n">0</span> <span class="t-k">if</span> x.red <span class="t-k">else</span> <span class="t-n">1</span>)
+    b = <span class="t-f">go</span>(t.root)
+    <span class="t-k">return</span> b <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>, b <span class="t-k">or</span> <span class="t-n">0</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">17</span>)
+    t = <span class="t-f">RBTree</span>()
+    arr = []
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2000</span>):
+        v = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100000</span>)
+        t.<span class="t-f">insert</span>(v)
+        arr.<span class="t-f">append</span>(v)
+    <span class="t-k">assert</span> t.<span class="t-f">inorder</span>() == <span class="t-b">sorted</span>(arr)
+    ok, bh = <span class="t-f">_rb_valid</span>(t)
+    <span class="t-k">assert</span> ok, <span class="t-s">&quot;RB property broken&quot;</span>
+    <span class="t-k">assert</span> t.<span class="t-f">height</span>() &lt;= <span class="t-n">2</span> * bh + <span class="t-n">2</span>, (t.<span class="t-f">height</span>(), bh)
+    <span class="t-c"># 有序插入也保持平衡</span>
+    t2 = <span class="t-f">RBTree</span>()
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">3000</span>):
+        t2.<span class="t-f">insert</span>(i)
+    ok2, bh2 = <span class="t-f">_rb_valid</span>(t2)
+    <span class="t-k">assert</span> ok2 <span class="t-k">and</span> t2.<span class="t-f">height</span>() &lt; <span class="t-n">40</span>
+    <span class="t-c"># 删除一半</span>
+    uniq = <span class="t-b">sorted</span>(<span class="t-b">set</span>(arr))
+    removed = <span class="t-b">set</span>(uniq[:<span class="t-b">len</span>(uniq) // <span class="t-n">2</span>])
+    <span class="t-k">for</span> v <span class="t-k">in</span> removed:
+        <span class="t-k">while</span> t.<span class="t-f">search</span>(v):
+            t.<span class="t-f">delete</span>(v)
+    expect = <span class="t-b">sorted</span>(a <span class="t-k">for</span> a <span class="t-k">in</span> arr <span class="t-k">if</span> a <span class="t-k">not</span> <span class="t-k">in</span> removed)
+    <span class="t-k">assert</span> t.<span class="t-f">inorder</span>() == expect
+    ok3, _ = <span class="t-f">_rb_valid</span>(t)
+    <span class="t-k">assert</span> ok3
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">红黑树在 Python 中实现复杂（父指针+NIL 哨兵+双黑修复），性能与可读性都不如 FHQ-Treap。竞赛 Python 直接用内置 sortedcontainers 或 bisect 即可，勿手写。此节点用于理解 std::map 与 2-3-4 树思想。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>查找/插入/删除严格 O(log n)（树高 ≤2·log2(n+1)）</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">实现与调试成本远高于其他平衡树；仅提供单点操作，无区间操作/可持久化扩展；竞赛中手写红黑树几乎无必要（std::map 已内置）。理解价值大于实用价值。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>NIL 哨兵不统一（每节点独立 NIL 或全局 NIL 混用）导致父指针错误</li><li>插入修复把 LR/RL 的中间旋转顺序写反</li><li>删除双黑修复漏掉兄弟红的情形导致黑高失衡</li><li>把黑高性质误当成「路径黑节点数」而忽略 NIL 叶子计数</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3369</strong></td><td>4</td><td>普通平衡树：红黑树完整实现（OI Wiki 提供）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3369" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3369</a></td></tr><tr><td>Luogu</td><td><strong>P6136</strong></td><td>5</td><td>普通平衡树加强版：考验删除修复情形覆盖</td><td class="u"><a href="https://www.luogu.com.cn/problem/P6136" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P6136</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-rbtree" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "prop", "label": "五性质与黑高概念"}}, {"data": {"id": "rotate", "label": "左旋/右旋+父指针维护"}}, {"data": {"id": "insert", "label": "插入变色/旋转两情形修复"}}, {"data": {"id": "delete", "label": "删除双黑四情形修复"}}, {"data": {"id": "b234", "label": "与2-3-4树等价映射"}}, {"data": {"id": "eprop->rotate", "source": "prop", "target": "rotate"}}, {"data": {"id": "erotate->insert", "source": "rotate", "target": "insert"}}, {"data": {"id": "erotate->delete", "source": "rotate", "target": "delete"}}, {"data": {"id": "eprop->b234", "source": "prop", "target": "b234"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-rbtree'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/rbtree/" target="_blank" rel="noopener">https://oi-wiki.org/ds/rbtree/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CLRS《算法导论》ch13 红黑树</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

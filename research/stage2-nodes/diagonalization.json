@@ -1,0 +1,56 @@
+{
+  "id": "diagonalization",
+  "name": "矩阵对角化",
+  "group": "G-C-14",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "A=PDP^{-1}，矩阵快速幂优化，特征值分解",
+  "what": "矩阵对角化是将方阵A表示为A=PDP^{-1}，其中D为对角矩阵（对角线元素为特征值），P的列向量为对应特征向量。可对角化条件：A有n个线性无关的特征向量（等价于每个特征值的代数重数=几何重数，或最小多项式无重根）。对角化后A^k=PD^kP^{-1}，D^k只需对角线元素k次幂，可加速矩阵快速幂。相似变换A→P^{-1}AP不改变特征多项式。",
+  "why": {
+    "intuition": "对角化是找到'最佳视角'看线性变换。在对角矩阵对应的基下，变换只是各方向独立伸缩。A^k=PD^kP^{-1}让幂运算变得简单。",
+    "principle": "求特征值λ（解det(λI-A)=0）→求特征向量v（解(λI-A)v=0）→组装P和D→验证A=PDP^{-1}。有n个线性无关特征向量则可对角化。",
+    "history": "特征值/特征向量概念源于线性变换研究。对角化是线性代数核心内容。Cayley-Hamilton定理与对角化密切相关。"
+  },
+  "how": {
+    "pseudocode": "1. Compute eigenvalues: det(lambda*I - A) = 0\n2. For each eigenvalue, find eigenvectors\n3. If n linearly independent eigenvectors exist:\n   P = [v1, v2, ..., vn], D = diag(lambda1, ..., lambdan)\n4. A^k = P * D^k * P^(-1)",
+    "python": "import math\n\ndef eigenvalues_2x2(A):\n    \"\"\"Compute eigenvalues of a 2x2 matrix.\"\"\"\n    a, b = A[0][0], A[0][1]\n    c, d = A[1][0], A[1][1]\n    trace = a + d\n    det = a * d - b * c\n    disc = trace * trace - 4 * det\n    if disc < 0:\n        return None  # Complex eigenvalues\n    sqrt_disc = math.sqrt(disc)\n    return [(trace + sqrt_disc) / 2, (trace - sqrt_disc) / 2]\n\ndef is_diagonalizable(A):\n    \"\"\"Check if 2x2 matrix is diagonalizable over R.\"\"\"\n    n = len(A)\n    if n != 2:\n        return \"Only 2x2 implemented\"\n    eigs = eigenvalues_2x2(A)\n    if eigs is None:\n        return False  # Complex eigenvalues\n    lambda1, lambda2 = eigs\n    if abs(lambda1 - lambda2) < 1e-9:\n        # Repeated eigenvalue: diagonalizable iff A is already diagonal\n        return abs(A[0][1]) < 1e-9 and abs(A[1][0]) < 1e-9\n    return True  # Distinct real eigenvalues => diagonalizable\n\ndef diagonalize_2x2(A):\n    \"\"\"Diagonalize 2x2 matrix: A = P * D * P^(-1).\n    Returns (P, D) or None if not diagonalizable.\"\"\"\n    if not is_diagonalizable(A):\n        return None\n    eigs = eigenvalues_2x2(A)\n    if eigs is None:\n        return None\n    lambda1, lambda2 = eigs\n    D = [[lambda1, 0], [0, lambda2]]\n    # Find eigenvectors\n    # (A - lambda*I) * v = 0\n    P = [[0, 0], [0, 0]]\n    for idx, lam in enumerate([lambda1, lambda2]):\n        # A - lam*I = [[a-lam, b], [c, d-lam]]\n        a_lam = A[0][0] - lam\n        b_val = A[0][1]\n        if abs(b_val) > 1e-9:\n            P[0][idx] = b_val\n            P[1][idx] = -a_lam\n        else:\n            c_val = A[1][0]\n            if abs(c_val) > 1e-9:\n                P[0][idx] = -(A[1][1] - lam)\n                P[1][idx] = c_val\n            else:\n                P[0][idx] = 1\n                P[1][idx] = 0\n    return P, D\n\ndef mat_inv_2x2(M):\n    a, b = M[0][0], M[0][1]\n    c, d = M[1][0], M[1][1]\n    det = a * d - b * c\n    if abs(det) < 1e-12:\n        return None\n    return [[d / det, -b / det], [-c / det, a / det]]\n\ndef mat_mul_2x2(A, B):\n    return [[A[0][0]*B[0][0]+A[0][1]*B[1][0], A[0][0]*B[0][1]+A[0][1]*B[1][1]],\n            [A[1][0]*B[0][0]+A[1][1]*B[1][0], A[1][0]*B[0][1]+A[1][1]*B[1][1]]]\n\nif __name__ == \"__main__\":\n    # Diagonal matrix is trivially diagonalizable\n    assert is_diagonalizable([[2, 0], [0, 3]]) == True\n    # Non-diagonalizable (repeated eigenvalue, not diagonal)\n    assert is_diagonalizable([[1, 1], [0, 1]]) == False\n    # Distinct eigenvalues\n    assert is_diagonalizable([[1, 2], [3, 4]]) == True\n    # Complex eigenvalues\n    assert is_diagonalizable([[0, -1], [1, 0]]) == False  # eigenvalues ±i\n    # Diagonalize and verify\n    A = [[4, 1], [2, 3]]\n    result = diagonalize_2x2(A)\n    assert result is not None\n    P, D = result\n    Pinv = mat_inv_2x2(P)\n    assert Pinv is not None\n    # Verify A = P * D * P^(-1)\n    PD = mat_mul_2x2(P, D)\n    PDPinv = mat_mul_2x2(PD, Pinv)\n    for i in range(2):\n        for j in range(2):\n            assert abs(PDPinv[i][j] - A[i][j]) < 1e-6, f\"Diag verify failed: {PDPinv[i][j]} != {A[i][j]}\"\n    print(\"diagonalization: ALL TESTS PASSED\")\n",
+    "pypy_notes": "仅实现2x2对角化作为教学。大矩阵对角化需数值方法（QR算法等），竞赛中很少直接实现。主要用于理论理解。",
+    "complexity": {
+      "time": "求特征值O(n^3)（数值方法），对角化验证O(n^3)",
+      "space": "O(n^2)"
+    },
+    "limitations": "不是所有矩阵都可对角化（如Jordan块）。特征值可能为复数。大矩阵对角化需数值近似。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1939",
+      "url": "https://www.luogu.com.cn/problem/P1939",
+      "difficulty": 5,
+      "key_point": "矩阵快速幂（对角化可优化但竞赛直接快速幂更通用）"
+    }
+  ],
+  "pitfalls": [
+    "不是所有矩阵可对角化：重复特征值需检查几何重数=代数重数",
+    "特征值可能是复数",
+    "P的列必须是线性无关的特征向量",
+    "A^k=PD^kP^{-1}要求P可逆"
+  ],
+  "step_dag": {
+    "nodes": [],
+    "edges": []
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/linear-algebra/diagonalization/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/linear-algebra/char-poly/",
+      "verified": true
+    }
+  ]
+}

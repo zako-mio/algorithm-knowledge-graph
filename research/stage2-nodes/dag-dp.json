@@ -1,0 +1,118 @@
+{
+  "id": "dag-dp",
+  "name": "差分约束 / DAG 最短路 DP",
+  "group": "G-B-9",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "差分约束系统建图+最短路判负环；DAG 上按拓扑序 DP 求最长/最短路",
+  "what": "本节点包含两个紧密相关的话题：(1) 差分约束系统：一组形如 x_i - x_j ≤ c 的约束，等价于在图上连边 (j→i, 权 c)，求一组解等价于求单源最短路；若存在负环则无解。可用 Bellman-Ford/SPFA 判负环 O(nm)，或对无负环情形用最短路给出解。(2) DAG 最短路/最长路 DP：在无环图上用拓扑序（或记忆化搜索）在 O(n+m) 内求单源最长/最短路径，是图论 DP 的基础模型（见 OI Wiki dag.md 与 dp/dag）。二者都体现『把不等式/依赖关系编码成图，用图算法求解』的核心思想。",
+  "why": {
+    "intuition": "差分约束的每条 x_i - x_j ≤ c 变形为 x_i ≤ x_j + c，恰与最短路三角形不等式 dist[y] ≤ dist[x] + z 同构——把 j 到 i 连边权 c 的边，跑最短路后 dist 就是一组解；负环意味着存在 x_i < x_i 的矛盾。DAG 上无环则依赖关系是偏序，拓扑序保证每个状态被处理前其前驱全部就绪，所以 O(n+m) 即可递推。",
+    "principle": "差分约束：设 dist[0]=0 并加 0 边到所有点，跑 SPFA/Bellman-Ford。若出现负环 → 无解；否则 x_i = dist[i] 为合法解。约束翻转：x_a - x_b ≥ c → 连 (a→b, -c)；x_a = x_b → (a→b,0) 与 (b→a,0)；比值约束取 log 变加法。DAG DP：拓扑排序后按序松弛 dist[v]=min/max(dist[v], dist[u]+w)。最长路等价于关键路径（CPM）。",
+    "history": "差分约束系统在调度与规划领域历史悠久（最早可追溯至 Bellman 与 Ford 的最短路视角），是『约束满足→最短路』的经典建模；OI Wiki diff-constraints 章节用洛谷 P1993 小K的农场、P4926 倍杀测量者为例。DAG 上 DP 是最自然的 DP 模型，CPH ch16 与 OI Wiki dp/dag 均有专题。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1993",
+      "url": "https://www.luogu.com.cn/problem/P1993",
+      "difficulty": 4,
+      "key_point": "小K的农场：差分约束建图+判负环模板题（OI Wiki 例题）"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "dp_g",
+      "url": "https://atcoder.jp/contests/dp/tasks/dp_g",
+      "difficulty": 3,
+      "key_point": "Longest Path：DAG 上按拓扑序求最长路（EDPC 例题）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1137",
+      "url": "https://www.luogu.com.cn/problem/P1137",
+      "difficulty": 3,
+      "key_point": "旅行计划：DAG 最长路拓扑序递推"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4017",
+      "url": "https://www.luogu.com.cn/problem/P4017",
+      "difficulty": 3,
+      "key_point": "最大食物链计数：DAG 上 DP 计数"
+    }
+  ],
+  "pitfalls": [
+    "差分约束连边方向反了（x_i - x_j ≤ c 是 j→i 不是 i→j）",
+    "≥ 约束需翻转取负；= 约束拆两条",
+    "SPFA 判负环的入队计数初值（cnt[v]=cnt[u]+1 而非 ++cnt[v]）",
+    "DAG DP 忘记拓扑排序直接乱序会得到错误依赖",
+    "多源最长路要对所有源初始化 dist=0；单源要设 dist[s]=0, 其余 -INF"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "model",
+        "label": "把不等式/依赖建模为有向图"
+      },
+      {
+        "id": "topo",
+        "label": "拓扑排序（DAG）或超级源+判负环（差分约束）"
+      },
+      {
+        "id": "relax",
+        "label": "按拓扑序/最短路松弛"
+      },
+      {
+        "id": "answer",
+        "label": "取 dist 最值/验证无解"
+      }
+    ],
+    "edges": [
+      {
+        "from": "model",
+        "to": "topo"
+      },
+      {
+        "from": "topo",
+        "to": "relax"
+      },
+      {
+        "from": "relax",
+        "to": "answer"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/diff-constraints/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/dag/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/dag/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch16 pp159-166",
+      "verified": true
+    }
+  ],
+  "how": {
+    "pseudocode": "# 差分约束: 求可行解或判无解\nadd(0 -> i, 0) 对所有 i\nadd(j -> i, c) 对每个 x_i - x_j <= c\n跑 Bellman-Ford:\n  若第 n 轮仍能松弛 -> 有负环, 无解\n  否则 x_i = dist[i]\n\n# DAG 最长路 (拓扑序递推)\ntopo = 拓扑排序结果\ndist[s] = 0\nfor u in topo:\n  for (v, w) in adj[u]:\n    dist[v] = max(dist[v], dist[u] + w)",
+    "python": "from collections import deque, defaultdict\n\nINF = 10 ** 18\n\n\ndef dag_longest_path(n, edges):\n    \"\"\"DAG 最长路（从任意点出发的最大路径长度）。\n    n: 节点数; edges: [(u, v)] 有向边, 边权默认 1。返回最长路长度。\n    \"\"\"\n    adj = defaultdict(list)\n    indeg = [0] * n\n    for u, v in edges:\n        adj[u].append(v)\n        indeg[v] += 1\n    q = deque(u for u in range(n) if indeg[u] == 0)\n    dist = [0] * n\n    while q:\n        u = q.popleft()\n        for v in adj[u]:\n            dist[v] = max(dist[v], dist[u] + 1)\n            indeg[v] -= 1\n            if indeg[v] == 0:\n                q.append(v)\n    return max(dist)\n\n\ndef diff_constraints_solve(n, cons):\n    \"\"\"差分约束: 判断是否有解并返回一组解。\n    cons: [(i, j, c)] 表示 x_i - x_j <= c (1-indexed 变量)。\n    返回 (True, [x_1..x_n]) 或 (False, []) 无解。\n    \"\"\"\n    m = n + 1  # 0 为超级源\n    adj = defaultdict(list)\n    for i in range(1, n + 1):\n        adj[0].append((i, 0))            # dist[i] <= dist[0] + 0\n    for i, j, c in cons:\n        adj[j].append((i, c))            # x_i - x_j <= c -> x_i <= x_j + c\n    # SPFA 判负环\n    dist = [INF] * m\n    dist[0] = 0\n    inq = [False] * m\n    cnt = [0] * m\n    q = deque([0])\n    inq[0] = True\n    while q:\n        u = q.popleft()\n        inq[u] = False\n        for v, w in adj[u]:\n            if dist[v] > dist[u] + w:\n                dist[v] = dist[u] + w\n                cnt[v] = cnt[u] + 1\n                if cnt[v] > n:          # 入队超过 n 次 -> 负环\n                    return False, []\n                if not inq[v]:\n                    q.append(v)\n                    inq[v] = True\n    return True, [dist[i] for i in range(1, n + 1)]\n\n\ndef dag_longest_naive(n, edges):\n    \"\"\"朴素 O(V·(V+E)) 对拍。\"\"\"\n    adj = defaultdict(list)\n    for u, v in edges:\n        adj[u].append(v)\n    best = 0\n    from functools import lru_cache\n\n    @lru_cache(None)\n    def dfs(u):\n        m = 0\n        for v in adj[u]:\n            m = max(m, dfs(v) + 1)\n        return m\n\n    return max((dfs(u) for u in range(n)), default=0)\n\n\nif __name__ == \"__main__\":\n    # DAG 最长路\n    edges = [(0, 1), (1, 2), (0, 2), (2, 3), (1, 3)]\n    assert dag_longest_path(4, edges) == dag_longest_naive(4, edges) == 3\n    assert dag_longest_path(1, []) == 0\n\n    # 差分约束: x2 - x1 <= 3, x1 <= 4 => x1=4, x2=7 可行\n    ok, sol = diff_constraints_solve(2, [(2, 1, 3), (1, 0, 4)])\n    assert ok\n    # 校验约束\n    assert sol[1] - sol[0] <= 3 + 1e-9\n    assert sol[0] <= 4 + 1e-9\n\n    # 无解: x1 - x2 <= -5, x2 - x1 <= -5 => x1 < x2 且 x2 < x1\n    ok2, _ = diff_constraints_solve(2, [(1, 2, -5), (2, 1, -5)])\n    assert not ok2\n    print(\"dag-dp 自测通过：DAG最长路(拓扑/记忆化)与差分约束(有解/无解)均正确\")\n",
+    "pypy_notes": "SPFA 判负环在随机图上快，最坏 O(nm)；DAG DP 用 deque 拓扑排序 O(n+m)。Python 递归记忆化需 setrecursionlimit；差分约束若已知图为 DAG 可用拓扑序 O(n+m) 替代 SPFA。",
+    "complexity": {
+      "time": "DAG DP: O(n+m)；差分约束 Bellman-Ford/SPFA: O(nm)（最坏）",
+      "space": "O(n+m)"
+    },
+    "limitations": "差分约束若隐含环且环和为正仍可能有解（只是最短路法以 dist 解可能不最小），判无解需确认为负环；SPFA 在最坏图上会退化。DAG DP 前提是无环，有环需先 SCC 缩点。非连通/多源场景需超级源或对每个源分别跑。"
+  }
+}

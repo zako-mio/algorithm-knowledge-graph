@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二维莫队 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-7.html">莫队算法族</a> / <span>二维莫队</span></div>
+  <h1>二维莫队</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="mo-rollback.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">mo-rollback</span></a>
+    <a class="nav-index" href="../03-groups/G-D-7.html"><span class="dir">组内第 6 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="mo-algorithm.html"><span class="dir">下一个 / 组内</span><span class="v">mo-algorithm</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">莫队扩展到二维矩阵：状态为 (x1,y1,x2,y2) 子矩形，四方向整行/整列扩展，块长 n*q^(-1/4)，复杂度 O(n²*q^(3/4))。</div><p>二维莫队（2D Mo&#x27;s algorithm）把莫队从一维区间推广到二维矩形：每个状态是子矩形 (x1,y1)-(x2,y2)，指针沿四个方向扩展/收缩时一次移动一整行或一整列（O(1) 摊还的 add/remove 应用到行/列上的每个格子）。块长选 B=n·q^(-1/4)（n 为矩阵边长，q 为询问数），排序键为 (x1//B, y1//B, x2, y2)。适用问题如子矩阵内数值出现次数的平方和（BZOJ 2639 矩形计算）、子矩阵第 k 小数（P1527 矩阵乘法）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>一维莫队每次移动一个下标代价 O(1)；二维里移动一条边界要处理一整行/列，代价 O(B)（行/列长）。四个边界指针 x1,x2,y1,y2 的移动次数分别约为 O(q·B)（行指针在块内摆动）、O(n⁴/B³)（列指针在块间来回）。令两者相等 q·B=n⁴·B⁻³ 得 B=n·q^(-1/4)，此时移动总代价 O(n²·q^(3/4))。这相当于把「块」从一维升级成二维网格，用均值不等式平衡四方向代价。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 离散化矩阵值；② 块长 B=max(1, n·q^(-1/4))，注意可能为 0 需特判（OI Wiki 明确警告）；③ 排序：x1//B 第一、y1//B 第二、x2 第三、y2 第四（可奇偶化）；④ 维护：四组 while 分别调 add_row/remove_row/add_col/remove_col，每次移动整行/整列，行/列上的每个格子做 add/remove；⑤ 统计量 now=Σcnt[v]² 等可 O(1) 由格子增减更新。排序与指针移动顺序与普通莫队相同的「先扩后缩」约束。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>二维莫队在国内 OI 圈被广泛使用，代表题 BZOJ 2639「矩形计算」（Hydro 收录）与「国家集训队」P1527「矩阵乘法」（洛谷收录，需配合值域分块求第 k 小）。OI Wiki 收录了完整介绍，明确给出块长推导 B=n·q^(-1/4) 及 B=0 特判的坑。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">B = <span class="t-b">max</span>(<span class="t-n">1</span>, <span class="t-b">int</span>(n * q ** -<span class="t-n">0.25</span>))
+qs.<span class="t-f">sort</span>(key=<span class="t-k">lambda</span> q:(q.x1//B, q.y1//B, q.x2, q.y2))
+X1=<span class="t-n">0</span>; Y1=<span class="t-n">0</span>; X2=-<span class="t-n">1</span>; Y2=-<span class="t-n">1</span>; now=<span class="t-n">0</span>
+<span class="t-k">for</span> q <span class="t-k">in</span> qs:
+    <span class="t-k">while</span> X1 &gt; q.x1: X1--; <span class="t-f">add_row</span>(X1, Y1, Y2)
+    <span class="t-k">while</span> X2 &lt; q.x2: X2++; <span class="t-f">add_row</span>(X2, Y1, Y2)
+    <span class="t-k">while</span> Y1 &gt; q.y1: Y1--; <span class="t-f">add_col</span>(Y1, X1, X2)
+    <span class="t-k">while</span> Y2 &lt; q.y2: Y2++; <span class="t-f">add_col</span>(Y2, X1, X2)
+    <span class="t-k">while</span> X1 &lt; q.x1: <span class="t-f">remove_row</span>(X1, Y1, Y2); X1++
+    <span class="t-k">while</span> X2 &gt; q.x2: <span class="t-f">remove_row</span>(X2, Y1, Y2); X2--
+    <span class="t-k">while</span> Y1 &lt; q.y1: <span class="t-f">remove_col</span>(Y1, X1, X2); Y1++
+    <span class="t-k">while</span> Y2 &gt; q.y2: <span class="t-f">remove_col</span>(Y2, X1, X2); Y2--
+    ans[q.<span class="t-b">id</span>] = now</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">mo_2d</span>(mat, queries):
+    <span class="t-s">&quot;&quot;&quot;二维莫队：子矩阵内数值平方和（p^2 贡献）.
+    mat: 矩阵 (n 行 m 列); queries: [(x1,y1,x2,y2,id)] 闭区间 0-indexed.
+    返回按 id 的答案.&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> math
+    n = <span class="t-b">len</span>(mat); m = <span class="t-b">len</span>(mat[<span class="t-n">0</span>]) <span class="t-k">if</span> mat <span class="t-k">else</span> <span class="t-n">0</span>
+    q = <span class="t-b">len</span>(queries)
+    B = <span class="t-b">max</span>(<span class="t-n">1</span>, <span class="t-b">int</span>(n * q ** -<span class="t-n">0.25</span>)) <span class="t-k">if</span> q <span class="t-k">else</span> <span class="t-b">max</span>(<span class="t-n">1</span>, <span class="t-b">int</span>(n))
+    B = <span class="t-b">max</span>(B, <span class="t-n">1</span>)
+    <span class="t-c"># 排序键: (x1//B, y1//B, x2, y2 奇偶化)</span>
+    qs = <span class="t-b">sorted</span>(queries, key=<span class="t-k">lambda</span> qq: (
+        qq[<span class="t-n">0</span>] // B, qq[<span class="t-n">1</span>] // B,
+        qq[<span class="t-n">2</span>] <span class="t-k">if</span> ((qq[<span class="t-n">0</span>] // B + qq[<span class="t-n">1</span>] // B) % <span class="t-n">2</span> == <span class="t-n">0</span>) <span class="t-k">else</span> -qq[<span class="t-n">2</span>],
+        qq[<span class="t-n">3</span>] <span class="t-k">if</span> ((qq[<span class="t-n">0</span>] // B + qq[<span class="t-n">1</span>] // B) % <span class="t-n">2</span> == <span class="t-n">0</span>) <span class="t-k">else</span> -qq[<span class="t-n">3</span>],
+    ))
+    cnt = {}
+    cur = <span class="t-n">0</span>
+    ans = [<span class="t-n">0</span>] * q
+    x1 = y1 = x2 = <span class="t-n">0</span>; y2 = -<span class="t-n">1</span>
+    <span class="t-k">def</span> <span class="t-f">add</span>(v):
+        <span class="t-k">nonlocal</span> cur
+        c = cnt.<span class="t-f">get</span>(v, <span class="t-n">0</span>)
+        cur += <span class="t-n">2</span> * c + <span class="t-n">1</span>
+        cnt[v] = c + <span class="t-n">1</span>
+    <span class="t-k">def</span> <span class="t-f">remove</span>(v):
+        <span class="t-k">nonlocal</span> cur
+        c = cnt[v]
+        cur -= <span class="t-n">2</span> * c - <span class="t-n">1</span>
+        <span class="t-k">if</span> c == <span class="t-n">1</span>:
+            <span class="t-k">del</span> cnt[v]
+        <span class="t-k">else</span>:
+            cnt[v] = c - <span class="t-n">1</span>
+    <span class="t-k">def</span> <span class="t-f">add_row</span>(r):
+        <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(y1, y2 + <span class="t-n">1</span>):
+            <span class="t-f">add</span>(mat[r][c])
+    <span class="t-k">def</span> <span class="t-f">remove_row</span>(r):
+        <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(y1, y2 + <span class="t-n">1</span>):
+            <span class="t-f">remove</span>(mat[r][c])
+    <span class="t-k">def</span> <span class="t-f">add_col</span>(c):
+        <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(x1, x2 + <span class="t-n">1</span>):
+            <span class="t-f">add</span>(mat[r][c])
+    <span class="t-k">def</span> <span class="t-f">remove_col</span>(c):
+        <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(x1, x2 + <span class="t-n">1</span>):
+            <span class="t-f">remove</span>(mat[r][c])
+    <span class="t-k">for</span> a1, b1, a2, b2, idx <span class="t-k">in</span> qs:
+        <span class="t-k">while</span> x1 &gt; a1:
+            x1 -= <span class="t-n">1</span>; <span class="t-f">add_row</span>(x1)
+        <span class="t-k">while</span> x2 &lt; a2:
+            x2 += <span class="t-n">1</span>; <span class="t-f">add_row</span>(x2)
+        <span class="t-k">while</span> y1 &gt; b1:
+            y1 -= <span class="t-n">1</span>; <span class="t-f">add_col</span>(y1)
+        <span class="t-k">while</span> y2 &lt; b2:
+            y2 += <span class="t-n">1</span>; <span class="t-f">add_col</span>(y2)
+        <span class="t-k">while</span> x1 &lt; a1:
+            <span class="t-f">remove_row</span>(x1); x1 += <span class="t-n">1</span>
+        <span class="t-k">while</span> x2 &gt; a2:
+            <span class="t-f">remove_row</span>(x2); x2 -= <span class="t-n">1</span>
+        <span class="t-k">while</span> y1 &lt; b1:
+            <span class="t-f">remove_col</span>(y1); y1 += <span class="t-n">1</span>
+        <span class="t-k">while</span> y2 &gt; b2:
+            <span class="t-f">remove_col</span>(y2); y2 -= <span class="t-n">1</span>
+        ans[idx] = cur
+    <span class="t-k">return</span> ans
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    mat = [[<span class="t-n">1</span>, <span class="t-n">2</span>], [<span class="t-n">2</span>, <span class="t-n">3</span>]]
+    queries = [(<span class="t-n">0</span>, <span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">0</span>), (<span class="t-n">0</span>, <span class="t-n">0</span>, <span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">2</span>)]
+    res = <span class="t-f">mo_2d</span>(mat, queries)
+    <span class="t-c"># 全矩阵: 1+2^2*2+3^2=1+8+9=18? 实际 p^2: 1^2+2^2+2^2+3^2=18</span>
+    <span class="t-k">assert</span> res[<span class="t-n">0</span>] == <span class="t-n">6</span>, res  <span class="t-c"># sum(cnt^2)=1+4+1</span>
+    <span class="t-k">assert</span> res[<span class="t-n">1</span>] == <span class="t-n">2</span>, res  <span class="t-c"># 1+1</span>
+    <span class="t-k">assert</span> res[<span class="t-n">2</span>] == <span class="t-n">1</span>, res
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">23</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">150</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">6</span>); m = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">6</span>)
+        mat = [[random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">4</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(m)] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        qn = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">12</span>)
+        qs = []
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(qn):
+            x1 = random.<span class="t-f">randrange</span>(n); x2 = random.<span class="t-f">randrange</span>(x1, n)
+            y1 = random.<span class="t-f">randrange</span>(m); y2 = random.<span class="t-f">randrange</span>(y1, m)
+            qs.<span class="t-f">append</span>((x1, y1, x2, y2, i))
+        got = <span class="t-f">mo_2d</span>(mat, qs)
+        <span class="t-k">for</span> (x1, y1, x2, y2, i) <span class="t-k">in</span> qs:
+            cnt = {}
+            <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(x1, x2 + <span class="t-n">1</span>):
+                <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(y1, y2 + <span class="t-n">1</span>):
+                    cnt[mat[r][c]] = cnt.<span class="t-f">get</span>(mat[r][c], <span class="t-n">0</span>) + <span class="t-n">1</span>
+            exp = <span class="t-b">sum</span>(v * v <span class="t-k">for</span> v <span class="t-k">in</span> cnt.<span class="t-f">values</span>())
+            <span class="t-k">assert</span> got[i] == exp, (mat, x1, y1, x2, y2, got[i], exp)
+    <span class="t-b">print</span>(<span class="t-s">&quot;mo_2d OK&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">值域大用离散化 + list 计数替代 dict（dict 的 get/del 常数大）；add/remove 内联到行/列循环；P1527 类题需要额外值域分块求 k 小，常数敏感，OI Wiki 建议块长直接设常数（n,q 最大时约 11）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n²·q^(3/4) + q log q)（排序）；块长 B=n·q^(-1/4)</td></tr><tr><th>空间复杂度</th><td>O(n² + q)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">纯 Python 下常数极大（每次移动扫整行/列），适合小矩阵（如 200×200）或 q 较小的场景；n=500 且 q=6e4 的 P1527 用 Python 很难通过；强制在线不支持；统计必须可 O(1) 随单格增减更新。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>块长 B=n*q^(-1/4) 在 n、q 取极端时可能为 0，必须特判 max(1,...)（OI Wiki 明确警告）</li><li>四个 while 同样要「先扩后缩」，否则矩形出现负面积/行被重复删除</li><li>移动一行/一列时循环区间要用当前的其他两个边界（Y1..Y2 / X1..X2），写错会整体错位</li><li>离散化矩阵值后再做 cnt 计数，注意矩阵元素范围可达 2e9</li><li>P1527 还需值域分块，仅二维莫队不足以 O(1) 求 k 小；时间限制紧时块长设常数</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>BZOJ</td><td><strong>2639</strong></td><td>5</td><td>矩形计算：子矩阵内数值出现次数平方和，二维莫队模板题，OI Wiki 例题 1</td><td class="u"><a href="https://hydro.ac/p/bzoj-P2639" target="_blank" rel="noopener">https://hydro.ac/p/bzoj-P2639</a></td></tr><tr><td>Luogu</td><td><strong>P1527</strong></td><td>6</td><td>[国家集训队] 矩阵乘法：子矩阵第 k 小数，二维莫队 + 值域分块，OI Wiki 例题 2</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1527" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1527</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-mo-2d" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "discrete", "label": "矩阵值离散化"}}, {"data": {"id": "block_B", "label": "块长 B=n*q^(-1/4)（特判 0）"}}, {"data": {"id": "sort_2d", "label": "(x1//B,y1//B,x2,y2) 排序"}}, {"data": {"id": "move_row", "label": "add_row/remove_row 整行移动"}}, {"data": {"id": "move_col", "label": "add_col/remove_col 整列移动"}}, {"data": {"id": "record", "label": "记录答案"}}, {"data": {"id": "ediscrete->block_B", "source": "discrete", "target": "block_B"}}, {"data": {"id": "eblock_B->sort_2d", "source": "block_B", "target": "sort_2d"}}, {"data": {"id": "esort_2d->move_row", "source": "sort_2d", "target": "move_row"}}, {"data": {"id": "esort_2d->move_col", "source": "sort_2d", "target": "move_col"}}, {"data": {"id": "emove_row->move_col", "source": "move_row", "target": "move_col"}}, {"data": {"id": "emove_col->record", "source": "move_col", "target": "record"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-mo-2d'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="mo-algorithm.html" title="二维莫队四方向扩展指针">莫队算法<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo-2dimen.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo-2dimen.md</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/mo-algo-2dimen/" target="_blank" rel="noopener">https://oi-wiki.org/misc/mo-algo-2dimen/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/code/mo-algo-2dimen/mo-algo-2dimen_1.cpp" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/code/mo-algo-2dimen/mo-algo-2dimen_1.cpp</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

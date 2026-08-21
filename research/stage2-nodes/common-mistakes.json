@@ -1,0 +1,107 @@
+{
+  "id": "common-mistakes",
+  "name": "常见错误避免",
+  "group": "G-E-4",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "int溢出/未初始化/运算符优先级/scanf格式符/变量重名shadow等竞赛高频错误清单",
+  "what": "竞赛编程中高频出现的系统性错误清单，涵盖编译错误(CE)、运行时错误(RE)、答案错误(WA)三大类。核心包括：整数溢出、未初始化变量、运算符优先级、IO格式符不匹配、变量遮蔽(shadow)、多测不清空数组、混用同步/非同步IO等。",
+  "why": {
+    "intuition": "竞赛调试时间宝贵，90%的 WA/RE 来自同一批已知陷阱。把这些陷阱列成清单并在提交前逐项排查，比从零调试高效得多——这是经验沉淀为检查表(checklist)的经典模式。",
+    "principle": "错误分三层：①编译器能抓的(CE/Warning)：拼写、缺分号、类型不匹配、=与==混淆、运算符优先级、未初始化局部变量、变量遮蔽 → 开 -Wall -Wextra -Wshadow 可全部捕获。②编译器抓不到的(WA)：多测不清数组、不开 long long、图编号 0/1 混用、大小于号打反、混用 sync/async IO → 需人工审查或对拍。③环境差异：%I64d 在 Linux 下无效、Windows rand() 上限低 → 需了解平台差异。",
+    "history": "OI Wiki 的 common-mistakes 页面由多位选手贡献，系统整理了从初学到省选级别的常见错误。经典口诀'三年 OI 一场空，不开 long long 见祖宗'广为流传。"
+  },
+  "how": {
+    "pseudocode": "# 提交前检查表\n1. 编译: g++ -O2 -Wall -Wextra -Wshadow -fsanitize=undefined\n2. 数据类型: 中间运算是否溢出? 涉及乘法→long long\n3. 数组: 多测是否清空? 大小是否够? (4N for segtree)\n4. IO: scanf加&? 格式符匹配? sync_with_stdio后不混用?\n5. 边界: 0/1 indexed统一? 循环上界含不含?\n6. 特判: n=0? n=1? 全相同?",
+    "python": "import sys\n\n# === 常见错误自检工具 ===\n# 模拟竞赛中的高频错误检测\n\ndef check_overflow_example():\n    \"\"\"演示整数溢出: Python 无此问题但 C++ 会溢出。\"\"\"\n    # C++: int a = 1e9, b = 1e9; long long c = a * b;  // 溢出!\n    # 正确: long long c = (long long)a * b;\n    a = 10**9\n    b = 10**9\n    # Python 自动大整数, 不会溢出\n    print(f'a * b = {a * b}')  # 1000000000000000000\n\n\ndef check_operator_precedence():\n    \"\"\"演示运算符优先级陷阱。\"\"\"\n    # C++: 1 << 1 + 1  =>  1 << (1+1) = 4,  而非 (1<<1)+1 = 3\n    # Python 同样: << 优先级低于 +\n    wrong = 1 << 1 + 1   # = 1 << 2 = 4\n    right = (1 << 1) + 1  # = 2 + 1 = 3\n    print(f'1<<1+1 = {wrong} (易误为3), 正确写法 (1<<1)+1 = {right}')\n\n\ndef check_uninit():\n    \"\"\"演示未初始化变量: C++ 局部变量未初始化为垃圾值。\"\"\"\n    # C++: int a; if (a > 0) ...  // a 可能为任意值\n    # Python: 直接 NameError, 更安全\n    a = 0  # 显式初始化是好习惯\n    print(f'a = {a} (显式初始化)')\n\n\ndef check_multitest_clear():\n    \"\"\"演示多测不清空数组导致 WA。\"\"\"\n    # C++ 错误: int cnt[100005]; 多组数据间不清零\n    # 正确: memset(cnt, 0, sizeof(cnt)); 或用 vector 重建\n    T = 3\n    for t in range(T):\n        # 模拟: 每组数据用局部数组, 天然清空\n        cnt = [0] * 10\n        for i in range(5):\n            cnt[i % 10] += 1\n        print(f'Test {t}: cnt[0]={cnt[0]}')  # 每次都是1\n\n\ndef check_io_format():\n    \"\"\"演示 IO 格式符不匹配。\"\"\"\n    # C++: long long x; scanf(\"%d\", &x);  // 只读4字节, 溢出!\n    # 正确: scanf(\"%lld\", &x);\n    # Python: input() + int() 无此问题\n    line = '1234567890123'\n    x = int(line)  # Python 自动处理大整数\n    print(f'x = {x} (Python无格式符问题)')\n\n\nif __name__ == '__main__':\n    print('=== 1. 整数溢出 ===')\n    check_overflow_example()\n    print('=== 2. 运算符优先级 ===')\n    check_operator_precedence()\n    print('=== 3. 未初始化变量 ===')\n    check_uninit()\n    print('=== 4. 多测不清空 ===')\n    check_multitest_clear()\n    print('=== 5. IO格式符 ===')\n    check_io_format()\n    print('=== All checks passed ===')\n",
+    "pypy_notes": "Python 天然避免了 C++ 的大多数错误(溢出/格式符/未初始化)，但仍需注意：①递归深度(默认1000) ②列表越缘 ③多测不清空(用局部变量天然解决) ④float 精度问题(用 Decimal 或整数运算)。",
+    "complexity": {
+      "time": "检查表审查 O(1) per submission；对拍 O(K*N) 取决于数据规模",
+      "space": "O(1) 检查表本身无空间开销"
+    },
+    "limitations": "检查表无法覆盖逻辑错误(算法思路本身错)；环境差异类错误需在目标平台实测；Python 避免了 C++ 的大部分陷阱但引入了性能瓶颈(TLE)这一新问题。"
+  },
+  "examples": [
+    {
+      "oj": "OIWiki",
+      "pid": "contest/common-mistakes",
+      "url": "https://oi-wiki.org/contest/common-mistakes/",
+      "difficulty": 1,
+      "key_point": "OI Wiki 常见错误完整清单：CE/Warning/WA/RE 四大类"
+    },
+    {
+      "oj": "General",
+      "pid": "checklist",
+      "url": "https://oi-wiki.org/contest/common-mistakes/",
+      "difficulty": 0,
+      "key_point": "提交前检查表：-Wall -Wshadow、long long、数组清空、IO格式符、边界特判"
+    }
+  ],
+  "pitfalls": [
+    "三年OI一场空不开long long见祖宗：中间乘法运算 a*b 即使结果赋给 long long，若 a,b 均为 int 则乘法先在 int 域溢出",
+    "多测不清空数组：上一组数据的残留计数/标记导致当前组 WA",
+    "ios::sync_with_stdio(false) 后混用 scanf/cin 导致缓冲区不同步，输出错乱",
+    "图论题节点编号 0-indexed 与题目 1-indexed 不一致，忘记 -1 导致越界或逻辑错",
+    "运算符优先级：1<<n+1 被解析为 1<<(n+1) 而非 (1<<n)+1，移位低于加减",
+    "scanf 忘记 & 取地址符 → 段错误(RE)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "compile",
+        "label": "编译检查(-Wall -Wextra -Wshadow)"
+      },
+      {
+        "id": "types",
+        "label": "数据类型审查(long long?)"
+      },
+      {
+        "id": "array",
+        "label": "数组审查(清空?大小?)"
+      },
+      {
+        "id": "io",
+        "label": "IO审查(格式符?&?sync?)"
+      },
+      {
+        "id": "edge",
+        "label": "边界审查(0/1 indexed?特判?)"
+      },
+      {
+        "id": "submit",
+        "label": "提交"
+      }
+    ],
+    "edges": [
+      {
+        "from": "compile",
+        "to": "types"
+      },
+      {
+        "from": "types",
+        "to": "array"
+      },
+      {
+        "from": "array",
+        "to": "io"
+      },
+      {
+        "from": "io",
+        "to": "edge"
+      },
+      {
+        "from": "edge",
+        "to": "submit"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/contest/common-mistakes/",
+      "verified": true,
+      "single_source": true
+    }
+  ]
+}

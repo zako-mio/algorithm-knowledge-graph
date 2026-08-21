@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDQ分治 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-7.html">离线与杂项技巧族</a> / <span>CDQ分治</span></div>
+  <h1>CDQ分治</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-E-7.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-E-7.html"><span class="dir">组内第 1 / 18</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="parallel-binsearch.html"><span class="dir">下一个 / 组内</span><span class="v">parallel-binsearch</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">分治处理点对问题：三维偏序/DP优化/动态转静态；陈丹琦(IOI2008)提出</div><p>CDQ分治是一种基于分治思想的算法框架，用于解决点对统计问题(如三维偏序)、优化1D/1D DP转移、以及将动态问题转化为静态问题。核心是：将点对(i,j)分为左半内部、右半内部、跨左右三类，递归处理前两类，额外处理跨类。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>统计满足条件的点对(i,j)时，暴力 O(n^2)。分治思路：按中点 mid 将序列分左右两半，点对被分为三类：全在左、全在右、跨左右。前两类递归解决，只需额外处理跨左右的部分——此时 i 恒在左、j 恒在右，一个维度(i&lt;j)自动满足，问题降维。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>solve(l,r) 处理 [l,r] 内所有点对：①取 mid=(l+r)/2 ②递归 solve(l,mid) 和 solve(mid+1,r) ③处理跨区间点对(l&lt;=i&lt;=mid, mid+1&lt;=j&lt;=r)。第三步因 i&lt;j 已保证，降维后排序+双指针+树状数组解决。三维偏序：先按 a 排序(保证 a 维)，CDQ 分治保证 b 维(左&lt;右)，树状数组处理 c 维。复杂度 T(n)=2T(n/2)+O(n log n)=O(n log^2 n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>CDQ 分治由 IOI2008 金牌得主陈丹琦在高中时整理总结，因此得名。原始论文《CDQ分治》系统阐述了这一思想在三维偏序、DP优化、动态转静态三个方向的应用。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 三维偏序: 统计 a_i&lt;=a_j, b_i&lt;=b_j, c_i&lt;=c_j 且 i!=j 的点对数</span>
+<span class="t-f">solve</span>(l, r):
+  <span class="t-k">if</span> l == r: <span class="t-k">return</span>
+  mid = (l + r) / <span class="t-n">2</span>
+  <span class="t-f">solve</span>(l, mid)
+  <span class="t-f">solve</span>(mid + <span class="t-n">1</span>, r)
+  <span class="t-c"># 处理跨区间: 左半 i, 右半 j</span>
+  <span class="t-c"># 已按 a 排序 =&gt; 左半 a &lt;= 右半 a (同 a 时左在前)</span>
+  <span class="t-c"># 按 b 排序左右半, 双指针 + 树状数组查 c</span>
+  merge left[l..mid] <span class="t-k">and</span> right[mid+<span class="t-n">1.</span>.r] by b
+  j = l
+  <span class="t-k">for</span> i <span class="t-k">in</span> left:
+    <span class="t-k">while</span> j &lt;= r <span class="t-k">and</span> right[j].b &lt;= left[i].b:
+      bit.<span class="t-f">add</span>(right[j].c, <span class="t-n">1</span>); j++
+    ans += bit.<span class="t-f">query</span>(left[i].c)
+  <span class="t-c"># 清空树状数组</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">1</span> &lt;&lt; <span class="t-n">20</span>)
+
+
+<span class="t-k">class</span> BIT:
+    <span class="t-s">&quot;&quot;&quot;树状数组(单点修改+前缀查询)。&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, n):
+        self.n = n
+        self.tree = [<span class="t-n">0</span>] * (n + <span class="t-n">2</span>)
+
+    <span class="t-k">def</span> <span class="t-f">add</span>(self, i, v):
+        <span class="t-k">while</span> i &lt;= self.n:
+            self.tree[i] += v
+            i += i &amp; (-i)
+
+    <span class="t-k">def</span> <span class="t-f">query</span>(self, i):
+        s = <span class="t-n">0</span>
+        <span class="t-k">while</span> i &gt; <span class="t-n">0</span>:
+            s += self.tree[i]
+            i -= i &amp; (-i)
+        <span class="t-k">return</span> s
+
+
+<span class="t-k">def</span> <span class="t-f">cdq_3d_partial_order</span>(points):
+    <span class="t-s">&quot;&quot;&quot;三维偏序: 统计点对(i,j)满足 a_i&lt;=a_j, b_i&lt;=b_j, c_i&lt;=c_j 且 i&lt;j。
+    points: [(a, b, c), ...]
+    返回每个点作为 j 的合法 i 个数(含等号)。
+    &quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(points)
+    <span class="t-k">if</span> n == <span class="t-n">0</span>:
+        <span class="t-k">return</span> []
+    <span class="t-c"># 离散化 c 值</span>
+    c_vals = <span class="t-b">sorted</span>(<span class="t-b">set</span>(p[<span class="t-n">2</span>] <span class="t-k">for</span> p <span class="t-k">in</span> points))
+    c_map = {v: i + <span class="t-n">1</span> <span class="t-k">for</span> i, v <span class="t-k">in</span> <span class="t-b">enumerate</span>(c_vals)}
+    m = <span class="t-b">len</span>(c_vals)
+
+    <span class="t-c"># 按 a 排序(a 相同时按原始位置保证 i&lt;j)</span>
+    arr = [(points[i][<span class="t-n">0</span>], points[i][<span class="t-n">1</span>], points[i][<span class="t-n">2</span>], i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    arr.<span class="t-f">sort</span>(key=<span class="t-k">lambda</span> x: (x[<span class="t-n">0</span>], x[<span class="t-n">3</span>]))
+
+    ans = [<span class="t-n">0</span>] * n
+    bit = <span class="t-f">BIT</span>(m)
+    <span class="t-c"># 临时数组用于归并排序(按 b)</span>
+    tmp = [<span class="t-k">None</span>] * n
+
+    <span class="t-k">def</span> <span class="t-f">cdq</span>(l, r):
+        <span class="t-k">if</span> l == r:
+            <span class="t-k">return</span>
+        mid = (l + r) // <span class="t-n">2</span>
+        <span class="t-f">cdq</span>(l, mid)
+        <span class="t-f">cdq</span>(mid + <span class="t-n">1</span>, r)
+        <span class="t-c"># 处理跨区间: arr[l..mid] 为左, arr[mid+1..r] 为右</span>
+        <span class="t-c"># 按 b 排序: 归并(左半和右半内部已按 b 排好序)</span>
+        i, j, k = l, mid + <span class="t-n">1</span>, l
+        <span class="t-k">while</span> i &lt;= mid <span class="t-k">and</span> j &lt;= r:
+            <span class="t-k">if</span> arr[i][<span class="t-n">1</span>] &lt;= arr[j][<span class="t-n">1</span>]:
+                tmp[k] = arr[i]
+                k += <span class="t-n">1</span>
+                i += <span class="t-n">1</span>
+            <span class="t-k">else</span>:
+                tmp[k] = arr[j]
+                k += <span class="t-n">1</span>
+                j += <span class="t-n">1</span>
+        <span class="t-k">while</span> i &lt;= mid:
+            tmp[k] = arr[i]
+            k += <span class="t-n">1</span>
+            i += <span class="t-n">1</span>
+        <span class="t-k">while</span> j &lt;= r:
+            tmp[k] = arr[j]
+            k += <span class="t-n">1</span>
+            j += <span class="t-n">1</span>
+        <span class="t-c"># tmp[l..r] 现在按 b 排序</span>
+        <span class="t-c"># 双指针+树状数组: 左半元素入树状数组, 右半元素查询</span>
+        <span class="t-c"># 重新分离左右(按 b 排序后的顺序)</span>
+        left_items = [tmp[x] <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(l, r + <span class="t-n">1</span>) <span class="t-k">if</span> tmp[x][<span class="t-n">3</span>] &lt; arr[mid][<span class="t-n">3</span>] <span class="t-k">or</span> (tmp[x][<span class="t-n">3</span>] &lt;= mid)]
+        <span class="t-c"># 简化: 直接用 tmp 数组, 用原始位置区分左右</span>
+        <span class="t-c"># 原始位置 &lt;= mid 的为左半(已排序后), &gt; mid 的为右半</span>
+        <span class="t-c"># 但 arr 已按 a 排序, 排序后位置和原始位置不一定对应</span>
+        <span class="t-c"># 需用原始 idx 判断: arr[l..mid] 的原始位置</span>
+        left_set = <span class="t-b">set</span>(arr[x][<span class="t-n">3</span>] <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(l, mid + <span class="t-n">1</span>))
+
+        <span class="t-c"># 按 b 排序后的顺序处理</span>
+        added = []
+        <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(l, r + <span class="t-n">1</span>):
+            item = tmp[x]
+            <span class="t-k">if</span> item[<span class="t-n">3</span>] <span class="t-k">in</span> left_set:
+                <span class="t-c"># 左半元素: 加入树状数组</span>
+                bit.<span class="t-f">add</span>(c_map[item[<span class="t-n">2</span>]], <span class="t-n">1</span>)
+                added.<span class="t-f">append</span>(item)
+            <span class="t-k">else</span>:
+                <span class="t-c"># 右半元素: 查询</span>
+                ans[item[<span class="t-n">3</span>]] += bit.<span class="t-f">query</span>(c_map[item[<span class="t-n">2</span>]])
+        <span class="t-c"># 清空树状数组</span>
+        <span class="t-k">for</span> item <span class="t-k">in</span> added:
+            bit.<span class="t-f">add</span>(c_map[item[<span class="t-n">2</span>]], -<span class="t-n">1</span>)
+        <span class="t-c"># 写回 arr (保持按 b 排序)</span>
+        <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(l, r + <span class="t-n">1</span>):
+            arr[x] = tmp[x]
+
+    <span class="t-f">cdq</span>(<span class="t-n">0</span>, n - <span class="t-n">1</span>)
+    <span class="t-k">return</span> ans
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 测试三维偏序</span>
+    points = [(<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">2</span>, <span class="t-n">2</span>, <span class="t-n">2</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">3</span>, <span class="t-n">3</span>, <span class="t-n">3</span>)]
+    result = <span class="t-f">cdq_3d_partial_order</span>(points)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;3D partial order counts: {result}&#x27;</span>)
+    <span class="t-c"># 验证: 暴力</span>
+    n = <span class="t-b">len</span>(points)
+    brute = [<span class="t-n">0</span>] * n
+    <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> i != j:
+                <span class="t-k">if</span> (points[i][<span class="t-n">0</span>] &lt;= points[j][<span class="t-n">0</span>] <span class="t-k">and</span>
+                    points[i][<span class="t-n">1</span>] &lt;= points[j][<span class="t-n">1</span>] <span class="t-k">and</span>
+                        points[i][<span class="t-n">2</span>] &lt;= points[j][<span class="t-n">2</span>]):
+                    brute[j] += <span class="t-n">1</span>
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Brute force counts:      {brute}&#x27;</span>)
+    <span class="t-k">assert</span> result == brute, <span class="t-s">f&#x27;Mismatch: {result} vs {brute}&#x27;</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;CDQ 3D partial order: test passed!&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 对递归+排序+树状数组组合性能尚可；但 CDQ 分治层数多、常数大，N&gt;1e5 时 Python 可能 TLE；建议 C++ 实现。Python 用于理解算法和验证小规模数据。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(N log^2 N) — 每层排序 O(N log N) 或归并 O(N log N), 共 log N 层</td></tr><tr><th>空间复杂度</th><td>O(N) — 递归栈+树状数组+临时数组</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">常数较大(Python 尤甚)；需要问题可降维(至少一个维度可由分治结构保证)；DP优化版需转移有序(中序遍历线段树性质)；动态转静态需操作可分治。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>a 相同时排序不稳定导致 i&lt;j 不满足: 需用原始位置做 tiebreaker</li><li>树状数组用完不清空 → 跨层污染: 必须在每层结束后逆序清除</li><li>DP优化版中转移顺序必须夹在 solve(l,mid) 和 solve(mid+1,r) 之间, 否则转移不完整</li><li>归并合并时顺序错误导致后续层 a 单调性被破坏</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3810</strong></td><td>4</td><td>三维偏序(mo): CDQ 分治模板题, a 排序+CDQ(b)+树状数组(c)</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3810" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3810</a></td></tr><tr><td>Luogu</td><td><strong>P3157</strong></td><td>5</td><td>动态逆序对: CDQ 分治处理时间+位置+值三维</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3157" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3157</a></td></tr><tr><td>Luogu</td><td><strong>P2487</strong></td><td>5</td><td>SDOI2011 拦截导弹: CDQ 优化二维 LIS DP</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2487" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2487</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-cdq-divide" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "sort_a", "label": "预处理: 按 a 排序"}}, {"data": {"id": "divide", "label": "分治: 取 mid, 分左右"}}, {"data": {"id": "recur_left", "label": "递归处理左半"}}, {"data": {"id": "recur_right", "label": "递归处理右半"}}, {"data": {"id": "cross", "label": "处理跨区间(双指针+树状数组)"}}, {"data": {"id": "merge", "label": "合并(保持 a 有序)"}}, {"data": {"id": "esort_a->divide", "source": "sort_a", "target": "divide"}}, {"data": {"id": "edivide->recur_left", "source": "divide", "target": "recur_left"}}, {"data": {"id": "erecur_left->cross", "source": "recur_left", "target": "cross"}}, {"data": {"id": "ecross->recur_right", "source": "cross", "target": "recur_right"}}, {"data": {"id": "erecur_right->merge", "source": "recur_right", "target": "merge"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-cdq-divide'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="offline.html" title="CDQ分治是离线分治框架">离线算法思想<span class="etype">前置依赖</span></a><a class="chip e-cooccurrence" href="discrete.html" title="CDQ三维偏序常需离散化压缩值域">离散化<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/cdq-divide/" target="_blank" rel="noopener">https://oi-wiki.org/misc/cdq-divide/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html" target="_blank" rel="noopener">https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

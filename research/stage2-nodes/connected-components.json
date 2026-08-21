@@ -1,0 +1,127 @@
+{
+  "id": "connected-components",
+  "name": "连通分量",
+  "group": "G-B-1",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "无向图连通块，BFS/DFS遍历标记O(V+E)",
+  "what": "连通分量是指无向图中极大连通子图。两个节点连通当且仅当它们之间存在路径。求连通分量只需遍历所有未访问节点，从每个未访问节点出发进行DFS/BFS即可标记一个连通分量。有向图需区分强连通分量（SCC）和弱连通分量。连通性还涉及点连通度（最小点割集大小）和边连通度（最小边割集大小），Whitney不等式κ≤λ≤δ。",
+  "why": {
+    "intuition": "社交网络中的朋友圈：互相认识的人形成连通块，不同朋友圈之间没有认识关系。求连通分量就是把人分成独立的朋友圈。",
+    "principle": "对每个未访问节点i，从i出发DFS/BFS遍历所有可达节点并标记，即可找到一个连通分量。遍历所有节点后，遍历次数=连通分量数。用邻接表存储，时间O(V+E)。",
+    "history": "连通分量是图论基本概念。Whitney不等式（1932）给出点连通度κ、边连通度λ和最小度δ的关系：κ≤λ≤δ。Menger定理将连通性与路径数量关联。"
+  },
+  "how": {
+    "pseudocode": "comps = 0\nfor i in 1..n:\n  if not visited[i]:\n    comps += 1\n    DFS(i)  # or BFS(i)\nreturn comps",
+    "python": "import sys\nsys.setrecursionlimit(1000000)\n\ndef connected_components(n, edges):\n    \"\"\"Count connected components in undirected graph using iterative DFS.\"\"\"\n    adj = [[] for _ in range(n)]\n    for u, v in edges:\n        adj[u].append(v)\n        adj[v].append(u)\n    visited = [False] * n\n    comps = 0\n    for i in range(n):\n        if not visited[i]:\n            comps += 1\n            stack = [i]\n            visited[i] = True\n            while stack:\n                u = stack.pop()\n                for v in adj[u]:\n                    if not visited[v]:\n                        visited[v] = True\n                        stack.append(v)\n    return comps\n\ndef get_components(n, edges):\n    \"\"\"Return list of components (each is a list of node indices).\"\"\"\n    adj = [[] for _ in range(n)]\n    for u, v in edges:\n        adj[u].append(v)\n        adj[v].append(u)\n    visited = [False] * n\n    components = []\n    for i in range(n):\n        if not visited[i]:\n            comp = []\n            stack = [i]\n            visited[i] = True\n            while stack:\n                u = stack.pop()\n                comp.append(u)\n                for v in adj[u]:\n                    if not visited[v]:\n                        visited[v] = True\n                        stack.append(v)\n            components.append(comp)\n    return components\n\nif __name__ == \"__main__\":\n    assert connected_components(5, [(0, 1), (1, 2), (3, 4)]) == 2\n    assert connected_components(3, [(0, 1), (1, 2), (2, 0)]) == 1\n    assert connected_components(4, []) == 4\n    comps = get_components(5, [(0, 1), (1, 2), (3, 4)])\n    assert len(comps) == 2\n    assert sorted(comps[0]) == [0, 1, 2]\n    assert sorted(comps[1]) == [3, 4]\n    print(\"connected-components: ALL TESTS PASSED\")\n",
+    "pypy_notes": "迭代DFS避免递归深度问题。大规模图用邻接表（list of lists）比dict快。",
+    "complexity": {
+      "time": "O(V+E)",
+      "space": "O(V+E)"
+    },
+    "limitations": "仅适用于无向图。有向图的强连通分量需Tarjan/Kosaraju算法。加权图需考虑边权。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "200",
+      "url": "https://leetcode.cn/problems/number-of-islands/",
+      "difficulty": 4,
+      "key_point": "网格图求连通分量数"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "547",
+      "url": "https://leetcode.cn/problems/number-of-provinces/",
+      "difficulty": 3,
+      "key_point": "无向图连通分量数"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3916",
+      "url": "https://www.luogu.com.cn/problem/P3916",
+      "difficulty": 4,
+      "key_point": "反向 DFS 求每个点能到达的最大编号"
+    }
+  ],
+  "pitfalls": [
+    "无向图建图时每条边需双向加（adj[u].append(v)且adj[v].append(u)）",
+    "DFS递归深度问题，建议用迭代栈",
+    "孤立节点也是一个连通分量",
+    "有向图的弱连通分量需将边视为无向"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "c1",
+        "label": "遍历所有节点i"
+      },
+      {
+        "id": "c2",
+        "label": "i未访问？"
+      },
+      {
+        "id": "c3",
+        "label": "连通分量数+1"
+      },
+      {
+        "id": "c4",
+        "label": "从i出发DFS/BFS标记所有可达节点"
+      },
+      {
+        "id": "c5",
+        "label": "所有节点遍历完？返回分量数"
+      }
+    ],
+    "edges": [
+      {
+        "from": "c1",
+        "to": "c2",
+        "type": "next"
+      },
+      {
+        "from": "c2",
+        "to": "c3",
+        "type": "yes"
+      },
+      {
+        "from": "c2",
+        "to": "c5",
+        "type": "no"
+      },
+      {
+        "from": "c3",
+        "to": "c4",
+        "type": "next"
+      },
+      {
+        "from": "c4",
+        "to": "c1",
+        "type": "done"
+      },
+      {
+        "from": "c1",
+        "to": "c5",
+        "type": "alldone"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/connectivity/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/graph/search-for-connected-components.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch16 pp159-166"
+    }
+  ]
+}

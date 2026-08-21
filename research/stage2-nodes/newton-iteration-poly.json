@@ -1,0 +1,109 @@
+{
+  "id": "newton-iteration-poly",
+  "name": "多项式牛顿迭代",
+  "group": "G-C-12",
+  "stage": "frontier",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "O(n log n)求多项式开根/对数/指数/逆，基于牛顿法推广到形式幂级数",
+  "what": "多项式牛顿迭代：求形式幂级数 f(x) 满足 G(x,f(x))≡0 (mod x^n)（如求逆、开方、指数、对数、exp、三角函数等）。由泰勒展开，若 f_n 是模 x^n 的解，则 f_{2n} = f_n - G(x,f_n)/G_y(x,f_n) (mod x^{2n})，其中 G_y 是 G 对 y 的偏导。因此每次把精度翻倍，T(n)=T(n/2)+O(M(n))=O(M(n) log n)=O(n log n)（NTT）。具体：求逆 f_{2n}=2f_n - f_n²·h；开方 f_{2n}=(f_n + h/f_n)/2；ln(f)=∫f'/f；exp 用 f·(1-ln f+a)。这套机制支撑整个多项式全家桶的 O(n log n) 实现。",
+  "why": {
+    "intuition": "解一个模 x^{2n} 的方程，先用较小的解 f_n（对 x^n 成立），把 G 在 f_n 处泰勒展开，因为修正项 h=f-f_n 的最低次>=n，h² 在模 x^{2n} 下消失，方程变成线性的，直接解出 h。每轮长度翻倍。",
+    "principle": "G(f_n+h)≡G(f_n)+G_y(f_n)·h (mod x^{2n})。令其为 0 得 h=-G(f_n)/G_y(f_n)，即迭代公式。这是分析学牛顿法的形式幂级数推广。求逆时 G(x,y)=1/y-h(x)，得 f_{2n}=2f_n-f_n²h。开方 G=y²-h(x)，得 f_{2n}=(f_n+h/f_n)/2。exp 由 g=ln f-a 的根给出。底子都需要 NTT 卷积。",
+    "history": "形式幂级数的牛顿迭代源自 1970s 计算代数（Sieveking, Kung 等），是现代多项式算法的核心框架，Modern Computer Algebra 有系统论述。OI 中 2010s 由多项式全家桶（求逆/ln/exp/开方）带入，OI Wiki 的 poly/newton 页面给出完整推导与各应用。"
+  },
+  "how": {
+    "pseudocode": "# 通用迭代\nf = 初始解(mod x^1, 如 sqrt 需要二次剩余解)\nm = 1\nwhile m < n:\n    m2 = min(2m, n)\n    f = f - G(x,f) / G_y(x,f)   (mod x^{m2})\n    m = m2\n# 具体: 求逆 f_{2n}=2f-f²h; 开方 f_{2n}=(f+h/f)/2; exp f·(1-ln f+a)",
+    "python": "MOD = 998244353\nROOT = 3\n\n\ndef mod_pow(a, b, mod=MOD):\n    r = 1\n    while b:\n        if b & 1:\n            r = r * a % mod\n        a = a * a % mod\n        b >>= 1\n    return r\n\n\ndef ntt(a, invert=False):\n    n = len(a)\n    a = a[:]\n    j = 0\n    for i in range(1, n):\n        bit = n >> 1\n        while j & bit:\n            j ^= bit\n            bit >>= 1\n        j ^= bit\n        if i < j:\n            a[i], a[j] = a[j], a[i]\n    h = 2\n    while h <= n:\n        w_h = mod_pow(ROOT, (MOD - 1) // h)\n        if invert:\n            w_h = mod_pow(w_h, MOD - 2)\n        for i in range(0, n, h):\n            w = 1\n            for j in range(i, i + h // 2):\n                u = a[j]\n                v = a[j + h // 2] * w % MOD\n                a[j] = (u + v) % MOD\n                a[j + h // 2] = (u - v) % MOD\n                w = w * w_h % MOD\n        h <<= 1\n    if invert:\n        inv_n = mod_pow(n, MOD - 2)\n        for i in range(n):\n            a[i] = a[i] * inv_n % MOD\n    return a\n\n\ndef poly_mul(a, b):\n    if not a or not b:\n        return []\n    need = len(a) + len(b) - 1\n    n = 1\n    while n < need:\n        n <<= 1\n    fa = a[:] + [0] * (n - len(a))\n    fb = b[:] + [0] * (n - len(b))\n    fa = ntt(fa)\n    fb = ntt(fb)\n    for i in range(n):\n        fa[i] = fa[i] * fb[i] % MOD\n    fa = ntt(fa, True)\n    return fa[:need]\n\n\ndef poly_inv(a, n):\n    res = [pow(a[0], MOD - 2, MOD)]\n    m = 1\n    while m < n:\n        m2 = min(m * 2, n)\n        t = poly_mul(a[:m2], res)\n        t = t[:m2]\n        t[0] = (2 - t[0]) % MOD\n        for i in range(1, len(t)):\n            t[i] = (-t[i]) % MOD\n        res = poly_mul(res, t)[:m2]\n        m = m2\n    return res\n\n\ndef newton_sqrt(a, n):\n    \"\"\"牛顿迭代开方: 求 f(x) = x^2 - h(x) = 0 的解, h(x)=a.\n    需要二次剩余解 f_1 = sqrt(a[0]). 简化: 仅支持 a[0]=1(平方为 1).\"\"\"\n    assert a[0] == 1, \"教学版仅演示 a[0]=1 的开方\"\n    res = [1]\n    m = 1\n    while m < n:\n        m2 = min(m * 2, n)\n        # f_next = f - (f^2 - a)/(2f) = (f + a/f)/2\n        a_ = a[:m2]\n        invf = poly_inv(res, m2)\n        t = poly_mul(invf, a_)[:m2]\n        new = [0] * m2\n        for i in range(m2):\n            new[i] = ((res[i] if i < len(res) else 0) + t[i]) % MOD\n        inv2 = (MOD + 1) // 2\n        res = [x * inv2 % MOD for x in new]\n        m = m2\n    return res\n\n\ndef poly_log(a, n):\n    \"\"\"多项式对数 ln(f) = integral(f'/f) mod x^n. f[0]=1.\"\"\"\n    assert a[0] == 1\n    f = a[:n]\n    df = [(i * f[i]) % MOD for i in range(1, len(f))]\n    invf = poly_inv(f, n)\n    q = poly_mul(df, invf)[:n - 1]\n    inv = [0] * n\n    inv[1] = 1\n    for i in range(2, n):\n        inv[i] = (MOD - MOD // i) * inv[MOD % i] % MOD\n    res = [0]\n    for i in range(len(q)):\n        res.append(q[i] * inv[i + 1] % MOD)\n    return res[:n]\n\n\ndef poly_exp(a, n):\n    \"\"\"牛顿迭代指数: exp(a), a[0]=0. 迭代 f = f*(1 - ln f + a).\"\"\"\n    assert a[0] == 0\n    res = [1]\n    m = 1\n    while m < n:\n        m2 = min(m * 2, n)\n        lnf = poly_log(res, m2)\n        t = [0] * m2\n        for i in range(m2):\n            t[i] = ((a[i] if i < len(a) else 0) - (lnf[i] if i < len(lnf) else 0)) % MOD\n        t[0] = (t[0] + 1) % MOD\n        res = poly_mul(res, t)[:m2]\n        m = m2\n    return res\n\n\ndef poly_log_naive(a, n):\n    \"\"\"朴素 ln 验证。\"\"\"\n    f = a[:n]\n    # 逐项递推: ln f 系数 g: n*g_n = f_n - sum_{k=1}^{n-1} k*g_k*f_{n-k} (g0=0)\n    g = [0] * n\n    for i in range(1, n):\n        s = 0\n        for k in range(1, i):\n            s = (s + k * g[k] * f[i - k]) % MOD\n        g[i] = (f[i] - s) * pow(i, MOD - 2, MOD) % MOD\n    return g\n\n\ndef exp_naive_pow(a, n):\n    \"\"\"exp(a) = sum a^k/k! 朴素验证。\"\"\"\n    res = [0] * n\n    res[0] = 1\n    cur = [1]\n    fact = [1] * (n + 1)\n    for i in range(1, n + 1):\n        fact[i] = fact[i - 1] * i % MOD\n    for k in range(0, n):\n        if k == 0:\n            cur = [1]\n        else:\n            cur = poly_mul(cur, a[:n])[:n]\n        invk = pow(fact[k], MOD - 2, MOD)\n        for i in range(n):\n            res[i] = (res[i] + cur[i] * invk) % MOD\n        if k >= n:\n            break\n    return res\n\n\nif __name__ == \"__main__\":\n    import random\n    # 牛顿开方: sqrt(1+x) 的系数\n    a = [1, 1, 0, 0, 0, 0, 0, 0]\n    sq = newton_sqrt(a, 8)\n    # 检查 sq^2 = a mod x^8\n    sq2 = poly_mul(sq, sq)[:8]\n    assert sq2 == [1, 1, 0, 0, 0, 0, 0, 0], sq2\n    # ln: ln(1+x)\n    ln = poly_log([1, 1, 0, 0, 0, 0, 0, 0], 8)\n    ln_naive = poly_log_naive([1, 1, 0, 0, 0, 0, 0, 0], 8)\n    assert ln == ln_naive, (ln, ln_naive)\n    # ln(1+x) = x - x^2/2 + x^3/3 - ...\n    assert ln[0] == 0 and ln[1] == 1\n    assert ln[2] == (MOD - 1) * pow(2, MOD - 2, MOD) % MOD\n    assert ln[3] == pow(3, MOD - 2, MOD) % MOD\n    # exp: exp(x) = 1 + x + x^2/2 + ...\n    e = poly_exp([0, 1, 0, 0, 0, 0, 0, 0], 8)\n    # e = sum x^k/k!\n    expected = [0] * 8\n    fact = [1] * 8\n    for i in range(1, 8):\n        fact[i] = fact[i - 1] * i % MOD\n    for k in range(8):\n        expected[k] = pow(fact[k], MOD - 2, MOD)\n    assert e == expected, (e, expected)\n    print(\"newton-iteration-poly tests passed\")\n",
+    "pypy_notes": "Python 需 NTT 卷积+每轮多次 conv, 常数大; 1e5 级逼近极限。教学版演示求逆/开方/ln/exp 小规模正确性。",
+    "complexity": {
+      "time": "O(n log n)(每轮 O(M(n)) 倍增)",
+      "space": "O(n)"
+    },
+    "limitations": "初始解的存在性(开方要求 f[0] 有二次剩余, ln/exp 要求 f[0]=1/0); 每步需除法/求逆子程序, 实现链条长; 纯 Python 大规模不现实; 模数需 NTT 友好, 否则退化为 O(n²)。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4238",
+      "url": "https://www.luogu.com.cn/problem/P4238",
+      "difficulty": 4,
+      "key_point": "多项式求逆: 牛顿迭代最基础应用"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P5205",
+      "url": "https://www.luogu.com.cn/problem/P5205",
+      "difficulty": 5,
+      "key_point": "多项式开根: 牛顿迭代+二次剩余"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4726",
+      "url": "https://www.luogu.com.cn/problem/P4726",
+      "difficulty": 5,
+      "key_point": "多项式 exp: 基于 ln 的牛顿迭代经典题"
+    }
+  ],
+  "pitfalls": [
+    "开方初始常数需是二次剩余, 否则无解直接错",
+    "迭代时 mod x^{m2} 截断错误(乘法结果要取前 m2 项)",
+    "求逆每轮 f_n 必须从 mod x^m 开始倍增, 不能重头算",
+    "G 的偏导 G_y 忘记(公式里漏除)",
+    "exp 迭代依赖 ln 子程序, 递归正确性依赖链"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "initial",
+        "label": "求模 x^1 的初始解(注意开方二次剩余)"
+      },
+      {
+        "id": "doubling",
+        "label": "长度倍增循环 m->2m"
+      },
+      {
+        "id": "update",
+        "label": "套用迭代公式 f - G/G_y"
+      },
+      {
+        "id": "subroutine",
+        "label": "准备 NTT 乘法/求逆等子程序"
+      },
+      {
+        "id": "verify",
+        "label": "验证 G(x,f)=0 mod x^n"
+      }
+    ],
+    "edges": [
+      {
+        "from": "initial",
+        "to": "doubling"
+      },
+      {
+        "from": "doubling",
+        "to": "update"
+      },
+      {
+        "from": "subroutine",
+        "to": "update"
+      },
+      {
+        "from": "update",
+        "to": "verify"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/poly/newton/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/newton.md",
+      "verified": true
+    }
+  ]
+}

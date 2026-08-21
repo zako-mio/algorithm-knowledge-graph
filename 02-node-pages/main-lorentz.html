@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Main-Lorentz（重串查找） · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-6.html">Lyndon与周期族</a> / <span>Main-Lorentz（重串查找）</span></div>
+  <h1>Main-Lorentz（重串查找）</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-C-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="lyndon-factorization.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">lyndon-factorization</span></a>
+    <a class="nav-index" href="../03-groups/G-C-6.html"><span class="dir">组内第 2 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="minimal-string.html"><span class="dir">下一个 / 组内</span><span class="v">minimal-string</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">分治 + Z 函数找出字符串所有平方串（重串）的压缩表示，O(n log n)，用于周期结构统计</div><p>重串（repetition/tandem repeat）：形如 xx（两个相同串相连）的子串，用一对下标 (i,j) 表示 s[i..j]=两个相同字符串。问题：找出 s 的所有重串（或最长/任意一个）。重串总数可达 O(n²)（如全 &#x27;a&#x27; 串），但可用 Crochemore 三元组 (i,p,r) 压缩表示（i 起点，p 循环节长度，r 循环次数）或本原重串（原串本身不是重串）表达，数量 O(n log n)。Main–Lorentz 算法（1982）核心是分治：把串分为左右两半 u、v，递归处理左右两半内的重串，再计算跨越中点的&#x27;交叉重串&#x27;。找交叉重串：固定中间字符位置 cntr（左偏/右偏），用 Z 函数 O(1) 求 k1（向左匹配长度）、k2（向右匹配长度），满足 l1≤k1, l2≤k2 的 (l1,l2) 组合对应恰好一个重串，用四元组 (cntr,l,k1,k2) 输出。复杂度由主定理 O(n log n)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>分治时，跨中点的重串中点恰好落在分割线上：若重串是 xx，其&#x27;中间&#x27;（x 与 x 的交界）附近必跨过中点。对固定 cntr（重串右半首字符在左半/右半的位置），左半向左延伸与右半向右延伸的匹配长度 k1、k2 决定所有可能的重串长度组合。Z 函数能 O(1) 给出某个边界内最长的匹配长度。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>设 s=u+v，|u|≈|v|。对左偏重串：重串中点字符（右半第一个字符）在 u 中，固定 cntr∈[0,|u|)，重串长 2l=2(|u|−cntr)。计算 k1=max k 使 u[cntr−k..cntr−1]=u[|u|−k..|u|−1]（用 reversed(u) 的 Z），k2=max k 使 u[cntr..cntr+k−1]=v[0..k−1]（用 v+&#x27;#&#x27;+u 的 Z）。则满足 l1≤k1、l2≤k2、l1+l2=l 的每对 (l1,l2) 给出一个重串。右偏重串对称处理。所有 (cntr,l,k1,k2) 组合即压缩表示；若需展开全部 (i,j) 则可能 O(n²)（算法本身给出压缩形式）。复杂度 T(n)=2T(n/2)+O(n)=O(n log n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Main–Lorentz 算法由 Michael Main 与 Richard J. Lorentz 于 1982 年发表（查找所有重串），是字符串周期/重复结构研究（repetitions，Kolpakov–Kucherov 证明本原重串数 O(n log n)）的算法竞赛化版本。OI Wiki 与 CP-Algorithms 均有&#x27;Finding repetitions&#x27;专页（源自 e-maxx 俄文翻译）。Fibonacci 串可达到 O(n log n) 个三元组的下界。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># Main-Lorentz 分治</span>
+<span class="t-f">find_repetitions</span>(s, shift):
+    <span class="t-k">if</span> |s|==<span class="t-n">1</span>: <span class="t-k">return</span>
+    nu = |s|//<span class="t-n">2</span>; nv = |s|-nu
+    u = s[:nu]; v = s[nu:]
+    <span class="t-f">find_repetitions</span>(u, shift)
+    <span class="t-f">find_repetitions</span>(v, shift+nu)
+    z1 = <span class="t-f">z</span>(<span class="t-b">reversed</span>(u)); z2 = <span class="t-f">z</span>(v+<span class="t-s">&#x27;#&#x27;</span>+u)
+    z3 = <span class="t-f">z</span>(<span class="t-b">reversed</span>(u)+<span class="t-s">&#x27;#&#x27;</span>+<span class="t-b">reversed</span>(v)); z4 = <span class="t-f">z</span>(v)
+    <span class="t-k">for</span> cntr <span class="t-k">in</span> <span class="t-n">0.</span>.|s|-<span class="t-n">1</span>:
+        <span class="t-k">if</span> cntr &lt; nu:  <span class="t-c"># 左偏</span>
+            l = nu - cntr; k1 = z1[nu-cntr]; k2 = z2[nv+<span class="t-n">1</span>+cntr]
+        <span class="t-k">else</span>:          <span class="t-c"># 右偏</span>
+            l = cntr-nu+<span class="t-n">1</span>; k1 = z3[nu+<span class="t-n">1</span>+nv-<span class="t-n">1</span>-(cntr-nu)]; k2 = z4[(cntr-nu)+<span class="t-n">1</span>]
+        <span class="t-k">if</span> k1+k2 &gt;= l:
+            <span class="t-k">for</span> l1 <span class="t-k">in</span> <span class="t-b">max</span>(<span class="t-n">1</span>,l-k2)..<span class="t-b">min</span>(l,k1):
+                (若左偏且 l1==l: <span class="t-k">break</span>)
+                l2 = l-l1
+                pos = shift + (左偏? cntr-l1 : cntr-l-l1+<span class="t-n">1</span>)
+                记录重串 (pos, pos+<span class="t-n">2</span>l-<span class="t-n">1</span>)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+<span class="t-c"># Main-Lorentz：O(n log n) 求所有重串的压缩四元组，并展开为 (起点,终点)</span>
+
+<span class="t-k">def</span> <span class="t-f">z_function</span>(s):
+    n = <span class="t-b">len</span>(s)
+    z = [<span class="t-n">0</span>] * n
+    l = r = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n):
+        <span class="t-k">if</span> i &lt;= r:
+            z[i] = <span class="t-b">min</span>(r - i + <span class="t-n">1</span>, z[i - l])
+        <span class="t-k">while</span> i + z[i] &lt; n <span class="t-k">and</span> s[z[i]] == s[i + z[i]]:
+            z[i] += <span class="t-n">1</span>
+        <span class="t-k">if</span> i + z[i] - <span class="t-n">1</span> &gt; r:
+            l, r = i, i + z[i] - <span class="t-n">1</span>
+    <span class="t-k">return</span> z
+
+
+<span class="t-k">def</span> <span class="t-f">get_z</span>(z, i):
+    <span class="t-k">return</span> z[i] <span class="t-k">if</span> <span class="t-n">0</span> &lt;= i &lt; <span class="t-b">len</span>(z) <span class="t-k">else</span> <span class="t-n">0</span>
+
+
+<span class="t-k">def</span> <span class="t-f">find_repetitions</span>(s, shift=<span class="t-n">0</span>, out=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;把所有重串 (start, end) 加入 out（压缩表示：对每个 cntr 枚举 l1）。&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> out <span class="t-k">is</span> <span class="t-k">None</span>:
+        out = []
+    n = <span class="t-b">len</span>(s)
+    <span class="t-k">if</span> n == <span class="t-n">1</span>:
+        <span class="t-k">return</span> out
+    nu = n // <span class="t-n">2</span>
+    nv = n - nu
+    u, v = s[:nu], s[nu:]
+    ru, rv = u[::-<span class="t-n">1</span>], v[::-<span class="t-n">1</span>]
+    <span class="t-f">find_repetitions</span>(u, shift, out)
+    <span class="t-f">find_repetitions</span>(v, shift + nu, out)
+    z1 = <span class="t-f">z_function</span>(ru)
+    z2 = <span class="t-f">z_function</span>(v + <span class="t-s">&#x27;#&#x27;</span> + u)
+    z3 = <span class="t-f">z_function</span>(ru + <span class="t-s">&#x27;#&#x27;</span> + rv)
+    z4 = <span class="t-f">z_function</span>(v)
+    <span class="t-k">for</span> cntr <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">if</span> cntr &lt; nu:
+            l = nu - cntr
+            k1 = <span class="t-f">get_z</span>(z1, nu - cntr)
+            k2 = <span class="t-f">get_z</span>(z2, nv + <span class="t-n">1</span> + cntr)
+        <span class="t-k">else</span>:
+            l = cntr - nu + <span class="t-n">1</span>
+            k1 = <span class="t-f">get_z</span>(z3, nu + <span class="t-n">1</span> + nv - <span class="t-n">1</span> - (cntr - nu))
+            k2 = <span class="t-f">get_z</span>(z4, (cntr - nu) + <span class="t-n">1</span>)
+        <span class="t-k">if</span> k1 + k2 &gt;= l:
+            <span class="t-k">for</span> l1 <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">max</span>(<span class="t-n">1</span>, l - k2), <span class="t-b">min</span>(l, k1) + <span class="t-n">1</span>):
+                <span class="t-k">if</span> cntr &lt; nu <span class="t-k">and</span> l1 == l:
+                    <span class="t-k">break</span>
+                l2 = l - l1
+                pos = shift + (cntr - l1 <span class="t-k">if</span> cntr &lt; nu <span class="t-k">else</span> cntr - l - l1 + <span class="t-n">1</span>)
+                out.<span class="t-f">append</span>((pos, pos + <span class="t-n">2</span> * l - <span class="t-n">1</span>))
+    <span class="t-k">return</span> out
+
+
+<span class="t-k">def</span> <span class="t-f">brute_reps</span>(s):
+    <span class="t-s">&quot;&quot;&quot;暴力：所有偶数长子串 s[i:i+len] = x+x。&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(s)
+    res = <span class="t-b">set</span>()
+    <span class="t-k">for</span> length <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>, <span class="t-n">2</span>):
+        half = length // <span class="t-n">2</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n - length + <span class="t-n">1</span>):
+            <span class="t-k">if</span> s[i:i + half] == s[i + half:i + length]:
+                res.<span class="t-f">add</span>((i, i + length - <span class="t-n">1</span>))
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-k">for</span> s <span class="t-k">in</span> [<span class="t-s">&#x27;acababaee&#x27;</span>, <span class="t-s">&#x27;abaaba&#x27;</span>, <span class="t-s">&#x27;aaaaaa&#x27;</span>, <span class="t-s">&#x27;abcabcabc&#x27;</span>, <span class="t-s">&#x27;abababab&#x27;</span>, <span class="t-s">&#x27;aabbaabb&#x27;</span>]:
+        got = <span class="t-b">set</span>(<span class="t-f">find_repetitions</span>(s))
+        exp = <span class="t-f">brute_reps</span>(s)
+        <span class="t-k">assert</span> got == exp, (s, got, exp)
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">3</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">150</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">22</span>)
+        s = <span class="t-s">&#x27;&#x27;</span>.<span class="t-f">join</span>(random.<span class="t-f">choice</span>(<span class="t-s">&#x27;ab&#x27;</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n))
+        got = <span class="t-b">set</span>(<span class="t-f">find_repetitions</span>(s))
+        exp = <span class="t-f">brute_reps</span>(s)
+        <span class="t-k">assert</span> got == exp, (s, got, exp)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;main-lorentz tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Z 函数 4 次 + 分治递归，Python 实现 O(n log n) 适合中等规模（≤1e5）；大 n 建议 C++。递归深度 log n 无栈问题。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n log n)（主定理）；展开全部 (i,j) 最坏 O(n²)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">算法输出压缩表示（cntr,l,k1,k2），展开全部重串位置会退化到 O(n²)。需预先掌握 Z 函数。仅适用于等长重复（重串），非等周期结构需其他工具。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>Z 函数下标与切片偏移极易错（nu/nv/cntr 组合），务必与暴力对拍</li><li>左偏与右偏的 l、k1、k2 公式不同，不能混用</li><li>l1 枚举边界 max(1,l-k2)..min(l,k1)，左偏时 l1==l 要 break 避免空 l2</li><li>输出位置 pos 要加 shift（分治偏移）</li><li>重串总个数可能 O(n²)，需要压缩表示或只求最长/计数</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Codeforces</td><td><strong>963-D</strong></td><td>6</td><td>Frequency of String：重串/周期结构应用（Main-Lorentz 变体），难度较高</td><td class="u"><a href="https://codeforces.com/problemset/problem/963/D" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/963/D</a></td></tr><tr><td>Luogu</td><td><strong>P5044</strong></td><td>7</td><td>IOI2018 meeting 相关后缀结构题，涉及周期；仅作难度参考</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5044" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5044</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-main-lorentz" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "def", "label": "重串定义与压缩表示（Crochemore 三元组）"}}, {"data": {"id": "zcrucial", "label": "Z 函数：O(1) 求 k1/k2 匹配长度"}}, {"data": {"id": "cross", "label": "交叉重串判定（左偏/右偏，固定 cntr）"}}, {"data": {"id": "divide", "label": "分治框架与复杂度 O(n log n)"}}, {"data": {"id": "apply", "label": "周期结构统计/最长重串应用"}}, {"data": {"id": "edef->zcrucial", "source": "def", "target": "zcrucial"}}, {"data": {"id": "ezcrucial->cross", "source": "zcrucial", "target": "cross"}}, {"data": {"id": "ecross->divide", "source": "cross", "target": "divide"}}, {"data": {"id": "edivide->apply", "source": "divide", "target": "apply"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-main-lorentz'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/string/main-lorentz/" target="_blank" rel="noopener">https://oi-wiki.org/string/main-lorentz/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/string/main_lorentz.html" target="_blank" rel="noopener">https://cp-algorithms.com/string/main_lorentz.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

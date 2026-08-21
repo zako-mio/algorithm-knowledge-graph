@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>迭代加深(IDDFS) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-14.html">搜索算法族</a> / <span>迭代加深(IDDFS)</span></div>
+  <h1>迭代加深(IDDFS)</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-14</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="bidirectional.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">bidirectional</span></a>
+    <a class="nav-index" href="../03-groups/G-A-14.html"><span class="dir">组内第 3 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="heuristic-search.html"><span class="dir">下一个 / 组内</span><span class="v">heuristic-search</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">逐步增加DFS深度限制，DFS方式实现BFS效果，空间优</div><p>迭代加深搜索（Iterative Deepening Depth-First Search, IDDFS）每次限制搜索深度 d 做一次 DFS，若没找到解就把 d 加一重来。它用 DFS 的方式实现了 BFS 的&#x27;逐层搜索&#x27;效果：保证第一次找到的解是最优解（步数最少），而空间复杂度只有 O(深度) 而非 BFS 的 O(分支数^深度)。适合状态空间巨大、单个状态又大、且要最优解的搜索问题。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>BFS 用队列逐层展开，答案在最深层时队列可能塞满整层节点（指数级）。迭代加深每轮只做一次限深的 DFS，一轮只走一条路径；重复搜索前面层看似浪费，但当分支因子大时，前面层的节点数相比最后层可忽略，&#x27;白跑&#x27;的代价很小，换来的是空间从指数降到线性。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>设分支因子 b、目标深度 d。IDDFS 的 DFS 每轮展开约 b^d 个节点（最后一层），前面 d-1 轮合计约 b^{d-1}+b^{d-2}+...+1 &lt; b^d/(b-1)。总工作量约 b^d·b/(b-1)，与 BFS 同阶，但空间 O(d) 远小于 BFS 的 O(b^d)。当分支因子 b 大时 b/(b-1)→1，重复搜索的额外开销趋近于 0。这就是&#x27;为什么迭代加深可近似看成 BFS&#x27;的原因。若存在解在深度 d 内，第 d 轮必能找到，且因逐层递增必为最短解。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>迭代加深概念源于 20 世纪 60-70 年代的 AI 搜索（与 IDA* 同源），被用作内存受限环境下替代 BFS 的标准策略。Korf 在 1985 年系统分析了迭代加深的复杂度（与 BFS 同阶但线性空间），并推广为 IDA*。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">IDDFS</span>(root, limit_max):
+    <span class="t-k">for</span> limit <span class="t-k">in</span> <span class="t-n">0.</span>.limit_max:
+        <span class="t-k">if</span> <span class="t-f">DFS</span>(root, depth=<span class="t-n">0</span>, limit) 找到:
+            <span class="t-k">return</span> 解
+    <span class="t-k">return</span> 无解
+
+<span class="t-k">def</span> <span class="t-f">DFS</span>(u, d, limit):
+    <span class="t-k">if</span> 是目标: <span class="t-k">return</span> <span class="t-k">True</span>
+    <span class="t-k">if</span> d == limit: <span class="t-k">return</span> <span class="t-k">False</span>
+    <span class="t-k">for</span> v <span class="t-k">in</span> 邻居(u):
+        <span class="t-k">if</span> <span class="t-f">DFS</span>(v, d+<span class="t-n">1</span>, limit): <span class="t-k">return</span> <span class="t-k">True</span>
+    <span class="t-k">return</span> <span class="t-k">False</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">id_dfs</span>(start, is_goal, neighbors, max_depth=<span class="t-n">30</span>):
+    <span class="t-s">&quot;&quot;&quot;迭代加深DFS: 找从start到目标的最短路径
+    is_goal(u) 判目标, neighbors(u) 返回邻居
+    返回: 路径列表或 None
+    &quot;&quot;&quot;</span>
+    path = [start]
+
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(u, d, limit):
+        <span class="t-k">if</span> <span class="t-f">is_goal</span>(u):
+            <span class="t-k">return</span> <span class="t-k">True</span>
+        <span class="t-k">if</span> d == limit:
+            <span class="t-k">return</span> <span class="t-k">False</span>
+        <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-f">neighbors</span>(u):
+            <span class="t-k">if</span> v <span class="t-k">in</span> path:      <span class="t-c"># 避免环</span>
+                <span class="t-k">continue</span>
+            path.<span class="t-f">append</span>(v)
+            <span class="t-k">if</span> <span class="t-f">dfs</span>(v, d + <span class="t-n">1</span>, limit):
+                <span class="t-k">return</span> <span class="t-k">True</span>
+            path.<span class="t-f">pop</span>()
+        <span class="t-k">return</span> <span class="t-k">False</span>
+
+    <span class="t-k">for</span> limit <span class="t-k">in</span> <span class="t-b">range</span>(max_depth + <span class="t-n">1</span>):
+        <span class="t-k">if</span> <span class="t-f">dfs</span>(start, <span class="t-n">0</span>, limit):
+            <span class="t-k">return</span> path
+    <span class="t-k">return</span> <span class="t-k">None</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 目标在深度3, 分支因子2的树</span>
+    tree = {
+        <span class="t-s">&#x27;a&#x27;</span>: [<span class="t-s">&#x27;b&#x27;</span>, <span class="t-s">&#x27;c&#x27;</span>],
+        <span class="t-s">&#x27;b&#x27;</span>: [<span class="t-s">&#x27;d&#x27;</span>, <span class="t-s">&#x27;e&#x27;</span>],
+        <span class="t-s">&#x27;c&#x27;</span>: [<span class="t-s">&#x27;f&#x27;</span>, <span class="t-s">&#x27;g&#x27;</span>],
+        <span class="t-s">&#x27;d&#x27;</span>: [<span class="t-s">&#x27;h&#x27;</span>, <span class="t-s">&#x27;i&#x27;</span>],
+        <span class="t-s">&#x27;e&#x27;</span>: [], <span class="t-s">&#x27;f&#x27;</span>: [], <span class="t-s">&#x27;g&#x27;</span>: [], <span class="t-s">&#x27;h&#x27;</span>: [], <span class="t-s">&#x27;i&#x27;</span>: []
+    }
+    <span class="t-k">def</span> <span class="t-f">neighbors</span>(u): <span class="t-k">return</span> tree.<span class="t-f">get</span>(u, [])
+    <span class="t-k">def</span> <span class="t-f">is_goal</span>(u): <span class="t-k">return</span> u == <span class="t-s">&#x27;h&#x27;</span>
+
+    path = <span class="t-f">id_dfs</span>(<span class="t-s">&#x27;a&#x27;</span>, is_goal, neighbors)
+    <span class="t-k">assert</span> path == [<span class="t-s">&#x27;a&#x27;</span>, <span class="t-s">&#x27;b&#x27;</span>, <span class="t-s">&#x27;d&#x27;</span>, <span class="t-s">&#x27;h&#x27;</span>], path
+
+    <span class="t-c"># 目标在根: 深度0</span>
+    <span class="t-k">assert</span> <span class="t-f">id_dfs</span>(<span class="t-s">&#x27;a&#x27;</span>, <span class="t-k">lambda</span> u: u == <span class="t-s">&#x27;a&#x27;</span>, neighbors) == [<span class="t-s">&#x27;a&#x27;</span>]
+    <span class="t-c"># 无解</span>
+    <span class="t-k">assert</span> <span class="t-f">id_dfs</span>(<span class="t-s">&#x27;a&#x27;</span>, <span class="t-k">lambda</span> u: u == <span class="t-s">&#x27;zzz&#x27;</span>, neighbors, max_depth=<span class="t-n">3</span>) <span class="t-k">is</span> <span class="t-k">None</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;iterative-deepening all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">迭代加深的每轮 DFS 都重新从根走，PyPy 下递归调用开销需注意；分支因子大时工作量大。可用 path 列表做显式栈避免 &#x27;v in path&#x27; 的 O(d) 查找（用 set 或标记数组）。深递归需 sys.setrecursionlimit。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(b^d)，与 BFS 同阶（b 分支因子, d 目标深度）</td></tr><tr><th>空间复杂度</th><td>O(d) 递归栈，优于 BFS 的 O(b^d)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">分支因子大或深度无上界时仍可能超时；每轮重搜带来常数倍开销；需保证&#x27;深度内必有解&#x27;才能保证最优性；有环图要防环（路径判重）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>必须逐层递增深度，否则无法保证最优性</li><li>有环状态需路径判重，否则可能死循环</li><li>max_depth 设置过小会漏解，需按问题上界设置</li><li>每轮重搜的常数开销在分支因子小时相对明显，此时 BFS 更合适</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1763</strong></td><td>4</td><td>埃及分数：深度无上界+无限分支，迭代加深+剪枝经典题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1763" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1763</a></td></tr><tr><td>UVA</td><td><strong>1343</strong></td><td>4</td><td>The Rotation Game：旋转游戏，迭代加深+剪枝</td><td class="u"><a href="https://onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=4089" target="_blank" rel="noopener">https://onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=4089</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-iterative-deepening" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "depth", "label": "确定深度上界"}}, {"data": {"id": "iterate", "label": "逐层增加限制深度"}}, {"data": {"id": "dfs", "label": "限深DFS搜索"}}, {"data": {"id": "prune", "label": "边界/防环剪枝"}}, {"data": {"id": "answer", "label": "找到即返回(最优)"}}, {"data": {"id": "edepth->iterate", "source": "depth", "target": "iterate"}}, {"data": {"id": "eiterate->dfs", "source": "iterate", "target": "dfs"}}, {"data": {"id": "edfs->prune", "source": "dfs", "target": "prune"}}, {"data": {"id": "eprune->dfs", "source": "prune", "target": "dfs"}}, {"data": {"id": "edfs->answer", "source": "dfs", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-iterative-deepening'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="dfs.html" title="迭代加深用DFS方式限制深度实现BFS效果">DFS深度优先搜索<span class="etype">变体</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="idastar.html" title="IDA*是迭代加深与A*的结合">IDA*算法<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/search/iterative/" target="_blank" rel="noopener">https://oi-wiki.org/search/iterative/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch5 p58 (Iterative deepening)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

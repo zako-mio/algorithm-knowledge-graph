@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>均摊分析 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-1.html">排序与基础算法族</a> / <span>均摊分析</span></div>
+  <h1>均摊分析</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-1</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="complexity.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">complexity</span></a>
+    <a class="nav-index" href="../03-groups/G-A-1.html"><span class="dir">组内第 20 / 20</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-A-1.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">聚合法/势能法/记账法分析均摊复杂度</div><p>均摊分析（Amortized Analysis）评价的是一系列操作的总成本除以操作次数，即每次操作的均摊代价，而非单次操作的最坏代价。它不引入概率，保证最坏意义下的平均性能。三种主要方法：聚合分析（算总账平均）、记账法（为未来昂贵操作提前存钱）、势能法（用势能函数度量状态蕴含的能量）。典型例子：动态数组（vector）扩容、栈的 multi-pop、并查集、splay 树。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>均摊分析回答：「单个操作偶尔很贵，但平均下来贵不贵？」动态数组扩容时单次插入可能 O(n)，但扩容只在 2 的幂次发生，历史上那些便宜的插入已经「存够了钱」。均摊视角把昂贵操作的成本平摊到一系列便宜操作上。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>聚合分析：直接求 n 次操作总成本再除以 n。记账法：每次操作预付均摊价，便宜操作把多付的钱存起来支付未来贵操作，需证明总存款恒非负。势能法：定义势能函数 Phi(S)，均摊代价 c_hat = c + Phi(S&#x27;)-Phi(S)，若 Phi 非负且初始为 0，则总实际成本 &lt;= 总均摊成本。以动态数组（容量 m、元素 n）为例，Phi=2n-m，插入均摊代价恒为 3（O(1)）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>均摊分析的概念源自数据结构理论，经典教材（CLRS《算法导论》第 17 章）系统建立了聚合、记账、势能三种方法。势能法后来成为分析 splay 树、并查集按秩合并、Fib heap 等复杂数据结构的标准工具。OI Wiki 与 CPH 均在复杂度章节介绍其应用。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 势能法通用框架</span>
+<span class="t-c"># 定义势能函数 Phi(状态)，要求 Phi(初始)=0 且 Phi(状态)&gt;=0</span>
+<span class="t-c"># 每次操作均摊代价 = 实际代价 + Phi(操作后) - Phi(操作前)</span>
+<span class="t-c"># 若均摊代价 = O(T(n))，则 n 次操作总时间 = O(n*T(n))</span>
+
+<span class="t-c"># 动态数组插入（容量 m, 元素数 n）</span>
+<span class="t-c"># Phi = 2n - m</span>
+<span class="t-c"># 普通插入: 实际 1, Phi 增 2        =&gt; 均摊 3</span>
+<span class="t-c"># 扩容插入: 实际 n+1, Phi 减 (n-2) =&gt; 均摊 3</span>
+
+<span class="t-c"># 栈 multi-pop: Phi = |S| (栈中元素数)</span>
+<span class="t-c"># push: 实际 1, Phi 增 1  =&gt; 均摊 2</span>
+<span class="t-c"># pop:  实际 1, Phi 减 1  =&gt; 均摊 0</span>
+<span class="t-c"># multi-pop(k): 实际 k, Phi 减 k =&gt; 均摊 0</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">dynamic_array_total_cost</span>(ops):
+    <span class="t-s">&quot;&quot;&quot;模拟动态数组（倍增扩容），返回总实际成本。
+    ops: 1=insert（追加一个元素）
+    验证均摊分析结论：n 次 insert 总成本 O(n)。
+    &quot;&quot;&quot;</span>
+    cap = <span class="t-n">1</span>
+    size = <span class="t-n">0</span>
+    total = <span class="t-n">0</span>
+    <span class="t-k">for</span> op <span class="t-k">in</span> ops:
+        <span class="t-k">assert</span> op == <span class="t-n">1</span>
+        total += <span class="t-n">1</span>  <span class="t-c"># 写入新元素</span>
+        <span class="t-k">if</span> size == cap:
+            total += size  <span class="t-c"># 复制旧元素到新数组</span>
+            cap *= <span class="t-n">2</span>
+        size += <span class="t-n">1</span>
+    <span class="t-k">return</span> total
+
+
+<span class="t-k">def</span> <span class="t-f">potential_vector</span>(n):
+    <span class="t-s">&quot;&quot;&quot;用势能法 Phi=2n-m 计算 n 次插入的总均摊成本（应=3n）&quot;&quot;&quot;</span>
+    cap = <span class="t-n">1</span>
+    size = <span class="t-n">0</span>
+    phi = <span class="t-n">2</span> * size - cap
+    amortized_total = <span class="t-n">0</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        real = <span class="t-n">1</span>
+        <span class="t-k">if</span> size == cap:
+            real += size
+            cap *= <span class="t-n">2</span>
+        size += <span class="t-n">1</span>
+        phi_new = <span class="t-n">2</span> * size - cap
+        amortized_total += real + (phi_new - phi)
+        phi = phi_new
+    <span class="t-k">return</span> amortized_total
+
+
+<span class="t-k">def</span> <span class="t-f">stack_multi_pop_total</span>(n_push, pops):
+    <span class="t-s">&quot;&quot;&quot;栈 push 后 multi-pop，返回总实际成本（应 &lt;= 2*n_push + len(pops)）。&quot;&quot;&quot;</span>
+    total = n_push  <span class="t-c"># 每次 push 成本 1</span>
+    stack_size = n_push
+    <span class="t-k">for</span> k <span class="t-k">in</span> pops:
+        popped = <span class="t-b">min</span>(stack_size, k)
+        total += popped
+        stack_size -= popped
+    <span class="t-k">return</span> total
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">for</span> n <span class="t-k">in</span> [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">7</span>, <span class="t-n">8</span>, <span class="t-n">16</span>, <span class="t-n">100</span>, <span class="t-n">1000</span>]:
+        ops = [<span class="t-n">1</span>] * n
+        real = <span class="t-f">dynamic_array_total_cost</span>(ops)
+        <span class="t-c"># 真实总成本应 &lt; 4n（翻倍扩容的总复制成本 &lt; 2n）</span>
+        <span class="t-k">assert</span> real &lt;= <span class="t-n">4</span> * n, (n, real)
+        am = <span class="t-f">potential_vector</span>(n)
+        <span class="t-k">assert</span> am == <span class="t-n">3</span> * n, (n, am)
+
+    <span class="t-c"># 栈 multi-pop: 10 次 push + 若干 multi-pop</span>
+    total = <span class="t-f">stack_multi_pop_total</span>(<span class="t-n">10</span>, [<span class="t-n">3</span>, <span class="t-n">2</span>, <span class="t-n">5</span>, <span class="t-n">1</span>])
+    <span class="t-k">assert</span> total == <span class="t-n">10</span> + (<span class="t-n">3</span> + <span class="t-n">2</span> + <span class="t-n">5</span> + <span class="t-n">0</span>), total
+    <span class="t-c"># 无论 multi-pop 怎么调，总成本 &lt;= 2*10</span>
+    <span class="t-k">assert</span> <span class="t-f">stack_multi_pop_total</span>(<span class="t-n">10</span>, [<span class="t-n">8</span>, <span class="t-n">8</span>, <span class="t-n">8</span>]) == <span class="t-n">10</span> + <span class="t-n">10</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">均摊分析是理论工具，本身不产生运行时开销。但理解其结论可指导实现：如动态数组倍增扩容在 PyPy 的 list 中已内建，勿手写 O(n) 的 list.insert(0)。并查集、单调栈等数据结构的均摊性质保证 Python 实现在大数据下仍稳定。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>单次最坏可能 O(n)，但均摊代价 O(1)；n 次操作总时间 O(n)</td></tr><tr><th>空间复杂度</th><td>O(n) — 数据结构本身的空间</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">均摊分析给出的是序列级保证，不承诺单次操作的实时性；不适用于需要每个操作都严格快的实时系统。且势能函数选择需要技巧，选择不当会得到过松或错误的界。均摊结论不能直接用于「每次操作必须 O(1)」的强实时场景。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>把均摊 O(1) 误当单次最坏 O(1)，在实时性要求高的场景用错</li><li>势能法忘记要求 Phi(初始)=0 且恒非负，导致证明无效</li><li>聚合分析中把不同操作类型的数量搞混（如 n 次操作里含 k 次昂贵操作时只算总操作 n）</li><li>误把平均复杂度（随机输入的期望）当成均摊复杂度（最坏输入下的序列平均）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1886</strong></td><td>3</td><td>滑动窗口/单调队列：队列入队出队各一次，均摊 O(1) 达到 O(n) 总复杂度</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1886" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1886</a></td></tr><tr><td>Luogu</td><td><strong>P3865</strong></td><td>4</td><td>ST表模板：预处理均摊 O(n log n)，查询 O(1)</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3865" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3865</a></td></tr><tr><td>Luogu</td><td><strong>P5788</strong></td><td>3</td><td>单调栈：每个元素至多入栈出栈一次，均摊 O(n)（最坏单步可 O(n) 但总 O(n)）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5788" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5788</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-amortized-analysis" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "define", "label": "定义操作序列与各操作实际成本"}}, {"data": {"id": "choose", "label": "选择分析方法（聚合/记账/势能）"}}, {"data": {"id": "potential", "label": "势能法：定义 Phi 并算每次均摊代价"}}, {"data": {"id": "sum", "label": "求和证明总成本 = O(均摊×操作数)"}}, {"data": {"id": "edefine->choose", "source": "define", "target": "choose"}}, {"data": {"id": "echoose->potential", "source": "choose", "target": "potential"}}, {"data": {"id": "epotential->sum", "source": "potential", "target": "sum"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-amortized-analysis'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/basic/amortized-analysis/" target="_blank" rel="noopener">https://oi-wiki.org/basic/amortized-analysis/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch8 p87</span></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CLRS《算法导论》ch17 均摊分析</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

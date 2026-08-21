@@ -1,0 +1,85 @@
+{
+  "id": "hopcroft-karp",
+  "name": "Hopcroft-Karp算法",
+  "group": "G-B-6",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "二分图匹配，多增广路O(E√V)",
+  "what": "Hopcroft-Karp（HK）算法是二分图最大匹配的最优算法之一，复杂度 O(E√V)。它把 Kuhn 的单次单增广路升级为『每一轮找到多条互不相交的最短增广路（阻塞流）同时增广』：先 BFS 从所有未匹配左部点建层次图（dist），只到找到第一个含未匹配右部点的层为止；再按层次严格递增的限制做 DFS 找若干条点不相交的最短增广路一起翻转。最短增广路长度每轮严格增加，总轮数 O(√V)，故总复杂度 O(E√V)。实际上它是 Dinic 求二分图匹配（容量 1 网络）的特例。",
+  "why": {
+    "intuition": "Kuhn 每次只找一条增广路，而很多右部点在同一轮里明明可以并行让座。HK 用 BFS 把『最短增广路』看成一整层的匹配机会：层次图里从每个未匹配左部点出发，找到的所有最短增广路互不相交，一次性全增广。因为每轮用的都是最短增广路，最短长度严格递增，而长度不会超过 √V 次，所以轮次被限制在 O(√V)。",
+    "principle": "① 层次图：将匹配边定向为右→左、非匹配边定向为左→右，从所有未匹配左部点 BFS，dist 记录层号，遇到未匹配右部点即停（found=True），若 BFS 结束没找到 → 当前匹配最大；② DFS(u) 沿 dist[v]=dist[u]+1 的边推进，只走未访问点，找到未匹配右部点则完成一条增广路并翻转（用 pairU/pairV）；③ 一轮内收集尽量多的点不相交最短增广路（即 Dinic 的阻塞流）；④ 复杂度证明：增广路长度每轮严格递增（对称差论证 |P'| ≥ |P|+2|P∩P'|），长度至多增加 3|M|^0.5 次，故轮数 O(√V)，每轮 O(E)，总 O(E√V)。随机图中大概率 O(E log V)。",
+    "history": "John E. Hopcroft 与 Richard M. Karp 于 1973 年在 SIAM J. Comput. 发表『An n^{5/2} algorithm for maximum matchings in bipartite graphs』。该算法奠定了二分图匹配在稀疏大图上的标准做法，也被视为网络流算法在单位容量图上的先声（后与 Dinic 联系）。OI Wiki 与 CP-Algorithms 均有标准实现。"
+  },
+  "how": {
+    "pseudocode": "pairU[u] = -1 (左部 u 匹配的右部); pairV[v] = -1\n\nbfs():\n  q = 所有未匹配左部点, dist=0\n  dist[NIL] = -1; found = False\n  while q:\n    u = pop(q)\n    for v in adj[u]:\n      w = pairV[v]\n      if w == -1: found = True          # 找到未匹配右部点\n      elif dist[w] == -1:\n        dist[w] = dist[u] + 1; push(q, w)\n  return found\n\ndfs(u):\n  for v in adj[u]:\n    w = pairV[v]\n    if w == -1 or (dist[w] == dist[u]+1 and dfs(w)):\n      pairU[u] = v; pairV[v] = u; return True\n  dist[u] = -1; return False\n\nmatching = 0\nwhile bfs():\n  for u in 左部点:\n    if pairU[u] == -1 and dfs(u): matching += 1",
+    "python": "from collections import deque\n\n\ndef hopcroft_karp(left_n, right_m, adj):\n    \"\"\"Hopcroft-Karp 求二分图最大匹配，O(E√V)。\n    adj[u]: 左部点 u 的右部点邻居列表。返回 (匹配数, pairU, pairV)。\"\"\"\n    pairU = [-1] * left_n\n    pairV = [-1] * right_m\n    NIL = left_n\n    dist = [-1] * (left_n + 1)\n\n    def bfs():\n        q = deque()\n        found = False\n        for u in range(left_n):\n            if pairU[u] == -1:\n                dist[u] = 0\n                q.append(u)\n            else:\n                dist[u] = -1\n        dist[NIL] = -1\n        while q:\n            u = q.popleft()\n            for v in adj[u]:\n                w = pairV[v]\n                if w == -1:\n                    found = True\n                elif dist[w] == -1:\n                    dist[w] = dist[u] + 1\n                    q.append(w)\n        return found\n\n    def dfs(u):\n        for v in adj[u]:\n            w = pairV[v]\n            if w == -1 or (dist[w] == dist[u] + 1 and dfs(w)):\n                pairU[u] = v\n                pairV[v] = u\n                return True\n        dist[u] = -1\n        return False\n\n    res = 0\n    while bfs():\n        for u in range(left_n):\n            if pairU[u] == -1 and dfs(u):\n                res += 1\n    return res, pairU, pairV\n\n\nif __name__ == '__main__':\n    import random\n\n    def kuhn(n, m, adj):\n        match = [-1] * m\n\n        def tr(u, vis):\n            for v in adj[u]:\n                if vis[v]:\n                    continue\n                vis[v] = True\n                if match[v] == -1 or tr(match[v], vis):\n                    match[v] = u\n                    return True\n            return False\n\n        r = 0\n        for u in range(n):\n            if tr(u, [False] * m):\n                r += 1\n        return r\n\n    random.seed(5)\n    for _ in range(200):\n        n = random.randint(1, 20)\n        m = random.randint(1, 20)\n        adj = [[] for _ in range(n)]\n        for u in range(n):\n            for v in range(m):\n                if random.random() < 0.25:\n                    adj[u].append(v)\n        r1, _, _ = hopcroft_karp(n, m, adj)\n        r2 = kuhn(n, m, adj)\n        assert r1 == r2, (n, m, adj, r1, r2)\n    print('hopcroft-karp: All tests passed.')",
+    "pypy_notes": "实现注意：BFS 的 found 逻辑与 dist 更新要在遇到未匹配右部点时不展开其后续；DFS 的 dist[u]=-1 剪枝（走过的失败左部点标记避免重复）。邻接表尽量紧凑；n,m 到 1e5、E 到 5e5 时 O(E√V) 在 PyPy 下是标准做法。Python 递归 dfs 深度最大 √V，安全，但可改显式栈。",
+    "complexity": {
+      "time": "O(E√V)（O(√V) 轮 × 每轮 BFS+DFS 共 O(E)）；随机图大概率 O(E log V)",
+      "space": "O(V+E) 邻接表 + O(V) dist/pair 数组"
+    },
+    "limitations": "只适用二分图（一般图需带花树）。若图已接近完全（E~n²）或 n 小，Kuhn 常数更小。BFS 提前终止的优化（遇到未匹配右部点不扩展）在某些图反而更慢（OI Wiki 提示）。只求最大匹配基数/方案，无权值。需配合 bipartite-check 确认二分性。"
+  },
+  "examples": [
+    {
+      "oj": "Library Checker",
+      "pid": "bipartitematching",
+      "url": "https://judge.yosupo.jp/problem/bipartitematching",
+      "difficulty": 3,
+      "key_point": "Matching on Bipartite Graph 模板题：HK 标准模板，OI Wiki 参考实现题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3386",
+      "url": "https://www.luogu.com.cn/problem/P3386",
+      "difficulty": 3,
+      "key_point": "【模板】二分图最大匹配：Kuhn 与 HK 均可，HK 用于大数据模板"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1640",
+      "url": "https://www.luogu.com.cn/problem/P1640",
+      "difficulty": 4,
+      "key_point": "【SCOI2010】连续攻击游戏：属性-编号二分图匹配，图大时 HK 优于 Kuhn"
+    },
+    {
+      "oj": "LOJ",
+      "pid": "6002",
+      "url": "https://loj.ac/p/6002",
+      "difficulty": 3,
+      "key_point": "最小路径覆盖：DAG 拆点后二分图匹配，|V|-最大匹配，HK 加速"
+    }
+  ],
+  "pitfalls": [
+    "BFS 中未匹配右部点只是置 found=True，不能再沿它的 pairV（-1）入队",
+    "DFS 必须先判 pairV[v]==-1 或（dist[w]==dist[u]+1 且 dfs(w)），条件顺序错误会走非层次边",
+    "每轮 while bfs() 后要重新对未匹配左部点 dfs，不能用缓存的上轮 dist",
+    "dist 数组大小 left_n+1（含 NIL 哨兵），索引越界是常见 bug",
+    "找最大匹配数要在找到后就累加，不能在 while 结束后再数 pairU",
+    "图巨大时 Python 递归 dfs 每次新建 list 会慢，尽量复用数组"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "level", "label": "BFS 建层次图，遇未匹配右部点即停" },
+      { "id": "blossom_free", "label": "按 dist 严格递增 DFS 找多条不相交增广路" },
+      { "id": "augment", "label": "一并翻转阻塞流，匹配数增加" },
+      { "id": "rounds", "label": "最短增广路长度严格递增 → O(√V) 轮" },
+      { "id": "dinic", "label": "关联：Dinic 单位容量网络流特例" }
+    ],
+    "edges": [
+      { "from": "level", "to": "blossom_free" },
+      { "from": "blossom_free", "to": "augment" },
+      { "from": "augment", "to": "rounds" },
+      { "from": "rounds", "to": "level" },
+      { "from": "augment", "to": "dinic" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/graph/graph-matching/bigraph-match/", "verified": true },
+    { "type": "oiwiki", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/graph-matching/bigraph-match.md", "verified": true },
+    { "type": "book", "ref": "Hopcroft & Karp 1973, An n^{5/2} algorithm for maximum matchings in bipartite graphs", "verified": true },
+    { "type": "book", "ref": "CLRS ch26.3 (bipartite matching via max flow)", "verified": true }
+  ]
+}

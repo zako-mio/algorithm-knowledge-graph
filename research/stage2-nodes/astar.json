@@ -1,0 +1,69 @@
+{
+  "id": "astar",
+  "name": "A*算法",
+  "group": "G-A-14",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "f=g+h优先队列搜索，可采纳启发函数保证最优性",
+  "what": "A*（A-star）搜索是在带权有向图上求起点到终点最短路径的最佳优先搜索算法，是 BFS 的改进。它维护优先队列，每次取出 f(x)=g(x)+h(x) 最小的节点扩展，其中 g(x)=起点到 x 的实际距离，h(x)=x 到终点的距离估计。当启发函数可采纳（0≤h≤h*，即不高估真实距离）时，A* 保证找到最优解；当 h 一致（三角不等式）时每个节点只处理一次。8数码、k短路、机器人路径规划都是典型应用。",
+  "why": {
+    "intuition": "A* 像'有方向感'的 Dijkstra：不仅看已经走了多远 g，还看还剩多远（估计）h，总代价 f=g+h 最小者优先扩展，于是搜索'偏向终点方向'而不是四面八方平推。启发函数越接近真实距离，扩展的节点越少，搜索越高效。若 h≡0，A* 退化为 Dijkstra；若边权全 1 且 h≡0，则是 BFS。",
+    "principle": "可采纳性（admissible）：0≤h≤h* 保证首次弹出终点时 g 即最短距离——因为所有未扩展节点 f=g+h≤g+h*=真实最短距离，不会出现比当前更短却未弹出的路径。一致性（consistent）：h(x)≤h(y)+d(x,y)（三角不等式）保证已弹出节点不会被再次入队，且每个节点只扩展一次，这使 A* 效率更高。最坏情况下 A* 会扩展所有满足 f(x)≤C* 的节点（C* 为最短距离），因此 h 越接近 h* 分支越少，可看作一种'剪枝'。",
+    "history": "A* 由 Hart、Nilsson 与 Raphael 于 1968 年提出（斯坦福人工智能实验室），是人工智能规划搜索的奠基算法。其最优性与可采纳性的证明（1972 完善）成为启发式搜索的理论基石，后被大量游戏 AI、路径规划、机器人领域采用。"
+  },
+  "how": {
+    "pseudocode": "# A* 主循环\nopen_heap = 优先队列, 按 f = g + h 排序\npush (f(start), g=0, start)\ncame[start] = None\n\nwhile open_heap 非空:\n    u = pop 最小f\n    if u == goal: 回溯输出路径\n    for v in neighbors(u):\n        ng = g[u] + w(u,v)\n        if ng < g[v]:\n            g[v] = ng\n            came[v] = u\n            push (ng + h(v), ng, v)\n\n# 可采纳性要求: h(v) <= 真实距离(v->goal)\n# 8数码启发: h = 曼哈顿距离和",
+    "python": "import heapq\n\nGOAL = \"123804765\"\n\n\ndef manhattan(state):\n    \"\"\"曼哈顿距离启发: 每个数字到目标位置的距离和\n    可采纳且一致(8数码经典启发)\n    \"\"\"\n    d = 0\n    for i, ch in enumerate(state):\n        if ch != '0':\n            gi = GOAL.index(ch)\n            d += abs(i // 3 - gi // 3) + abs(i % 3 - gi % 3)\n    return d\n\n\ndef neighbors(state):\n    \"\"\"空格0与上下左右数字交换\"\"\"\n    i = state.index('0')\n    r, c = i // 3, i % 3\n    for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):\n        nr, nc = r + dr, c + dc\n        if 0 <= nr < 3 and 0 <= nc < 3:\n            j = nr * 3 + nc\n            lst = list(state)\n            lst[i], lst[j] = lst[j], lst[i]\n            yield ''.join(lst)\n\n\ndef inversion_count(state):\n    s = [int(c) for c in state if c != '0']\n    inv = 0\n    for i in range(len(s)):\n        for j in range(i + 1, len(s)):\n            if s[i] > s[j]:\n                inv += 1\n    return inv\n\n\ndef solvable(state):\n    \"\"\"8数码可解性: 逆序数奇偶性与目标一致(空格移动不改变奇偶)\"\"\"\n    return (inversion_count(state) - inversion_count(GOAL)) % 2 == 0\n\n\ndef a_star(start):\n    \"\"\"A* 解8数码: 返回(步数, 状态路径); 不可解返回 None\n    目标 123804765\n    \"\"\"\n    if not solvable(start):\n        return None\n    open_heap = [(manhattan(start), 0, start)]\n    gscore = {start: 0}\n    came = {start: None}\n    while open_heap:\n        _, g, u = heapq.heappop(open_heap)\n        if g > gscore.get(u, float('inf')):\n            continue  # 跳过过期条目\n        if u == GOAL:\n            path = []\n            while u is not None:\n                path.append(u)\n                u = came[u]\n            return g, path[::-1]\n        for v in neighbors(u):\n            ng = g + 1\n            if ng < gscore.get(v, float('inf')):\n                gscore[v] = ng\n                came[v] = u\n                heapq.heappush(open_heap, (ng + manhattan(v), ng, v))\n    return None\n\n\nif __name__ == \"__main__\":\n    # 已就位: 0 步\n    r = a_star(GOAL)\n    assert r is not None and r[0] == 0\n\n    # 经典可解实例\n    r = a_star(\"283104765\")\n    assert r is not None and r[1][-1] == GOAL\n    # 验证路径每一步合法且最短\n    for a, b in zip(r[1], r[1][1:]):\n        assert b in neighbors(a)\n\n    # 不可解实例\n    assert a_star(\"123804756\") is None\n\n    # 可解性判定抽查\n    assert not solvable(\"123804756\")\n    assert solvable(\"283104765\")\n\n    print(f\"astar all tests passed (sample path length: {r[0]})\")\n",
+    "pypy_notes": "8数码状态用字符串作为 dict 键可读性好但开销大；追求性能可编码为整数（3^9 位或数位压缩）。PyPy 下 heapq + dict 性能足够 8数码/15数码小规模。k短路等大规模问题纯 Python 易 TLE，建议换 C++。",
+    "complexity": {
+      "time": "取决于启发函数：h=0 退化为 Dijkstra O(E log V)；h=h* 时 O(V)；一般介于两者之间",
+      "space": "O(扩展节点数)，比 IDA* 大（需存 open/closed 表）"
+    },
+    "limitations": "h 不满足可采纳性时无最优性保证；状态数巨大时 open 表内存爆炸（此时用 IDA*）；需要目标状态已知且能设计良好启发函数；h 非一致时需允许节点重复入队（用 g 松弛）。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1379",
+      "url": "https://www.luogu.com.cn/problem/P1379",
+      "difficulty": 3,
+      "key_point": "八数码难题：A*经典题，曼哈顿距离启发（目标123804765）"
+    },
+    {
+      "oj": "OI Wiki",
+      "pid": "kth-path",
+      "url": "https://oi-wiki.org/graph/kth-path/",
+      "difficulty": 4,
+      "key_point": "k短路：A* 求 k 短路（次短路），h 用反向图最短路"
+    }
+  ],
+  "pitfalls": [
+    "h 必须可采纳(不高估)，否则 A* 失去最优性保证",
+    "h 非一致(不满足三角不等式)时，节点可能重复入队，需按 g 松弛处理",
+    "弹出时若忘记跳过过期条目，可能用旧 g 值扩展导致错误",
+    "8数码无解状态(逆序奇偶不同)要先判定，否则 A* 无限搜索",
+    "状态哈希的编码开销在纯 Python 下可能成为瓶颈"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "design_h", "label": "设计可采纳/一致启发 h" },
+      { "id": "solvable", "label": "判定可达性(8数码逆序)" },
+      { "id": "pq", "label": "优先队列按 f=g+h 扩展" },
+      { "id": "relax", "label": "g 松弛更新与记录前驱" },
+      { "id": "answer", "label": "弹出终点回溯路径" }
+    ],
+    "edges": [
+      { "from": "design_h", "to": "solvable" },
+      { "from": "design_h", "to": "pq" },
+      { "from": "solvable", "to": "pq" },
+      { "from": "pq", "to": "relax" },
+      { "from": "relax", "to": "pq" },
+      { "from": "relax", "to": "answer" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/search/astar/", "verified": true },
+    { "type": "book", "url": "", "ref": "CPH ch25 (k shortest paths), 附录 A* 相关", "verified": true }
+  ]
+}

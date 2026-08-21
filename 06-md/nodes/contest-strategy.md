@@ -1,0 +1,113 @@
+---
+id: contest-strategy
+name: 比赛时间分配与策略
+group: G-E-8
+stage: basic
+priority: P0
+depth_tier: deep
+---
+
+# 比赛时间分配与策略
+
+> ICPC/CCPC/OI 全局策略：读题顺序、时间分配、队友分工、罚时控制、封板策略
+
+<!-- 元信息: id=contest-strategy · group=G-E-8 · stage=basic · priority=P0 · depth_tier=deep -->
+
+## What · 是什么
+
+竞赛策略是决定「在限时内把会做的题都做出来」的一整套决策方法，区别于具体算法。核心要素：①读题顺序与题面优先级（先读简短的/分值大的/样例可推的，三人并行读题）；②难度分布与「先易后难」的 AC 顺序；③ICPC 赛制下罚时控制（错一次 +20 分钟，宁肯多想少盲交）；④时间分配（如 5 小时比赛按阶段规划，每半小时汇报进度）；⑤队友分工与角色（码力担当/思维担当/数学担当，一人键盘、两人看题）；⑥封板（ICPC 最后一小时 rank 隐藏，靠前期名次与剩余题量判断投入）。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+比赛的得分是「会做的题数」而不是「写出的代码量」。策略的价值在于把有限时间投到边际收益最高的题目上：一道想了 20 分钟的题若还无头绪，继续死磕 40 分钟很可能颗粒无收，不如先拿下两道签到题稳住罚时。ICPC 按题数优先、罚时次之排名——多对一题远胜于快对一题。
+
+### 原理 · Principle
+
+ICPC/CCPC 赛制：三人一队一台机器，实时评测，每错一次罚 20 分钟，排名先比题数再比总用时（每题 = 从开局到 AC 的分钟数 + 20×错误次数）。封板：最后 1 小时榜单冻结，只能靠本地自估。OI 赛制：一次提交、赛后判分，追求的是每题的「部分分累加」而非全对。共同原则：①先扫全场题面（3-5 分钟）建立难易地图；②按「确认能 AC 的」→「有思路需实现的」→「可骗分的」三级投入；③每 30-60 分钟做一次进度校准，避免在一道题上超时。
+
+### 历史 · History
+
+OI Wiki 的 contest/icpc 与 contest/oi 页详述两种赛制规则与赛季安排（ICPC 区域赛 9 月底-11 月底、EC/CCPC Final 12 月、WF 次年 4-6 月；NOI 系列 9 月 CSP 起），contest/roadmap 给出完整学习路线。策略本身是从多年区域赛与 NOI 实战中沉淀的经验性方法论。
+
+## How · 实现
+
+### 伪代码
+
+```python
+开局(0-15min): 三人各分区域扫题 → 报出 每题类型/难度/是否模板
+核心期: 先AC签到题(稳) → 开有思路的题 → 每30min同步进度
+罚时控制: 提交前重读一遍边界；不确认不交；样例过≠AC
+封板后: 靠前期rank与题面剩余难度定投入，新题只接有把握的
+收尾(最后20min): 只交已验证的，不做新的大工程
+```
+
+### Python 实现
+
+```python
+import sys
+
+def main():
+    # 策略决策框架：把「题」建模成可排序的任务队列
+    # 每题: (预期AC分钟, 预期罚时代价, 把握度0-1, 是否签到)
+    tasks = [
+        ("A", 20, 0.95, True),
+        ("B", 45, 0.70, False),
+        ("C", 120, 0.30, False),
+        ("D", 90, 0.60, False),
+        ("E", 30, 0.90, True),
+    ]
+    # 投入顺序：先签到(把握度>=0.9)再按 预期得分/耗时 贪心
+    order = sorted(tasks, key=lambda t: (-t[3], -t[2] / t[1]))
+    print("建议投入顺序:")
+    elapsed = 0
+    total = 0
+    for name, cost, conf, sign in order:
+        elapsed += cost
+        expected = conf * 1.0
+        total += expected
+        print(f"  {name}: 耗时{cost}min 把握{conf:.0%} 预计得分{expected:.1f}")
+    print(f"总预计得分 {total:.1f}")
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+**PyPy 提示**: 本节点为方法论，无性能敏感代码。真正比赛时 Python 选手应额外评估每题时限是否宽容，同一策略要叠加「语言常数因子」（见 io-optimization / py-pypy 节点）。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | 策略本身 O(1)；用于评估题量的工具 O(m log m) |
+| 空间 | O(m) — m 为题目数 |
+
+### 局限
+
+策略是启发式的，不保证最优；不同赛制（ICPC 罚时 vs OI 部分分 vs CF 单题全判）的最优策略不同，不能照搬。队友间沟通成本、机器独占冲突会降低实际并行度；封板后的 rank 猜测也可能误判形势。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| ICPC/CCPC | 区域赛通用 | 1 | 典型场景：5 小时 10-13 题，目标 6-7 题铜牌、8+ 银牌，前期扫题+抢签到 | [https://icpc.global](https://icpc.global) |
+| NOI/CSP | OI赛制 | 1 | 一次提交：按数据范围分档写部分分，不求全 AC 只求分数最大化 | [https://oi-wiki.org/contest/oi/](https://oi-wiki.org/contest/oi/) |
+| Codeforces | Div2 周赛 | 1 | CF 赛制多提交无罚时损失（有 50 分钟 hacks），策略重心在快速过 A-C | [https://codeforces.com/contests](https://codeforces.com/contests) |
+
+## Pitfalls · 易错点
+
+- 在 AC 题目之前就反复提交未验证代码，罚时爆炸（+20 每次）
+- 全程只盯一道难题，错过所有可拿的签到分
+- 三人同时读同一题浪费并行度；应分区域读题再汇总
+- 封板后继续死磕新题而不是投入已 AC 题目的改进/边界检查
+- 忽视样例之外的边界（n=1、0、大数溢出、空串）导致交后 WA
+- OI 赛制里过早交唯一一次机会（浪费在未充分验证的部分分上）
+
+## Sources · 信源
+
+- OI Wiki ✓ [https://oi-wiki.org/contest/icpc/](https://oi-wiki.org/contest/icpc/)
+- OI Wiki ✓ [https://oi-wiki.org/contest/oi/](https://oi-wiki.org/contest/oi/)
+- OI Wiki ✓ [https://oi-wiki.org/contest/roadmap/](https://oi-wiki.org/contest/roadmap/)

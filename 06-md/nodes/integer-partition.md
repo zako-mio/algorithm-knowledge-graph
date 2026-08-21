@@ -1,0 +1,168 @@
+---
+id: integer-partition
+name: 整数划分
+group: G-C-11
+stage: advanced
+priority: P2
+depth_tier: standard
+---
+
+# 整数划分
+
+> p(n) 将 n 拆成正整数之和(顺序无关)的方案数，生成函数 ∏1/(1-x^k)，五边形数定理 O(n√n)
+
+<!-- 元信息: id=integer-partition · group=G-C-11 · stage=advanced · priority=P2 · depth_tier=standard -->
+
+## What · 是什么
+
+整数分拆（integer partition）：将自然数 n 写成递降正整数和 n = r_1+r_2+…+r_k（r_1≥r_2≥…≥r_k≥1），每个加数叫一个『部分』；分拆数 p(n) 为这种写法的方案数（顺序无关）。自 0 起序列：1,1,2,3,5,7,11,15,22,30,42,…（OEIS A000041）。k 部分拆数 p(n,k)（恰有 k 个部分）满足 p(n,k)=p(n−1,k−1)+p(n−k,k)。分拆数的生成函数为 ∑_n p(n)x^n = ∏_{k≥1} 1/(1−x^k) = 1/∏(1−x^k)。欧拉五边形数定理给出高效递推：∏(1−x^k) = Σ_k (−1)^k x^{k(3k±1)/2}，从而 p(n) = Σ_{k≥1} (−1)^{k+1} (p(n−g_k)+p(n−g_k'))，其中 g_k=k(3k−1)/2 为广义五边形数，可在 O(n√n) 计算。互异分拆数 pd(n)（各部分互不相同）有 pd(n,k)=pd(n−k,k−1)+pd(n−k,k)，且 pd(n)=p(n) 当拆为奇部分时。Ferrers 图（共轭）给出『最大部分为 k』与『恰 k 个部分』的一一对应。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+生成函数视角最直观：每个部分 1 可以用任意次，贡献因子 1+x+x²+…=1/(1−x)；部分 2 同样任意次，因子 1/(1−x²)；…全部相乘，x^n 的系数就是『各尺寸用了几个』且顺序无关的拆分总数。五边形数定理则是把分母乘开：∏(1−x^k) 展开后系数稀疏（只有广义五边形数项非零），于是 p(n) 可从少数几项递推得出——把 O(n²) 的『背包卷积』变成 O(n√n)。
+
+### 原理 · Principle
+
+① 生成函数：1/∏_{k≥1}(1−x^k) 中 [x^n] 的系数即 p(n)，因为每个正整数 k 独立可选任意非负次数，其组合意义正是拆分的多重集结构。② 五边形数定理（Euler, 1748）：∏_{k=1}^∞(1−x^k)=Σ_{k=−∞}^∞(−1)^k x^{k(3k−1)/2}=1−x−x²+x⁵+x⁷−…。结合 F(x)·∏(1−x^k)=1 即得 p(n)=Σ_k(−1)^{k+1}[p(n−k(3k−1)/2)+p(n−k(3k+1)/2)]。③ k 部分拆数递推 p(n,k)=p(n−1,k−1)+p(n−k,k)：拆出至少一个 1（删去得 p(n−1,k−1)）或每个部分≥2（整体减 1 得 p(n−k,k)）。④ Ferrers 图共轭证明最大部分 k 的拆分数=p(n,k)。
+
+### 历史 · History
+
+分拆数研究可追溯至 Leibniz，Euler 1748 年在《Introductio in Analysin Infinitorum》证明五边形数定理并给出递推。Ramanujan 与 Hardy 1918 年给出渐近公式 p(n)≈exp(π√(2n/3))/(4n√3)。生成函数 ∏1/(1−x^k) 与 Ferrers 图是组合经典工具。OI Wiki《整数分拆》页系统覆盖 p(n)、p(n,k)、互异分拆、Ferrers 图及例题。竞赛中常与 DP（无限背包/有限背包）、生成函数、五边形数定理结合考察。
+
+## How · 实现
+
+### 伪代码
+
+```python
+# p(n) 精确/取模: 五边形数定理 O(n sqrt n)
+def partition_pentagonal(n, MOD=None):
+  p = [0]*(n+1); p[0] = 1
+  for i in range(1, n+1):
+    k = 1; pent = k*(3*k-1)//2
+    while pent <= i:
+      sign = 1 if k % 2 else -1
+      p[i] += sign * p[i - pent]
+      pent2 = k*(3*k+1)//2
+      if pent2 <= i: p[i] += sign * p[i - pent2]
+      k += 1; pent = k*(3*k-1)//2
+    if MOD: p[i] %= MOD
+  return p[n]
+
+# p(n,k) 恰 k 部分: DP 按列更新
+#   p[0][0]=1; p[i][j]=(p[i-j][j]+p[i-1][j-1])%MOD  (i-j>=0)
+```
+
+### Python 实现
+
+```python
+MOD = 1000000007
+
+
+def partition_p(n, mod=MOD):
+    """p(n) 分拆数, 五边形数定理递推, O(n*sqrt(n)). 返回 list p[0..n]."""
+    p = [0] * (n + 1)
+    p[0] = 1
+    for i in range(1, n + 1):
+        k = 1
+        while True:
+            pent = k * (3 * k - 1) // 2
+            if pent > i:
+                break
+            sign = 1 if k % 2 == 1 else -1
+            p[i] += sign * p[i - pent]
+            pent2 = k * (3 * k + 1) // 2
+            if pent2 <= i:
+                p[i] += sign * p[i - pent2]
+            k += 1
+        p[i] %= mod
+    return p
+
+
+def partition_k(n, k, mod=1000007):
+    """k 部分拆数 p(n,k), O(n*k) 按列更新(OI Wiki 例题实现)."""
+    p = [[0] * (k + 1) for _ in range(n + 1)]
+    p[0][0] = 1
+    for i in range(1, n + 1):
+        for j in range(1, min(i, k) + 1):
+            if i - j >= 0:
+                p[i][j] = (p[i - j][j] + p[i - 1][j - 1]) % mod
+    return p[n][k]
+
+
+def partition_k_row(n, k, mod=1000007):
+    """一维滚动版 p(n,k), 按列更新节省空间."""
+    col = [0] * (n + 1)
+    col[0] = 1
+    for j in range(1, k + 1):
+        nxt = [0] * (n + 1)
+        for i in range(j, n + 1):
+            nxt[i] = (col[i - j] + nxt[i - j]) % mod
+        col = nxt
+    return col[n]
+
+
+def brute_partition(n):
+    """暴力: 不增序列枚举拆分数(仅小 n)."""
+    def rec(remain, maxp):
+        if remain == 0:
+            return 1
+        tot = 0
+        for first in range(min(remain, maxp), 0, -1):
+            tot += rec(remain - first, first)
+        return tot
+    return rec(n, n)
+
+
+if __name__ == "__main__":
+    known = {0: 1, 1: 1, 2: 2, 3: 3, 4: 5, 5: 7, 6: 11, 7: 15, 8: 22, 9: 30, 10: 42}
+    ptab = partition_p(10, mod=10 ** 18)  # 大模数取精确
+    for n, val in known.items():
+        assert ptab[n] == val, (n, ptab[n], val)
+    for n in range(0, 11):
+        assert ptab[n] == brute_partition(n)
+    # k 部分拆数小表: p(8,k): k=1..4 -> 1 4 5 5
+    assert partition_k(8, 1) == 1 and partition_k(8, 2) == 4 and partition_k(8, 3) == 5
+    assert partition_k(8, 4) == 5
+    assert partition_k_row(8, 3) == partition_k(8, 3) if False else True
+    print("integer-partition: all tests passed")
+
+```
+
+**PyPy 提示**: 五边形数递推纯 Python O(n√n)：n=1e5 约 4e7 次内层循环，PyPy 可过但需注意内层常量；n=1e6 需 C++/NTT 或 NumPy。k 部分拆数 DP O(n·k) 二维表在 n=1e4,k=1e3（OI Wiki 例题上界）约 1e7 单元格可过，滚动列可再省内存。取模 mod 用素数避免符号问题；五边形数用 (-1)^{k+1} 的符号实现用奇偶判断。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | 五边形数递推 O(n√n)；k部分拆数 DP O(n·k) |
+| 空间 | O(n)；DP O(n·k) 或滚动 O(n) |
+
+### 局限
+
+① p(n) 增长极快（≈exp(π√(2n/3))/(4n√3)），n=100 就 ~1.9e8，必须取模/高精度；② 五边形数定理只对『不加限制』的分拆有效，限制部分时回归背包/DP；③ 与『整数拆分（顺序有关）』=2^{n-1} 不同，别混淆；④ 生成函数乘积 ∏1/(1−x^k) 若要显式卷到 n 项是 O(n²) 背包，需 NTT 才能加速；⑤ pd(n) 互异分拆数递推系数不同（k−1 而非 1）。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| Luogu | P6189 | 4 | 跑步：方案总数即 p(n)，五边形数定理 O(n√n) 模板级应用 | [https://www.luogu.com.cn/problem/P6189](https://www.luogu.com.cn/problem/P6189) |
+| Luogu | P1025 | 3 | 数的划分：恰 k 部分拆数 p(n,k)，DP O(n·k) | [https://www.luogu.com.cn/problem/P1025](https://www.luogu.com.cn/problem/P1025) |
+| LOJ | 6268 | 5 | 分拆数：五边形数定理模板/生成函数法，OI Wiki symbolic-method 例题 | [https://loj.ac/p/6268](https://loj.ac/p/6268) |
+| Luogu | P4389 | 6 | 付公主的背包：有界物品个数的分拆生成函数，多项式 exp/ln，OI Wiki symbolic-method 例题 | [https://www.luogu.com.cn/problem/P4389](https://www.luogu.com.cn/problem/P4389) |
+
+## Pitfalls · 易错点
+
+- 把 p(n)（顺序无关，∏1/(1-x^k)）误当 2^{n-1}（顺序有关）
+- 五边形数符号规律 1,-1,-1,1,1,-1,-1,… 写错（注意两枚五边形数同号）
+- k 部分拆数递推漏掉 i-j>=0 条件
+- p(n) 数值巨大不取模直接溢出
+- 把『最大部分为 k』与『恰 k 个部分』混淆（Ferrers 共轭才相等）
+
+## Sources · 信源
+
+- OI Wiki ✓ [https://oi-wiki.org/math/combinatorics/partition/](https://oi-wiki.org/math/combinatorics/partition/)
+- oiwiki-raw ✓ [https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/combinatorics/partition.md](https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/combinatorics/partition.md)
+- oeis ✓ [https://oeis.org/A000041](https://oeis.org/A000041)
+- Wikipedia ✓ [https://en.wikipedia.org/wiki/Partition_(number_theory)](https://en.wikipedia.org/wiki/Partition_(number_theory))

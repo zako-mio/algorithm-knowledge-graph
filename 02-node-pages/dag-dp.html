@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>差分约束 / DAG 最短路 DP · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-9.html">图论高级专题</a> / <span>差分约束 / DAG 最短路 DP</span></div>
+  <h1>差分约束 / DAG 最短路 DP</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-B-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-B-9.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-B-9.html"><span class="dir">组内第 1 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="chord-graph.html"><span class="dir">下一个 / 组内</span><span class="v">chord-graph</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">差分约束系统建图+最短路判负环；DAG 上按拓扑序 DP 求最长/最短路</div><p>本节点包含两个紧密相关的话题：(1) 差分约束系统：一组形如 x_i - x_j ≤ c 的约束，等价于在图上连边 (j→i, 权 c)，求一组解等价于求单源最短路；若存在负环则无解。可用 Bellman-Ford/SPFA 判负环 O(nm)，或对无负环情形用最短路给出解。(2) DAG 最短路/最长路 DP：在无环图上用拓扑序（或记忆化搜索）在 O(n+m) 内求单源最长/最短路径，是图论 DP 的基础模型（见 OI Wiki dag.md 与 dp/dag）。二者都体现『把不等式/依赖关系编码成图，用图算法求解』的核心思想。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>差分约束的每条 x_i - x_j ≤ c 变形为 x_i ≤ x_j + c，恰与最短路三角形不等式 dist[y] ≤ dist[x] + z 同构——把 j 到 i 连边权 c 的边，跑最短路后 dist 就是一组解；负环意味着存在 x_i &lt; x_i 的矛盾。DAG 上无环则依赖关系是偏序，拓扑序保证每个状态被处理前其前驱全部就绪，所以 O(n+m) 即可递推。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>差分约束：设 dist[0]=0 并加 0 边到所有点，跑 SPFA/Bellman-Ford。若出现负环 → 无解；否则 x_i = dist[i] 为合法解。约束翻转：x_a - x_b ≥ c → 连 (a→b, -c)；x_a = x_b → (a→b,0) 与 (b→a,0)；比值约束取 log 变加法。DAG DP：拓扑排序后按序松弛 dist[v]=min/max(dist[v], dist[u]+w)。最长路等价于关键路径（CPM）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>差分约束系统在调度与规划领域历史悠久（最早可追溯至 Bellman 与 Ford 的最短路视角），是『约束满足→最短路』的经典建模；OI Wiki diff-constraints 章节用洛谷 P1993 小K的农场、P4926 倍杀测量者为例。DAG 上 DP 是最自然的 DP 模型，CPH ch16 与 OI Wiki dp/dag 均有专题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 差分约束: 求可行解或判无解</span>
+<span class="t-f">add</span>(<span class="t-n">0</span> -&gt; i, <span class="t-n">0</span>) 对所有 i
+<span class="t-f">add</span>(j -&gt; i, c) 对每个 x_i - x_j &lt;= c
+跑 Bellman-Ford:
+  若第 n 轮仍能松弛 -&gt; 有负环, 无解
+  否则 x_i = dist[i]
+
+<span class="t-c"># DAG 最长路 (拓扑序递推)</span>
+topo = 拓扑排序结果
+dist[s] = <span class="t-n">0</span>
+<span class="t-k">for</span> u <span class="t-k">in</span> topo:
+  <span class="t-k">for</span> (v, w) <span class="t-k">in</span> adj[u]:
+    dist[v] = <span class="t-b">max</span>(dist[v], dist[u] + w)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> deque, defaultdict
+
+INF = <span class="t-n">10</span> ** <span class="t-n">18</span>
+
+
+<span class="t-k">def</span> <span class="t-f">dag_longest_path</span>(n, edges):
+    <span class="t-s">&quot;&quot;&quot;DAG 最长路（从任意点出发的最大路径长度）。
+    n: 节点数; edges: [(u, v)] 有向边, 边权默认 1。返回最长路长度。
+    &quot;&quot;&quot;</span>
+    adj = <span class="t-f">defaultdict</span>(<span class="t-b">list</span>)
+    indeg = [<span class="t-n">0</span>] * n
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> edges:
+        adj[u].<span class="t-f">append</span>(v)
+        indeg[v] += <span class="t-n">1</span>
+    q = <span class="t-f">deque</span>(u <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n) <span class="t-k">if</span> indeg[u] == <span class="t-n">0</span>)
+    dist = [<span class="t-n">0</span>] * n
+    <span class="t-k">while</span> q:
+        u = q.<span class="t-f">popleft</span>()
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            dist[v] = <span class="t-b">max</span>(dist[v], dist[u] + <span class="t-n">1</span>)
+            indeg[v] -= <span class="t-n">1</span>
+            <span class="t-k">if</span> indeg[v] == <span class="t-n">0</span>:
+                q.<span class="t-f">append</span>(v)
+    <span class="t-k">return</span> <span class="t-b">max</span>(dist)
+
+
+<span class="t-k">def</span> <span class="t-f">diff_constraints_solve</span>(n, cons):
+    <span class="t-s">&quot;&quot;&quot;差分约束: 判断是否有解并返回一组解。
+    cons: [(i, j, c)] 表示 x_i - x_j &lt;= c (1-indexed 变量)。
+    返回 (True, [x_1..x_n]) 或 (False, []) 无解。
+    &quot;&quot;&quot;</span>
+    m = n + <span class="t-n">1</span>  <span class="t-c"># 0 为超级源</span>
+    adj = <span class="t-f">defaultdict</span>(<span class="t-b">list</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        adj[<span class="t-n">0</span>].<span class="t-f">append</span>((i, <span class="t-n">0</span>))            <span class="t-c"># dist[i] &lt;= dist[0] + 0</span>
+    <span class="t-k">for</span> i, j, c <span class="t-k">in</span> cons:
+        adj[j].<span class="t-f">append</span>((i, c))            <span class="t-c"># x_i - x_j &lt;= c -&gt; x_i &lt;= x_j + c</span>
+    <span class="t-c"># SPFA 判负环</span>
+    dist = [INF] * m
+    dist[<span class="t-n">0</span>] = <span class="t-n">0</span>
+    inq = [<span class="t-k">False</span>] * m
+    cnt = [<span class="t-n">0</span>] * m
+    q = <span class="t-f">deque</span>([<span class="t-n">0</span>])
+    inq[<span class="t-n">0</span>] = <span class="t-k">True</span>
+    <span class="t-k">while</span> q:
+        u = q.<span class="t-f">popleft</span>()
+        inq[u] = <span class="t-k">False</span>
+        <span class="t-k">for</span> v, w <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> dist[v] &gt; dist[u] + w:
+                dist[v] = dist[u] + w
+                cnt[v] = cnt[u] + <span class="t-n">1</span>
+                <span class="t-k">if</span> cnt[v] &gt; n:          <span class="t-c"># 入队超过 n 次 -&gt; 负环</span>
+                    <span class="t-k">return</span> <span class="t-k">False</span>, []
+                <span class="t-k">if</span> <span class="t-k">not</span> inq[v]:
+                    q.<span class="t-f">append</span>(v)
+                    inq[v] = <span class="t-k">True</span>
+    <span class="t-k">return</span> <span class="t-k">True</span>, [dist[i] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>)]
+
+
+<span class="t-k">def</span> <span class="t-f">dag_longest_naive</span>(n, edges):
+    <span class="t-s">&quot;&quot;&quot;朴素 O(V·(V+E)) 对拍。&quot;&quot;&quot;</span>
+    adj = <span class="t-f">defaultdict</span>(<span class="t-b">list</span>)
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> edges:
+        adj[u].<span class="t-f">append</span>(v)
+    best = <span class="t-n">0</span>
+    <span class="t-k">from</span> functools <span class="t-k">import</span> lru_cache
+
+    @<span class="t-f">lru_cache</span>(<span class="t-k">None</span>)
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(u):
+        m = <span class="t-n">0</span>
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            m = <span class="t-b">max</span>(m, <span class="t-f">dfs</span>(v) + <span class="t-n">1</span>)
+        <span class="t-k">return</span> m
+
+    <span class="t-k">return</span> <span class="t-b">max</span>((<span class="t-f">dfs</span>(u) <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n)), default=<span class="t-n">0</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># DAG 最长路</span>
+    edges = [(<span class="t-n">0</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">0</span>, <span class="t-n">2</span>), (<span class="t-n">2</span>, <span class="t-n">3</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>)]
+    <span class="t-k">assert</span> <span class="t-f">dag_longest_path</span>(<span class="t-n">4</span>, edges) == <span class="t-f">dag_longest_naive</span>(<span class="t-n">4</span>, edges) == <span class="t-n">3</span>
+    <span class="t-k">assert</span> <span class="t-f">dag_longest_path</span>(<span class="t-n">1</span>, []) == <span class="t-n">0</span>
+
+    <span class="t-c"># 差分约束: x2 - x1 &lt;= 3, x1 &lt;= 4 =&gt; x1=4, x2=7 可行</span>
+    ok, sol = <span class="t-f">diff_constraints_solve</span>(<span class="t-n">2</span>, [(<span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">1</span>, <span class="t-n">0</span>, <span class="t-n">4</span>)])
+    <span class="t-k">assert</span> ok
+    <span class="t-c"># 校验约束</span>
+    <span class="t-k">assert</span> sol[<span class="t-n">1</span>] - sol[<span class="t-n">0</span>] &lt;= <span class="t-n">3</span> + <span class="t-n">1e-9</span>
+    <span class="t-k">assert</span> sol[<span class="t-n">0</span>] &lt;= <span class="t-n">4</span> + <span class="t-n">1e-9</span>
+
+    <span class="t-c"># 无解: x1 - x2 &lt;= -5, x2 - x1 &lt;= -5 =&gt; x1 &lt; x2 且 x2 &lt; x1</span>
+    ok2, _ = <span class="t-f">diff_constraints_solve</span>(<span class="t-n">2</span>, [(<span class="t-n">1</span>, <span class="t-n">2</span>, -<span class="t-n">5</span>), (<span class="t-n">2</span>, <span class="t-n">1</span>, -<span class="t-n">5</span>)])
+    <span class="t-k">assert</span> <span class="t-k">not</span> ok2
+    <span class="t-b">print</span>(<span class="t-s">&quot;dag-dp 自测通过：DAG最长路(拓扑/记忆化)与差分约束(有解/无解)均正确&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">SPFA 判负环在随机图上快，最坏 O(nm)；DAG DP 用 deque 拓扑排序 O(n+m)。Python 递归记忆化需 setrecursionlimit；差分约束若已知图为 DAG 可用拓扑序 O(n+m) 替代 SPFA。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>DAG DP: O(n+m)；差分约束 Bellman-Ford/SPFA: O(nm)（最坏）</td></tr><tr><th>空间复杂度</th><td>O(n+m)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">差分约束若隐含环且环和为正仍可能有解（只是最短路法以 dist 解可能不最小），判无解需确认为负环；SPFA 在最坏图上会退化。DAG DP 前提是无环，有环需先 SCC 缩点。非连通/多源场景需超级源或对每个源分别跑。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>差分约束连边方向反了（x_i - x_j ≤ c 是 j→i 不是 i→j）</li><li>≥ 约束需翻转取负；= 约束拆两条</li><li>SPFA 判负环的入队计数初值（cnt[v]=cnt[u]+1 而非 ++cnt[v]）</li><li>DAG DP 忘记拓扑排序直接乱序会得到错误依赖</li><li>多源最长路要对所有源初始化 dist=0；单源要设 dist[s]=0, 其余 -INF</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1993</strong></td><td>4</td><td>小K的农场：差分约束建图+判负环模板题（OI Wiki 例题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1993" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1993</a></td></tr><tr><td>AtCoder</td><td><strong>dp_g</strong></td><td>3</td><td>Longest Path：DAG 上按拓扑序求最长路（EDPC 例题）</td><td class="u"><a href="https://atcoder.jp/contests/dp/tasks/dp_g" target="_blank" rel="noopener">https://atcoder.jp/contests/dp/tasks/dp_g</a></td></tr><tr><td>Luogu</td><td><strong>P1137</strong></td><td>3</td><td>旅行计划：DAG 最长路拓扑序递推</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1137" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1137</a></td></tr><tr><td>Luogu</td><td><strong>P4017</strong></td><td>3</td><td>最大食物链计数：DAG 上 DP 计数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4017" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4017</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dag-dp" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "model", "label": "把不等式/依赖建模为有向图"}}, {"data": {"id": "topo", "label": "拓扑排序（DAG）或超级源+判负环（差分约束）"}}, {"data": {"id": "relax", "label": "按拓扑序/最短路松弛"}}, {"data": {"id": "answer", "label": "取 dist 最值/验证无解"}}, {"data": {"id": "emodel->topo", "source": "model", "target": "topo"}}, {"data": {"id": "etopo->relax", "source": "topo", "target": "relax"}}, {"data": {"id": "erelax->answer", "source": "relax", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dag-dp'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-combination" href="tarjan-scc.html" title="SCC缩点后形成DAG，在DAG上做DP">Tarjan强连通分量<span class="etype">组合</span></a><a class="chip e-combination" href="topo-sort.html" title="DAG上的DP依赖拓扑序保证无后效性">拓扑排序<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/diff-constraints/" target="_blank" rel="noopener">https://oi-wiki.org/graph/diff-constraints/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/dag/" target="_blank" rel="noopener">https://oi-wiki.org/graph/dag/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/dag/" target="_blank" rel="noopener">https://oi-wiki.org/dp/dag/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch16 pp159-166</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

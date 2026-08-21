@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线性递推 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-12.html">多项式与FFT族</a> / <span>线性递推</span></div>
+  <h1>线性递推</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-12</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="multipoint-eval-interpolation.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">multipoint-eval-interpolation</span></a>
+    <a class="nav-index" href="../03-groups/G-C-12.html"><span class="dir">组内第 6 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="berlekamp-massey.html"><span class="dir">下一个 / 组内</span><span class="v">berlekamp-massey</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">常系数齐次线性递推O(k log k log n)求第n项，BM+NTT+Cayley-Hamilton</div><p>常系数齐次线性递推：给定初值 a_0..a_{d-1} 与递推 a_n=Σ_{j=1}^d c_j a_{n-j}（n&gt;=d），求 a_k（k 可极大）。直接迭代 O(dk) 或矩阵快速幂 O(d^3 log k) 太慢。Fiduccia 算法用特征多项式 Γ(x)=x^d-Σ_{j=0}^{d-1} c_{d-j}x^j，则 a_k=⟨x^k mod Γ, A(x)⟩（内积，A(x)=Σ a_j x^j），用多项式快速幂+取模做到 O(d log d log k)（NTT 加速乘法）。另一条路线 Bostan–Mori：把母函数写成有理函数 P(x)/Q(x)（Q(x)=x^dΓ(1/x)），通过 Q(x)Q(-x) 把系数减半迭代求 [x^k]P/Q，O(M(d) log k)。若递推未知，先用 Berlekamp-Massey 从序列恢复递推式，再套本算法。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>矩阵快速幂太浪费——转移矩阵其实是&#x27;友矩阵&#x27;，x^k mod Γ 抓住了它的本质：友矩阵 C 的第 i 列正是 x^i mod Γ 的系数向量，所以 C^k 的第一行= x^k mod Γ 的系数。多项式幂和取模比矩阵幂快得多。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>Fiduccia: 定义内积 ⟨f,g⟩=Σ f_j g_j。由友矩阵性质 B_{x·b mod Γ}=C·B_b 归纳得 C^k=[B_{x^k mod Γ},…]，于是 a_k（即 (C^T)^k 的第一行点乘初值向量）=⟨x^k mod Γ, A⟩。x^k mod Γ 用快速幂（多项式乘法+取模），乘法用 NTT，得 O(d log d log k)。Bostan–Mori 用 Graeffe 迭代 P/Q = (P Q(-x))/(Q Q(-x)) = (U0(x²)+xU1(x²))/V(x²)，每轮只取 k 奇偶对应的一半，k 每次减半，代价两次多项式乘法。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Fiduccia 算法(1985)与 Bostan–Mori 算法(2020 年前后在 OI 普及)是求解线性递推的两大现代方法。Berlekamp(1968)–Massey(1969) 负责从序列反推递推式，三者组合成&#x27;黑盒线性递推&#x27;技术：给前 2d 项就能推出第 k 项。OI Wiki 的 poly/linear-recurrence 页面系统介绍。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># Fiduccia: a_k = &lt;x^k mod Gamma, A&gt;</span>
+Gamma = [c_d, c_{d-<span class="t-n">1</span>},...,c_1, -<span class="t-n">1</span>] 反序的特征多项式系数
+<span class="t-c"># 即 Gamma(x)=x^d - sum c_j x^{d-j}</span>
+res = <span class="t-f">poly_powmod</span>(x^k mod Gamma)   <span class="t-c"># 快速幂+取模, 乘法用 NTT</span>
+ans = <span class="t-b">sum</span> res[i]*init[i]
+
+<span class="t-c"># Bostan-Mori: [x^k] P/Q</span>
+<span class="t-k">while</span> k &gt; <span class="t-n">0</span>:
+    U0, U1 = <span class="t-f">split</span>(P * <span class="t-f">Q</span>(-x))       <span class="t-c"># P*Q(-x) 的偶/奇系数</span>
+    V = Q * <span class="t-f">Q</span>(-x)
+    P, Q = (U0|U1)[k&amp;<span class="t-n">1</span>], <span class="t-f">V</span>(x)       <span class="t-c"># 取奇偶对应, 同时缩 k//2</span>
+<span class="t-k">return</span> <span class="t-f">P</span>(<span class="t-n">0</span>)*<span class="t-f">inv</span>(<span class="t-f">Q</span>(<span class="t-n">0</span>))</code></pre><h3>Python 实现</h3><pre><code class="python">MOD = <span class="t-n">998244353</span>
+ROOT = <span class="t-n">3</span>
+
+
+<span class="t-k">def</span> <span class="t-f">mod_pow</span>(a, b, mod=MOD):
+    r = <span class="t-n">1</span>
+    <span class="t-k">while</span> b:
+        <span class="t-k">if</span> b &amp; <span class="t-n">1</span>:
+            r = r * a % mod
+        a = a * a % mod
+        b &gt;&gt;= <span class="t-n">1</span>
+    <span class="t-k">return</span> r
+
+
+<span class="t-k">def</span> <span class="t-f">ntt</span>(a, invert=<span class="t-k">False</span>):
+    n = <span class="t-b">len</span>(a)
+    a = a[:]
+    j = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n):
+        bit = n &gt;&gt; <span class="t-n">1</span>
+        <span class="t-k">while</span> j &amp; bit:
+            j ^= bit
+            bit &gt;&gt;= <span class="t-n">1</span>
+        j ^= bit
+        <span class="t-k">if</span> i &lt; j:
+            a[i], a[j] = a[j], a[i]
+    h = <span class="t-n">2</span>
+    <span class="t-k">while</span> h &lt;= n:
+        w_h = <span class="t-f">mod_pow</span>(ROOT, (MOD - <span class="t-n">1</span>) // h)
+        <span class="t-k">if</span> invert:
+            w_h = <span class="t-f">mod_pow</span>(w_h, MOD - <span class="t-n">2</span>)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, n, h):
+            w = <span class="t-n">1</span>
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, i + h // <span class="t-n">2</span>):
+                u = a[j]
+                v = a[j + h // <span class="t-n">2</span>] * w % MOD
+                a[j] = (u + v) % MOD
+                a[j + h // <span class="t-n">2</span>] = (u - v) % MOD
+                w = w * w_h % MOD
+        h &lt;&lt;= <span class="t-n">1</span>
+    <span class="t-k">if</span> invert:
+        inv_n = <span class="t-f">mod_pow</span>(n, MOD - <span class="t-n">2</span>)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            a[i] = a[i] * inv_n % MOD
+    <span class="t-k">return</span> a
+
+
+<span class="t-k">def</span> <span class="t-f">poly_mul</span>(a, b):
+    <span class="t-k">if</span> <span class="t-k">not</span> a <span class="t-k">or</span> <span class="t-k">not</span> b:
+        <span class="t-k">return</span> []
+    need = <span class="t-b">len</span>(a) + <span class="t-b">len</span>(b) - <span class="t-n">1</span>
+    n = <span class="t-n">1</span>
+    <span class="t-k">while</span> n &lt; need:
+        n &lt;&lt;= <span class="t-n">1</span>
+    fa = a[:] + [<span class="t-n">0</span>] * (n - <span class="t-b">len</span>(a))
+    fb = b[:] + [<span class="t-n">0</span>] * (n - <span class="t-b">len</span>(b))
+    fa = <span class="t-f">ntt</span>(fa)
+    fb = <span class="t-f">ntt</span>(fb)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        fa[i] = fa[i] * fb[i] % MOD
+    fa = <span class="t-f">ntt</span>(fa, <span class="t-k">True</span>)
+    <span class="t-k">return</span> fa[:need]
+
+
+<span class="t-k">def</span> <span class="t-f">poly_inv</span>(a, n):
+    <span class="t-s">&quot;&quot;&quot;多项式逆元(牛顿迭代). a[0] != 0. 返回前 n 项。&quot;&quot;&quot;</span>
+    <span class="t-k">assert</span> a[<span class="t-n">0</span>] != <span class="t-n">0</span>
+    res = [<span class="t-b">pow</span>(a[<span class="t-n">0</span>], MOD - <span class="t-n">2</span>, MOD)]
+    m = <span class="t-n">1</span>
+    <span class="t-k">while</span> m &lt; n:
+        m2 = <span class="t-b">min</span>(m * <span class="t-n">2</span>, n)
+        <span class="t-c"># res = res * (2 - a*res) mod x^m2</span>
+        t = <span class="t-f">poly_mul</span>(a[:m2], res)
+        t = t[:m2]
+        t[<span class="t-n">0</span>] = (<span class="t-n">2</span> - t[<span class="t-n">0</span>]) % MOD
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-b">len</span>(t)):
+            t[i] = (-t[i]) % MOD
+        res = <span class="t-f">poly_mul</span>(res, t)[:m2]
+        m = m2
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">poly_divmod</span>(f, g):
+    <span class="t-s">&quot;&quot;&quot;多项式带余除法 f=q*g+r 用 NTT 加速(系数低-&gt;高)。&quot;&quot;&quot;</span>
+    n, m = <span class="t-b">len</span>(f), <span class="t-b">len</span>(g)
+    <span class="t-k">if</span> n &lt; m:
+        <span class="t-k">return</span> [], f[:]
+    <span class="t-c"># q_rev = rev(f)_top * inv(rev(g)_top) mod x^{n-m+1}</span>
+    fr = f[::-<span class="t-n">1</span>][:n - m + <span class="t-n">1</span>]
+    gr = g[::-<span class="t-n">1</span>]
+    igr = <span class="t-f">poly_inv</span>(gr, n - m + <span class="t-n">1</span>)
+    qrev = <span class="t-f">poly_mul</span>(fr, igr)[:n - m + <span class="t-n">1</span>]
+    q = qrev[::-<span class="t-n">1</span>]
+    qg = <span class="t-f">poly_mul</span>(q, g)
+    r = [(f[i] - qg[i]) % MOD <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(m - <span class="t-n">1</span>)]
+    <span class="t-k">return</span> q, r
+
+
+<span class="t-k">def</span> <span class="t-f">linear_recurrence_fiduccia</span>(init, coeff, k):
+    <span class="t-s">&quot;&quot;&quot;常系数齐次线性递推求第 k 项(0-index).
+    init: a_0..a_{d-1}; coeff: c_1..c_d (a_n = sum c_j a_{n-j}).
+    用 Fiduccia 算法: a_k = &lt; x^k mod Gamma(x), A(x) &gt;, 多项式乘幂用 NTT. O(d log d log k).&quot;&quot;&quot;</span>
+    d = <span class="t-b">len</span>(coeff)
+    <span class="t-k">if</span> k &lt; d:
+        <span class="t-k">return</span> init[k] % MOD
+    <span class="t-c"># Gamma(x) = x^d - sum_{j=0}^{d-1} c_{d-j} x^j  (系数低-&gt;高)</span>
+    gamma = [<span class="t-n">0</span>] * (d + <span class="t-n">1</span>)
+    gamma[d] = <span class="t-n">1</span>
+    <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(d):
+        gamma[j] = (-coeff[d - <span class="t-n">1</span> - j]) % MOD
+    <span class="t-c"># A(x) = a_0 + a_1 x + ... + a_{d-1} x^{d-1}</span>
+    A = [x % MOD <span class="t-k">for</span> x <span class="t-k">in</span> init]
+    <span class="t-c"># 计算 x^k mod Gamma</span>
+    res = [<span class="t-n">1</span>]  <span class="t-c"># x^0</span>
+    base = [<span class="t-n">0</span>, <span class="t-n">1</span>]  <span class="t-c"># x</span>
+    e = k
+    <span class="t-k">while</span> e:
+        <span class="t-k">if</span> e &amp; <span class="t-n">1</span>:
+            res = <span class="t-f">poly_mul</span>(res, base)
+            res = <span class="t-f">poly_mod</span>(res, gamma)
+        base = <span class="t-f">poly_mul</span>(base, base)
+        base = <span class="t-f">poly_mod</span>(base, gamma)
+        e &gt;&gt;= <span class="t-n">1</span>
+    <span class="t-c"># 内积</span>
+    ans = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">min</span>(<span class="t-b">len</span>(res), d)):
+        ans = (ans + res[i] * A[i]) % MOD
+    <span class="t-k">return</span> ans
+
+
+<span class="t-k">def</span> <span class="t-f">poly_mod</span>(f, g):
+    q, r = <span class="t-f">poly_divmod</span>(f, g)
+    <span class="t-k">return</span> r
+
+
+<span class="t-k">def</span> <span class="t-f">linear_recurrence_naive</span>(init, coeff, k):
+    <span class="t-s">&quot;&quot;&quot;朴素 O(d^2 k) 验证用。&quot;&quot;&quot;</span>
+    d = <span class="t-b">len</span>(coeff)
+    a = [x % MOD <span class="t-k">for</span> x <span class="t-k">in</span> init]
+    <span class="t-k">if</span> k &lt; <span class="t-b">len</span>(a):
+        <span class="t-k">return</span> a[k]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(a), k + <span class="t-n">1</span>):
+        s = <span class="t-n">0</span>
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(d):
+            s = (s + coeff[j] * a[i - <span class="t-n">1</span> - j]) % MOD
+        a.<span class="t-f">append</span>(s)
+    <span class="t-k">return</span> a[k]
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    <span class="t-c"># Fibonacci: F_0=0,F_1=1, F_n=F_{n-1}+F_{n-2}; coeff c1=1,c2=1</span>
+    init = [<span class="t-n">0</span>, <span class="t-n">1</span>]
+    coeff = [<span class="t-n">1</span>, <span class="t-n">1</span>]
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">20</span>):
+        <span class="t-k">assert</span> <span class="t-f">linear_recurrence_fiduccia</span>(init, coeff, k) == <span class="t-f">linear_recurrence_naive</span>(init, coeff, k), k
+    <span class="t-k">assert</span> <span class="t-f">linear_recurrence_fiduccia</span>([<span class="t-n">0</span>, <span class="t-n">1</span>], [<span class="t-n">1</span>, <span class="t-n">1</span>], <span class="t-n">10</span>) == <span class="t-n">55</span>
+    <span class="t-c"># 随机递推对拍</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">20</span>):
+        d = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">5</span>)
+        init = [random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">10</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(d)]
+        coeff = [random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">10</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(d)]
+        k = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">40</span>)
+        a = <span class="t-f">linear_recurrence_fiduccia</span>(init, coeff, k)
+        b = <span class="t-f">linear_recurrence_naive</span>(init, coeff, k)
+        <span class="t-k">assert</span> a == b, (init, coeff, k, a, b)
+    <span class="t-b">print</span>(<span class="t-s">&quot;linear-recurrence (Fiduccia+NTT) tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 用 NTT 实现多项式乘法与取模, 小规模(1e4 以下)可跑通; 大规模建议 C++。教学版提供朴素除法验证正确性。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>Fiduccia/Bostan-Mori: O(M(d) log k)=O(d log d log k)(NTT)</td></tr><tr><th>空间复杂度</th><td>O(d)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅适用于常系数齐次线性递推(非齐次需先转化); 初值/系数需齐全; Python 实现 NTT+取模链常数大, 大规模不现实; 若递推未知需先跑 BM(需足够项数, 一般 2d 项)。模数若非 NTT 友好素数, 复杂度退化为普通多项式乘法。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>特征多项式符号/反序搞错(Γ 系数方向)</li><li>x^k mod Γ 快速幂时忘记 mod(结果超出度 d)</li><li>内积只取前 d 项(Γ 次数为 d 时 res 长度&lt;=d)</li><li>Bostan-Mori 偶奇拆分时下标与 k 奇偶对应错位</li><li>递推未知时直接套 Fiduccia(需先 BM 求递推)</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4721</strong></td><td>5</td><td>分治 FFT 求线性递推(配合 NTT), 经典进阶题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4721" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4721</a></td></tr><tr><td>Codeforces</td><td><strong>1851G</strong></td><td>5</td><td>BM+线性递推组合应用类问题的参考</td><td class="u"><a href="https://codeforces.com/problemset/problem/1851/G" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/1851/G</a></td></tr><tr><td>Library Checker</td><td><strong>find_linear_recurrence</strong></td><td>4</td><td>求序列线性递推模板题(BM)</td><td class="u"><a href="https://judge.yosupo.jp/problem/find_linear_recurrence" target="_blank" rel="noopener">https://judge.yosupo.jp/problem/find_linear_recurrence</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-linear-recurrence" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "get_recurrence", "label": "拿到递推系数(已知或 BM 恢复)"}}, {"data": {"id": "char_poly", "label": "构造特征多项式 Gamma(x)"}}, {"data": {"id": "fast_pow", "label": "计算 x^k mod Gamma(快速幂+NTT)"}}, {"data": {"id": "inner_product", "label": "内积 \u003cres, init> 得 a_k"}}, {"data": {"id": "bostan_mori", "label": "(可选)有理函数视角: Bostan-Mori 迭代"}}, {"data": {"id": "eget_recurrence->char_poly", "source": "get_recurrence", "target": "char_poly"}}, {"data": {"id": "echar_poly->fast_pow", "source": "char_poly", "target": "fast_pow"}}, {"data": {"id": "efast_pow->inner_product", "source": "fast_pow", "target": "inner_product"}}, {"data": {"id": "echar_poly->bostan_mori", "source": "char_poly", "target": "bostan_mori"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-linear-recurrence'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="ntt.html" title="线性递推O(k log k log n)用NTT加速多项式取模">NTT(数论变换)<span class="etype">前置依赖</span></a><a class="chip e-combination" href="berlekamp-massey.html" title="BM求递推式+NTT+Cayley-Hamilton求第n项">Berlekamp-Massey<span class="etype">组合</span></a><a class="chip e-prerequisite" href="char-polynomial.html" title="线性递推加速依赖Cayley-Hamilton定理(特征多项式)">特征多项式<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/poly/linear-recurrence/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/linear-recurrence/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/linear-recurrence.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/linear-recurrence.md</a></li><li><span class="srctype">web</span><span class="v-ok">&#10003;</span> <a href="https://arxiv.org/abs/2008.08822" target="_blank" rel="noopener">https://arxiv.org/abs/2008.08822</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

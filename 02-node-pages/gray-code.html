@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>格雷码 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-18.html">大整数与数制族</a> / <span>格雷码</span></div>
+  <h1>格雷码</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-18</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="big-integer.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">big-integer</span></a>
+    <a class="nav-index" href="../03-groups/G-C-18.html"><span class="dir">组内第 2 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="balanced-ternary.html"><span class="dir">下一个 / 组内</span><span class="v">balanced-ternary</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">相邻两数二进制仅一位不同的编码，G(n)=n^(n&gt;&gt;1)，逆变换 rev_g 逐位异或；用于汉密尔顿路径、汉诺塔、避免信号误判</div><p>格雷码（Gray code）是一种二进制编码系统，其中任意两个相邻数字的二进制表示只有一位不同。0 起点：G(0)=000,G(1)=001,G(2)=011,G(3)=010,G(4)=110,G(5)=111,G(6)=101,G(7)=100。正向变换 G(n)=n^(n&gt;&gt;1)；逆变换（给定 g 恢复 n）：从高位向低位，n 的每一位 = g 对应位与前一位 n 异或，代码 `rev_g(g): n=0; while g: n^=g; g&gt;&gt;=1`。3 位格雷码序列构成三维立方体的汉密尔顿回路；也是汉诺塔的移动序列。CSP-S2 2019 D1T1 直接考正向变换。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>普通二进制从 3(011) 到 4(100) 要翻转 3 位，编码器/传感器若在边界抖动会误读。格雷码保证每走一步只翻 1 位，任何中间态都恰好是某个合法相邻值，错误被最小化。构造上：G(n)=n^(n&gt;&gt;1) 把二进制「相邻变化点」编码成 XOR，相邻 n 的差别只反映在最高变化位。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>正向：设 n 二进制为 ...b_i b_{i-1}...，则 G 的第 i 位 = b_i ^ b_{i+1}（i+1 是更高一位），故 G(n)=n ^ (n&gt;&gt;1)。正确性：n 加 1 时末段连续的 1 翻转为 0 并把最低的 0 置 1；这一过程反映到 G(n) 上只改变一位（最高变化位），可严格证明相邻 G 恰差 1 位。逆变换：n_k=g_k, n_{k-1}=g_{k-1}^n_k=g_{k-1}^g_k, ...，即 n 的每一位是 g 的前缀异或，故 rev_g 循环 g&gt;&gt;=1 并异或累加。镜像构造：k 位格雷码由 k-1 位镜像翻转后在高位补 0/1 得到。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>由贝尔实验室 Frank Gray 于 1940 年代提出，1953 年注册专利（Pulse Code Communication）。最初用于避免数字信号传输中的编码错误。竞赛中 CSP-S2 2019 D1T1 直接考查 G(n) 公式；也常用于状压/子集排列、汉诺塔的递归移动序列建模。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">g</span>(n):
+    <span class="t-k">return</span> n ^ (n &gt;&gt; <span class="t-n">1</span>)
+
+<span class="t-k">def</span> <span class="t-f">rev_g</span>(gcode):
+    n = <span class="t-n">0</span>
+    <span class="t-k">while</span> gcode:
+        n ^= gcode
+        gcode &gt;&gt;= <span class="t-n">1</span>
+    <span class="t-k">return</span> n
+
+<span class="t-c"># 生成 k 位格雷码序列（镜像法，非必需）</span>
+<span class="t-k">def</span> <span class="t-f">gray_sequence</span>(k):
+    seq = [<span class="t-n">0</span>]
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(k):
+        seq += [x | (<span class="t-n">1</span> &lt;&lt; <span class="t-b">len</span>(seq)) <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">reversed</span>(seq)]
+    <span class="t-k">return</span> seq</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">g</span>(n):
+    <span class="t-k">return</span> n ^ (n &gt;&gt; <span class="t-n">1</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">rev_g</span>(gcode):
+    n = <span class="t-n">0</span>
+    <span class="t-k">while</span> gcode:
+        n ^= gcode
+        gcode &gt;&gt;= <span class="t-n">1</span>
+    <span class="t-k">return</span> n
+
+
+<span class="t-k">def</span> <span class="t-f">gray_sequence</span>(k):
+    seq = [<span class="t-n">0</span>]
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(k):
+        size = <span class="t-b">len</span>(seq)
+        seq = seq + [x | size <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">reversed</span>(seq)]
+    <span class="t-k">return</span> seq
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    <span class="t-c"># 正向变换 + 相邻汉明距离恒为 1</span>
+    vals = [<span class="t-f">g</span>(n) <span class="t-k">for</span> n <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">16</span>)]
+    <span class="t-k">for</span> a, b <span class="t-k">in</span> <span class="t-b">zip</span>(vals, vals[<span class="t-n">1</span>:]):
+        <span class="t-k">assert</span> (a ^ b).<span class="t-f">bit_count</span>() == <span class="t-n">1</span>, (a, b)
+    <span class="t-k">assert</span> vals == [<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">2</span>, <span class="t-n">6</span>, <span class="t-n">7</span>, <span class="t-n">5</span>, <span class="t-n">4</span>, <span class="t-n">12</span>, <span class="t-n">13</span>, <span class="t-n">15</span>, <span class="t-n">14</span>, <span class="t-n">10</span>, <span class="t-n">11</span>, <span class="t-n">9</span>, <span class="t-n">8</span>]
+    <span class="t-c"># 逆变换正确性</span>
+    <span class="t-k">for</span> n <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">256</span>):
+        <span class="t-k">assert</span> <span class="t-f">rev_g</span>(<span class="t-f">g</span>(n)) == n
+    <span class="t-c"># 镜像法生成的序列与公式一致</span>
+    <span class="t-k">assert</span> <span class="t-f">gray_sequence</span>(<span class="t-n">4</span>) == [<span class="t-f">g</span>(n) <span class="t-k">for</span> n <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">16</span>)]
+    <span class="t-b">print</span>(<span class="t-s">&quot;gray-code OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">位运算 n^(n&gt;&gt;1) 与 while 循环在 PyPy 下均极快，无需特殊优化。超大 n（如 k 到 60 位）直接用 int 位运算，Python int 不限宽。注意 n 为负数时 ^ 与 &gt;&gt; 在 Python 是算术移位+无限位宽符号扩展，g() 公式只对非负 n 有意义。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>正向 O(1)；逆变换 O(位数)（每轮异或+移位）；生成 k 位序列 O(2^k)</td></tr><tr><th>空间复杂度</th><td>O(1)；生成序列 O(2^k)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只对非负整数定义；逆变换线性扫描位宽。格雷码本身在竞赛中直接考的题较少（CSP2019 为典型），更多作为构造/编码技巧与汉诺塔、超立方体问题的辅助。3 位以上序列长度 2^k 增长快，不能全量枚举超过 20 位。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>Python 中 n^(n&gt;&gt;1) 对超大 k（如 64 位）直接用 int 即可，但 C++ 会溢出 unsigned long long 时要留意</li><li>逆变换勿写成从低位异或；正确是每次 g&gt;&gt;=1 累异或（等价于前缀异或从高位计算）</li><li>k 位格雷码序列首项与末项也恰好差 1 位（环形性质），若题目要求循环也满足</li><li>G(n) 不是普通二进制映射，不能直接当二进制做比较/加法</li><li>n 为负时位运算语义不同，务必先转非负</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P5657</strong></td><td>4</td><td>CSP-S2 2019 D1T1 格雷码：直接考 G(n)=n^(n&gt;&gt;1) 公式，但 k 达 64 需用 Python int 处理大数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5657" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5657</a></td></tr><tr><td>Luogu</td><td><strong>P2119</strong></td><td>3</td><td>魔法阵：位运算+计数辅助，非格雷码本体，可作位运算综合练习</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2119" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2119</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-gray-code" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "正向：G(n)=n^(n>>1)"}}, {"data": {"id": "s2", "label": "逆变换：rev_g 循环 g>>=1 累异或"}}, {"data": {"id": "s3", "label": "性质验证：相邻汉明距离=1、rev_g(G(n))==n"}}, {"data": {"id": "s4", "label": "应用：汉诺塔移动序列/超立方体回路"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es2->s3", "source": "s2", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-gray-code'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/numeral-sys/gray-code/" target="_blank" rel="noopener">https://oi-wiki.org/math/numeral-sys/gray-code/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/algebra/gray-code.html" target="_blank" rel="noopener">https://cp-algorithms.com/algebra/gray-code.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

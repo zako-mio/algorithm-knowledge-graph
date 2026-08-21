@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>树分块 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-9.html">高级树结构族</a> / <span>树分块</span></div>
+  <h1>树分块</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-A-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="cartesian-tree.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">cartesian-tree</span></a>
+    <a class="nav-index" href="../03-groups/G-A-9.html"><span class="dir">组内第 2 / 2</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-A-9.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">把树划分成 O(√n) 个块（关键点/块边界），块内暴力、块间预统计，配合树上莫队与 bitset 处理树上路径颜色统计、mex 等查询。</div><p>树分块（tree blocking/decomposition）是把序列分块思想搬到树上：将 n 个节点的树分成大小约 O(√n) 的块，定义块的关键点（块根），每个块内的点通过一次 DFS 属于某关键点；询问时在块内暴力跳、块之间利用预处理的信息（如到关键祖先路径上的颜色 bitset、块间的聚合值）快速回答。经典应用是树上莫队的预处理与『雪辉』（BZOJ4763）这类路径上颜色数/mex 统计。由于能被树分块解决的题目通常有更优做法（树剖、点分治等），相关题目较少，主要作方法论了解。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>序列分块能 O(√n) 平衡『暴力块内』与『预处理块间』，树分块同理：树上路径任意长，但把它拆成『两段从端点到关键点的暴力跳』+『关键点之间的一段跳』，前者 O(√n)、后者 O(√n)（块数），配合预处理的 bitset 让合并 O(1)。『菊花图可以卡掉朴素树分块』也说明其设计依赖树的结构（菊花图每点都是叶子，块间跳跃无收益）。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 分块方式：参考树上莫队的块划分（如按 DFS 序分块，块大小约 √n，关键点为块内最浅点）。② 雪辉问题（BZOJ4763）：块内每个关键点预处理『它到祖先中每个关键点路径上的颜色 bitset』与『最近关键点祖先』，复杂度 O(n√n + nc/32)（c 为颜色数）。③ 回答查询：路径两端先暴力跳到所在块的关键点，再从关键点一块块向上跳直到 LCA 所在块，块内暴力；关键点间的 bitset 已预处理，剩余部分暴力过程中计算合并，单次 O(√n + c/32)。④ 数颜色用 bitset.count()，求 mex 用 _Find_first()。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>树分块伴随树上莫队（Mo&#x27;s algorithm on trees）发展，2009 年前后在 Codeforces/竞赛题中流行；OI Wiki 将树分块作为树上莫队前置方法论。『gty 的妹子树』一类题目的树分块做法可被菊花图卡，出题/做题时需注意。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 分块（以树上莫队风格为例）</span>
+欧拉序按块大小 B≈√n 划分，确定块与关键点
+<span class="t-c"># 预处理</span>
+<span class="t-k">for</span> 每个关键点 kp:
+    预处理 kp 到各祖先关键点路径上的颜色 bitset
+    预处理最近关键点祖先
+<span class="t-c"># 查询路径 u..v:</span>
+    暴力跳 u,v 到所在块关键点，收集零散颜色
+    关键点间用预处理的 bitset 合并
+    块内/最后一段暴力，到 LCA
+    ans = bitset.<span class="t-f">count</span>() 或 <span class="t-f">_Find_first</span>()</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">block_tree_path_colors</span>(n, parent, color, block_assign, keypoint_of, bitset_ancestor, u, v):
+    <span class="t-s">&quot;&quot;&quot;示意接口：树分块路径颜色查询的合并逻辑。
+    教学示例仅演示分块思想，完整实现涉及块划分与 bitset 预处理。&quot;&quot;&quot;</span>
+    <span class="t-c"># 收集零散路径颜色（块内暴力跳）</span>
+    colors = <span class="t-b">set</span>()
+    <span class="t-k">while</span> u != -<span class="t-n">1</span> <span class="t-k">and</span> <span class="t-k">not</span> keypoint_of[block_assign[u]]:
+        colors.<span class="t-f">add</span>(color[u])
+        u = parent[u]
+    <span class="t-k">while</span> v != -<span class="t-n">1</span> <span class="t-k">and</span> <span class="t-k">not</span> keypoint_of[block_assign[v]]:
+        colors.<span class="t-f">add</span>(color[v])
+        v = parent[v]
+    <span class="t-c"># 关键点之间用预处理的 bitset 聚合（示意）</span>
+    <span class="t-k">if</span> u != -<span class="t-n">1</span> <span class="t-k">and</span> v != -<span class="t-n">1</span>:
+        <span class="t-k">for</span> c <span class="t-k">in</span> bitset_ancestor.<span class="t-f">get</span>((u, v), <span class="t-b">set</span>()):
+            colors.<span class="t-f">add</span>(c)
+    <span class="t-k">return</span> <span class="t-b">len</span>(colors)
+
+<span class="t-k">def</span> <span class="t-f">tree_decompose_selfcheck</span>():
+    <span class="t-c"># 以链状树（0-&gt;1-&gt;...-&gt;8）演示分块正确性（简化模型）</span>
+    n = <span class="t-n">9</span>
+    parent = [-<span class="t-n">1</span>] + <span class="t-b">list</span>(<span class="t-b">range</span>(<span class="t-n">0</span>, n - <span class="t-n">1</span>))   <span class="t-c"># parent[i]=i-1, parent[0]=-1</span>
+    color = [<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">2</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">3</span>, <span class="t-n">3</span>]
+    B = <span class="t-n">3</span>
+    block_assign = [i // B <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">def</span> <span class="t-f">walk_colors</span>(u, v):
+        <span class="t-c"># 链上 u..v（u&lt;=v）路径颜色集合：公共祖先即链上较浅点</span>
+        s = <span class="t-b">set</span>()
+        a, b = <span class="t-b">min</span>(u, v), <span class="t-b">max</span>(u, v)
+        <span class="t-k">while</span> b &gt;= a:
+            s.<span class="t-f">add</span>(color[b]); b = parent[b]
+        <span class="t-k">return</span> s
+    <span class="t-c"># 树分块核心：每个块预处理块内颜色集合</span>
+    block_colors = [<span class="t-b">set</span>() <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>((n + B - <span class="t-n">1</span>) // B)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        block_colors[block_assign[i]].<span class="t-f">add</span>(color[i])
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            got = <span class="t-f">walk_colors</span>(u, v)
+            <span class="t-c"># 分块法：完整覆盖的块用预处理集合，两端零散部分块内暴力</span>
+            a, b = <span class="t-b">min</span>(u, v), <span class="t-b">max</span>(u, v)
+            s2 = <span class="t-b">set</span>()
+            <span class="t-k">if</span> a // B == b // B:            <span class="t-c"># 同一块：暴力</span>
+                <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(a, b + <span class="t-n">1</span>):
+                    s2.<span class="t-f">add</span>(color[x])
+            <span class="t-k">else</span>:
+                <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(a, <span class="t-b">min</span>((a // B + <span class="t-n">1</span>) * B, n)):        <span class="t-c"># 左零散</span>
+                    s2.<span class="t-f">add</span>(color[x])
+                <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(a // B + <span class="t-n">1</span>, b // B):                 <span class="t-c"># 整块（预统计）</span>
+                    s2 |= block_colors[k]
+                <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>((b // B) * B, b + <span class="t-n">1</span>):                <span class="t-c"># 右零散</span>
+                    s2.<span class="t-f">add</span>(color[x])
+            <span class="t-k">assert</span> <span class="t-b">len</span>(s2) == <span class="t-b">len</span>(got), (u, v, s2, got)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;tree decompose block-color union consistent OK&#x27;</span>)
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-f">tree_decompose_selfcheck</span>()</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">bitset 用 Python int 位运算即可模拟（python int 天然大整数），count 用 bin(x).count(&#x27;1&#x27;)，mex 用位扫描；树上分块主体是路径跳跃，PyPy 性能可接受。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>单次查询 O(√n + c/32)（c 颜色数）；预处理 O(n√n + nc/32)；构造 O(n√n)</td></tr><tr><th>空间复杂度</th><td>O(n√n + nc/32)（关键点 bitset 存储）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">可解决的题目范围窄（路径颜色统计/mex 类），且多数有更优解法；对菊花图等『块间跳跃无收益』的结构会退化；bitset 存储开销大；实现细节多，竞赛中低频出现。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>朴素树分块在菊花图上退化，出题/评估复杂度时必须考虑树结构</li><li>关键点 bitset 预处理的『到祖先关键点』方向与路径方向需一致</li><li>块内暴力跳与块间跳的边界（是否已到 LCA 所在块）处理易错</li><li>mex 查询用 _Find_first 而数颜色用 count，两者混用会得到错误结果</li><li>分块大小 B 需按 O(√n) 平衡预处理与查询代价，取错会超时</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>hydro</td><td><strong>BZOJ4763 雪辉</strong></td><td>7</td><td>树分块 + 关键点 bitset 预处理 + 路径颜色数/mex，树分块核心例题</td><td class="u"><a href="https://hydro.ac/p/bzoj-P4763" target="_blank" rel="noopener">https://hydro.ac/p/bzoj-P4763</a></td></tr><tr><td>hydro</td><td><strong>BZOJ4812 由乃打扑克</strong></td><td>8</td><td>与 4763 类似，增加 bitset 16 位分组计数优化</td><td class="u"><a href="https://hydro.ac/p/bzoj-P4812" target="_blank" rel="noopener">https://hydro.ac/p/bzoj-P4812</a></td></tr><tr><td>Luogu</td><td><strong>P4074</strong></td><td>7</td><td>[WC2013] 糖果公园：树上莫队（依赖欧拉序分块），树分块思想在莫队中的应用</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4074" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4074</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-tree-decompose" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "blocking", "label": "树的块划分与关键点"}}, {"data": {"id": "mo-on-tree", "label": "树上莫队关联"}}, {"data": {"id": "bitset", "label": "路径颜色 bitset 预处理"}}, {"data": {"id": "query", "label": "块内暴力 + 块间聚合"}}, {"data": {"id": "eblocking->mo-on-tree", "source": "blocking", "target": "mo-on-tree"}}, {"data": {"id": "eblocking->bitset", "source": "blocking", "target": "bitset"}}, {"data": {"id": "ebitset->query", "source": "bitset", "target": "query"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-tree-decompose'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/tree-decompose.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/tree-decompose.md</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/tree-decompose/" target="_blank" rel="noopener">https://oi-wiki.org/ds/tree-decompose/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

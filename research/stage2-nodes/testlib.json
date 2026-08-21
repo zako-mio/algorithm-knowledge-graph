@@ -1,0 +1,75 @@
+{
+  "id": "testlib",
+  "name": "testlib对拍框架",
+  "group": "G-E-9",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "testlib.h：generator/validator/checker/interactor四件套，出题与对拍的标准库，与Polygon完全兼容",
+  "what": "Testlib是C++编写算法竞赛出题/评测相关程序的辅助库，仅由testlib.h一个头文件组成。它提供四个核心组件：Generator(数据生成器，用rnd产生可复现随机数据)、Validator(校验器，检查生成数据是否符合题目范围与格式)、Checker(评测器/Special Judge，判断选手输出正确性)、Interactor(交互器，用于交互题)。Testlib的随机数生成器rnd以命令行参数为种子哈希，保证相同参数在任何平台产生相同输出(跨平台可复现)，避免了rand()/srand的不可控。它被ROI、ICPC区域赛、所有Codeforces round使用，与Codeforces的Polygon出题平台完全兼容。testlib源自2005年由testlib.pas移植，一直维护至今。",
+  "why": {
+    "intuition": "自己写数据生成器最怕'这次能跑下次不能'——rand()跨平台/跨时间不确定。testlib把随机源绑定到命令行参数，让'同一命令永远同一数据'，还顺手提供了大量开箱即用的随机函数(rnd.next各种类型、生成串、生成树模板)，以及严格的读入校验readInt(l,r)来拦下越界输出。出题人省心，评测也安全。",
+    "principle": "核心组件：(1)Generator: registerGen(argc,argv,1)初始化后可用rnd.next(范围/模式串)、rnd.wnext(偏移期望)、shuffle()等；种子=命令行参数哈希，如'g 100'与'g.exe 100'输出相同，'g 100 0'则不同。禁止混用rand()/srand(会编译报错)。(2)Validator: registerValidation()后用inf.readInt(l,r)、inf.readEoln()、inf.readEof()等严格按题面格式读取，非法即判Fail，保护评测。(3)Checker: registerTestlibCmd(argc,argv)后用inf/ouf/ans三个流，readInt/readDouble/ensuref等检查输出，quitf(_ok/_wa/_fail)返回结果；常用封装readAns函数同时校验选手与标准输出，返回_fail而非_wa以区分'数据问题'与'选手错误'。(4)Interactor: registerInteraction(argc,argv)读写stdout/ouf与选手交互，只支持CF形式(两程序交互)。内置checker如ncmp/rcmp4/wcmp/yesno可直接用。",
+    "history": "testlib于2005年由Mike Mirzayanov从testlib.pas移植为C++版本，是Codeforces体系的基石，随Codeforces生态不断演进(新增opts命令行解析、各类生成器模板等)。OI Wiki的testlib/系列页面与Codeforces官方博客均提供完整教程。"
+  },
+  "how": {
+    "pseudocode": "# generator.cpp (数据生成器)\n#include \"testlib.h\"\nregisterGen(argc, argv, 1);\nint n = opt<int>(\"n\");         // 命名参数 -n10\nint m = opt<int>(1);            // 位置参数\ncout << n << ' ' << m << endl;\nfor (...) cout << rnd.next(1, n) << endl;  // 可复现随机\n\n# validator.cpp (数据校验器)\nregisterValidation();\nint n = inf.readInt(1, 1e5, \"n\"); inf.readEoln();\ninf.readEof();\n\n# checker.cpp (评测器)\nregisterTestlibCmd(argc, argv);\nint pans = ouf.readInt(1, 2e9, \"sum\");\nint jans = ans.readInt();\nif (pans == jans) quitf(_ok, \"correct\");\nelse quitf(_wa, \"expected %d found %d\", jans, pans);\n\n# 编译+运行\n g++ gen.cpp -o gen   && ./gen -n10 > in.txt\n g++ val.cpp -o val   && ./val < in.txt\n g++ chk.cpp -o chk   && ./chk in.txt out.txt ans.txt",
+    "python": "\"\"\"Testlib 使用模式参考(Python版通用模板).\n注意: testlib是C++库, 本文件给出可复现随机生成器/校验器的Python等价物,\n并说明C++侧核心API. 自测验证核心思想.\n\"\"\"\nimport random\nimport sys\n\n# ---------- 对应 testlib 的 rnd.next() 语义 ----------\ndef next_int(a, b=None, seed_argv=None):\n    \"\"\"可复现随机整数: 以参数为种子, 同参数同结果(等价rnd.next).\"\"\"\n    if seed_argv is not None:\n        random.seed(str(seed_argv))\n    if b is None:\n        return random.randrange(a)          # [0,a)\n    return random.randint(a, b)             # [a,b]\n\n\ndef gen_tree(n, seed):\n    \"\"\"生成随机树(等价testlib的rnd.wnext建树模板).\"\"\"\n    random.seed(seed)\n    edges = []\n    for i in range(2, n + 1):\n        p = random.randint(1, i - 1)        # 父节点\n        edges.append((p, i))\n    return edges\n\n\n# ---------- 对应 testlib 的 validator 严格读入 ----------\ndef validate_int(inp, lo, hi, name):\n    \"\"\"严格校验整数范围, 越界抛出异常(等价inf.readInt(l,r,name)).\"\"\"\n    try:\n        v = int(inp)\n    except ValueError:\n        raise ValueError(f\"invalid {name}: '{inp}'\")\n    if not (lo <= v <= hi):\n        raise ValueError(f\"{name}={v} out of range [{lo},{hi}]\")\n    return v\n\n\n# ---------- 对应 testlib 的 checker 判定 ----------\ndef checker_compare(pans, jans, eps=0):\n    \"\"\"返回(_ok/_wa)语义: True=AC.\"\"\"\n    if eps == 0:\n        return pans == jans\n    return abs(pans - jans) <= eps\n\n\nif __name__ == \"__main__\":\n    # 可复现性测试: 同种子同结果\n    a = next_int(100, 200, seed_argv=(42,))\n    b = next_int(100, 200, seed_argv=(42,))\n    assert a == b\n    c = next_int(100, 200, seed_argv=(42, 0))\n    assert a != c  # 参数不同结果不同(种子=参数哈希)\n\n    # 树生成: 边数=n-1\n    edges = gen_tree(10, seed=7)\n    assert len(edges) == 9\n\n    # 校验器\n    assert validate_int(\"5\", 1, 10, \"n\") == 5\n    try:\n        validate_int(\"99\", 1, 10, \"n\")\n        assert False\n    except ValueError:\n        pass\n\n    # checker\n    assert checker_compare(3, 3)\n    assert not checker_compare(3, 4)\n    assert checker_compare(0.5, 0.5001, eps=1e-3)\n\n    print(\"testlib(Python参考): ALL TESTS PASSED\")\n",
+    "pypy_notes": "testlib.h仅支持C++(GCC/VC++/Clang, C++11+)。Python出题者可参考其'可复现随机'与'严格校验'思想自行实现; C++提交时需将testlib.h与源码同目录#include引用。Polygon上直接选择内置checker即可。",
+    "complexity": {
+      "time": "生成/校验/评测均为输入规模线性",
+      "space": "O(1)~O(n), 取决于题目数据规模"
+    },
+    "limitations": "仅C++可用; 禁止与srand/rand混用; interactor只支持CF形式(不支持NOI式'选手写函数'交互); 部分OJ(如早期SYZOJ/Lemon)需要修改版testlib。"
+  },
+  "examples": [
+    {
+      "oj": "OI Wiki",
+      "pid": "testlib 简介",
+      "url": "https://oi-wiki.org/tools/testlib/",
+      "difficulty": 0,
+      "key_point": "testlib四件套概览与Polygon兼容性说明"
+    },
+    {
+      "oj": "OI Wiki",
+      "pid": "generator 教程",
+      "url": "https://oi-wiki.org/tools/testlib/generator/",
+      "difficulty": 0,
+      "key_point": "rnd用法、生成树模板、命名参数opts"
+    },
+    {
+      "oj": "OI Wiki",
+      "pid": "checker 教程",
+      "url": "https://oi-wiki.org/tools/testlib/checker/",
+      "difficulty": 0,
+      "key_point": "readAns函数范式、_fail/_wa区分、内置checker列表"
+    }
+  ],
+  "pitfalls": [
+    "使用testlib后禁止调用srand/rand(编译报错), 随机一律走rnd",
+    "checker中读选手输出务必限定范围(readInt(l,r)), 否则可能RE",
+    "用readAns统一读标准/选手输出, 使标准输出非法时返回_fail而非_wa",
+    "避免在readAns中使用全局ensure(会误判_fail), 用stream.ensuref",
+    "数据文件末尾要有换行; 大数据用printf提高生成速度"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "gen", "label": "写Generator(可复现随机)" },
+      { "id": "val", "label": "写Validator(严格校验)" },
+      { "id": "chk", "label": "写Checker/读ans的readAns" },
+      { "id": "intr", "label": "交互题写Interactor" },
+      { "id": "stress", "label": "对拍/压测驱动" }
+    ],
+    "edges": [
+      { "from": "gen", "to": "val" },
+      { "from": "gen", "to": "stress" },
+      { "from": "val", "to": "stress" },
+      { "from": "chk", "to": "stress" },
+      { "from": "intr", "to": "stress" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/tools/testlib/", "verified": true },
+    { "type": "github", "url": "https://github.com/MikeMirzayanov/testlib", "verified": true }
+  ]
+}

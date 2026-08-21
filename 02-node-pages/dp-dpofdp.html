@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DP套DP · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-13.html">高级DP族</a> / <span>DP套DP</span></div>
+  <h1>DP套DP</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-A-13</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="dp-dynamic.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">dp-dynamic</span></a>
+    <a class="nav-index" href="../03-groups/G-A-13.html"><span class="dir">组内第 3 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-A-13.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">外层DP的状态是内层DP的结果（DFA状态），内层DP被抽象为自动机供外层转移，用于序列计数/概率/期望问题</div><p>DP套DP（DP of DP）指在动态规划中把一个子问题的求解过程（内层DP，通常用来判断合法或计算某个属性）抽象成一个自动机（DFA），再在外层设计一层DP在自动机上统计。典型结构：给定字符集 Σ 和长度 n 的合法序列集合 A⊆Σ^n，对每个序列 s 用一个内层 DP 判定合法性/求值，最终要统计 A 的计数、总权值、期望等。若内层 DP 的状态转移可写成 g(i,·;s)=G(g(i−1,·;s), s_i)，则 g 的取值集合就是自动机状态 Q，外层 DP f(i,q) 统计处理到长度 i 时落在自动机状态 q 的前缀数，f(i,q)=Σ_c Σ_{q&#x27;∈Q:δ(q&#x27;,c)=q} f(i−1,q&#x27;)。关键技巧是状态压缩：如 Hero meet devil 中记录 LCS 行向量的差分数组（每项 0/1），状态数 2^{|S|}；如 ZJOI2019 麻将中把&#x27;是否可胡&#x27;判断压缩为状态机。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>不能枚举所有序列（指数级），但合法的判定过程本身信息量不大：内层 DP 跑完一个前缀后留下的&#x27;状态快照&#x27;是有限的（通常可压缩）。于是把&#x27;内层 DP 在当前前缀结束后的状态&#x27;当作自动机状态，外层 DP 只需数&#x27;走到每个自动机状态有几种前缀&#x27;，就完成了计数。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>内层 DP g(i,·;s) 只由 g(i−1,·;s) 与当前字符 s_i 决定（无后效性），等价于 DFA 的转移函数 δ。将 Q 压缩（状态压缩或 DFA 最小化）后，外层 DP 在 DFA 的 DAG 上做路径计数。接受状态集 F 对应合法序列，答案由 f(n, q∈F) 求和。DP套DP 的复杂度 = 外层长度 n × 自动机状态数 |Q| × 字符集大小 |Σ|。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>DP套DP 的名称与技巧在国内竞赛圈主要由 ZJOI2019 麻将（期望摸牌次数）与 Hero meet devil（LCS 计数）等题传播，OI Wiki 以&#x27;DP 套 DP&#x27;专题收录并给出 DFA 化框架。它与&#x27;自动机 DP&#x27;（如数位 DP、AC 自动机 + 计数 DP）思想同源。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 通用框架</span>
+<span class="t-c"># 1. 设计内层 DP g(i, state; s)，判定/求值</span>
+<span class="t-c"># 2. 压缩 state 为 DFA 状态 q（状态压缩 / 差分 / DFA 最小化）</span>
+<span class="t-c"># 3. 建转移: next[q][c] = G(q, c)</span>
+<span class="t-c"># 4. 外层 DP: f[i+1][next[q][c]] += f[i][q]</span>
+<span class="t-c"># 5. 答案 = sum_{q in F} f[n][q]</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+<span class="t-c"># 例：Hero meet devil 简化版 —— 给定 S(小写字母)，统计长度 m 的串 T</span>
+<span class="t-c"># 与 S 的 LCS 长度分布（字符集 &#x27;ab&#x27; 简化为 2 个字符便于教学）</span>
+
+<span class="t-k">def</span> <span class="t-f">lcs_count</span>(S, m, sigma=<span class="t-s">&#x27;ab&#x27;</span>):
+    <span class="t-s">&quot;&quot;&quot;返回列表 ans[i] = 与 S 的 LCS 恰为 i 的串 T 的个数。&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(S)
+
+    <span class="t-c"># 内层 LCS DP 的行向量压缩：差分数组 mask</span>
+    <span class="t-k">def</span> <span class="t-f">row_to_mask</span>(row):
+        <span class="t-c"># row: list 长 n+1, row[j]=LCS(T前缀, S[:j])</span>
+        mask = <span class="t-n">0</span>
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+            <span class="t-k">if</span> row[j] - row[j - <span class="t-n">1</span>] == <span class="t-n">1</span>:
+                mask |= <span class="t-n">1</span> &lt;&lt; (j - <span class="t-n">1</span>)
+        <span class="t-k">return</span> mask
+
+    <span class="t-k">def</span> <span class="t-f">mask_to_row</span>(mask):
+        row = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+            row[j] = row[j - <span class="t-n">1</span>] + ((mask &gt;&gt; (j - <span class="t-n">1</span>)) &amp; <span class="t-n">1</span>)
+        <span class="t-k">return</span> row
+
+    <span class="t-c"># 转移表：自动机状态 mask 读入字符 ch -&gt; 新 mask</span>
+    <span class="t-k">def</span> <span class="t-f">trans</span>(mask, ch):
+        row = <span class="t-f">mask_to_row</span>(mask)
+        nrow = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+            add = <span class="t-n">1</span> <span class="t-k">if</span> S[j - <span class="t-n">1</span>] == ch <span class="t-k">else</span> <span class="t-n">0</span>
+            nrow[j] = <span class="t-b">max</span>(row[j], nrow[j - <span class="t-n">1</span>], row[j - <span class="t-n">1</span>] + add)
+        <span class="t-k">return</span> <span class="t-f">row_to_mask</span>(nrow)
+
+    <span class="t-c"># 外层 DP</span>
+    dp = {<span class="t-n">0</span>: <span class="t-n">1</span>}
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(m):
+        nd = {}
+        <span class="t-k">for</span> mask, cnt <span class="t-k">in</span> dp.<span class="t-f">items</span>():
+            <span class="t-k">for</span> ch <span class="t-k">in</span> sigma:
+                nm = <span class="t-f">trans</span>(mask, ch)
+                nd[nm] = nd.<span class="t-f">get</span>(nm, <span class="t-n">0</span>) + cnt
+        dp = nd
+    ans = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> mask, cnt <span class="t-k">in</span> dp.<span class="t-f">items</span>():
+        ans[mask.<span class="t-f">bit_count</span>()] += cnt
+    <span class="t-k">return</span> ans
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-k">import</span> itertools
+    S = <span class="t-s">&#x27;ab&#x27;</span>
+    m = <span class="t-n">3</span>
+    got = <span class="t-f">lcs_count</span>(S, m, sigma=<span class="t-s">&#x27;ab&#x27;</span>)
+    <span class="t-c"># 暴力验证</span>
+    brute = [<span class="t-n">0</span>] * (<span class="t-b">len</span>(S) + <span class="t-n">1</span>)
+    <span class="t-k">for</span> T <span class="t-k">in</span> itertools.<span class="t-f">product</span>(<span class="t-s">&#x27;ab&#x27;</span>, repeat=m):
+        T = <span class="t-s">&#x27;&#x27;</span>.<span class="t-f">join</span>(T)
+        dp = [[<span class="t-n">0</span>] * (<span class="t-b">len</span>(T) + <span class="t-n">1</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(S) + <span class="t-n">1</span>)]
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-b">len</span>(S) + <span class="t-n">1</span>):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-b">len</span>(T) + <span class="t-n">1</span>):
+                dp[i][j] = <span class="t-b">max</span>(dp[i - <span class="t-n">1</span>][j], dp[i][j - <span class="t-n">1</span>],
+                               dp[i - <span class="t-n">1</span>][j - <span class="t-n">1</span>] + (S[i - <span class="t-n">1</span>] == T[j - <span class="t-n">1</span>]))
+        brute[dp[<span class="t-b">len</span>(S)][<span class="t-b">len</span>(T)]] += <span class="t-n">1</span>
+    <span class="t-k">assert</span> got == brute, (got, brute)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;dp-of-dp tests passed:&#x27;</span>, got)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">状态数 2^{|S|}，外层 DP 用 dict 转移；m、|S| 不大（≤20 左右）可跑。正式题常用矩阵快速幂优化外层转移（转移固定时）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(m · |Q| · |Σ|)，其中 |Q| 为压缩后自动机状态数（如 2^{|S|}-1）</td></tr><tr><th>空间复杂度</th><td>O(|Q|)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">内层状态必须可压缩为有限自动机；状态数可能仍巨大（需巧妙压缩或 DFA 最小化）。设计内层状态机 + 转移表较难，是典型的&#x27;思维题&#x27;而非模板题。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>内层 DP 状态压缩必须无损：差分/映射保持全部转移所需信息</li><li>外层 DP 状态是自动机状态而非具体答案，转移表要预先对所有 (q,c) 建好</li><li>接受状态 F 的判定要在内层状态机里显式编码（何时合法）</li><li>期望/概率版本需结合尾和公式等期望技巧，不能只数合法序列</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P10614</strong></td><td>5</td><td>Hero meet devil：LCS 行向量差分压缩成 2^{|S|} 状态，外层计数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P10614" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P10614</a></td></tr><tr><td>LibreOJ</td><td><strong>3042</strong></td><td>7</td><td>ZJOI2019 麻将：将&#x27;可胡判定&#x27;压成状态机 + 期望计数，DP套DP 经典难题</td><td class="u"><a href="https://loj.ac/p/3042" target="_blank" rel="noopener">https://loj.ac/p/3042</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dp-dpofdp" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "inner", "label": "设计内层 DP（判定/求值）"}}, {"data": {"id": "compress", "label": "状态压缩为 DFA 状态（差分/最小化）"}}, {"data": {"id": "trans", "label": "建转移表 next[q][c]"}}, {"data": {"id": "outer", "label": "外层计数 DP / 期望 DP"}}, {"data": {"id": "answer", "label": "接受状态求和"}}, {"data": {"id": "einner->compress", "source": "inner", "target": "compress"}}, {"data": {"id": "ecompress->trans", "source": "compress", "target": "trans"}}, {"data": {"id": "etrans->outer", "source": "trans", "target": "outer"}}, {"data": {"id": "eouter->answer", "source": "outer", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dp-dpofdp'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="dp-state.html" title="DP套DP的外层状态常涉及状态压缩">状压DP<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/dp-of-dp/" target="_blank" rel="noopener">https://oi-wiki.org/dp/dp-of-dp/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">OI Wiki DP 套 DP 专题（含 Hero meet devil / 麻将题解）</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

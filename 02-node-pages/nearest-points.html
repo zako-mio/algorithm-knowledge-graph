@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最近点对 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-2.html">平面扫描与几何求交</a> / <span>最近点对</span></div>
+  <h1>最近点对</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="vertical-decomposition.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">vertical-decomposition</span></a>
+    <a class="nav-index" href="../03-groups/G-D-2.html"><span class="dir">组内第 5 / 10</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="triangulation.html"><span class="dir">下一个 / 组内</span><span class="v">triangulation</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">分治 O(nlogn) 求平面最近点对，合并时按扫描线对检查</div><p>给定平面上 n 个点，求其中欧几里得距离最近的一对点。朴素两两枚举 O(n²)。分治算法 O(n log n)：按 x 坐标排序并从中点切分，递归求左右两半各自最近距离 h=min(h1,h2)，然后只需检查横坐标距分割线 &lt; h 的『条带』内的点——条带内按 y 排序，对每个点只检查其后 y 差 &lt; h 的常数个点（最多 7 个）。Shamos-Hoey（1975）提出，Preparata &amp; Shamos 证明其在决策树模型下最优。另有 Rabin 的随机化线性期望算法（网格分桶）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把问题切成两半递归解决，合并时只需要关心『一对点分居左右』的情况。关键洞察：如果左右各自最近距离已是 h，那么跨界的更近点对，其两点的 x 坐标差必须 &lt; h（否则距离已 ≥ h），y 坐标差也 &lt; h。于是跨界点对全部落在分割线附近 2h×h 的矩形内。而这个矩形内『不能塞太多点』：左右各 h×h 方块里任意两点距离 ≥ h，把方块四等分成边长 h/2 的小方格，每格至多 1 个点 → 每方块至多 4 个点 → 检查的点数 ≤ 8（实际 ≤7）。这就是分治合并能 O(n) 完成的根本原因。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 按 (x,y) 排序，取中点 m=⌊n/2⌋，A₁=前一半(含中点)，A₂=后一半。② 递归 T(n)=2T(n/2)+O(n)=O(n log n)。③ 合并：B={p: |x_p - x_mid| &lt; h}；将 B 按 y 排序（归并融入递归保持 O(n)），对每个点只检查它前面 y 差 &lt; h 的连续点（C(p_i) 至多 7 个）。④ 常数界证明：2h×h 矩形被分割线分成两个 h×h 方块；每个方块内两点距离 ≥ h；方块四等分，每 h/2×h/2 小格至多 1 点，故方块内 ≤4 点，矩形内 ≤8 点，C(p_i) ≤7。⑤ 边界条件 r-l≤3 用暴力。⑥ 整点坐标可全程用距离平方避免 sqrt。⑦ 若存在重合点则答案 0。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Shamos 与 Hoey 于 1975 年提出 O(n log n) 分治算法，其最优性由 Preparata 与 Shamos 证明（决策树模型）。Rabin 1976 年提出随机化网格算法（期望线性）。最近点对是计算几何『分治范式』的经典案例，CPH ch29 与 CP-Algorithms 均收录，是 ICPC/CCPC 高频考题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 按 x 排序, 递归 rec(l,r):</span>
+<span class="t-k">def</span> <span class="t-f">rec</span>(l, r):
+  <span class="t-k">if</span> r-l &lt;= <span class="t-n">3</span>: 暴力更新最近对; 按y排序; <span class="t-k">return</span>
+  m = (l+r)//<span class="t-n">2</span>; midx = x[m]
+  <span class="t-f">rec</span>(l,m); <span class="t-f">rec</span>(m,r)
+  merge 两半按<span class="t-f">y</span> (归并)
+  <span class="t-k">for</span> i <span class="t-k">in</span> [l..r):
+    <span class="t-k">if</span> |x[i]-midx| &lt; h:
+      <span class="t-k">for</span> j <span class="t-k">in</span> strip, j&lt;i, y差&lt;h:
+        <span class="t-f">update</span>(pair)
+  <span class="t-k">return</span> 按y排序后的数组</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> math
+
+
+<span class="t-k">def</span> <span class="t-f">closest_pair</span>(points):
+    <span class="t-s">&quot;&quot;&quot;分治求最近点对. points: [(x,y)] 浮点/整数.
+    返回 (dist, (i, j)) 距离与两个点的原始索引.&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(points)
+    pts = <span class="t-b">list</span>(points)
+    order = <span class="t-b">list</span>(<span class="t-b">range</span>(n))
+    pts = <span class="t-b">sorted</span>(<span class="t-b">zip</span>(pts, order), key=<span class="t-k">lambda</span> t: (t[<span class="t-n">0</span>][<span class="t-n">0</span>], t[<span class="t-n">0</span>][<span class="t-n">1</span>]))
+    best = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    best_pair = <span class="t-k">None</span>
+
+    <span class="t-k">def</span> <span class="t-f">dist2</span>(p, q):
+        <span class="t-k">return</span> (p[<span class="t-n">0</span>] - q[<span class="t-n">0</span>]) ** <span class="t-n">2</span> + (p[<span class="t-n">1</span>] - q[<span class="t-n">1</span>]) ** <span class="t-n">2</span>
+
+    <span class="t-k">def</span> <span class="t-f">upd</span>(p, q):
+        <span class="t-k">nonlocal</span> best, best_pair
+        d = <span class="t-f">dist2</span>(p[<span class="t-n">0</span>], q[<span class="t-n">0</span>])
+        <span class="t-k">if</span> d &lt; best:
+            best = d
+            best_pair = (p[<span class="t-n">1</span>], q[<span class="t-n">1</span>])
+
+    arr = pts
+    buf = [<span class="t-k">None</span>] * n
+
+    <span class="t-k">def</span> <span class="t-f">rec</span>(l, r):
+        <span class="t-s">&quot;&quot;&quot;处理 arr[l:r), 返回后该段按 y 排序.&quot;&quot;&quot;</span>
+        <span class="t-k">nonlocal</span> best
+        <span class="t-k">if</span> r - l &lt;= <span class="t-n">3</span>:
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(l, r):
+                <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>, r):
+                    <span class="t-f">upd</span>(arr[i], arr[j])
+            arr[l:r] = <span class="t-b">sorted</span>(arr[l:r], key=<span class="t-k">lambda</span> t: t[<span class="t-n">0</span>][<span class="t-n">1</span>])
+            <span class="t-k">return</span>
+        m = (l + r) // <span class="t-n">2</span>
+        midx = arr[m][<span class="t-n">0</span>][<span class="t-n">0</span>]
+        <span class="t-f">rec</span>(l, m)
+        <span class="t-f">rec</span>(m, r)
+        <span class="t-c"># 归并按 y</span>
+        i, j, k = l, m, l
+        <span class="t-k">while</span> i &lt; m <span class="t-k">and</span> j &lt; r:
+            <span class="t-k">if</span> arr[i][<span class="t-n">0</span>][<span class="t-n">1</span>] &lt;= arr[j][<span class="t-n">0</span>][<span class="t-n">1</span>]:
+                buf[k] = arr[i]; i += <span class="t-n">1</span>
+            <span class="t-k">else</span>:
+                buf[k] = arr[j]; j += <span class="t-n">1</span>
+            k += <span class="t-n">1</span>
+        <span class="t-k">while</span> i &lt; m:
+            buf[k] = arr[i]; i += <span class="t-n">1</span>; k += <span class="t-n">1</span>
+        <span class="t-k">while</span> j &lt; r:
+            buf[k] = arr[j]; j += <span class="t-n">1</span>; k += <span class="t-n">1</span>
+        arr[l:r] = buf[l:r]
+        <span class="t-c"># 条带检查</span>
+        strip = []
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(l, r):
+            <span class="t-k">if</span> <span class="t-b">abs</span>(arr[k][<span class="t-n">0</span>][<span class="t-n">0</span>] - midx) &lt; best ** <span class="t-n">0.5</span>:
+                strip.<span class="t-f">append</span>(arr[k])
+        <span class="t-k">for</span> a <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(strip)):
+            b = a - <span class="t-n">1</span>
+            <span class="t-k">while</span> b &gt;= <span class="t-n">0</span> <span class="t-k">and</span> strip[a][<span class="t-n">0</span>][<span class="t-n">1</span>] - strip[b][<span class="t-n">0</span>][<span class="t-n">1</span>] &lt; best ** <span class="t-n">0.5</span>:
+                <span class="t-f">upd</span>(strip[a], strip[b])
+                b -= <span class="t-n">1</span>
+
+    <span class="t-f">rec</span>(<span class="t-n">0</span>, n)
+    <span class="t-k">return</span> math.<span class="t-f">sqrt</span>(best), best_pair
+
+
+<span class="t-k">def</span> <span class="t-f">brute</span>(points):
+    n = <span class="t-b">len</span>(points)
+    bd = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>); bp = <span class="t-k">None</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>, n):
+            d = (points[i][<span class="t-n">0</span>] - points[j][<span class="t-n">0</span>]) ** <span class="t-n">2</span> + (points[i][<span class="t-n">1</span>] - points[j][<span class="t-n">1</span>]) ** <span class="t-n">2</span>
+            <span class="t-k">if</span> d &lt; bd:
+                bd = d; bp = (i, j)
+    <span class="t-k">return</span> math.<span class="t-f">sqrt</span>(bd), bp
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 已知: 最近距离 1 (点(0,0)-(1,0))</span>
+    pts = [(<span class="t-n">0</span>, <span class="t-n">0</span>), (<span class="t-n">1</span>, <span class="t-n">0</span>), (<span class="t-n">10</span>, <span class="t-n">10</span>), (<span class="t-n">11</span>, <span class="t-n">10</span>), (<span class="t-n">5</span>, <span class="t-n">7</span>)]
+    d, p = <span class="t-f">closest_pair</span>(pts)
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(d - <span class="t-n">1.0</span>) &lt; <span class="t-n">1e-9</span>, d
+    <span class="t-c"># 重合点 -&gt; 0</span>
+    pts2 = [(<span class="t-n">3</span>, <span class="t-n">3</span>), (<span class="t-n">3</span>, <span class="t-n">3</span>), (<span class="t-n">9</span>, <span class="t-n">9</span>)]
+    d, _ = <span class="t-f">closest_pair</span>(pts2)
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(d - <span class="t-n">0.0</span>) &lt; <span class="t-n">1e-9</span>
+    <span class="t-c"># 边界: 2 个点</span>
+    pts3 = [(<span class="t-n">0</span>, <span class="t-n">0</span>), (<span class="t-n">4</span>, <span class="t-n">3</span>)]
+    d, _ = <span class="t-f">closest_pair</span>(pts3)
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(d - <span class="t-n">5.0</span>) &lt; <span class="t-n">1e-9</span>
+
+    <span class="t-c"># 随机交叉验证</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">2026</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">60</span>)
+        pts = [(random.<span class="t-f">randint</span>(-<span class="t-n">100</span>, <span class="t-n">100</span>), random.<span class="t-f">randint</span>(-<span class="t-n">100</span>, <span class="t-n">100</span>)) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        d1, p1 = <span class="t-f">closest_pair</span>(pts)
+        d2, p2 = <span class="t-f">brute</span>(pts)
+        <span class="t-k">assert</span> <span class="t-b">abs</span>(d1 - d2) &lt; <span class="t-n">1e-7</span>, (n, d1, d2)
+        <span class="t-c"># 校验返回的点对确实距离 d1</span>
+        i, j = p1
+        <span class="t-k">assert</span> <span class="t-b">abs</span>(((pts[i][<span class="t-n">0</span>] - pts[j][<span class="t-n">0</span>]) ** <span class="t-n">2</span> + (pts[i][<span class="t-n">1</span>] - pts[j][<span class="t-n">1</span>]) ** <span class="t-n">2</span>) ** <span class="t-n">0.5</span> - d1) &lt; <span class="t-n">1e-9</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">整点坐标可全程用距离平方比较避免 sqrt（合并判定用 &lt; best 而非 &lt; sqrt(best)，条带宽度也用 best 平方比）。递归按 y 归并避免每次 sort 使总复杂度退化为 O(n log²n)。Python 递归深度限制注意 setrecursionlimit。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n log n)（分治）；随机化网格算法期望 O(n)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">合并阶段若每次调用都对条带单独 sort 会退化为 O(n log²n)。浮点坐标需注意平方误差。点坐标同 x 很多时（全部竖直排列）条带仍受常数界保护。重合点需先特殊处理返回 0。大数据量用距离平方优化。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>合并时条带检查忘记按 y 排序就遍历，退化为 O(n²)</li><li>用 x 坐标绝对差 &lt; h 过滤条带，但 h 中途更新后要用最新 h 重新过滤</li><li>条带内检查方向：只查 y 小于当前点的（避免重复配对）</li><li>按 y 归并是必须的，否则每层 sort 复杂度错</li><li>递归终止条件 r-l≤3 用暴力，别在 0/1 点集上做跨立检查</li><li>浮点 sqrt 高频调用慢；整点用平方比较</li><li>返回的点对索引要映射回原始输入顺序（排序后索引偏移）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>UVA</td><td><strong>10245</strong></td><td>3</td><td>The Closest Pair Problem：分治最近点对经典模板（CP-Alg 例题，低难度）</td><td class="u"><a href="https://onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=282" target="_blank" rel="noopener">https://onlinejudge.org/index.php?option=com_onlinejudge&amp;Itemid=8&amp;category=24&amp;page=show_problem&amp;problem=282</a></td></tr><tr><td>SPOJ</td><td><strong>CLOPPAIR</strong></td><td>3</td><td>Closest Point Pair：求最近点对的点编号（OI Wiki/CP-Alg 例题）</td><td class="u"><a href="https://www.spoj.com/problems/CLOPPAIR/" target="_blank" rel="noopener">https://www.spoj.com/problems/CLOPPAIR/</a></td></tr><tr><td>SPOJ</td><td><strong>CLOSEST</strong></td><td>4</td><td>Closest Triple：最小周长三角形（最近点对推广，OI Wiki 例题）</td><td class="u"><a href="https://www.spoj.com/problems/CLOSEST/" target="_blank" rel="noopener">https://www.spoj.com/problems/CLOSEST/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-nearest-points" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "sort", "label": "按(x,y)排序 + 分治切分"}}, {"data": {"id": "rec", "label": "递归求左右最近距离 h"}}, {"data": {"id": "strip", "label": "条带 B(距分割线\u003ch)"}}, {"data": {"id": "ysort", "label": "按 y 排序/归并"}}, {"data": {"id": "const", "label": "常数点检查(≤7个)"}}, {"data": {"id": "apply", "label": "应用: 最近点/最小周长/聚类"}}, {"data": {"id": "esort->rec", "source": "sort", "target": "rec"}}, {"data": {"id": "erec->strip", "source": "rec", "target": "strip"}}, {"data": {"id": "estrip->ysort", "source": "strip", "target": "ysort"}}, {"data": {"id": "eysort->const", "source": "ysort", "target": "const"}}, {"data": {"id": "econst->apply", "source": "const", "target": "apply"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-nearest-points'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-combination" href="sweep-line.html" title="最近点对合并阶段用扫描线对检查">扫描线<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/geometry/nearest-points/" target="_blank" rel="noopener">https://oi-wiki.org/geometry/nearest-points/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/geometry/nearest_points.html" target="_blank" rel="noopener">https://cp-algorithms.com/geometry/nearest_points.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch29 Geometry (p291-304)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

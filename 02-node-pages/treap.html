@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treap(树堆) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-8.html">平衡二叉搜索树族</a> / <span>Treap(树堆)</span></div>
+  <h1>Treap(树堆)</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="bst.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">bst</span></a>
+    <a class="nav-index" href="../03-groups/G-A-8.html"><span class="dir">组内第 2 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="fhq-treap.html"><span class="dir">下一个 / 组内</span><span class="v">fhq-treap</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">BST+堆随机优先级，旋转维护平衡，期望O(log n)</div><p>Treap（Tree + Heap，树堆）是一种弱平衡二叉搜索树。每个节点除权值 val 外附带随机优先级 priority：val 满足二叉搜索树性质（左小右大），priority 满足堆性质（小根/大根）。若 val 与 priority 都用同一值则退化成链，故 priority 必须随机。旋转版（旋转 Treap）通过左旋/右旋在插入删除时维持堆性质，所有操作期望 O(log n)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把「插入顺序」这个导致 BST 退化的因素，用随机优先级彻底打乱：树的结构等价于按 priority 从小到大的插入序列，而这等价于随机排列插入顺序，几乎必然接近理想平衡。priority 最小的节点永远是根。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>期望深度证明：对权值升序第 i 个节点 x_i，其深度 = 祖先个数。定义指示变量 Y_{k,i}=1 当 x_k 是 x_i 祖先。引理：x_k 是 x_i 的祖先 ⇔ x_k 的 priority 是集合 X_{min(i,k)..max(i,k)} 中最小的，概率 = 1/(|i-k|+1)。由期望线性性 E(dep(x_i)) = Σ_{k≠i} 1/(|i-k|+1) = H_i + H_{n-i+1} - 2 ≤ 2 ln n = O(log n)。插入：先按 BST 规则下探插入叶子，再沿路比较 priority 左/右旋转上浮至堆性质恢复；删除：把节点旋转到叶子后剪除，或直接 BST 删除后调整。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Treap 由 Raimund Seidel 和 Cecilia Aragon 于 1989 年独立提出（1989 年论文 Randomized Search Trees）。1990s 随 C++ STL 等生态普及，是竞赛中期望平衡树的首选之一。旋转版强调简单，无旋版（FHQ）另成一支，见 fhq-treap。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">rotate_right</span>(p):            <span class="t-c"># 右旋：p 的左儿子 q 上浮</span>
+  q = p.left; p.left = q.right; q.right = p; 更新size; <span class="t-k">return</span> q
+<span class="t-f">rotate_left</span>(p):             <span class="t-c"># 左旋对称</span>
+  q = p.right; p.right = q.left; q.left = p; 更新size; <span class="t-k">return</span> q
+
+<span class="t-f">insert</span>(p, val):
+  <span class="t-k">if</span> p 为空: <span class="t-k">return</span> 新节点(priority=<span class="t-f">random</span>())
+  <span class="t-k">if</span> val &lt; p.val:
+    p.left = <span class="t-f">insert</span>(p.left, val)
+    <span class="t-k">if</span> p.left.pri &lt; p.pri: p = <span class="t-f">rotate_right</span>(p)
+  <span class="t-k">else</span>:
+    p.right = <span class="t-f">insert</span>(p.right, val)
+    <span class="t-k">if</span> p.right.pri &lt; p.pri: p = <span class="t-f">rotate_left</span>(p)
+  更新 size; <span class="t-k">return</span> p
+
+<span class="t-f">delete</span>(p, val):
+  <span class="t-k">if</span> val == p.val:
+    <span class="t-k">if</span> 左/右空: <span class="t-k">return</span> 另一侧
+    <span class="t-k">if</span> p.left.pri &lt; p.right.pri: p = <span class="t-f">rotate_right</span>(p); p.right=<span class="t-f">delete</span>(p.right,val)
+    <span class="t-k">else</span>: p = <span class="t-f">rotate_left</span>(p); p.left=<span class="t-f">delete</span>(p.left,val)
+  <span class="t-k">elif</span> val &lt; p.val: p.left = <span class="t-f">delete</span>(p.left,val)
+  <span class="t-k">else</span>: p.right = <span class="t-f">delete</span>(p.right,val)
+  更新 size; <span class="t-k">return</span> p</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> random
+
+<span class="t-k">class</span> Node:
+    __slots__ = (<span class="t-s">&#x27;val&#x27;</span>, <span class="t-s">&#x27;pri&#x27;</span>, <span class="t-s">&#x27;left&#x27;</span>, <span class="t-s">&#x27;right&#x27;</span>, <span class="t-s">&#x27;size&#x27;</span>)
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, val, pri=<span class="t-k">None</span>):
+        self.val = val
+        self.pri = pri <span class="t-k">if</span> pri <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span> <span class="t-k">else</span> random.<span class="t-f">random</span>()
+        self.left = <span class="t-k">None</span>
+        self.right = <span class="t-k">None</span>
+        self.size = <span class="t-n">1</span>
+
+<span class="t-k">class</span> Treap:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self):
+        self.root = <span class="t-k">None</span>
+        self.rng = random.<span class="t-f">Random</span>(<span class="t-n">42</span>)
+
+    <span class="t-k">def</span> <span class="t-f">_sz</span>(self, n):
+        <span class="t-k">return</span> n.size <span class="t-k">if</span> n <span class="t-k">else</span> <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">_pull</span>(self, n):
+        n.size = <span class="t-n">1</span> + self.<span class="t-f">_sz</span>(n.left) + self.<span class="t-f">_sz</span>(n.right)
+
+    <span class="t-k">def</span> <span class="t-f">_rotate_right</span>(self, p):
+        q = p.left
+        p.left = q.right
+        q.right = p
+        self.<span class="t-f">_pull</span>(p)
+        self.<span class="t-f">_pull</span>(q)
+        <span class="t-k">return</span> q
+
+    <span class="t-k">def</span> <span class="t-f">_rotate_left</span>(self, p):
+        q = p.right
+        p.right = q.left
+        q.left = p
+        self.<span class="t-f">_pull</span>(p)
+        self.<span class="t-f">_pull</span>(q)
+        <span class="t-k">return</span> q
+
+    <span class="t-k">def</span> <span class="t-f">_insert</span>(self, p, val):
+        <span class="t-k">if</span> p <span class="t-k">is</span> <span class="t-k">None</span>:
+            <span class="t-k">return</span> <span class="t-f">Node</span>(val, self.rng.<span class="t-f">random</span>())
+        <span class="t-k">if</span> val &lt; p.val:
+            p.left = self.<span class="t-f">_insert</span>(p.left, val)
+            <span class="t-k">if</span> p.left.pri &lt; p.pri:
+                p = self.<span class="t-f">_rotate_right</span>(p)
+        <span class="t-k">else</span>:
+            p.right = self.<span class="t-f">_insert</span>(p.right, val)
+            <span class="t-k">if</span> p.right.pri &lt; p.pri:
+                p = self.<span class="t-f">_rotate_left</span>(p)
+        self.<span class="t-f">_pull</span>(p)
+        <span class="t-k">return</span> p
+
+    <span class="t-k">def</span> <span class="t-f">insert</span>(self, val):
+        self.root = self.<span class="t-f">_insert</span>(self.root, val)
+
+    <span class="t-k">def</span> <span class="t-f">_delete</span>(self, p, val):
+        <span class="t-k">if</span> p <span class="t-k">is</span> <span class="t-k">None</span>:
+            <span class="t-k">return</span> <span class="t-k">None</span>
+        <span class="t-k">if</span> val == p.val:
+            <span class="t-k">if</span> p.left <span class="t-k">is</span> <span class="t-k">None</span>:
+                <span class="t-k">return</span> p.right
+            <span class="t-k">if</span> p.right <span class="t-k">is</span> <span class="t-k">None</span>:
+                <span class="t-k">return</span> p.left
+            <span class="t-k">if</span> p.left.pri &lt; p.right.pri:
+                p = self.<span class="t-f">_rotate_right</span>(p)
+                p.right = self.<span class="t-f">_delete</span>(p.right, val)
+            <span class="t-k">else</span>:
+                p = self.<span class="t-f">_rotate_left</span>(p)
+                p.left = self.<span class="t-f">_delete</span>(p.left, val)
+        <span class="t-k">elif</span> val &lt; p.val:
+            p.left = self.<span class="t-f">_delete</span>(p.left, val)
+        <span class="t-k">else</span>:
+            p.right = self.<span class="t-f">_delete</span>(p.right, val)
+        self.<span class="t-f">_pull</span>(p)
+        <span class="t-k">return</span> p
+
+    <span class="t-k">def</span> <span class="t-f">delete</span>(self, val):
+        self.root = self.<span class="t-f">_delete</span>(self.root, val)
+
+    <span class="t-k">def</span> <span class="t-f">search</span>(self, val):
+        n = self.root
+        <span class="t-k">while</span> n <span class="t-k">and</span> n.val != val:
+            n = n.left <span class="t-k">if</span> val &lt; n.val <span class="t-k">else</span> n.right
+        <span class="t-k">return</span> n <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>
+
+    <span class="t-k">def</span> <span class="t-f">inorder</span>(self):
+        out = []
+        <span class="t-k">def</span> <span class="t-f">dfs</span>(n):
+            <span class="t-k">if</span> n <span class="t-k">is</span> <span class="t-k">None</span>:
+                <span class="t-k">return</span>
+            <span class="t-f">dfs</span>(n.left)
+            out.<span class="t-f">append</span>(n.val)
+            <span class="t-f">dfs</span>(n.right)
+        <span class="t-f">dfs</span>(self.root)
+        <span class="t-k">return</span> out
+
+    <span class="t-k">def</span> <span class="t-f">height</span>(self):
+        <span class="t-k">def</span> <span class="t-f">go</span>(n):
+            <span class="t-k">if</span> n <span class="t-k">is</span> <span class="t-k">None</span>:
+                <span class="t-k">return</span> <span class="t-n">0</span>
+            <span class="t-k">return</span> <span class="t-n">1</span> + <span class="t-b">max</span>(<span class="t-f">go</span>(n.left), <span class="t-f">go</span>(n.right))
+        <span class="t-k">return</span> <span class="t-f">go</span>(self.root)
+
+
+<span class="t-k">def</span> <span class="t-f">_is_heap</span>(n, lo=-<span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)):
+    <span class="t-k">if</span> n <span class="t-k">is</span> <span class="t-k">None</span>:
+        <span class="t-k">return</span> <span class="t-k">True</span>
+    <span class="t-k">if</span> <span class="t-k">not</span> lo &lt;= n.pri:
+        <span class="t-k">return</span> <span class="t-k">False</span>
+    <span class="t-k">return</span> <span class="t-f">_is_heap</span>(n.left, n.pri) <span class="t-k">and</span> <span class="t-f">_is_heap</span>(n.right, n.pri)  <span class="t-c"># 小根堆：子 &gt;= 父</span>
+
+
+<span class="t-k">def</span> <span class="t-f">_is_bst</span>(n, lo=-<span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>), hi=<span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)):
+    <span class="t-k">if</span> n <span class="t-k">is</span> <span class="t-k">None</span>:
+        <span class="t-k">return</span> <span class="t-k">True</span>
+    <span class="t-k">if</span> <span class="t-k">not</span> (lo &lt; n.val &lt; hi):
+        <span class="t-k">return</span> <span class="t-k">False</span>
+    <span class="t-k">return</span> <span class="t-f">_is_bst</span>(n.left, lo, n.val) <span class="t-k">and</span> <span class="t-f">_is_bst</span>(n.right, n.val, hi)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    t = <span class="t-f">Treap</span>()
+    n = <span class="t-n">1000</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        t.<span class="t-f">insert</span>(random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100000</span>))
+    vals = t.<span class="t-f">inorder</span>()
+    <span class="t-k">assert</span> vals == <span class="t-b">sorted</span>(vals)
+    <span class="t-k">assert</span> <span class="t-f">_is_heap</span>(t.root)
+    <span class="t-k">assert</span> t.<span class="t-f">height</span>() &lt;= <span class="t-n">60</span>, t.<span class="t-f">height</span>()  <span class="t-c"># 期望 O(log n)</span>
+    s = <span class="t-b">set</span>(vals)
+    <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">list</span>(s)[:<span class="t-b">len</span>(s) // <span class="t-n">2</span>]:
+        <span class="t-k">while</span> t.<span class="t-f">search</span>(v):
+            t.<span class="t-f">delete</span>(v)
+        <span class="t-k">assert</span> <span class="t-k">not</span> t.<span class="t-f">search</span>(v)
+    <span class="t-k">assert</span> <span class="t-f">_is_heap</span>(t.root)
+    <span class="t-k">assert</span> t.<span class="t-f">inorder</span>() == <span class="t-b">sorted</span>(t.<span class="t-f">inorder</span>())
+    t2 = <span class="t-f">Treap</span>()
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">10000</span>):
+        t2.<span class="t-f">insert</span>(i)  <span class="t-c"># 有序插入也不退化</span>
+    <span class="t-k">assert</span> t2.<span class="t-f">height</span>() &lt; <span class="t-n">80</span>, t2.<span class="t-f">height</span>()
+    <span class="t-k">assert</span> t2.<span class="t-f">inorder</span>() == <span class="t-b">list</span>(<span class="t-b">range</span>(<span class="t-n">10000</span>))
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">rotation treap 常数小但需维护父指针或按引用返回，Python 递归写法在随机树高 ~40 内安全；priority 用 random.random() 即可，避免 random.randint 开销。PyPy 下递归深度限制默认小，大规模可 sys.setrecursionlimit。实际比赛中 Python 更常用 FHQ-Treap（见 fhq-treap 节点）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>所有操作期望 O(log n)（随机优先级下节点期望深度 2ln n）；最坏 O(n) 概率极小</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">期望复杂度依赖随机数质量；最坏情形（priority 恰好单调）概率虽小仍非严格保证。不支持区间操作（区间翻转/区间加）——需无旋 Treap 或 Splay。重复元素需约定处理。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>priority 用固定值（如直接取 val）导致退化成链</li><li>旋转后忘记更新两个节点的 size，导致排名错误</li><li>删除双子节点时优先旋转左/右儿子顺序写反，破坏堆性质</li><li>把期望 O(log n) 当最坏 O(log n)，追求确定性请用替罪羊树</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3369</strong></td><td>4</td><td>普通平衡树模板：插入/删除/排名/前驱后继全操作</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3369" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3369</a></td></tr><tr><td>LOJ</td><td><strong>104</strong></td><td>4</td><td>普通平衡树（旋转 Treap 模板题）</td><td class="u"><a href="https://loj.ac/problem/104" target="_blank" rel="noopener">https://loj.ac/problem/104</a></td></tr><tr><td>LOJ</td><td><strong>105</strong></td><td>5</td><td>文艺平衡树：区间翻转需无旋 Treap 分裂合并</td><td class="u"><a href="https://loj.ac/problem/105" target="_blank" rel="noopener">https://loj.ac/problem/105</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-treap" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "node", "label": "节点结构：val+随机priority+size"}}, {"data": {"id": "rotate", "label": "左旋/右旋与size更新"}}, {"data": {"id": "insert", "label": "BST插入后按priority上浮"}}, {"data": {"id": "delete", "label": "旋至叶子删除或BST删除调整"}}, {"data": {"id": "query", "label": "排名/前驱后继/第k小"}}, {"data": {"id": "enode->rotate", "source": "node", "target": "rotate"}}, {"data": {"id": "erotate->insert", "source": "rotate", "target": "insert"}}, {"data": {"id": "einsert->delete", "source": "insert", "target": "delete"}}, {"data": {"id": "erotate->query", "source": "rotate", "target": "query"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-treap'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="bst.html" title="Treap是BST加入随机优先级的平衡变体">二叉搜索树基础<span class="etype">变体</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="fhq-treap.html" title="无旋Treap是Treap的分裂合并变体">无旋Treap(FHQ Treap)<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/treap/" target="_blank" rel="noopener">https://oi-wiki.org/ds/treap/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/data_structures/treap.html" target="_blank" rel="noopener">https://cp-algorithms.com/data_structures/treap.html</a></li><li><span class="srctype">论文</span><span class="v-ok">&#10003;</span> <span class="ref">Seidel &amp; Aragon, Randomized Search Trees (1989)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

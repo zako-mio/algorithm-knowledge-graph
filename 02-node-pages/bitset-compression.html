@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bitset压位 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-2.html">位运算族</a> / <span>bitset压位</span></div>
+  <h1>bitset压位</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="bit-op-basics.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">bit-op-basics</span></a>
+    <a class="nav-index" href="../03-groups/G-E-2.html"><span class="dir">组内第 2 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="submask-enum.html"><span class="dir">下一个 / 组内</span><span class="v">submask-enum</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">用 bitset 把 O(n^2)/w 的操作压成位运算：Python 用 int 当 bitset（int 无限位宽+bit_count），莫队配合 bitset 加速区间统计</div><p>bitset 压位：把 0/1 布尔数组用一个整数（或 std::bitset）表示，一次位运算等价于对整个数组并行操作。C++ 用 std::bitset（库函数含 count/any/移位/位运算，底层按字长 32/64 位并行）。Python 直接用 int：`bs=0`，`bs |= 1&lt;&lt;k` 置位，`bs.bit_count()` 数 1，`bs &lt;&lt; s` 整体左移 = 平移，`bs &amp; mask` 取子集。这使背包可达性、区间统计等 O(n^2) 复杂度降为 O(n^2/64)，因为 Python 大整数底层就是字长并行运算。常见应用：背包 DP（f |= f&lt;&lt;w）、集合包含判定、莫队+bitset 统计区间不同元素（如洛谷 P3674）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>背包 dp[j]=可达到 j 吗？朴素 O(n·sum)。把整个可达数组编码成一个二进制数，『加一个物品』= 把可达集合左移 w 后与原来或起来：f |= f&lt;&lt;w。一次大整数移位+或，在底层是按 30/64 位字并行执行的，等价于一次性完成 w 列 DP 转移，常数除以字长。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>Python int 用 30 位/digit 存储（3.11 后可变），&lt;&lt; &gt;&gt; &amp; | ^ 都是按字（digit）循环的 C 层运算，对 n 位整数 O(n/30)。所以 `f |= f&lt;&lt;w` 对 f 有 N 位的场景 O(N/30)，而朴素 for 循环是 O(N) Python 层 → 快约 30-64 倍（再叠加 C 层优势）。C++ std::bitset 每 64 位一个 unsigned long long，库函数用 __builtin_popcountll 等。莫队+bitset：把区间元素的出现状态按值离散化后压进 bitset，莫队移动指针时 O(1) 翻转一位，回答『区间内出现的不同值』时对整个 bitset 做 &amp; | 统计，配合分块处理（如 Ynoi 题）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>bitset 由 OI Wiki lang/csl/bitset 页系统介绍（含 LOJ515 模板题与手写 64 位优化）；OI Wiki misc/mo-algo-with-bitset 页讲莫队配合 bitset（Ynoi2016 掉进兔子洞等）。Python 用 int 当 bitset 的技巧在社区广泛使用（int.bit_count、int.bit_length、移位），是 Python 选手实现『压位』的标准手段。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># Python int 当 bitset</span>
+<span class="t-k">def</span> <span class="t-f">subset_possible</span>(weights, target):
+    bs = <span class="t-n">1</span>                 <span class="t-c"># bit0 = 可达（空集）</span>
+    <span class="t-k">for</span> w <span class="t-k">in</span> weights:
+        bs |= bs &lt;&lt; w      <span class="t-c"># 加入物品 w</span>
+    <span class="t-k">return</span> (bs &gt;&gt; target) &amp; <span class="t-n">1</span> == <span class="t-n">1</span>
+
+<span class="t-c"># 常用操作</span>
+置位: bs |= <span class="t-n">1</span> &lt;&lt; k
+判位: (bs &gt;&gt; k) &amp; <span class="t-n">1</span>
+数 <span class="t-n">1</span>: bs.<span class="t-f">bit_count</span>()
+清空: bs = <span class="t-n">0</span>
+平移: bs &lt;&lt; k
+取前 k 位: bs &amp; ((<span class="t-n">1</span> &lt;&lt; k) - <span class="t-n">1</span>)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">subset_possible</span>(weights, target):
+    bs = <span class="t-n">1</span>
+    <span class="t-k">for</span> w <span class="t-k">in</span> weights:
+        bs |= bs &lt;&lt; w
+    <span class="t-k">return</span> (bs &gt;&gt; target) &amp; <span class="t-n">1</span> == <span class="t-n">1</span>
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    <span class="t-c"># 背包可达性：3+5=8 可达</span>
+    <span class="t-k">assert</span> <span class="t-f">subset_possible</span>([<span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">2</span>], <span class="t-n">8</span>)
+    <span class="t-k">assert</span> <span class="t-f">subset_possible</span>([<span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">2</span>], <span class="t-n">10</span>)
+    <span class="t-k">assert</span> <span class="t-k">not</span> <span class="t-f">subset_possible</span>([<span class="t-n">3</span>, <span class="t-n">5</span>], <span class="t-n">9</span>)
+    <span class="t-k">assert</span> <span class="t-f">subset_possible</span>([], <span class="t-n">0</span>)
+    <span class="t-c"># int 操作</span>
+    bs = <span class="t-n">0</span>
+    bs |= <span class="t-n">1</span> &lt;&lt; <span class="t-n">3</span>
+    bs |= <span class="t-n">1</span> &lt;&lt; <span class="t-n">5</span>
+    <span class="t-k">assert</span> (bs &gt;&gt; <span class="t-n">3</span>) &amp; <span class="t-n">1</span> == <span class="t-n">1</span>
+    <span class="t-k">assert</span> (bs &gt;&gt; <span class="t-n">4</span>) &amp; <span class="t-n">1</span> == <span class="t-n">0</span>
+    <span class="t-k">assert</span> bs.<span class="t-f">bit_count</span>() == <span class="t-n">2</span>
+    <span class="t-k">assert</span> (bs &lt;&lt; <span class="t-n">2</span>) == ((<span class="t-n">1</span> &lt;&lt; <span class="t-n">5</span>) | (<span class="t-n">1</span> &lt;&lt; <span class="t-n">7</span>))
+    <span class="t-c"># 大范围：10^5 位级 bitset 仍可行</span>
+    big = <span class="t-n">1</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">20000</span>):
+        big |= big &lt;&lt; <span class="t-n">1</span>
+    <span class="t-k">assert</span> big.<span class="t-f">bit_count</span>() == <span class="t-n">20001</span>
+    <span class="t-c"># 与朴素对拍</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">1</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">30</span>):
+        ws = [random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">10</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">8</span>)]
+        t = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">40</span>)
+        naive = {<span class="t-n">0</span>}
+        <span class="t-k">for</span> w <span class="t-k">in</span> ws:
+            naive |= {x + w <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">list</span>(naive)}
+        <span class="t-k">assert</span> <span class="t-f">subset_possible</span>(ws, t) == (t <span class="t-k">in</span> naive)
+    <span class="t-b">print</span>(<span class="t-s">&quot;bitset-compression OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 的大整数实现与 CPython 不同（RPython 大整数），移位/或仍按字并行但 digit 宽度与常数可能不同；bit_count 可用。PyPy 下 int-bitset 依然远快于 Python 层循环。超大 bitset（10^6 位+）注意内存（10^6 位≈128KB，OK）；连续多次移位会产生临时大 int，PyPy 的分配策略可能造成 GC 压力，必要时复用变量。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>一次位运算 O(n/30)~O(n/64)（n 为 bitset 位数）；背包 DP 总 O(#items·sum/64)；莫队+bitset 见具体题</td></tr><tr><th>空间复杂度</th><td>O(n) 位（Python int O(n/30) digit）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">int 当 bitset 只能做『并行位级操作』，若要随机访问单元素仍 O(1)（(bs&gt;&gt;k)&amp;1）；但不能像 list 那样对某一位就地改而不新建大对象（bs|=1&lt;&lt;k 每次创建新 int）。莫队+bitset 需要离散化与处理多重值（用出现次数编码），实现较复杂。Python int-bitset 的移位对超大 int 会分配新内存，连续大量移位时注意性能。bitset 本质仍是布尔运算，无法维护计数（出现次数&gt;1）除非额外处理。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>f |= f&lt;&lt;w 里 f&lt;&lt;w 是新对象，循环内变量不要写反（f &lt;&lt;= w 会丢失原可达集）</li><li>Python int 无限位宽：f 的最高位会被左移不断抬高，答案判断用 (f&gt;&gt;target)&amp;1 前确认 target 位数足够</li><li>莫队+bitset 中多重值需离散化编码（值+出现次数），忘记处理会漏数</li><li>bitset 只做存在性，不能维护计数；要计数需另存 cnt</li><li>超大 bitset 一次移位分配大内存，极限内存题注意评估</li><li>C++ std::bitset 需编译期定长，动态大小用 vector&lt;bool&gt; 或手写数组</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>LibreOJ</td><td><strong>515</strong></td><td>3</td><td>「LibreOJ β Round #2」贪心只能过样例：背包可达性用 f|=f&lt;&lt;(j*j)，OI Wiki bitset 页模板题</td><td class="u"><a href="https://loj.ac/problem/515" target="_blank" rel="noopener">https://loj.ac/problem/515</a></td></tr><tr><td>Luogu</td><td><strong>P3674</strong></td><td>6</td><td>小清新人渣的本愿：莫队+bitset 判定区间内存在差/和/积关系，OI Wiki 莫队配合 bitset 习题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3674" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3674</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-bitset-compression" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "把布尔数组抽象为 bitset（Python 用 int）"}}, {"data": {"id": "s2", "label": "置位/判位/移位/bit_count 基础操作"}}, {"data": {"id": "s3", "label": "背包可达性 f|=f\u003c\u003cw"}}, {"data": {"id": "s4", "label": "进阶：莫队+bitset 区间统计"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es2->s3", "source": "s2", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-bitset-compression'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="bit-op-basics.html" title="压位依赖位运算基础和bitset操作">位运算基础<span class="etype">前置依赖</span></a><a class="chip e-combination" href="mo-algorithm.html" title="莫队配合bitset加速集合运算">莫队算法<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/lang/csl/bitset/" target="_blank" rel="noopener">https://oi-wiki.org/lang/csl/bitset/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/mo-algo-with-bitset/" target="_blank" rel="noopener">https://oi-wiki.org/misc/mo-algo-with-bitset/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

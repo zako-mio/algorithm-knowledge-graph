@@ -1,0 +1,109 @@
+{
+  "id": "lagrange-inversion",
+  "name": "拉格朗日反演",
+  "group": "G-C-12",
+  "stage": "frontier",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "O(n log n)求复合逆的系数，生成函数计数的高级工具",
+  "what": "拉格朗日反演（Lagrange Inversion）给出形式幂级数复合逆系数的闭式：若 f(x)=Σ_{k>=1} f_k x^k 且 f_1≠0，则 f 有唯一复合逆 g（即 f(g(x))=x）。对任意形式幂级数（或形式 Laurent 级数）Φ 有 [x^n]Φ(f(x))=[x^{n-1}]Φ(x)·g'(x)/g(x)·(x/g(x))^n。特例 [x^n] f(x)^k = (k/n)[x^{n-k}](x/g(x))^n。利用该公式可在 O(n log n)（NTT 加速幂与导数）内求复合逆的前 n 项。是生成函数计数（树、平面二叉树、带标号组合结构等）的高级工具，用于求解'自指方程'的显式系数。",
+  "why": {
+    "intuition": "复合逆 g 满足 g(f(x))=x，直接解 g 的系数是耦合方程组。拉格朗日反演说：g 的第 n 项可以从 f 的某次幂的特定系数直接读出——因为代换 g 相当于'重新参数化'，留数/围道思想把系数变成幂的系数。",
+    "principle": "形式留数 res(f)=[x^{-1}]f 满足链式法则 res(Φ(f(x))f'(x))=ord(f)·res(Φ)。令 g=f^{<-1>}，则 [x^n]Φ(f)=res(Φ(f)/x^{n+1})。代换 x→g(x)，利用 g'(x)dx 的链式性质与 res 的换元公式，得 [x^n]Φ(f(x))=res(Φ(x)g'(x)/g(x)^{n+1})=[x^{-1}]Φ(x)g'(x)/g(x)^{n+1}。再令 Φ(x)=x^k 并整理 g'(x)/g(x)^{n+1}=(1/n)(1/g(x)^n)'，得到常用形式。",
+    "history": "拉格朗日反演由 Joseph-Louis Lagrange 在 1770 年提出（解 Kepler 方程时），后经 Bürmann 推广。是解析组合学（Analytic Combinatorics，Flajolet & Sedgewick）的标准工具。OI Wiki 的 poly/lagrange-inversion 页面给出形式 Laurent 级数框架下的严谨推导。"
+  },
+  "how": {
+    "pseudocode": "# 求 f 的复合逆 g 前 n 项\n# 用 [x^n]g(x) = (1/n)[x^{n-1}](x/f(x))^n\ninv_f = inverse(f/x, n)      # 幂级数逆\nfor n in 1..N:\n    g[n] = (1/n) * [x^{n-1}] (inv_f)^n   # 幂用 NTT 快速幂\n# 或者逐项解 f(g)=x(朴素)",
+    "python": "MOD = 998244353\n\n\ndef lagrange_inversion_naive(f, n):\n    \"\"\"拉格朗日反演(朴素 O(n^3), 教学验证版):\n    f(x) = sum_{k>=1} f_k x^k, f_1 != 0. 求复合逆 g 使 f(g(x)) = x, 前 n 项.\n    公式: [x^n] g(x) = 1/n * [x^{n-1}] (x/f(x))^n.\n    这里用幂级数除法直接解 g: f(g(x)) = x 逐项确定 g 系数。\"\"\"\n    f = f[:n]\n    assert f[0] == 0 and f[1] != 0\n    g = [0] * n\n    g[1] = pow(f[1], MOD - 2, MOD)\n    # f(g(x)) = sum f_k g(x)^k = x\n    # 逐项: [x^n] sum_{k>=1} f_k g(x)^k = delta_{n,1}\n    for m in range(2, n):\n        # 未知 g[m], 贡献来自 k=1 项: f_1 * g[m] * x^m\n        # 已知项: sum_{k>=2} f_k [x^m] g(x)^k + f_1*[x^m] g(x) 中 g_m 未知\n        # 用递推: f_1 g_m + sum_{k>=2} f_k [x^m] g^k = 0\n        s = 0\n        for k in range(2, n):\n            # [x^m] g^k, 只含 g_0..g_{m-1} (因为 k>=2, g_1>=1 次)\n            c = coeff_pow(g, k, m)\n            s = (s + (f[k] if k < len(f) else 0) * c) % MOD\n        g[m] = (-s * pow(f[1], MOD - 2, MOD)) % MOD\n    return g\n\n\ndef coeff_pow(g, k, m):\n    \"\"\"[x^m] g(x)^k, g[0]=0, 用卷积逐层。O(k*m^2) 教学版。\"\"\"\n    cur = [1]\n    for _ in range(k):\n        new = [0] * (len(cur) + len(g) - 1)\n        for i, x in enumerate(cur):\n            if x == 0:\n                continue\n            for j, y in enumerate(g):\n                new[i + j] = (new[i + j] + x * y) % MOD\n        cur = new\n        if len(cur) > m + 1:\n            cur = cur[:m + 1]\n    return cur[m] if m < len(cur) else 0\n\n\ndef compose_verify(g, f, n):\n    \"\"\"验证 f(g(x)) = x mod x^n。\"\"\"\n    # g 已是 f 的复合逆, 验证 f(g) 用逐项合成\n    cur = [1]\n    res = [0] * n\n    for k in range(n):\n        if k == 0:\n            cur = [1]\n        else:\n            new = [0] * (len(cur) + len(g) - 1)\n            for i, x in enumerate(cur):\n                if x == 0:\n                    continue\n                for j, y in enumerate(g):\n                    if i + j < n:\n                        new[i + j] = (new[i + j] + x * y) % MOD\n            cur = new[:n]\n        c = f[k] if k < len(f) else 0\n        if c:\n            for i in range(min(len(cur), n)):\n                res[i] = (res[i] + c * cur[i]) % MOD\n    return res\n\n\nif __name__ == \"__main__\":\n    # 例: f(x) = x + x^2, 复合逆满足 g + g^2 = x\n    # g(x) = x - x^2 + 2x^3 - 5x^4 + ... (Catalan 数相关)\n    f = [0, 1, 1]\n    g = lagrange_inversion_naive(f, 10)\n    # 验证 f(g(x)) = x\n    c = compose_verify(g, f, 10)\n    assert c == [0, 1, 0, 0, 0, 0, 0, 0, 0, 0], c\n    assert g[0] == 0 and g[1] == 1 and g[2] == MOD - 1, g  # x - x^2 + ...\n    # 例: f(x) = x - x^2/2, 复合逆 g + g^2/2 = x\n    inv2 = (MOD + 1) // 2\n    f2 = [0, 1, (-inv2) % MOD]\n    g2 = lagrange_inversion_naive(f2, 8)\n    c2 = compose_verify(g2, f2, 8)\n    assert c2 == [0, 1, 0, 0, 0, 0, 0, 0], c2\n    print(\"lagrange-inversion tests passed\")\n",
+    "pypy_notes": "朴素逐项解 O(n^3) 教学用; 真正 O(n log n) 需要 NTT 快速幂+幂级数逆, Python 常数大, 大规模不现实。教学版演示 f(g(x))=x 验证。",
+    "complexity": {
+      "time": "朴素 O(n^3); NTT 版 O(n log n)",
+      "space": "O(n)"
+    },
+    "limitations": "要求 f(0)=0 且 f'(0)≠0(否则无复合逆); 公式中 g'(x)/g(x) 在 g(0)=0 处是形式 Laurent 级数, 需按定义处理; 朴素实现慢, 大规模需全套 NTT 多项式库; Python 仅适合小规模教学验证。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4277",
+      "url": "https://www.luogu.com.cn/problem/P4277",
+      "difficulty": 6,
+      "key_point": "拉格朗日反演类模板(复合逆系数), 前沿训练"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "abc236_h",
+      "url": "https://atcoder.jp/contests/abc236/tasks/abc236_h",
+      "difficulty": 6,
+      "key_point": "生成函数+容斥类: 拉格朗日反演思路的高难应用"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4482",
+      "url": "https://www.luogu.com.cn/problem/P4482",
+      "difficulty": 6,
+      "key_point": "组合结构计数: 树/二叉树等生成函数反演应用"
+    }
+  ],
+  "pitfalls": [
+    "f(0)≠0 或 f'(0)=0 时无复合逆还硬算",
+    "留数/链式换元公式中 ord(g) 因子遗漏",
+    "[x^n]f^k 公式中的 k/n 系数漏乘",
+    "形式 Laurent 级数的负次项处理错误",
+    "朴素逐项法只到小规模, 大规模需 NTT 库"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "condition",
+        "label": "验证 f(0)=0, f'(0)≠0 的复合逆存在条件"
+      },
+      {
+        "id": "residue",
+        "label": "掌握形式留数与换元公式"
+      },
+      {
+        "id": "apply_formula",
+        "label": "套用 [x^n]Φ(f) 公式(含 k/n 系数)"
+      },
+      {
+        "id": "compute",
+        "label": "用幂级数逆+快速幂求 x/f(x) 的 n 次方"
+      },
+      {
+        "id": "verify",
+        "label": "验证 f(g(x))=x"
+      }
+    ],
+    "edges": [
+      {
+        "from": "condition",
+        "to": "residue"
+      },
+      {
+        "from": "residue",
+        "to": "apply_formula"
+      },
+      {
+        "from": "apply_formula",
+        "to": "compute"
+      },
+      {
+        "from": "compute",
+        "to": "verify"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/poly/lagrange-inversion/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/lagrange-inversion.md",
+      "verified": true
+    }
+  ]
+}

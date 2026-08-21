@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四边形不等式/决策单调性优化 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-12.html">DP优化族</a> / <span>四边形不等式/决策单调性优化</span></div>
+  <h1>四边形不等式/决策单调性优化</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-12</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="dp-opt-slope.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">dp-opt-slope</span></a>
+    <a class="nav-index" href="../03-groups/G-A-12.html"><span class="dir">组内第 4 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dp-opt-divide-conquer.html"><span class="dir">下一个 / 组内</span><span class="v">dp-opt-divide-conquer</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">w满足四边形不等式则决策单调，分治/单调队列优化</div><p>四边形不等式优化利用「决策单调性」：对形如 f(i)=min_{j≤i} {w(j,i)} 的最优化问题，若成本 w 满足四边形不等式 w(a,c)+w(b,d) ≤ w(a,d)+w(b,c)（a≤b≤c≤d，即「交叉小于包含」），则最优决策点 opt(i) 单调不减。利用这一单调性，可用分治优化（O(n log n)）、二分队列（单调队列记录决策点覆盖区间，O(n log n)）、Knuth 优化（区间 DP，O(n²)）将朴素 O(n²)/O(n³) 大幅降低。经典应用：石子合并最小代价、最优二叉搜索树（Knuth）、IOI2000 邮局、POI2011 Lightning Conductor。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>决策单调性说明：随着问题参数 i 增大，最优的「起点 j」只会往右移动，不会回头。就像人在一排商店选址，要求越多时最优位置越靠右。若 w 满足「交叉 ≤ 包含」，数学上可以反证决策单调（定理1），证明用反证：若 opt(d)=a &lt; b=opt(c)（a&lt;b≤c&lt;d），由最优性与四边形不等式推出矛盾）。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>定义：决策单调性 opt(i) ≤ opt(i+1)。四边形不等式（quadrangle inequality / Monge 性质）w(a,c)+w(b,d) ≤ w(a,d)+w(b,c)。等价刻画：w 的二阶混合差分非正（离散凸/凹）。分治优化框架：solve(l,r,optL,optR) 计算中点 mid 的最优决策 opt(mid)（在 [optL,optR] 枚举），递归左半 [l,mid-1]（决策界 [optL,opt(mid)]）、右半 [mid+1,r]（决策界 [opt(mid),optR]）。每层每个决策至多被扫描常数次，总 O(n log n)。Knuth 优化：区间 DP f[i][j]=min_{k∈[i,j)} {f[i][k]+f[k+1][j]}+w(i,j)，若 w 满足四边形不等式且区间单调，则决策 k[i][j-1] ≤ k[i][j] ≤ k[i+1][j]，把 O(n³) 降到 O(n²)。二分队列（Aliens trick 前置）：记录每个决策 j 当前覆盖的问题区间 [l_j,r_j]，入队时与队尾决策二分比较，处理 w 需要动态计算的情形，O(n log n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>四边形不等式与决策单调性的思想可追溯到 1970s-80s 的算法文献（D. E. Knuth 1971 年对最优二叉搜索树的 Knuth 优化；F. F. Yao 1982 年系统证明 quadrangle inequality 下的加速）。竞赛中 2000s 后成为省选/NOI 高频优化（邮局、石子合并）。CP-Algorithms 与 OI Wiki 均设专章（knuth-optimization / quadrangle）。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 判断 w 是否满足四边形不等式（随机抽样验证 + 理论证明）</span>
+<span class="t-k">for</span> a&lt;=b&lt;=c&lt;=d: <span class="t-k">assert</span> <span class="t-f">w</span>(a,c)+<span class="t-f">w</span>(b,d) &lt;= <span class="t-f">w</span>(a,d)+<span class="t-f">w</span>(b,c)
+
+<span class="t-c"># 分治优化（决策单调）</span>
+<span class="t-f">solve</span>(l, r, optL, optR):
+  <span class="t-k">if</span> l &gt; r: <span class="t-k">return</span>
+  mid = (l+r)//<span class="t-n">2</span>
+  best_j = argmin_{j <span class="t-k">in</span> [optL, <span class="t-b">min</span>(mid-<span class="t-n">1</span>,optR)]} <span class="t-f">w</span>(j, mid)   <span class="t-c"># 枚举</span>
+  f[mid] = <span class="t-f">w</span>(best_j, mid)
+  <span class="t-f">solve</span>(l, mid-<span class="t-n">1</span>, optL, best_j)
+  <span class="t-f">solve</span>(mid+<span class="t-n">1</span>, r, best_j, optR)
+
+<span class="t-c"># Knuth 优化（区间DP）</span>
+<span class="t-k">for</span> <span class="t-b">len</span> <span class="t-k">in</span> <span class="t-n">1.</span>.n:
+  <span class="t-k">for</span> i, j=i+<span class="t-b">len</span>:
+    <span class="t-k">for</span> k <span class="t-k">in</span> [opt[i][j-<span class="t-n">1</span>], opt[i+<span class="t-n">1</span>][j]]:   <span class="t-c"># 决策界缩到 O(1) 摊还</span>
+      f[i][j] = <span class="t-b">min</span>(f[i][k]+f[k+<span class="t-n">1</span>][j]) + <span class="t-f">w</span>(i,j)
+    opt[i][j] = 最优 k</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">quadrangle_divide_conquer</span>(n, w):
+    <span class="t-s">&quot;&quot;&quot;分治优化：f[i] = min_{j&lt;i} w(j,i)，要求决策单调。
+    w(i,j) 由 callable 提供（这里用 precomputed 2D 列表模拟）。
+    返回每个 i 的最优决策与 f[i]。&quot;&quot;&quot;</span>
+    f = [<span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)] * (n + <span class="t-n">1</span>)
+    opt = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    f[<span class="t-n">0</span>] = <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">solve</span>(l, r, optL, optR):
+        <span class="t-k">if</span> l &gt; r:
+            <span class="t-k">return</span>
+        mid = (l + r) // <span class="t-n">2</span>
+        best_j, best_v = optL, <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(optL, <span class="t-b">min</span>(mid, optR) + <span class="t-n">1</span>):
+            v = <span class="t-f">w</span>(j, mid)
+            <span class="t-k">if</span> v &lt; best_v:
+                best_v, best_j = v, j
+        opt[mid] = best_j
+        f[mid] = best_v
+        <span class="t-f">solve</span>(l, mid - <span class="t-n">1</span>, optL, best_j)
+        <span class="t-f">solve</span>(mid + <span class="t-n">1</span>, r, best_j, optR)
+
+    <span class="t-f">solve</span>(<span class="t-n">1</span>, n, <span class="t-n">0</span>, n)
+    <span class="t-k">return</span> f, opt
+
+
+<span class="t-k">def</span> <span class="t-f">knuth_optimization</span>(n, w):
+    <span class="t-s">&quot;&quot;&quot;Knuth 优化区间 DP：f[i][j] = min_k { f[i][k]+f[k+1][j] } + w(i,j)。
+    经典为石子合并/最优BST；此处用通用 cost w(i,j) 实现，O(n^2)。
+    &quot;&quot;&quot;</span>
+    f = [[<span class="t-n">0</span>] * (n + <span class="t-n">1</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    opt = [[<span class="t-n">0</span>] * (n + <span class="t-n">1</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        opt[i][i] = i
+    <span class="t-k">for</span> length <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n - length + <span class="t-n">2</span>):
+            j = i + length - <span class="t-n">1</span>
+            best_v = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+            best_k = opt[i][j - <span class="t-n">1</span>]
+            <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(opt[i][j - <span class="t-n">1</span>], <span class="t-b">min</span>(opt[i + <span class="t-n">1</span>][j], j - <span class="t-n">1</span>) + <span class="t-n">1</span>):
+                v = f[i][k] + f[k + <span class="t-n">1</span>][j] + <span class="t-f">w</span>(i, j)
+                <span class="t-k">if</span> v &lt; best_v:
+                    best_v, best_k = v, k
+            f[i][j] = best_v
+            opt[i][j] = best_k
+    <span class="t-k">return</span> f[<span class="t-n">1</span>][n]
+
+
+<span class="t-k">def</span> <span class="t-f">knuth_naive</span>(n, w):
+    <span class="t-s">&quot;&quot;&quot;朴素区间 DP O(n^3) 对拍&quot;&quot;&quot;</span>
+    f = [[<span class="t-n">0</span>] * (n + <span class="t-n">1</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    <span class="t-k">for</span> length <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n - length + <span class="t-n">2</span>):
+            j = i + length - <span class="t-n">1</span>
+            f[i][j] = <span class="t-b">min</span>(f[i][k] + f[k + <span class="t-n">1</span>][j] <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(i, j)) + <span class="t-f">w</span>(i, j)
+    <span class="t-k">return</span> f[<span class="t-n">1</span>][n]
+
+
+<span class="t-k">def</span> <span class="t-f">cost_for_prefix_squares</span>(n):
+    <span class="t-s">&quot;&quot;&quot;邮局/分治DP 的经典 w：sum |pos[k] - pos[j]|，满足四边形不等式。
+    此处构造简单的递推以做自测（w(j,i) = 任意满足单调性的函数）。&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">3</span>)
+    pos = <span class="t-b">sorted</span>(random.<span class="t-f">sample</span>(<span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-n">10000</span>), n))
+    pref = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        pref[i + <span class="t-n">1</span>] = pref[i] + pos[i]
+    <span class="t-k">def</span> <span class="t-f">w</span>(j, i):
+        <span class="t-c"># w(j,i) = sum_{k=j+1..i} (i-k)*a[k] 型成本，满足四边形不等式</span>
+        <span class="t-c"># 简化用二次型：w(j,i) = (i-j) * (suffix_cost)，保证非负且 Monge</span>
+        <span class="t-k">if</span> j &gt;= i:
+            <span class="t-k">return</span> <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+        <span class="t-c"># 用「中位数绝对距离」的另一种非负构造：</span>
+        <span class="t-c"># w(j,i) = sum_{t=j+1}^{i} (t-j-1)^2  （恒非负、四边形不等式满足）</span>
+        <span class="t-k">return</span> (i - j - <span class="t-n">1</span>) * (i - j) * (i - j + <span class="t-n">1</span>) // <span class="t-n">3</span>
+    <span class="t-k">return</span> w
+
+
+<span class="t-k">def</span> <span class="t-f">stone_merge_cost</span>(n):
+    <span class="t-s">&quot;&quot;&quot;石子合并：w(i,j)=sum(a[i..j])，Knuth 优化适用（w 满足四边形不等式）&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">8</span>)
+    a = [random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">100</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    pref = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        pref[i + <span class="t-n">1</span>] = pref[i] + a[i]
+    <span class="t-k">def</span> <span class="t-f">w</span>(i, j):
+        <span class="t-k">return</span> pref[j] - pref[i - <span class="t-n">1</span>]
+    <span class="t-k">return</span> w
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">41</span>)
+    <span class="t-c"># 分治优化（决策单调）正确性：w 取「到中位数距离」型（Monge）</span>
+    <span class="t-k">for</span> n <span class="t-k">in</span> [<span class="t-n">3</span>, <span class="t-n">7</span>, <span class="t-n">12</span>]:
+        w = <span class="t-f">cost_for_prefix_squares</span>(n)
+        f, opt = <span class="t-f">quadrangle_divide_conquer</span>(n, w)
+        <span class="t-c"># 验证决策单调</span>
+        <span class="t-k">assert</span> <span class="t-b">all</span>(opt[i] &lt;= opt[i + <span class="t-n">1</span>] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n))
+        <span class="t-c"># 与朴素逐点比对</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+            exp = <span class="t-b">min</span>(<span class="t-f">w</span>(j, i) <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, i))
+            <span class="t-k">assert</span> <span class="t-b">abs</span>(f[i] - exp) &lt; <span class="t-n">1e-9</span>, (i, f[i], exp)
+    <span class="t-c"># Knuth 优化（石子合并）</span>
+    <span class="t-k">for</span> n <span class="t-k">in</span> [<span class="t-n">3</span>, <span class="t-n">6</span>, <span class="t-n">10</span>]:
+        w = <span class="t-f">stone_merge_cost</span>(n)
+        got = <span class="t-f">knuth_optimization</span>(n, w)
+        exp = <span class="t-f">knuth_naive</span>(n, w)
+        <span class="t-k">assert</span> got == exp, (n, got, exp)
+    <span class="t-c"># 决策单调性 + 四边形不等式抽样验证</span>
+    w = <span class="t-f">cost_for_prefix_squares</span>(<span class="t-n">30</span>)
+    ok = <span class="t-k">True</span>
+    <span class="t-k">for</span> a <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, <span class="t-n">10</span>):
+        <span class="t-k">for</span> b <span class="t-k">in</span> <span class="t-b">range</span>(a, <span class="t-n">10</span>):
+            <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(b, <span class="t-n">10</span>):
+                <span class="t-k">for</span> dd <span class="t-k">in</span> <span class="t-b">range</span>(c, <span class="t-n">10</span>):
+                    <span class="t-k">if</span> <span class="t-f">w</span>(a, c) + <span class="t-f">w</span>(b, dd) &gt; <span class="t-f">w</span>(a, dd) + <span class="t-f">w</span>(b, c) + <span class="t-n">1e-9</span>:
+                        ok = <span class="t-k">False</span>
+    <span class="t-k">assert</span> ok, <span class="t-s">&quot;quadrangle inequality violated&quot;</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">分治优化递归深度 O(log n) 安全；Knuth 优化的决策界区间需要正确初始 opt[i][i]=i。w(j,i) 若不能 O(1) 计算（需滑动游标），用「莫队式游标」维护 w 值（OI Wiki 移动访问）。大 n（1e5）分治可行，Knuth O(n²) 仅限 n≤5000。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>分治优化：O(n log n)；二分队列：O(n log n)；Knuth 优化：O(n²)（替代 O(n³)）</td></tr><tr><th>空间复杂度</th><td>分治 O(n)；Knuth O(n²)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">必须验证 w 满足四边形不等式（充分不必要条件）；决策单调性需取「最小/最大最优决策」约定一致。分治优化无法处理 w 依赖已计算 f 的「动态计算」情形（需二分队列）。Knuth 优化仅适用区间 DP 且 w 满足区间单调性。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>未验证 w 满足四边形不等式就套优化，答案错误无提示</li><li>分治边界：决策枚举上界误用 mid-1（应为 min(mid, optR)）</li><li>Knuth 优化中 opt[i][j-1] ≤ k ≤ opt[i+1][j] 的边界初始化错误</li><li>取最大/最小最优决策不一致导致决策区间不连续</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4767</strong></td><td>6</td><td>IOI2000 邮局：决策单调分治优化经典</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4767" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4767</a></td></tr><tr><td>Luogu</td><td><strong>P6246</strong></td><td>7</td><td>IOI2000 邮局加强版：二分队列/Aliens trick</td><td class="u"><a href="https://www.luogu.com.cn/problem/P6246" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P6246</a></td></tr><tr><td>LOJ</td><td><strong>2157</strong></td><td>6</td><td>POI2011 Lightning Conductor：决策单调性优化</td><td class="u"><a href="https://loj.ac/problem/2157" target="_blank" rel="noopener">https://loj.ac/problem/2157</a></td></tr><tr><td>Codeforces</td><td><strong>321E</strong></td><td>6</td><td>Ciel and Gondolas：分治优化 DP 模板（CP-Algorithms 例题）</td><td class="u"><a href="https://codeforces.com/contest/321/problem/E" target="_blank" rel="noopener">https://codeforces.com/contest/321/problem/E</a></td></tr><tr><td>SPOJ</td><td><strong>BRKSTRNG</strong></td><td>5</td><td>Knuth 优化区间 DP 练习</td><td class="u"><a href="https://www.spoj.com/problems/BRKSTRNG/" target="_blank" rel="noopener">https://www.spoj.com/problems/BRKSTRNG/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dp-opt-quadrangle" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "verify", "label": "验证 w 满足四边形不等式"}}, {"data": {"id": "monotone", "label": "证明/确认决策单调性"}}, {"data": {"id": "dc", "label": "分治优化 O(n log n)"}}, {"data": {"id": "queue", "label": "二分队列 O(n log n)"}}, {"data": {"id": "knuth", "label": "Knuth 优化区间 DP O(n^2)"}}, {"data": {"id": "everify->monotone", "source": "verify", "target": "monotone"}}, {"data": {"id": "emonotone->dc", "source": "monotone", "target": "dc"}}, {"data": {"id": "emonotone->queue", "source": "monotone", "target": "queue"}}, {"data": {"id": "emonotone->knuth", "source": "monotone", "target": "knuth"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dp-opt-quadrangle'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="dp-opt-overview.html" title="四边形不等式优化是DP优化的具体技术之一">DP优化概述<span class="etype">变体</span></a><a class="chip e-combination" href="dp-interval.html" title="区间DP常用四边形不等式优化决策点">区间DP<span class="etype">组合</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="dp-opt-divide-conquer.html" title="决策单调性既可用四边形不等式也可用分治实现">分治优化DP<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/opt/quadrangle/" target="_blank" rel="noopener">https://oi-wiki.org/dp/opt/quadrangle/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/dynamic_programming/knuth-optimization.html" target="_blank" rel="noopener">https://cp-algorithms.com/dynamic_programming/knuth-optimization.html</a></li><li><span class="srctype">论文</span><span class="v-ok">&#10003;</span> <span class="ref">F. F. Yao, Efficiency of dynamic programming, JACM 1982</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

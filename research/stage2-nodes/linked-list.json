@@ -1,0 +1,119 @@
+{
+ "id": "linked-list",
+ "name": "链表",
+ "group": "G-A-10",
+ "stage": "basic",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "节点指针串联，O(1) 插入删除，O(n) 随机访问，注意边界哨兵",
+ "what": "链表（Linked List）由节点经指针串联而成：单向链表每个节点含数据域与 next 指针；双向链表还有 pre 指针。特点：插入/删除已知节点 O(1)（只需改相邻指针），但随机访问/按值查找 O(n)。与数组互补——数组随机访问 O(1) 而中间插入删除 O(n)。竞赛中常用场景：需要频繁在中间插入删除的模拟（约瑟夫问题、队列安排、双向 BFS 队列）、邻接表实现（前向星/链式前向星本质也是数组链表）、以及链表+其他结构配合（跳表、LRU 缓存）。实现上建议用『哨兵节点』（head/tail 哑节点）避免边界特判；Python 中常用 list 模拟（pre/nxt 两个数组）获得更低常数与更好缓存。",
+ "why": {
+  "intuition": "数组是‘门牌号连续的一排房子’，中间插一间必须把后面全部搬动；链表是‘一串用绳子拴住的箱子’，在任意两箱之间塞新箱只要解两根绳、栓两根绳，其他箱子纹丝不动。代价是找第 k 个箱子得从头数起。",
+  "principle": "单向插入 p 后：node.next=p.next; p.next=node。单向删除 p：用 p.next 的值覆盖 p，再跳过 p.next（无头删除技巧，需 p 非尾）。双向删除 p：p.pre.next=p.next; p.next.pre=p.pre。哨兵：head/tail 两个哑节点让首尾操作与普通一致，彻底消灭 if 空表判断。邻接表前向星：以数组存储，e[cnt].next=head[u], head[u]=cnt（头插），遍历 for(i=head[u]; i; i=e[i].next)。复杂度：已知节点插入/删除 O(1)，查找/随机访问 O(n)。",
+  "history": "链表概念来自 1950 年代早期（Allen Newell/Herbert Simon 的 List Processing，IPL 语言 1956 年由 McCarthy 的 LISP 发扬光大，LISP 以‘list’为核心数据结构）。MIT 人工智能实验室的 LISP 语言让链表成为计算机科学基础数据结构。OI Wiki《链表》页给出单向/双向/循环链表与异或链表的完整实现。"
+ },
+ "how": {
+  "pseudocode": "class Node: val; nxt; pre\n# 双向链表 + 哨兵\nhead = Node(None); tail = Node(None)\nhead.nxt = tail; tail.pre = head\ndef insert_after(p, val):\n  new = Node(val); new.nxt = p.nxt; p.nxt.pre = new\n  p.nxt = new; new.pre = p; return new\ndef remove(p):\n  p.pre.nxt = p.nxt; p.nxt.pre = p.pre  # O(1)\n# 单向链表的无头删除\ndef delete_node_no_head(p):\n  p.val = p.nxt.val; p.nxt = p.nxt.nxt",
+  "python": "class Node:\n    __slots__ = ('val', 'nxt', 'pre')\n    def __init__(self, val):\n        self.val = val\n        self.nxt = None\n        self.pre = None\n\n\nclass DoublyLinkedList:\n    \"\"\"双向链表 + 哨兵节点. O(1) 插入删除; 记录链表长度.\"\"\"\n    def __init__(self):\n        self.head = Node(None)      # 哨兵头\n        self.tail = Node(None)      # 哨兵尾\n        self.head.nxt = self.tail\n        self.tail.pre = self.head\n        self._len = 0\n\n    def __len__(self):\n        return self._len\n\n    def is_empty(self):\n        return self._len == 0\n\n    def _link(self, a, b):\n        a.nxt = b\n        b.pre = a\n\n    def insert_after(self, node, val):\n        \"\"\"在 node 之后插入新节点, 返回新节点.\"\"\"\n        new = Node(val)\n        self._link(new, node.nxt)\n        self._link(node, new)\n        self._len += 1\n        return new\n\n    def insert_before(self, node, val):\n        return self.insert_after(node.pre, val)\n\n    def push_back(self, val):\n        return self.insert_before(self.tail, val)\n\n    def push_front(self, val):\n        return self.insert_after(self.head, val)\n\n    def remove(self, node):\n        \"\"\"删除节点. O(1), 无需前驱指针(双向链表).\"\"\"\n        self._link(node.pre, node.nxt)\n        node.nxt = node.pre = None\n        self._len -= 1\n        return node.val\n\n    def to_list(self):\n        res, p = [], self.head.nxt\n        while p is not self.tail:\n            res.append(p.val)\n            p = p.nxt\n        return res\n\n    def __iter__(self):\n        p = self.head.nxt\n        while p is not self.tail:\n            yield p\n            p = p.nxt\n\n\ndef delete_node_no_head(node):\n    \"\"\"单向链表\"无头删除\"技巧: 用下一个节点的值覆盖当前节点, 再删下一个.\n    注意: 只能用于非尾节点.\"\"\"\n    node.val = node.nxt.val\n    node.nxt = node.nxt.nxt\n\n\nif __name__ == \"__main__\":\n    ll = DoublyLinkedList()\n    a = ll.push_back(10)\n    b = ll.push_back(20)\n    c = ll.push_back(30)\n    assert ll.to_list() == [10, 20, 30]\n    ll.insert_after(a, 15)\n    assert ll.to_list() == [10, 15, 20, 30]\n    ll.remove(b)\n    assert ll.to_list() == [10, 15, 30]\n    ll.push_front(5)\n    assert ll.to_list() == [5, 10, 15, 30]\n    assert len(ll) == 4\n\n    # 与 Python list 模拟对比 (随机验证)\n    import random\n    random.seed(3)\n    l2 = DoublyLinkedList()\n    ref = []\n    nodes = []\n    for step in range(5000):\n        r = random.random()\n        if r < 0.35 or not ref:\n            v = random.randint(0, 1000)\n            if random.random() < 0.5:\n                nodes.append(l2.push_back(v)); ref.append(v)\n            else:\n                nodes.insert(0, l2.push_front(v)); ref.insert(0, v)\n        elif r < 0.7:\n            i = random.randrange(len(ref))\n            l2.remove(nodes[i]); del nodes[i]; del ref[i]\n        else:\n            i = random.randrange(len(ref))\n            v = random.randint(0, 1000)\n            nodes.insert(i + 1, l2.insert_after(nodes[i], v)); ref.insert(i + 1, v)\n        if l2.to_list() != ref:\n            print(\"MISMATCH at\", step); break\n    else:\n        assert l2.to_list() == ref and len(l2) == len(ref)\n        print(\"linked-list: all tests passed\")\n",
+  "pypy_notes": "Python 对象式链表每个节点一个对象，开销大；竞赛大输入推荐用 list 模拟双向链表（pre/nxt/val 三个平行数组，下标即节点 id），常数是对象式的数倍。实现时要小心 0 下标哨兵，用 -1 表示空指针。删除时注意 list 数组中节点 id 复用问题（用 free list 或标 unused）。",
+  "complexity": {
+   "time": "插入/删除(已知位置) O(1)；查找/随机访问 O(n)",
+   "space": "O(n)"
+  },
+  "limitations": "① 随机访问慢（无下标）；② 对象式 Python 链表内存/常数大，大数据用数组模拟；③ 单向链表删除已知节点需要前驱，否则用‘覆盖下一个’技巧（不能删尾）；④ 循环/双向链表的边界（空表、单节点）易错；⑤ 慎用 Python 的 id() 做指针（GC 不稳定），用索引模拟。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P1160",
+   "url": "https://www.luogu.com.cn/problem/P1160",
+   "difficulty": 3,
+   "key_point": "队列安排：链表模拟班级排座，支持中间插入删除，经典链表模拟题"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P1996",
+   "url": "https://www.luogu.com.cn/problem/P1996",
+   "difficulty": 1,
+   "key_point": "约瑟夫问题：循环链表/模拟出队顺序"
+  },
+  {
+   "oj": "LeetCode.cn",
+   "pid": "146",
+   "url": "https://leetcode.cn/problems/lru-cache/",
+   "difficulty": 3,
+   "key_point": "LRU 缓存：哈希表+双向链表，O(1) 访问与淘汰"
+  }
+ ],
+ "pitfalls": [
+  "删除单链表节点无前驱（覆盖技巧不能用于尾节点）",
+  "空表/单节点时哨兵指针处理错导致悬垂",
+  "对象式链表 GC/内存开销大，大数据用数组模拟",
+  "双向链表修改指针时顺序错（先断后连的顺序）",
+  "循环链表遍历忘记判环 / 死循环",
+  "删除后重复释放/复用节点导致链表断裂"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "init",
+    "label": "节点结构 + 哨兵 head/tail"
+   },
+   {
+    "id": "insert",
+    "label": "插入: 接 next 再接 pre (O(1))"
+   },
+   {
+    "id": "delete",
+    "label": "删除: 前驱后驱互接 (O(1))"
+   },
+   {
+    "id": "traverse",
+    "label": "遍历/查找 O(n)"
+   },
+   {
+    "id": "ext",
+    "label": "扩展: 循环链表/异或链表/邻接表/哈希+链表(LRU)/跳表"
+   }
+  ],
+  "edges": [
+   {
+    "from": "init",
+    "to": "insert"
+   },
+   {
+    "from": "init",
+    "to": "delete"
+   },
+   {
+    "from": "insert",
+    "to": "traverse"
+   },
+   {
+    "from": "delete",
+    "to": "traverse"
+   },
+   {
+    "from": "traverse",
+    "to": "ext"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/linked-list/",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "ref": "CPH ch2.1 (动态数组/链表)",
+   "verified": true
+  },
+  {
+   "type": "article",
+   "url": "https://en.wikipedia.org/wiki/Linked_list",
+   "verified": true
+  }
+ ]
+}

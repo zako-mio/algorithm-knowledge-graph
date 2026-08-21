@@ -1,0 +1,74 @@
+{
+  "id": "bcc",
+  "name": "双连通分量(BCC)",
+  "group": "G-B-4",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "deep",
+  "brief": "点双(无割点)/边双(无桥)极大连通子图，Tarjan+栈分解，O(V+E)，点双缩点得圆方树",
+  "what": "双连通分量(Biconnected Component)分为两类：边双连通分量(2-edge-connected component)：任意两点间存在两条边不相交的路径，等价于子图内无桥；点双连通分量(2-vertex-connected component)：任意两点间存在两条点不相交的路径，等价于子图内无割点(孤立点/单边特判)。求法：边双可通过'先求桥再删除桥后DFS'或'Tarjan SCC式'求得；点双用Tarjan+栈，遇到low[v]==dfn[u]时弹栈直到v出栈，u与弹出的点同属一个点双。边双具有传递性而点双没有(两个点双至多共享一个割点)。边双缩点后形成树(桥连接各分量)，点双缩点(圆方树)后也为树结构。复杂度O(V+E)。",
+  "why": {
+    "intuition": "无桥的连通块=边双：桥是被'剪断即分离'的边，若一个块内没有这样的边，删任意一条边仍连通，即边双。无割点的块=点双：割点是'删掉即分离'的点，块内没有这样的点，则删任意一个点仍连通。边双之间由桥连接成树，点双之间由割点衔接(圆方树的方点代表点双、圆点代表原图点)。",
+    "principle": "边双连通分量求法1：先Tarjan求所有桥，再从每个未被访问的起点DFS，不经过桥的连通块即边双。求法2(等价)：求桥后删桥，余下连通块即边双。点双连通分量求法(Tarjan+栈)：维护一个栈，DFS时把节点压栈；当对子节点v满足low[v]>=dfn[u]时(u为当前节点)，说明u是割点(或根)，此时不断弹栈直到v出栈，u与弹出的这些节点共同构成一个点双连通分量；每次弹栈得到的块即为一个点双。注意：点双中u自己会出现在多个点双中(作为割点)，因此弹栈时u不弹出，只在每个块中把u加入。孤立点单独构成一个点双，单条边构成一个点双。",
+    "history": "双连通分量理论源于图论中网络可靠性研究(How to make a network robust to node/edge failure)，Tarjan在1972年给出了基于DFS的线性时间算法。OI Wiki的bcc.md和cut.md详细给出边双与点双的多种实现(先求桥再DFS / Tarjan栈 / 差分)，CPH ch17(pp167-172)也覆盖了双连通分量。洛谷P8435(点双)/P8436(边双)为模板题。"
+  },
+  "how": {
+    "pseudocode": "# 边双(先求桥, 再DFS)\nfind_bridges()  # Tarjan\nvis=set()\nfor s in V:\n  if s not in vis:\n    bcc=[]\n    dfs_bridge(s):  # 不经过桥的边\n      若(u,v)是桥则不跨越\n      bcc.append 所有可达点\n# 点双(Tarjan+栈)\ntarjan(u,parent):\n  dfn[u]=low[u]=++timer\n  stk.push(u)\n  for v in adj[u]:\n    if not visited[v]:\n      tarjan(v,u)\n      low[u]=min(low[u],low[v])\n      if low[v]>=dfn[u]:   # u为割点或根\n        new_bcc=[]\n        while stk.top()!=v:\n          new_bcc.append(stk.pop())\n        new_bcc.append(stk.pop())\n        new_bcc.append(u)\n        record(new_bcc)\n    elif v!=parent:\n      low[u]=min(low[u],dfn[v])",
+    "python": "import sys\n\nsys.setrecursionlimit(1 << 25)\n\n\ndef edge_bcc(n, adj):\n    \"\"\"求边双连通分量(边双)。\n    adj[u] = [v, ...], 无重边版本\n    return: list[list[int]] 每个边双内的顶点集合\n    \"\"\"\n    dfn = [0] * n\n    low = [0] * n\n    timer = [0]\n    is_bridge_e = set()\n\n    def dfs_bridge(u, parent):\n        dfn[u] = low[u] = timer[0] = timer[0] + 1\n        for v in adj[u]:\n            if v == parent:\n                continue\n            if not dfn[v]:\n                dfs_bridge(v, u)\n                low[u] = min(low[u], low[v])\n                if low[v] > dfn[u]:\n                    is_bridge_e.add((min(u, v), max(u, v)))\n            else:\n                low[u] = min(low[u], dfn[v])\n\n    for s in range(n):\n        if not dfn[s]:\n            dfs_bridge(s, -1)\n\n    vis = [False] * n\n    res = []\n\n    def dfs_bcc(u):\n        vis[u] = True\n        comp = [u]\n        for v in adj[u]:\n            if (min(u, v), max(u, v)) in is_bridge_e:\n                continue\n            if not vis[v]:\n                comp += dfs_bcc(v)\n        return comp\n\n    for s in range(n):\n        if not vis[s]:\n            res.append(dfs_bcc(s))\n    return res\n\n\ndef vertex_bcc(n, adj):\n    \"\"\"求点双连通分量(点双)。\n    adj[u] = [v, ...]\n    return: (bccs list, 割点集合)\n    \"\"\"\n    dfn = [0] * n\n    low = [0] * n\n    timer = [0]\n    is_cut = [False] * n\n    stk = []\n    bccs = []\n\n    def tarjan(u, parent):\n        dfn[u] = low[u] = timer[0] = timer[0] + 1\n        stk.append(u)\n        child = 0\n        for v in adj[u]:\n            if not dfn[v]:\n                child += 1\n                tarjan(v, u)\n                low[u] = min(low[u], low[v])\n                if low[v] >= dfn[u]:\n                    is_cut[u] = parent != -1 or child > 1\n                    bcc = []\n                    while True:\n                        x = stk.pop()\n                        bcc.append(x)\n                        if x == v:\n                            break\n                    bcc.append(u)\n                    bccs.append(bcc)\n            elif v != parent:\n                low[u] = min(low[u], dfn[v])\n\n    for s in range(n):\n        if not dfn[s]:\n            tarjan(s, -1)\n    return bccs, [i for i in range(n) if is_cut[i]]\n\n\nif __name__ == \"__main__\":\n    # 边双: 0-1-2, 2-3-0 环(2-0边), 2-4. 桥: 2-4. 边双: {0,1,2,3} 和 {4}\n    adj = [[] for _ in range(5)]\n    for u, v in [(0, 1), (1, 2), (2, 0), (2, 3), (3, 0), (2, 4)]:\n        adj[u].append(v)\n        adj[v].append(u)\n    ebcc = edge_bcc(5, adj)\n    comps = [tuple(sorted(c)) for c in ebcc]\n    assert set(comps) == {(0, 1, 2, 3), (4,)}, comps\n\n    # 点双: 0-1-2-3-0 环 + 2-4, 点双: {0,1,2,3} 和 {2,4}, 割点 {2}\n    vbcc, cuts = vertex_bcc(5, adj)\n    comps2 = [tuple(sorted(c)) for c in vbcc]\n    assert set(comps2) == {(0, 1, 2, 3), (2, 4)}, comps2\n    assert cuts == [2], cuts\n\n    # 单边 0-1: 边双各含单点(0,1), 点双 {0,1}\n    adj2 = [[] for _ in range(2)]\n    adj2[0].append(1); adj2[1].append(0)\n    comps3 = [tuple(sorted(c)) for c in edge_bcc(2, adj2)]\n    assert set(comps3) == {(0,), (1,)}, comps3\n    vbcc2, cuts2 = vertex_bcc(2, adj2)\n    assert [tuple(sorted(c)) for c in vbcc2] == [(0, 1)] and cuts2 == [], \\\n        (vbcc2, cuts2)\n\n    print(\"bcc: ALL TESTS PASSED\")\n",
+    "pypy_notes": "点双弹栈逻辑易错，建议先在纸上模拟小环+挂边图。边双的桥集合用tuple(sorted)存便于查重。大规模图仍注意递归栈深。",
+    "complexity": {
+      "time": "O(V+E) — 一次Tarjan加一次分量划分",
+      "space": "O(V+E) — 邻接表+栈+dfn/low"
+    },
+    "limitations": "点双与边双定义不同：边双有传递性、点双无。点双中一个点(割点)可属于多个点双；边双中一个点只属于一个边双。孤立点与单边需特判。点双缩点后得到圆方树，边双缩点后得到普通树。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P8435",
+      "url": "https://www.luogu.com.cn/problem/P8435",
+      "difficulty": 3,
+      "key_point": "【模板】点双连通分量：Tarjan+栈模板，输出每个点双顶点集合"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P8436",
+      "url": "https://www.luogu.com.cn/problem/P8436",
+      "difficulty": 3,
+      "key_point": "【模板】边双连通分量：求桥后划分，或Tarjan SCC式"
+    },
+    {
+      "oj": "LOJ",
+      "pid": "2788",
+      "url": "https://loj.ac/p/2788",
+      "difficulty": 5,
+      "key_point": "CEOI2015管道：受限内存求每个连通块的桥，并查集优化非树边覆盖"
+    }
+  ],
+  "pitfalls": [
+    "点双弹栈时到v为止，u留在栈中(可能属于多个点双)；边双则每个点只属一个分量",
+    "点双判定用low[v]>=dfn[u]，边双/桥判定用low[v]>dfn[u]，边界值不同",
+    "孤立点、自环、重边对点双/边双的分量计数有特判要求",
+    "边双'删桥再DFS'时注意图不连通需对每个起点处理"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "tarjan", "label": "Tarjan求桥/割点" },
+      { "id": "edge_comp", "label": "边双: 删桥后DFS划分" },
+      { "id": "stack", "label": "点双: 维护弹栈栈" },
+      { "id": "pop", "label": "low[v]>=dfn[u]时弹栈到v" },
+      { "id": "record", "label": "记录分量(含u)" }
+    ],
+    "edges": [
+      { "from": "tarjan", "to": "edge_comp" },
+      { "from": "tarjan", "to": "stack" },
+      { "from": "stack", "to": "pop" },
+      { "from": "pop", "to": "record" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/graph/bcc/", "verified": true },
+    { "type": "oiwiki", "url": "https://oi-wiki.org/graph/cut/", "verified": true },
+    { "type": "book", "ref": "CPH ch17 pp167-172", "verified": true }
+  ]
+}

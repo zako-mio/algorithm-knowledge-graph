@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>容斥原理 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-11.html">组合进阶族</a> / <span>容斥原理</span></div>
+  <h1>容斥原理</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-11</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-C-11.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-C-11.html"><span class="dir">组内第 1 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="polya-enumeration.html"><span class="dir">下一个 / 组内</span><span class="v">polya-enumeration</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">|A1∪A2∪...|=sum(-1)^k S(k)，多集合并集计数与莫比乌斯反演基础</div><p>容斥原理（Inclusion-Exclusion）：对有限集族 {S_i}，|∪S_i|=Σ_{m&gt;=1}(-1)^{m-1}Σ|∩_{选 m 个}S_i|。每个元素恰好被计 1 次（由二项式定理证明）。推论：交集 |∩S_i|=|U|-|∪补集|；一般化：若 f(S)=Σ_{T⊆S}g(T) 则 g(S)=Σ_{T⊆S}(-1)^{|S|-|T|}f(T)（子集反演），其数论版本即莫比乌斯反演。应用：不定方程带上下界计数（插板+容斥）、错排 D_n=n!Σ(-1)^i/i!、数论中 gcd=k 数对计数（倍数容斥，倒推）、欧拉函数公式推导、min-max 容斥（期望版）、染色/排列禁忌位置计数等。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>先全都要(并集), 但加多了要减, 减多了要加, 交替进行——&#x27;容&#x27;与&#x27;斥&#x27;。每个元素属于 m 个集合, 贡献 ΣC(m,i)(-1)^{i-1}=1, 恰好一次。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>元素 x 出现在 m 个 S_i 中, 被计数次数=Σ_{i=1}^m C(m,i)(-1)^{i-1}=1-(1-1)^m=1。补集形式把&#x27;至少满足&#x27;转成&#x27;全不满足&#x27;。子集反演 g(S)=Σ(-1)^{|S|-|T|}f(T) 是组合莫比乌斯反演; 数论取整除偏序即为 μ 反演。min-max 容斥把 max 表达成各子集 min 的交替和, 因期望线性成立 E[max]=Σ(-1)^{|T|-1}E[min]。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>容斥原理由 De Moivre 与 Poisson 等 18-19 世纪数学家系统化, 是组合计数的基础工具。OI Wiki 的 inclusion-exclusion 页面与 CP-Algorithms 的 inclusion-exclusion 页面均收录并给出错排、数论、min-max 等应用, 后者还有 UVA/SPOJ/TopCoder 练习列表。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 模板: 求满足全部限制的计数</span>
+全集 = 无限制的计数方案
+<span class="t-k">def</span> <span class="t-f">f</span>(mask):  <span class="t-c"># 对 mask 内限制&#x27;放水&#x27;后的计数</span>
+    ...
+ans = <span class="t-b">sum</span>( (-<span class="t-n">1</span>)^{|mask|} * <span class="t-f">f</span>(mask) <span class="t-k">for</span> mask <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>&lt;&lt;n) )
+
+<span class="t-c"># 数论: gcd=k 数对倒推</span>
+f[N.<span class="t-n">.1</span>] 从大到小:
+    f[k] = (N//k)^<span class="t-n">2</span> - sum_{i=<span class="t-n">2</span>, i*k&lt;=N} f[i*k]</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">10000</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">comb_mod</span>(n, k, mod=<span class="t-n">998244353</span>):
+    <span class="t-s">&quot;&quot;&quot;O(k) 计算组合数 C(n,k) mod p (n 可能很大, k 小)。&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> k &lt; <span class="t-n">0</span> <span class="t-k">or</span> k &gt; n:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    num, den = <span class="t-n">1</span>, <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(k):
+        num = num * ((n - i) % mod) % mod
+        den = den * (i + <span class="t-n">1</span>) % mod
+    <span class="t-k">return</span> num * <span class="t-b">pow</span>(den, mod - <span class="t-n">2</span>, mod) % mod
+
+
+<span class="t-k">def</span> <span class="t-f">solve_linear_diophantine_count</span>(m, b):
+    <span class="t-s">&quot;&quot;&quot;容斥: 不定方程 sum x_i = m, 0&lt;=x_i&lt;=b_i 的非负整数解数.
+    全集(无上界)方案数 C(m+n-1, n-1), 容斥枚举违反上界的子集. O(2^n).&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(b)
+    total = <span class="t-n">0</span>
+    <span class="t-k">for</span> mask <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span> &lt;&lt; n):
+        s = m
+        bits = <span class="t-n">0</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> mask &gt;&gt; i &amp; <span class="t-n">1</span>:
+                s -= b[i] + <span class="t-n">1</span>
+                bits += <span class="t-n">1</span>
+        <span class="t-k">if</span> s &lt; <span class="t-n">0</span>:
+            <span class="t-k">continue</span>
+        ways = <span class="t-f">comb_mod</span>(s + n - <span class="t-n">1</span>, n - <span class="t-n">1</span>)
+        <span class="t-k">if</span> bits &amp; <span class="t-n">1</span>:
+            total -= ways
+        <span class="t-k">else</span>:
+            total += ways
+    <span class="t-k">return</span> total % <span class="t-n">998244353</span>
+
+
+<span class="t-k">def</span> <span class="t-f">brute_equation</span>(m, b):
+    <span class="t-s">&quot;&quot;&quot;暴力枚举验证。&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(b)
+
+    <span class="t-k">def</span> <span class="t-f">rec</span>(i, rem):
+        <span class="t-k">if</span> i == n:
+            <span class="t-k">return</span> <span class="t-n">1</span> <span class="t-k">if</span> rem == <span class="t-n">0</span> <span class="t-k">else</span> <span class="t-n">0</span>
+        c = <span class="t-n">0</span>
+        <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, <span class="t-b">min</span>(b[i], rem) + <span class="t-n">1</span>):
+            c += <span class="t-f">rec</span>(i + <span class="t-n">1</span>, rem - x)
+        <span class="t-k">return</span> c
+
+    <span class="t-k">return</span> <span class="t-f">rec</span>(<span class="t-n">0</span>, m)
+
+
+<span class="t-k">def</span> <span class="t-f">derangements</span>(n, mod=<span class="t-n">998244353</span>):
+    <span class="t-s">&quot;&quot;&quot;错排数 D_n = n! sum_{i=0}^n (-1)^i / i! (容斥).&quot;&quot;&quot;</span>
+    fact = <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        fact = fact * i % mod
+    invs = [<span class="t-n">1</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        invs[i] = <span class="t-b">pow</span>(i, mod - <span class="t-n">2</span>, mod)
+    <span class="t-c"># 容斥公式</span>
+    res = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>):
+        t = fact * <span class="t-b">pow</span>(invs[i], <span class="t-n">1</span>, mod) % mod
+        <span class="t-c"># 简化: D_n = n! * sum (-1)^i / i!</span>
+        sign = -<span class="t-n">1</span> <span class="t-k">if</span> i &amp; <span class="t-n">1</span> <span class="t-k">else</span> <span class="t-n">1</span>
+        <span class="t-c"># 用分数形式</span>
+    <span class="t-c"># 直接递推 D_n = (n-1)(D_{n-1}+D_{n-2}) 作为参考</span>
+    D = [<span class="t-n">1</span>, <span class="t-n">0</span>]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        D.<span class="t-f">append</span>((i - <span class="t-n">1</span>) * (D[i - <span class="t-n">1</span>] + D[i - <span class="t-n">2</span>]) % mod)
+    <span class="t-c"># 容斥形式</span>
+    factn = fact
+    res2 = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>):
+        c = <span class="t-f">comb_mod</span>(n, i) * factn % mod * <span class="t-b">pow</span>(<span class="t-b">pow</span>(i, mod - <span class="t-n">2</span>, mod) <span class="t-k">if</span> i <span class="t-k">else</span> <span class="t-n">1</span>, <span class="t-n">1</span>, mod) % mod
+        <span class="t-c"># C(n,i)*(n-i)! = n!/i!</span>
+        res2 = res2 + (-<span class="t-n">1</span> <span class="t-k">if</span> i &amp; <span class="t-n">1</span> <span class="t-k">else</span> <span class="t-n">1</span>) * (factn * <span class="t-b">pow</span>(i, mod - <span class="t-n">2</span>, mod) % mod <span class="t-k">if</span> i <span class="t-k">else</span> factn)
+    res2 = res2 % mod
+    <span class="t-k">return</span> D[n], res2
+
+
+<span class="t-k">def</span> <span class="t-f">gcd_pair_count</span>(N):
+    <span class="t-s">&quot;&quot;&quot;容斥: 数对 (x,y), 1&lt;=x,y&lt;=N, gcd 恰为 k 的个数 f(k), 从 N 倒推. O(N log N).&quot;&quot;&quot;</span>
+    f = [<span class="t-n">0</span>] * (N + <span class="t-n">1</span>)
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(N, <span class="t-n">0</span>, -<span class="t-n">1</span>):
+        f[k] = (N // k) * (N // k)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span> * k, N + <span class="t-n">1</span>, k):
+            f[k] -= f[i]
+    <span class="t-k">return</span> f
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    <span class="t-c"># 不定方程计数对拍</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">100</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">5</span>)
+        m = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">8</span>)
+        b = [random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">5</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        a = <span class="t-f">solve_linear_diophantine_count</span>(m, b)
+        bb = <span class="t-f">brute_equation</span>(m, b)
+        <span class="t-k">assert</span> a == bb, (m, b, a, bb)
+    <span class="t-c"># 错排 D_n</span>
+    D, R = <span class="t-f">derangements</span>(<span class="t-n">6</span>)
+    <span class="t-k">assert</span> D == <span class="t-n">265</span>, D  <span class="t-c"># D_6 = 265</span>
+    <span class="t-c"># gcd 数对: f(1) 即互质有序对数 = 1 + 2*sum_{i=2}^N phi(i)</span>
+    f = <span class="t-f">gcd_pair_count</span>(<span class="t-n">10</span>)
+    <span class="t-k">assert</span> f[<span class="t-n">1</span>] == <span class="t-n">63</span>, f[<span class="t-n">1</span>]  <span class="t-c"># 有序互质对 (1&lt;=x,y&lt;=10, gcd=1)</span>
+    <span class="t-c"># 手工: 集合容斥 3 个集合</span>
+    <span class="t-c"># |A∪B∪C| = |A|+|B|+|C|-|AB|-|AC|-|BC|+|ABC|</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;inclusion-exclusion tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">O(2^n) 枚举子集对 n&lt;=20 可接受; 数论倍数容斥 O(N log N)(调和级数) 1e6 可过。组合数用 O(k) 乘除或预计算阶乘+逆元。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>枚举子集 O(2^n × 单次 f 复杂度); 数论容斥 O(N log N); 错排 O(n)</td></tr><tr><th>空间复杂度</th><td>O(2^n) 或 O(N)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">限制条件多(n&gt;25)时 2^n 枚举爆炸, 需用更巧的计数(如多项式/DP); 交集计数若本身难算, 容斥也救不了; 模意义下组合数需预处理逆元; 数论容斥适合小值域(值域大则用 μ 前缀和/杜教筛)。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>交集与并集公式搞反(并集容斥 vs 交集取补)</li><li>符号 (-1)^{m-1} 或 (-1)^{|mask|} 用错</li><li>数论容斥倒推顺序错误(应从大到小, f 用 f[i*k])</li><li>模意义组合数忘预计算逆元/阶乘</li><li>min-max 容斥只在期望线性时可用(依赖线性期望), 忘记条件</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P2158</strong></td><td>3</td><td>SDOI2008 仪仗队: 互质点对计数(容斥/欧拉函数)</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2158" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2158</a></td></tr><tr><td>Luogu</td><td><strong>P2398</strong></td><td>3</td><td>GCD SUM: 倍数容斥/莫比乌斯反演经典</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2398" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2398</a></td></tr><tr><td>AtCoder</td><td><strong>abc331_g</strong></td><td>5</td><td>Collect Them All: min-max 容斥+期望的进阶综合题</td><td class="u"><a href="https://atcoder.jp/contests/abc331/tasks/abc331_g" target="_blank" rel="noopener">https://atcoder.jp/contests/abc331/tasks/abc331_g</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-inclusion-exclusion" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "define_universe", "label": "定义全集 U 与属性/限制"}}, {"data": {"id": "count_bad", "label": "把目标转成补集(全不满足)的并集计数"}}, {"data": {"id": "intersection", "label": "求任意子集交集的计数 f(mask)"}}, {"data": {"id": "combine", "label": "带符号求和 Σ(-1)^|mask| f(mask)"}}, {"data": {"id": "number_theory", "label": "数论版: 倍数容斥/莫比乌斯反演"}}, {"data": {"id": "edefine_universe->count_bad", "source": "define_universe", "target": "count_bad"}}, {"data": {"id": "ecount_bad->intersection", "source": "count_bad", "target": "intersection"}}, {"data": {"id": "eintersection->combine", "source": "intersection", "target": "combine"}}, {"data": {"id": "ecombine->number_theory", "source": "combine", "target": "number_theory"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-inclusion-exclusion'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="mobius-inversion.html" title="莫比乌斯反演是容斥原理在数论中的系统化">莫比乌斯反演<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/combinatorics/inclusion-exclusion-principle/" target="_blank" rel="noopener">https://oi-wiki.org/math/combinatorics/inclusion-exclusion-principle/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/combinatorics/inclusion-exclusion-principle.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/combinatorics/inclusion-exclusion-principle.md</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/combinatorics/inclusion-exclusion.html" target="_blank" rel="noopener">https://cp-algorithms.com/combinatorics/inclusion-exclusion.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <a href="https://cses.fi/book/book.pdf" target="_blank" rel="noopener">https://cses.fi/book/book.pdf</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

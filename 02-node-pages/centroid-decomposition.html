@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>点分治 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-7.html">树算法族</a> / <span>点分治</span></div>
+  <h1>点分治</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-B-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="dsu-on-tree.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">dsu-on-tree</span></a>
+    <a class="nav-index" href="../03-groups/G-B-7.html"><span class="dir">组内第 7 / 10</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="virtual-tree.html"><span class="dir">下一个 / 组内</span><span class="v">virtual-tree</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">重心递归分解，统计树上路径 O(n log n)，建点分树后支持带修</div><p>点分治（重心分解 / Centroid Decomposition）是树上的分治框架：每次取当前连通块的重心 rt，统计所有「经过 rt」的路径对答案的贡献，然后把 rt 删除，对其余每个连通块递归同样处理。由于重心保证每块至多 n/2，递归深度 O(log n)，每层每个节点被访问一次，总复杂度 O(n log n)（加上统计逻辑自身的代价）。「路径覆盖性质」保证任意一条树上的路径都恰好在其所在连通块第一次分解到某个重心时被统计一次，从而不重不漏。其变体点分树（centroid tree）把分治重心连成一棵 O(log n) 层的树，可在线处理带修改的路径距离类问题。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>树上的路径统计（如「距离=k 的点对数」）暴力是 O(n^2)。分治的思路：任选一点 rt，任意路径要么经过 rt（跨两个子树或一端在 rt），要么完全落在某个子树内。经过 rt 的可以在 O(n) 内统计，不经过的递归处理。如果每次都选「重心」，两边的子问题都减半，深度 O(log n)——这就是把普通枚举变成 O(n log n) 的关键。选根必须选重心，否则遇到链/菊花会退化成 O(n^2)。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>求连通块重心需一次 DFS 计算 siz（含「向上」部分 n-siz[u]），取最大连通块最小的点。统计经过重心的路径：先枚举重心的每个子树 ch，DFS 收集该子树内所有节点到 rt 的距离集合，用数组 tf（之前已处理子树中出现的距离）查是否有 tf[k-dist]=true 完成配对，再把本次距离写入 tf（若直接改全局桶）。核心技巧：清空 tf 不能用 memset（会 O(n) 每层、O(n^2) 总），而应记录所有改动过的下标入队，最后逐个清回 0。之后递归每个未被标记删除的子连通块。每层 O(n)，总 O(n log n)。点分树则每次把「上一层的总大小 - 重心方向连通块大小」作为下一层 tot 求重心，只需一次 DFS，并将重心连成 O(log n) 高的新树，支持带修改（如「到某个点距离&lt;=d 的权值和」）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>点分治是静态树上路径统计问题的标准解法，OI Wiki 以其处理「经过根节点的路径」为引子给出三题（P3806 距离为 k、P4178 距离&lt;=k、P2664 颜色贡献），并指出国外称 centroid decomposition。CP-Algorithms 系统给出性质定理（重心存在性/路径覆盖/深度 O(log n)）与「统计恰好长为 K 的路径数」的完整实现。点分树（题目常称动态点分治）则是其带修改扩展。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">decompose</span>(u):
+  tot = 计算连通块大小（用当前块 dfs，忽略已删除点）
+  rt = 求重心(u, tot)
+  <span class="t-f">process</span>(rt)            <span class="t-c"># 统计所有经过 rt 的路径</span>
+  removed[rt] = <span class="t-k">True</span>
+  <span class="t-k">for</span> v <span class="t-k">in</span> adj[rt], <span class="t-k">not</span> removed[v]: <span class="t-f">decompose</span>(v)
+<span class="t-f">get_siz</span>(u,f): siz[u]=<span class="t-n">1</span>; <span class="t-k">for</span> v!=f <span class="t-k">and</span> <span class="t-k">not</span> removed[v]: siz[u]+=<span class="t-f">get_siz</span>(v,u)
+<span class="t-f">get_centroid</span>(u,tot,f):
+  <span class="t-k">for</span> v <span class="t-k">in</span> adj[u], v!=f <span class="t-k">and</span> <span class="t-k">not</span> removed[v]:
+    <span class="t-k">if</span> siz[v]*<span class="t-n">2</span> &gt; tot: <span class="t-k">return</span> <span class="t-f">get_centroid</span>(v,tot,u)
+  <span class="t-k">return</span> u
+<span class="t-f">process</span>(rt):  <span class="t-c"># 例：距离为 K 的点对数</span>
+  tf[<span class="t-n">0</span>]=<span class="t-n">1</span>; 记录已改下标
+  <span class="t-k">for</span> ch <span class="t-k">in</span> adj[rt], <span class="t-k">not</span> removed[ch]:
+    dists = []
+    <span class="t-f">dfs_dist</span>(ch, rt, <span class="t-n">1</span>, dists)      <span class="t-c"># 到 rt 的距离</span>
+    <span class="t-k">for</span> d <span class="t-k">in</span> dists: ans += tf[K-d]
+    <span class="t-k">for</span> d <span class="t-k">in</span> dists: tf[d]+=<span class="t-n">1</span>; 记录
+  清空 tf 只回滚记录过的下标</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+<span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">1</span> &lt;&lt; <span class="t-n">22</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    n = <span class="t-n">7</span>
+    edges = [(<span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>), (<span class="t-n">2</span>, <span class="t-n">5</span>), (<span class="t-n">3</span>, <span class="t-n">6</span>), (<span class="t-n">3</span>, <span class="t-n">7</span>)]
+    K = <span class="t-n">2</span>
+    G = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    <span class="t-k">for</span> a, b <span class="t-k">in</span> edges:
+        G[a].<span class="t-f">append</span>(b)
+        G[b].<span class="t-f">append</span>(a)
+
+    removed = [<span class="t-k">False</span>] * (n + <span class="t-n">1</span>)
+    siz = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    tf = {<span class="t-n">0</span>: <span class="t-n">1</span>}
+    touched = [<span class="t-n">0</span>]
+    ans = <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">get_size</span>(u, f):
+        siz[u] = <span class="t-n">1</span>
+        <span class="t-k">for</span> v <span class="t-k">in</span> G[u]:
+            <span class="t-k">if</span> v != f <span class="t-k">and</span> <span class="t-k">not</span> removed[v]:
+                siz[u] += <span class="t-f">get_size</span>(v, u)
+        <span class="t-k">return</span> siz[u]
+
+    <span class="t-k">def</span> <span class="t-f">get_centroid</span>(u, tot, f):
+        <span class="t-k">for</span> v <span class="t-k">in</span> G[u]:
+            <span class="t-k">if</span> v != f <span class="t-k">and</span> <span class="t-k">not</span> removed[v] <span class="t-k">and</span> siz[v] * <span class="t-n">2</span> &gt; tot:
+                <span class="t-k">return</span> <span class="t-f">get_centroid</span>(v, tot, u)
+        <span class="t-k">return</span> u
+
+    <span class="t-k">def</span> <span class="t-f">collect</span>(u, f, d, out):
+        <span class="t-k">if</span> d &gt; K:
+            <span class="t-k">return</span>
+        out.<span class="t-f">append</span>(d)
+        <span class="t-k">for</span> v <span class="t-k">in</span> G[u]:
+            <span class="t-k">if</span> v != f <span class="t-k">and</span> <span class="t-k">not</span> removed[v]:
+                <span class="t-f">collect</span>(v, u, d + <span class="t-n">1</span>, out)
+
+    <span class="t-k">def</span> <span class="t-f">decompose</span>(u):
+        <span class="t-k">nonlocal</span> ans
+        tot = <span class="t-f">get_size</span>(u, <span class="t-n">0</span>)
+        rt = <span class="t-f">get_centroid</span>(u, tot, <span class="t-n">0</span>)
+        <span class="t-c"># 统计经过 rt 且距离恰为 K 的点对</span>
+        <span class="t-k">for</span> ch <span class="t-k">in</span> G[rt]:
+            <span class="t-k">if</span> removed[ch]:
+                <span class="t-k">continue</span>
+            dists = []
+            <span class="t-f">collect</span>(ch, rt, <span class="t-n">1</span>, dists)
+            <span class="t-k">for</span> d <span class="t-k">in</span> dists:
+                ans += tf.<span class="t-f">get</span>(K - d, <span class="t-n">0</span>)
+            <span class="t-k">for</span> d <span class="t-k">in</span> dists:
+                tf[d] = tf.<span class="t-f">get</span>(d, <span class="t-n">0</span>) + <span class="t-n">1</span>
+                touched.<span class="t-f">append</span>(d)
+        <span class="t-c"># 回滚本层 tf（只清改动过的下标，避免 O(n^2)）</span>
+        <span class="t-k">for</span> d <span class="t-k">in</span> touched:
+            tf[d] = <span class="t-n">0</span>
+        touched.<span class="t-f">clear</span>()
+        tf[<span class="t-n">0</span>] = <span class="t-n">1</span>
+        touched.<span class="t-f">append</span>(<span class="t-n">0</span>)
+        removed[rt] = <span class="t-k">True</span>
+        <span class="t-k">for</span> v <span class="t-k">in</span> G[rt]:
+            <span class="t-k">if</span> <span class="t-k">not</span> removed[v]:
+                <span class="t-f">decompose</span>(v)
+
+    <span class="t-f">decompose</span>(<span class="t-n">1</span>)
+    <span class="t-b">print</span>(<span class="t-s">&quot;pairs with distance =&quot;</span>, K, <span class="t-s">&quot;:&quot;</span>, ans)
+    <span class="t-c"># 手算：距离2的点对 (1,4),(1,5),(1,6),(1,7),(2,3),(4,5),(6,7) 共 7 对</span>
+    <span class="t-k">assert</span> ans == <span class="t-n">7</span>, ans
+    <span class="t-b">print</span>(<span class="t-s">&quot;OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">递归 decompose 深度 O(log n) 安全，但 get_size/collect 深度可达连通块大小，PyPy 需 sys.setrecursionlimit(1&lt;&lt;22)；每层清空桶务必用 touched 列表回滚，不能整数组重置。dict 桶 vs 数组桶：值域小（如 K&lt;=1e5）用数组更快，值域大用 dict。collect 中 d&gt;K 剪枝可大幅减常数。整体常数约为 C++ 的 8-15 倍，n=1e5 时限紧时优先 PyPy + 迭代。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n log n) — 每层 O(n)，层数 O(log n)；统计桶操作为每层 O(n) 摊还；点分树建树 O(n log n)</td></tr><tr><th>空间复杂度</th><td>O(n) — 邻接表 + siz + removed + 距离桶</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只能统计「与路径/距离相关」的信息，且要能对「经过当前重心的路径」做子集划分；若统计需要支持任意删改（在线）需点分树。每次递归必须重新计算连通块 siz 否则重心不准会退化。统计桶若用数组需注意值域（距离可达 n）；边分治、虚树等是其不同变体。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>选重心前必须重新计算当前连通块的 siz（包含向上部分），用旧全树 siz 判断会选错重心导致层数退化</li><li>清空 tf 用 memset 导致 O(n^2)：必须记录改动过的下标再逐个回滚</li><li>统计「经过重心」的路径时把同一子树内的两点直接配对（如 ch 内两点经过 rt 计数）会重复计算：需先查桶再更新，保证配对的两端来自不同子树</li><li>removed[rt]=True 时机：在统计完所有经过 rt 的路径之后、递归子树之前</li><li>带边权时距离类型用 long，剪枝 d&gt;K 要按边权判断</li><li>点分树中求每层 tot 用「上层 tot - 重心方向大小」，不要重跑全树 DFS</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3806</strong></td><td>4</td><td>【模板】点分治 1：m 次询问距离恰为 k 的点对是否存在</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3806" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3806</a></td></tr><tr><td>Luogu</td><td><strong>P4178</strong></td><td>5</td><td>Tree：统计距离 &lt;= k 的点对数，桶换成线段树/双指针维护区间</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4178" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4178</a></td></tr><tr><td>Luogu</td><td><strong>P2664</strong></td><td>6</td><td>树上游戏：按颜色贡献分解 sum_i，点分治高阶例题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2664" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2664</a></td></tr><tr><td>Codeforces</td><td><strong>161D</strong></td><td>1800</td><td>Distance in Tree：统计距离恰为 k 的点对数，点分治/树形 DP 均可</td><td class="u"><a href="https://codeforces.com/problemset/problem/161/D" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/161/D</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-centroid-decomposition" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "size", "label": "DFS 求连通块大小与 siz"}}, {"data": {"id": "centroid", "label": "求连通块重心"}}, {"data": {"id": "process", "label": "统计经过重心的所有路径"}}, {"data": {"id": "rollback", "label": "回滚统计桶(仅改动下标)"}}, {"data": {"id": "remove", "label": "标记重心删除"}}, {"data": {"id": "recurse", "label": "对每个子连通块递归"}}, {"data": {"id": "esize->centroid", "source": "size", "target": "centroid"}}, {"data": {"id": "ecentroid->process", "source": "centroid", "target": "process"}}, {"data": {"id": "eprocess->rollback", "source": "process", "target": "rollback"}}, {"data": {"id": "erollback->remove", "source": "rollback", "target": "remove"}}, {"data": {"id": "eremove->recurse", "source": "remove", "target": "recurse"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-centroid-decomposition'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="tree-centroid.html" title="点分治递归选重心分解子树">树的重心<span class="etype">前置依赖</span></a><a class="chip e-variant" href="dsu-on-tree.html" title="同为子树离线处理技术，dsu on tree基于轻重链，点分治基于重心">启发式合并(dsu on tree)<span class="etype">变体</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="virtual-tree.html" title="树上路径统计常组合使用点分治与虚树">虚树<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/tree-divide/" target="_blank" rel="noopener">https://oi-wiki.org/graph/tree-divide/</a></li><li><span class="srctype">oiwiki_raw</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/tree-divide.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/tree-divide.md</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/centroid_decomposition.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/centroid_decomposition.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

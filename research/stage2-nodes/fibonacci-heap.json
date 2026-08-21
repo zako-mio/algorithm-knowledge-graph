@@ -1,0 +1,73 @@
+{
+  "id": "fibonacci-heap",
+  "name": "斐波那契堆",
+  "group": "G-A-3",
+  "stage": "advanced",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "均摊O(1)decrease-key，理论最优堆，实现复杂",
+  "what": "斐波那契堆（Fibonacci Heap）是支持合并（merge O(1)）、插入（O(1)）、取最小（O(1)）与理论最优的 decrease-key（均摊 O(1)）的堆结构，delete-min 均摊 O(log n)。它是一组满足堆性质的树的集合（森林），用『松弛二项堆』的结构：允许树非完全二项式，通过懒惰删除（把最小根从根表中提出、合并等操作推迟）和标记（mark）机制控制势能。decrease-key 均摊 O(1) 使 Dijkstra、Prim 等算法在理论上达到 O(V log V + E)（Dijkstra 配斐波那契堆为 O(E + V log V)）。但因常数巨大、实现复杂，实践几乎总是用配对堆或二叉堆。",
+  "why": {
+    "intuition": "斐波那契堆把『快速插入/合并/减键』押在懒惰策略上：插入只是把节点放进根表，O(1)；decrease-key 只是把节点从父树上割下来放进根表，并给父打上『已失去一个儿子』的标记，O(1)。delete-min 才做整理：把最小根移除、儿子全部提升为根，再按度数合并同度数的根（consolidate），最后扫描找新最小，均摊 O(log n)。势能=根表中树的棵数 + 被标记节点的个数；只要每棵树度数与斐波那契数列相关，就能证明删除时根数受限。",
+    "principle": "① 节点域：val, degree, marked, parent, child（循环链）, left, right（循环链）；② insert/merge：直接链入根表，O(1)；③ decrease-key(x,v)：x 值变小，若违反堆性质则把 x 从父节点处割下（_cut）链入根表，并对父做级联割除（_cascading_cut：父若已标记则也被割下并递归），均摊 O(1)；④ delete-min：移除最小根，把它的所有儿子提升为根，然后 consolidate——用桶按 degree 合并同度树，使根表变为『每度一棵』，再从根表扫描最小，均摊 O(log n)。势能分析：φ = t（根表树数）+ 2·m（标记数），consolidate 中每合并一次 t 减 1 释放势能抵掉 O(1) 工作；级联割除每次释放标记能量。度数界依赖『丢失最多一个儿子』的 mark 规则，保证子树大小以斐波那契数增长。",
+    "history": "Michael L. Fredman 与 Robert E. Tarjan 于 1987 年在 JACM 发表『Fibonacci heaps and their uses in improved network optimization algorithms』。decrease-key O(1) 使 Dijkstra O(E + V log V)、Prim O(E + V log V)、最小生成树（Fredman-Tarjan）显著提升。因常数大，实践中配对堆与二叉堆更常用；CLRS 第 19 章有完整实现与分析。"
+  },
+  "how": {
+    "pseudocode": "insert(x): 新节点链入根表; 更新 min; O(1)\nmerge(H1,H2): 两个根表拼成环; 更新 min; O(1)\nfind_min(): return min\npop_min():\n  r = min\n  将 r 的所有儿子提升进根表 (parent=None)\n  从根表摘除 r\n  consolidate(): 按 degree 用桶合并同度树\n  扫描根表取新 min\n  return r.val\ndecrease_key(x, newv):\n  x.val = newv\n  if x.parent 非空 and x.val < x.parent.val:\n    cut(x, x.parent)          # 割下 x 入根表\n    cascading_cut(x.parent)   # 父若已标记则递归割\n  if x.val < min.val: min = x",
+    "python": "import heapq\nimport math\nimport random\n\n\nclass FibNode:\n    __slots__ = ('val', 'degree', 'marked', 'parent', 'child', 'left', 'right')\n\n    def __init__(self, val):\n        self.val = val\n        self.degree = 0\n        self.marked = False\n        self.parent = None\n        self.child = None\n        self.left = self.right = self   # 循环双向链表\n\n\nclass FibonacciHeap:\n    \"\"\"斐波那契堆（小根堆）。支持 insert/merge/取最小/pop_min/decrease-key，均摊复杂度。\"\"\"\n\n    def __init__(self):\n        self.min = None\n        self.size = 0\n\n    def insert(self, val):\n        node = FibNode(val)\n        self.size += 1\n        if self.min is None:\n            self.min = node\n        else:\n            self._root(node)\n            if node.val < self.min.val:\n                self.min = node\n        return node\n\n    def merge(self, other):\n        if other.min is None:\n            return self\n        if self.min is None:\n            return other\n        a, b = self.min, other.min\n        ar, br = a.right, b.right\n        a.right, br.left = br, a\n        b.right, ar.left = ar, b\n        self.size += other.size\n        if b.val < a.val:\n            self.min = b\n        return self\n\n    def _root(self, node):\n        m = self.min\n        node.left, node.right = m, m.right\n        m.right.left, m.right = node, node\n\n    def pop_min(self):\n        if self.min is None:\n            return None\n        r = self.min\n        # 收集根表中其余根\n        roots = []\n        x = r.right\n        while x is not r:\n            roots.append(x)\n            x = x.right\n        # 收集 r 的所有儿子并提升为根\n        kids = []\n        child = r.child\n        if child is not None:\n            first, c = child, child\n            while True:\n                kids.append(c)\n                c.parent = None\n                c.marked = False\n                nxt = c.right\n                c.right = c.left = c\n                c = nxt\n                if c is first:\n                    break\n        self.size -= 1\n        if not roots and not kids:\n            self.min = None\n            return r.val\n        alln = roots + kids\n        for i in range(len(alln)):\n            alln[i].left = alln[(i - 1) % len(alln)]\n            alln[i].right = alln[(i + 1) % len(alln)]\n        self.min = min(alln, key=lambda nd: nd.val)\n        self._consolidate()\n        return r.val\n\n    def _consolidate(self):\n        cap = int(math.log(max(self.size, 2), 1.618)) + 2\n        buckets = [None] * (cap + 1)\n        nodes = []\n        start = self.min\n        x = start\n        while True:\n            nodes.append(x)\n            x = x.right\n            if x is start:\n                break\n        for w in nodes:\n            x = w\n            d = x.degree\n            while buckets[d] is not None:\n                y = buckets[d]\n                if x.val > y.val:\n                    x, y = y, x\n                self._absorb(y, x)\n                buckets[d] = None\n                d += 1\n            buckets[d] = x\n        self.min = None\n        for b in buckets:\n            if b is None:\n                continue\n            if self.min is None:\n                self.min = b\n            elif b.val < self.min.val:\n                self.min = b\n\n    def _absorb(self, y, x):\n        \"\"\"把根 y 合并为 x 的儿子\"\"\"\n        y.left.right = y.right\n        y.right.left = y.left\n        y.parent = x\n        if x.child is None:\n            x.child = y\n            y.left = y.right = y\n        else:\n            c = x.child\n            y.left, y.right = c, c.right\n            c.right.left, c.right = y, y\n        x.degree += 1\n        y.marked = False\n\n    def decrease_key(self, node, new_val):\n        if new_val > node.val:\n            raise ValueError('decrease-key 只能减小')\n        node.val = new_val\n        p = node.parent\n        if p is not None and node.val < p.val:\n            self._cut(node, p)\n            self._cascading_cut(p)\n        if node.val < self.min.val:\n            self.min = node\n\n    def _cut(self, node, parent):\n        if node.right is node:\n            parent.child = None\n        else:\n            node.left.right = node.right\n            node.right.left = node.left\n            if parent.child is node:\n                parent.child = node.right\n        parent.degree -= 1\n        node.parent = None\n        node.marked = False\n        self._root(node)\n\n    def _cascading_cut(self, node):\n        p = node.parent\n        if p is None:\n            return\n        if not node.marked:\n            node.marked = True\n        else:\n            self._cut(node, p)\n            self._cascading_cut(p)\n\n\nif __name__ == '__main__':\n    from collections import Counter\n    random.seed(31)\n    for trial in range(10):\n        fh = FibonacciHeap()\n        ref = Counter()\n        nodes = []\n        active = set()\n        for step in range(3000):\n            op = random.random()\n            if sum(ref.values()) == 0 or op < 0.5:\n                v = random.randint(0, 1000000)\n                nd = fh.insert(v)\n                ref[v] += 1\n                nodes.append(nd)\n                active.add(id(nd))\n            elif op < 0.6 and len(active) > 0:\n                cands = [nd for nd in nodes if id(nd) in active]\n                nd = random.choice(cands)\n                old = nd.val\n                nv = old - random.randint(0, min(old, 10000))\n                fh.decrease_key(nd, nv)\n                ref[old] -= 1\n                if ref[old] == 0:\n                    del ref[old]\n                ref[nv] += 1\n            else:\n                exp = min(ref)\n                got = fh.pop_min()\n                assert got == exp, (trial, step, got, exp)\n                ref[exp] -= 1\n                if ref[exp] == 0:\n                    del ref[exp]\n                for nd in nodes:\n                    if id(nd) in active and nd.val == got:\n                        active.discard(id(nd))\n                        break\n    # merge 验证\n    f1, f2 = FibonacciHeap(), FibonacciHeap()\n    r1, r2 = [], []\n    for v in [3, 1, 4]:\n        f1.insert(v); r1.append(v)\n    for v in [2, 5, 0]:\n        f2.insert(v); r2.append(v)\n    f1.merge(f2)\n    r = sorted(r1 + r2)\n    out = []\n    while f1.min is not None:\n        out.append(f1.pop_min())\n    assert out == r, (out, r)\n    print('fibonacci heap: All tests passed.')",
+    "pypy_notes": "Python 实现斐波那契堆常数极大，竞赛基本不用（直接用二叉堆 heapq 或配对堆）。仅用于理解理论与 Dijkstra 最优复杂度证明。若必须用，用数组模拟节点（val/degree/marked/parent/child/lr 多列表）并避免对象属性访问开销。",
+    "complexity": {
+      "time": "insert/find-min/merge/decrease-key 均摊 O(1)；delete-min 均摊 O(log n)；全部均摊",
+      "space": "O(n) 节点；无额外辅助空间"
+    },
+    "limitations": "实现复杂、常数巨大，OI/ICPC 实践中几乎从不使用（配对堆是更好的实践替代）。所有复杂度是均摊的，不可持久化。mark 规则（每个节点最多失去一个儿子）是正确性的关键，漏写会导致势能分析失效、复杂退化。Python 中 heapq 的 C 实现常数小到让斐波那契堆在一切规模下都显得多余。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4779",
+      "url": "https://www.luogu.com.cn/problem/P4779",
+      "difficulty": 3,
+      "key_point": "【模板】单源最短路径：Dijkstra 标准模板（用斐波那契堆可达理论 O(E+V log V)，实践中 heapq 足够）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3366",
+      "url": "https://www.luogu.com.cn/problem/P3366",
+      "difficulty": 3,
+      "key_point": "【模板】最小生成树：Prim+decrease-key 场景（斐波那契堆理论最优，Kruskal 通常更省心）"
+    }
+  ],
+  "pitfalls": [
+    "decrease-key 是斐波那契堆的价值所在，若题面只要 insert/pop_min，二叉堆更快",
+    "mark 标记与级联割除逻辑错误会导致度数势能分析失败、复杂度退化为 O(n)",
+    "consolidate 的桶容量要足够（按 φ 对数估计），数组越界在 Python 直接 IndexError",
+    "删除最小根后儿子全部提升为根，此时要重新扫描最小，别漏了 min 指针更新",
+    "循环双向链表的链接顺序极易写错（merge/absorb/cut 都是指针体操）",
+    "均摊数据结构不可持久化；Python 的 __slots__ 虽省内存但调试指针更痛苦"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "forest", "label": "森林 + 根表循环双向链表 + min 指针" },
+      { "id": "lazy", "label": "insert/merge 懒惰链入根表 O(1)" },
+      { "id": "decrease", "label": "decrease-key 割下节点入根表 + 级联割除" },
+      { "id": "delmin", "label": "delete-min：儿子提升 + consolidate 同度合并 + 扫最小" },
+      { "id": "pot", "label": "势能 φ=t(根数)+2m(标记数) 均摊分析" },
+      { "id": "apply", "label": "应用：Dijkstra/Prim 理论最优；实践中配堆替代" }
+    ],
+    "edges": [
+      { "from": "forest", "to": "lazy" },
+      { "from": "lazy", "to": "decrease" },
+      { "from": "lazy", "to": "delmin" },
+      { "from": "decrease", "to": "delmin" },
+      { "from": "delmin", "to": "pot" },
+      { "from": "pot", "to": "apply" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/ds/heap/", "verified": true },
+    { "type": "cpalg", "url": "https://cp-algorithms.com/data_structures/randomized_heap.html", "verified": true },
+    { "type": "book", "ref": "CLRS ch19 Fibonacci Heaps; Fredman & Tarjan 1987", "verified": true },
+    { "type": "book", "ref": "CPH ch10 Dijkstra (uses heap, notes fib heap)", "verified": true }
+  ]
+}

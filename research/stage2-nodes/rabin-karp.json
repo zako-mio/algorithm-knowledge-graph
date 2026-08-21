@@ -1,0 +1,102 @@
+{
+  "id": "rabin-karp",
+  "name": "Rabin-Karp",
+  "group": "G-C-1",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "基于滚动哈希的字符串匹配，O(n+m)期望，多模式匹配友好",
+  "what": "Rabin–Karp 算法基于字符串哈希做匹配：计算模式哈希 hp，再计算文本每个长度为 m 的子串哈希，O(1) 滚动(利用前缀哈希差分)逐一比较，出现哈希相同的位置再确认(防碰撞)。总复杂度 O(n+m) 期望，最坏 O(nm)(全部哈希相等时)。它最擅长的是单文本多模式的匹配：对多个不同长度的模式分别维护哈希集合即可。也可扩展为允许 k 次失配的匹配(哈希+二分找失配点)、最长公共子串二分等。",
+  "why": {
+    "intuition": "暴力比较子串是 O(m) 每次；哈希把『子串相等』转成『哈希值相等』，而滚动哈希能在常数时间从窗口滑到下一个窗口。就像给每个 m 长窗口盖数字戳，数字相同才怀疑内容相同。由于哈希比较是 O(1)，全部窗口比较一次就 O(n)。",
+    "principle": "利用字符串哈希(见 string-hash 节点)：h[i+1]=h[i]·base+val(s[i]) mod M。模式哈希 hp 一次算好；文本窗口哈希 cur=(h[i+m]−h[i]·base^m) mod M，O(1) 得。相等即命中(期望正确)。多模式：把所有模式哈希放入集合，扫描文本每个位置的所有可能匹配长度即可，或多模式按长度分组(见 OI-wiki)。Rabin 指纹概念由 Richard Karp 与 Michael Rabin 于 1987 年正式提出。",
+    "history": "Karp 与 Rabin 在 1987 年论文《Efficient randomized pattern-matching algorithms》中提出，核心是『随机哈希做指纹』的随机化思想，之后被广泛应用于子串查找、重复检测、生物信息等领域。Rabin–Karp 的价值不仅在于匹配，更在于把子串比较降为 O(1)。"
+  },
+  "how": {
+    "pseudocode": "function rabin_karp(text, pattern):\n  precompute prefix hashes h[] and base powers\n  hp = hash(pattern)\n  for i in 0..n-m:\n    cur = sub_hash(text, i, i+m)\n    if cur == hp: record i",
+    "python": "def rabin_karp_double(text, pattern):\n    \"\"\"双哈希 Rabin-Karp (推荐, 防碰撞), 返回所有匹配起始位置\"\"\"\n    b1, m1 = 131, 1000000007\n    b2, m2 = 137, 1000000009\n\n    def build(s):\n        h1 = [0] * (len(s) + 1)\n        h2 = [0] * (len(s) + 1)\n        p1 = [1] * (len(s) + 1)\n        p2 = [1] * (len(s) + 1)\n        for i, ch in enumerate(s):\n            h1[i + 1] = (h1[i] * b1 + ord(ch)) % m1\n            h2[i + 1] = (h2[i] * b2 + ord(ch)) % m2\n            p1[i + 1] = p1[i] * b1 % m1\n            p2[i + 1] = p2[i] * b2 % m2\n        return h1, h2, p1, p2\n\n    if not pattern:\n        return list(range(len(text) + 1))\n    n, m = len(text), len(pattern)\n    if m > n:\n        return []\n    h1, h2, p1, p2 = build(text)\n    t1, t2, _, _ = build(pattern)\n    hp1, hp2 = t1[m], t2[m]\n    res = []\n    for i in range(n - m + 1):\n        c1 = (h1[i + m] - h1[i] * p1[m]) % m1\n        c2 = (h2[i + m] - h2[i] * p2[m]) % m2\n        if c1 == hp1 and c2 == hp2:\n            res.append(i)\n    return res\n\n\nif __name__ == \"__main__\":\n    assert rabin_karp_double('ababaab', 'aba') == [0, 2]\n    assert rabin_karp_double('aaaa', 'aa') == [0, 1, 2]\n    assert rabin_karp_double('hello', 'xyz') == []\n    print(\"rabin-karp OK\")\n",
+    "pypy_notes": "Rabin–Karp 的瓶颈是每窗口两次取模，PyPy 下 n=1e6 约 1s 左右。做多模式匹配时把模式哈希放进 set/dict 再对每个文本位置查，无需构建 AC 自动机。若担心碰撞可用双哈希(本模板已内置)。若匹配大量重复串，可先比较长度再比较哈希减少误判确认成本。",
+    "complexity": {
+      "time": "O(n+m) 期望(预处理 O(n+m)，每窗口 O(1))，最坏 O(n·m)",
+      "space": "O(n+m)"
+    },
+    "limitations": "1) 期望线性，最坏 O(nm)(全部哈希碰撞)；2) 单模式匹配不如 KMP/Z 确定性好，且 Python 内置 str.find 更快；3) 哈希碰撞概率依赖模数，必须双哈希或大素数；4) 模式 m 很大时 base^m 需预存避免反复算；5) 非二进制文本(任意字符集)同样适用但注意字符值域。"
+  },
+  "examples": [
+    {
+      "oj": "SPOJ",
+      "pid": "NAJPF",
+      "url": "https://www.spoj.com/problems/NAJPF/",
+      "difficulty": 3,
+      "key_point": "Pattern Find：模式匹配所有出现，Rabin-Karp/KMP 均可"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "1200E",
+      "url": "https://codeforces.com/contest/1200/problem/E",
+      "difficulty": 4,
+      "key_point": "Compress Words：滚动哈希比较前后缀重叠"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "1044",
+      "url": "https://leetcode.cn/problems/longest-duplicate-substring/",
+      "difficulty": 4,
+      "key_point": "Longest Duplicate Substring：二分+滚动哈希，Rabin-Karp 思路"
+    }
+  ],
+  "pitfalls": [
+    "忘记先比较长度再比哈希，等长但哈希相同仍需二次确认防误报",
+    "base^m 每次现场幂算导致 O(n log m)，应预处理",
+    "用单哈希在大数据上碰撞，务必双哈希",
+    "m>n 边界未处理，range(n−m+1) 为空但模式哈希仍计算",
+    "滚动窗口的 h[i+m]−h[i]·base^m 取模前忘补 +mod"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "pre",
+        "label": "预处理文本前缀哈希+base幂，计算模式哈希"
+      },
+      {
+        "id": "roll",
+        "label": "滑动窗口 O(1) 得每 m 长子串哈希"
+      },
+      {
+        "id": "cmp",
+        "label": "与模式哈希比较，命中记录"
+      },
+      {
+        "id": "confirm",
+        "label": "(可选)真实字符比对确认防碰撞"
+      }
+    ],
+    "edges": [
+      {
+        "from": "pre",
+        "to": "roll"
+      },
+      {
+        "from": "roll",
+        "to": "cmp"
+      },
+      {
+        "from": "cmp",
+        "to": "confirm",
+        "cond": "哈希相等"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/string/rabin-karp.html",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/string/hash/",
+      "verified": true
+    }
+  ]
+}

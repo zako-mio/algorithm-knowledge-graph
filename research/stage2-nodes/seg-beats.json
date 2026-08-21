@@ -1,0 +1,107 @@
+{
+  "id": "seg-beats",
+  "name": "吉司机线段树(Segment Beats)",
+  "group": "G-D-8",
+  "stage": "frontier",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "区间取 min/max 等操作利用势能标记，均摊高效维护复杂区间信息",
+  "what": "Segment Beats 是一种维护区间最值操作(区间 chmin/chmax)的懒标记线段树：每个节点记录最大值 mx1、严格次大值 mx2、最大值个数 cntm，当新值 x 满足 mx2<x<mx1 时可直接打标记(O(1))，否则暴力递归下传。用势能分析保证总复杂度 O(m log n)。",
+  "why": {
+    "intuition": "区间取 min 只影响「大于 x」的数；若当前区间里所有数都 ≤x 直接跳过，若次大值都 <x 说明只有最大值会变——这时一个标记就够；只有当 x≤次大值、无法确定影响范围时才被迫向下递归。这种「能懒则懒、不能就暴力」配合势能分析得到均摊高效。",
+    "principle": "节点维护 mx1/mx2/cntm/sum。chmin(l,r,x)：若 mx1≤x 跳过；若 mx2<x<mx1 则 sum+=cntm*(x-mx1)、mx1=x 打标记返回；若 x≤mx2 则 pushdown 后递归左右子节点再 pull。复杂度用势能函数(不同最大值段数)分析为 O(m log n)。可进一步推广到区间 chmax、区间加、历史最值。",
+    "history": "Segment Beats 由吉如一提出，2014-2015 年在 Codeforces（Blog entry 57319）与 UOJ 发布，故名吉司机线段树；核心的势能分析保证区间取 min/max 均摊 O((n+m) log n)。"
+  },
+  "how": {
+    "pseudocode": "apply_tag(p,x): 若 mx1[p]>x: sum+=cntm*(x-mx1); mx1=x\nchmin(l,r,x,s,t,p): 若 mx1≤x 返回; 若 ⊆且 mx2<x: apply_tag; 否则 pushdown 递归 pull",
+    "python": "import sys\n\n# 区间 chmin(a_i, x) + 区间 max/sum 查询 (Segment Tree Beats)\nINF = 1 << 60\nmx1 = []   # 最大值\nmx2 = []   # 严格次大值\ncntm = []  # 最大值个数\nsm = []    # 区间和\n\n\ndef build(a, s, t, p):\n    if s == t:\n        mx1[p] = a[s]; mx2[p] = -INF; cntm[p] = 1; sm[p] = a[s]\n        return\n    m = s + ((t - s) >> 1)\n    build(a, s, m, p * 2); build(a, m + 1, t, p * 2 + 1)\n    pull(p)\n\n\ndef pull(p):\n    l, r = p * 2, p * 2 + 1\n    sm[p] = sm[l] + sm[r]\n    if mx1[l] > mx1[r]:\n        mx1[p] = mx1[l]; cntm[p] = cntm[l]\n        mx2[p] = max(mx2[l], mx1[r])\n    elif mx1[l] < mx1[r]:\n        mx1[p] = mx1[r]; cntm[p] = cntm[r]\n        mx2[p] = max(mx1[l], mx2[r])\n    else:\n        mx1[p] = mx1[l]; cntm[p] = cntm[l] + cntm[r]\n        mx2[p] = max(mx2[l], mx2[r])\n\n\ndef apply_tag(p, x):\n    # chmin: 把当前最大值 mx1 限制为 x (仅当 mx1 > x)\n    if mx1[p] <= x:\n        return\n    sm[p] += (x - mx1[p]) * cntm[p]\n    mx1[p] = x\n\n\ndef pushdown(p):\n    if mx1[p * 2] > mx1[p]:\n        apply_tag(p * 2, mx1[p])\n    if mx1[p * 2 + 1] > mx1[p]:\n        apply_tag(p * 2 + 1, mx1[p])\n\n\ndef chmin(l, r, x, s, t, p):\n    # 把 [l,r] 中 > x 的数变为 x\n    if r < s or t < l or mx1[p] <= x:\n        return\n    if l <= s and t <= r and mx2[p] < x:\n        apply_tag(p, x)\n        return\n    m = s + ((t - s) >> 1)\n    pushdown(p)\n    chmin(l, r, x, s, m, p * 2)\n    chmin(l, r, x, m + 1, t, p * 2 + 1)\n    pull(p)\n\n\ndef qmax(l, r, s, t, p):\n    if l <= s and t <= r:\n        return mx1[p]\n    m = s + ((t - s) >> 1); pushdown(p); res = -INF\n    if l <= m:\n        res = max(res, qmax(l, r, s, m, p * 2))\n    if r > m:\n        res = max(res, qmax(l, r, m + 1, t, p * 2 + 1))\n    return res\n\n\nif __name__ == \"__main__\":\n    sys.setrecursionlimit(1 << 20)\n    n = 5\n    a = [0, 10, 11, 12, 13, 14]\n    k = 4 * n + 4\n    for v in (mx1, mx2, cntm, sm):\n        v.extend([0] * k)\n    build(a, 1, n, 1)\n    chmin(1, 5, 12, 1, n, 1)  # 所有>12的变12\n    print(qmax(1, 5, 1, n, 1))  # 12\n",
+    "complexity": {
+      "time": "区间 chmin 均摊 O(log n)（整体 O(m log n)）；区间 chmax/加同理",
+      "space": "O(4N) — 多维护 mx1/mx2/cntm/sum"
+    },
+    "limitations": "Python 实现常数极大，n,m=1e5 在 1s 时限几乎必 TLE，仅适合学习/小数据；实际竞赛用 C++。标记下传涉及多种标记(加/chmin/chmax)时顺序极易写错，需严格按 apply 优先级处理。",
+    "pypy_notes": "递归+多条件分支 PyPy 常数较大；mx1/mx2/cntm 用三个平行列表存、局部变量化可加速。n,q=1e5 时 Python 常接近时限，必要时用数组而非对象。"
+  },
+  "examples": [
+    {
+      "oj": "HDU",
+      "pid": "5306",
+      "url": "https://acm.hdu.edu.cn/showproblem.php?pid=5306",
+      "difficulty": 2400,
+      "key_point": "Gorgeous Sequence：区间取min+区间max/sum，Segment Beats 标准模板题"
+    },
+    {
+      "oj": "LOJ",
+      "pid": "6565",
+      "url": "https://loj.ac/p/6565",
+      "difficulty": 2700,
+      "key_point": "最假女选手：区间加/chmax/chmin + 三种最值查询，多标记 Segment Beats"
+    }
+  ],
+  "pitfalls": [
+    "mx2 必须是严格次大值(等于 mx1 的不算)，否则 chmin 标记会误伤",
+    "多种标记(加+chmin+chmax)并存时 apply/pushdown 顺序极易错，需逐种分析偏序关系",
+    "忘记在叶子节点特判导致 mx2 仍为 -INF 参与比较出错"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "build",
+        "label": "建树(维护mx1/mx2/cntm/sum)"
+      },
+      {
+        "id": "chmin",
+        "label": "chmin: 判断 mx2<x<mx1?"
+      },
+      {
+        "id": "apply_tag",
+        "label": "apply: sum+=cntm*(x-mx1), mx1=x"
+      },
+      {
+        "id": "pushdown",
+        "label": "暴力递归(标记下传)"
+      },
+      {
+        "id": "pull",
+        "label": "合并子节点最值信息"
+      }
+    ],
+    "edges": [
+      {
+        "from": "build",
+        "to": "chmin"
+      },
+      {
+        "from": "chmin",
+        "to": "apply_tag"
+      },
+      {
+        "from": "chmin",
+        "to": "pushdown"
+      },
+      {
+        "from": "pushdown",
+        "to": "pull"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/seg-beats.md",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://atcoder.jp/contests/abc430/editorial/14433",
+      "verified": true,
+      "note": "AtCoder ABC430 Editorial, Segment Tree Beats 详解"
+    },
+    {
+      "type": "web",
+      "url": "https://codeforces.com/blog/entry/57319",
+      "verified": false,
+      "note": "Segment Tree Beats 初出教程(吉如一)"
+    }
+  ]
+}

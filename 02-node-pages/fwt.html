@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FWT(快速沃尔什变换) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-12.html">多项式与FFT族</a> / <span>FWT(快速沃尔什变换)</span></div>
+  <h1>FWT(快速沃尔什变换)</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-12</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="ntt.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">ntt</span></a>
+    <a class="nav-index" href="../03-groups/G-C-12.html"><span class="dir">组内第 3 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="polynomial-basics.html"><span class="dir">下一个 / 组内</span><span class="v">polynomial-basics</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">O(n log n)计算位运算(and/or/xor)卷积，FFT的位运算推广</div><p>快速沃尔什变换（FWT）在 O(n log n) 内计算位运算卷积：C[k]=Σ_{i⊕j=k} A[i]·B[j]，其中 ⊕ 为按位与/或/异或（以及同或、max/min 等）。与 FFT 把时域卷积变频域乘积一样，FWT 找出一个可逆线性变换 T 使得 T(A⊕B)=T(A)·T(B)（逐点），于是 变换→逐点乘→逆变换。对 or：T 是子集和(SOS/高维前缀和)，对 and：超集和，对 xor：沃尔什变换(用 ±1 特征)。FWT 是线性变换，常用于位运算相关计数、期望 min-max 容斥、高维子集卷积、以及把 DP 的转移写成位卷积后用 FWT 加速（如 CF1103E Radix Sum）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>位运算卷积像一种&#x27;按位求和&#x27;的乘法。对每一位独立做小变换：or 是前缀和(1 的传递)、and 是后缀和、xor 是 [1,1;1,-1] 的哈达玛变换，然后把各位变换复合(蝴蝶),复杂度 O(n log n)。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>设 n=2^m，把数组按最高位分成两半 a0,a1。or 卷积变换：T(a)=(T(a0), T(a0)+T(a1))，其中前半不包含该位 1、后半包含。递归 m 层，总 O(n log n)。and 类似：T=(T(a0)+T(a1), T(a1))。xor 用哈达玛：T=(T(a0)+T(a1), T(a0)-T(a1))。逆变换对应层内做逆运算（or/and 交换加减，xor 再乘 1/2）。K 维 FWT 对每个二进制位做同一蝴蝶。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>沃尔什变换(1923)是 FFT 的 ±1 矩阵版本；推广到位运算卷积的 FWT 在 1970s 成型，1990s 进入算法竞赛。OI Wiki 的 math/poly/fwt 页面系统整理 or/and/xor/同或/K 维/max/min 各版本，并给出 CF1103E 的进制不进位加法例题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 异或卷积模板</span>
+<span class="t-f">fwt_xor</span>(a, invert):
+    <span class="t-k">for</span> h <span class="t-k">in</span> <span class="t-n">1</span>,<span class="t-n">2</span>,<span class="t-n">4</span>,...,n/<span class="t-n">2</span>:
+        <span class="t-k">for</span> i <span class="t-k">in</span> step <span class="t-n">2</span>h:
+            <span class="t-k">for</span> j <span class="t-k">in</span> i..i+h-<span class="t-n">1</span>:
+                x=a[j]; y=a[j+h]
+                a[j]=x+y; a[j+h]=x-y
+                <span class="t-k">if</span> invert: a[j]/=<span class="t-n">2</span>; a[j+h]/=<span class="t-n">2</span>
+<span class="t-c"># 使用: fwt_xor(a); fwt_xor(b); c=a*b 逐点; fwt_xor(c, invert=True)</span>
+<span class="t-c"># or 版本: 正 a[j]=x+y,a[j+h]=x; 逆 a[j]=y,a[j+h]=x-y</span>
+<span class="t-c"># and 版本: 正 a[j]=y,a[j+h]=x+y; 逆 a[j]=y-x,a[j+h]=x</span></code></pre><h3>Python 实现</h3><pre><code class="python">MOD = <span class="t-n">998244353</span>
+INV2 = (MOD + <span class="t-n">1</span>) // <span class="t-n">2</span>
+
+
+<span class="t-k">def</span> <span class="t-f">fwt_or</span>(a, invert=<span class="t-k">False</span>):
+    <span class="t-s">&quot;&quot;&quot;FWT 或卷积(原地)。invert 为 True 时做逆变换(除以 n 由调用方处理).&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(a)
+    h = <span class="t-n">1</span>
+    <span class="t-k">while</span> h &lt; n:
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, n, h * <span class="t-n">2</span>):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, i + h):
+                x = a[j]
+                y = a[j + h]
+                <span class="t-k">if</span> <span class="t-k">not</span> invert:
+                    a[j] = (x + y) % MOD
+                    a[j + h] = x
+                <span class="t-k">else</span>:
+                    a[j] = y
+                    a[j + h] = (x - y) % MOD
+        h &lt;&lt;= <span class="t-n">1</span>
+    <span class="t-k">return</span> a
+
+
+<span class="t-k">def</span> <span class="t-f">fwt_and</span>(a, invert=<span class="t-k">False</span>):
+    <span class="t-s">&quot;&quot;&quot;FWT 与卷积(原地)。&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(a)
+    h = <span class="t-n">1</span>
+    <span class="t-k">while</span> h &lt; n:
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, n, h * <span class="t-n">2</span>):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, i + h):
+                x = a[j]
+                y = a[j + h]
+                <span class="t-k">if</span> <span class="t-k">not</span> invert:
+                    a[j] = y
+                    a[j + h] = (x + y) % MOD
+                <span class="t-k">else</span>:
+                    a[j] = (y - x) % MOD
+                    a[j + h] = x
+        h &lt;&lt;= <span class="t-n">1</span>
+    <span class="t-k">return</span> a
+
+
+<span class="t-k">def</span> <span class="t-f">fwt_xor</span>(a, invert=<span class="t-k">False</span>):
+    <span class="t-s">&quot;&quot;&quot;FWT 异或卷积(原地). 逆变换需再乘 n^-1。&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(a)
+    h = <span class="t-n">1</span>
+    <span class="t-k">while</span> h &lt; n:
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, n, h * <span class="t-n">2</span>):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, i + h):
+                x = a[j]
+                y = a[j + h]
+                a[j] = (x + y) % MOD
+                a[j + h] = (x - y) % MOD
+                <span class="t-k">if</span> invert:
+                    a[j] = a[j] * INV2 % MOD
+                    a[j + h] = a[j + h] * INV2 % MOD
+        h &lt;&lt;= <span class="t-n">1</span>
+    <span class="t-k">return</span> a
+
+
+<span class="t-k">def</span> <span class="t-f">xor_convolution</span>(a, b):
+    n = <span class="t-n">1</span>
+    need = <span class="t-b">max</span>(<span class="t-b">len</span>(a), <span class="t-b">len</span>(b))
+    <span class="t-k">while</span> n &lt; need:
+        n &lt;&lt;= <span class="t-n">1</span>
+    fa = a[:] + [<span class="t-n">0</span>] * (n - <span class="t-b">len</span>(a))
+    fb = b[:] + [<span class="t-n">0</span>] * (n - <span class="t-b">len</span>(b))
+    <span class="t-f">fwt_xor</span>(fa)
+    <span class="t-f">fwt_xor</span>(fb)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        fa[i] = fa[i] * fb[i] % MOD
+    <span class="t-f">fwt_xor</span>(fa, <span class="t-k">True</span>)
+    <span class="t-k">return</span> fa
+
+
+<span class="t-k">def</span> <span class="t-f">or_convolution</span>(a, b):
+    n = <span class="t-n">1</span>
+    need = <span class="t-b">max</span>(<span class="t-b">len</span>(a), <span class="t-b">len</span>(b))
+    <span class="t-k">while</span> n &lt; need:
+        n &lt;&lt;= <span class="t-n">1</span>
+    fa = a[:] + [<span class="t-n">0</span>] * (n - <span class="t-b">len</span>(a))
+    fb = b[:] + [<span class="t-n">0</span>] * (n - <span class="t-b">len</span>(b))
+    <span class="t-f">fwt_or</span>(fa)
+    <span class="t-f">fwt_or</span>(fb)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        fa[i] = fa[i] * fb[i] % MOD
+    <span class="t-f">fwt_or</span>(fa, <span class="t-k">True</span>)
+    <span class="t-k">return</span> fa
+
+
+<span class="t-k">def</span> <span class="t-f">xor_naive</span>(a, b):
+    res = [<span class="t-n">0</span>] * (<span class="t-b">max</span>(<span class="t-b">len</span>(a), <span class="t-b">len</span>(b)))
+    <span class="t-k">for</span> i, x <span class="t-k">in</span> <span class="t-b">enumerate</span>(a):
+        <span class="t-k">for</span> j, y <span class="t-k">in</span> <span class="t-b">enumerate</span>(b):
+            res[i ^ j] = (res[i ^ j] + x * y) % MOD
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">or_naive</span>(a, b):
+    res = [<span class="t-n">0</span>] * (<span class="t-b">max</span>(<span class="t-b">len</span>(a), <span class="t-b">len</span>(b)))
+    <span class="t-k">for</span> i, x <span class="t-k">in</span> <span class="t-b">enumerate</span>(a):
+        <span class="t-k">for</span> j, y <span class="t-k">in</span> <span class="t-b">enumerate</span>(b):
+            res[i | j] = (res[i | j] + x * y) % MOD
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">and_convolution</span>(a, b):
+    n = <span class="t-n">1</span>
+    need = <span class="t-b">max</span>(<span class="t-b">len</span>(a), <span class="t-b">len</span>(b))
+    <span class="t-k">while</span> n &lt; need:
+        n &lt;&lt;= <span class="t-n">1</span>
+    fa = a[:] + [<span class="t-n">0</span>] * (n - <span class="t-b">len</span>(a))
+    fb = b[:] + [<span class="t-n">0</span>] * (n - <span class="t-b">len</span>(b))
+    <span class="t-f">fwt_and</span>(fa)
+    <span class="t-f">fwt_and</span>(fb)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        fa[i] = fa[i] * fb[i] % MOD
+    <span class="t-f">fwt_and</span>(fa, <span class="t-k">True</span>)
+    <span class="t-k">return</span> fa
+
+
+<span class="t-k">def</span> <span class="t-f">and_naive</span>(a, b):
+    res = [<span class="t-n">0</span>] * (<span class="t-b">max</span>(<span class="t-b">len</span>(a), <span class="t-b">len</span>(b)))
+    <span class="t-k">for</span> i, x <span class="t-k">in</span> <span class="t-b">enumerate</span>(a):
+        <span class="t-k">for</span> j, y <span class="t-k">in</span> <span class="t-b">enumerate</span>(b):
+            res[i &amp; j] = (res[i &amp; j] + x * y) % MOD
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        n = <span class="t-n">1</span> &lt;&lt; random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">4</span>)
+        a = [random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">20</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        b = [random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">20</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">assert</span> <span class="t-f">xor_convolution</span>(a, b) == <span class="t-f">xor_naive</span>(a, b), (<span class="t-s">&quot;xor&quot;</span>, a, b)
+        <span class="t-k">assert</span> <span class="t-f">or_convolution</span>(a, b) == <span class="t-f">or_naive</span>(a, b), (<span class="t-s">&quot;or&quot;</span>, a, b)
+        <span class="t-k">assert</span> <span class="t-f">and_convolution</span>(a, b) == <span class="t-f">and_naive</span>(a, b), (<span class="t-s">&quot;and&quot;</span>, a, b)
+    <span class="t-c"># 手工样例: (1+x^1)(1+x^1) 的异或卷积</span>
+    <span class="t-k">assert</span> <span class="t-f">xor_convolution</span>([<span class="t-n">1</span>, <span class="t-n">1</span>], [<span class="t-n">1</span>, <span class="t-n">1</span>]) == [<span class="t-n">2</span>, <span class="t-n">2</span>]
+    <span class="t-b">print</span>(<span class="t-s">&quot;FWT (and/or/xor) tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">FWT 无乘法、纯加减, Python 实现比 FFT/NTT 快得多, 1e6 级可过。逐层蝴蝶内层用局部变量缓存数组引用可再提速。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n log n)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">数组长度必须是 2 的幂。非 2 的幂需补零。xor 逆变换除以 2 在模数需用 2 的逆元。子集卷积(要求不交并)不能直接 FWT, 需按 popcount 分层的 FWT(fast zeta transform + 附加维)。对非标准运算(如 K 进制不进位加法)需定制变换矩阵。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>and/or/xor 三版的蝴蝶公式互相记混</li><li>xor 逆变换忘记乘 2 的逆元(模意义下)</li><li>子集卷积直接套 FWT(结果混入重叠集合)</li><li>长度不是 2 的幂没补零</li><li>把 FWT 当 FFT 用在多项式卷积上(运算类型不同)</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P6097</strong></td><td>4</td><td>子集卷积模板题: 需要按 popcount 分层的 FWT</td><td class="u"><a href="https://www.luogu.com.cn/problem/P6097" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P6097</a></td></tr><tr><td>Codeforces</td><td><strong>1103E</strong></td><td>6</td><td>Radix Sum: 10 进制不进位加法的 K 维 FWT 高级应用</td><td class="u"><a href="https://www.luogu.com.cn/problem/CF1103E" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/CF1103E</a></td></tr><tr><td>AtCoder</td><td><strong>abc331_g</strong></td><td>5</td><td>Collect Them All: FWT+容斥/期望的经典组合</td><td class="u"><a href="https://atcoder.jp/contests/abc331/tasks/abc331_g" target="_blank" rel="noopener">https://atcoder.jp/contests/abc331/tasks/abc331_g</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-fwt" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "identify", "label": "确认卷积运算类型(and/or/xor/子集卷积)"}}, {"data": {"id": "pad", "label": "补零到 2 的幂"}}, {"data": {"id": "transform", "label": "对应版本正变换"}}, {"data": {"id": "pointwise", "label": "逐点相乘(模意义)"}}, {"data": {"id": "inverse", "label": "逆变换(含 /2 处理)"}}, {"data": {"id": "eidentify->pad", "source": "identify", "target": "pad"}}, {"data": {"id": "epad->transform", "source": "pad", "target": "transform"}}, {"data": {"id": "etransform->pointwise", "source": "transform", "target": "pointwise"}}, {"data": {"id": "epointwise->inverse", "source": "pointwise", "target": "inverse"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-fwt'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="fft.html" title="FWT是FFT在位运算卷积上的推广">FFT(快速傅里叶变换)<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/poly/fwt/" target="_blank" rel="noopener">https://oi-wiki.org/math/poly/fwt/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/fwt.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/fwt.md</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

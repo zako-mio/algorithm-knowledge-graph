@@ -1,0 +1,95 @@
+{
+  "id": "odt",
+  "name": "珂朵莉树/ODT",
+  "group": "G-E-7",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "用平衡树维护颜色段均摊：区间赋值操作下split/assign均摊O(log)，起源CF896C；颜色段均摊，随机数据下区间赋值均摊 O(logn)，源自 CF896C",
+  "what": "珂朵莉树(Chtholly Tree / ODT, Old Driver Tree)是一种用有序集合(set/map)维护'颜色段'的数据结构：将值相同的连续区间合并为一个节点(l, r, val)。核心操作 split(分裂区间) 和 assign(区间推平赋值)。在随机数据+区间赋值操作下均摊 O(log n)。",
+  "why": {
+    "intuition": "线段树处理区间赋值需要懒标记，但有些操作(如'区间第 k 小'、'区间所有数的和')难以用标记维护。珂朵莉树直接维护每一段连续相同值的区间：赋值时把目标区间内的所有小段合并成一个大段。在随机数据下，段数被赋值操作不断压缩，均摊开销很小。",
+    "principle": "用 set/map 存储区间节点 {l, r, val}，按 l 排序。核心操作：①split(x): 找到包含 x 的区间 [l,r,val]，分裂为 [l,x-1,val] 和 [x,r,val]，返回后者迭代器 ②assign(l,r,val): split(r+1), split(l), 删除 [l,r] 内所有段，插入新段 [l,r,val] ③perform(l,r): split 提取后遍历段做操作。关键：split 先 r+1 再 l(防迭代器失效)。复杂度：assign 均摊 O(log n)(随机数据)；perform 最坏 O(段数)。",
+    "history": "珂朵莉树起源于 Codeforces 896C(2017)，出题人用随机操作+区间推平+区间查询设计了此结构。因 CF896C 的角色名为 Chtholly 而得'珂朵莉树'之名，又称'老司机树'(ODT)。"
+  },
+  "how": {
+    "pseudocode": "# set 存储 (l, r, val), 按 l 排序\nsplit(x):\n  it = lower_bound(x)\n  if it.l == x: return it\n  it--  # 找到包含 x 的区间\n  [l, r, v] = *it\n  erase(it)\n  insert(l, x-1, v)\n  return insert(x, r, v)  # 返回新段迭代器\n\nassign(l, r, v):\n  itr = split(r+1)\n  itl = split(l)\n  erase(itl, itr)  # 删除 [l,r] 内所有段\n  insert(l, r, v)   # 插入新段",
+    "python": "# Python 珂朵莉树实现\n# 用 SortedList 或 bisect + list 模拟 set\nimport bisect\n\n\nclass ODTNode:\n    __slots__ = ['l', 'r', 'v']\n    def __init__(self, l, r, v):\n        self.l = l\n        self.r = r\n        self.v = v\n\n\nclass ChthollyTree:\n    \"\"\"珂朵莉树: 用有序列表维护颜色段。\"\"\"\n    def __init__(self, n, init_val=0):\n        # 用 list 维护, 按 l 排序; 简化实现用线性查找\n        self.nodes = [ODTNode(1, n, init_val)]\n        self.n = n\n\n    def split(self, x):\n        \"\"\"在 x 处分裂, 返回包含 x 的节点在 nodes 中的索引。\"\"\"\n        for i, node in enumerate(self.nodes):\n            if node.l <= x <= node.r:\n                if node.l == x:\n                    return i\n                # 分裂 [l, r, v] -> [l, x-1, v] + [x, r, v]\n                left = ODTNode(node.l, x - 1, node.v)\n                right = ODTNode(x, node.r, node.v)\n                self.nodes[i:i+1] = [left, right]\n                return i + 1  # right 的索引\n        return len(self.nodes)  # x 超出范围\n\n    def assign(self, l, r, v):\n        \"\"\"区间推平: [l, r] 赋值为 v。\"\"\"\n        # Python list 需先 split(l) 再 split(r+1): 先 split(l) 可能插入元素,\n        # 后 split(r+1) 在更新后的列表上操作, 索引不会错位\n        idx_l = self.split(l)\n        idx_r = self.split(r + 1) if r < self.n else len(self.nodes)\n        # 删除 [idx_l, idx_r) 的所有节点\n        self.nodes[idx_l:idx_r] = [ODTNode(l, r, v)]\n\n    def range_sum(self, l, r):\n        \"\"\"区间求和: [l, r] 的所有值之和。\"\"\"\n        idx_l = self.split(l)\n        idx_r = self.split(r + 1) if r < self.n else len(self.nodes)\n        s = 0\n        for i in range(idx_l, idx_r):\n            node = self.nodes[i]\n            s += node.v * (node.r - node.l + 1)\n        return s\n\n\nif __name__ == '__main__':\n    ct = ChthollyTree(10, 1)  # [1,10] 初始全1\n    ct.assign(1, 5, 2)   # [1,5]=2\n    ct.assign(3, 7, 3)   # [3,7]=3\n    print(f'Sum [1,10]: {ct.range_sum(1, 10)}')\n    # [1,2]=2, [3,7]=3, [8,10]=1 => 2*2+3*5+1*3=4+15+3=22\n    assert ct.range_sum(1, 10) == 22\n    print(f'Sum [3,5]: {ct.range_sum(3, 5)}')\n    # [3,5]=3 => 9\n    assert ct.range_sum(3, 5) == 9\n    ct.assign(4, 6, 0)\n    print(f'Sum [1,10]: {ct.range_sum(1, 10)}')\n    # [1,2]=2, [3,3]=3, [4,6]=0, [7,7]=3, [8,10]=1 => 4+3+0+3+3=13\n    assert ct.range_sum(1, 10) == 13\n    print('Chtholly Tree: all tests passed!')\n",
+    "pypy_notes": "Python 用 list 模拟 set 性能差(O(N) split)；PyPy 下 list 操作快但仍不如 C++ set。正式竞赛建议 C++ std::set 实现。Python 版适合理解原理和小规模验证。",
+    "complexity": {
+      "time": "assign 均摊 O(log n)(随机数据); split O(log n)(set) / O(n)(list); range_sum O(段数)",
+      "space": "O(段数) — 段数在随机赋值下均摊 O(log n)"
+    },
+    "limitations": "性能依赖随机数据(非随机构造数据可卡到 O(n) 段数)；split 先 r+1 再 l 的顺序必须遵守(防迭代器失效)；Python 用 list 实现性能差，仅适合学习。"
+  },
+  "examples": [
+    {
+      "oj": "Codeforces",
+      "pid": "896C",
+      "url": "https://codeforces.com/problemset/problem/896/C",
+      "difficulty": 2400,
+      "key_point": "Willem, Chtholly and Seniorious: ODT 起源题, 随机区间操作"
+    }
+  ],
+  "pitfalls": [
+    "split 顺序: C++ 用 set 迭代器时必须先 split(r+1) 再 split(l)(防迭代器失效); Python 用 list 时须先 split(l) 再 split(r+1)(防索引错位)",
+    "非随机数据(如交替赋值不同段)可卡到 O(n) 段数 → TLE",
+    "Python 用 list 模拟 set 的 split 是 O(n) 而非 C++ set 的 O(log n)",
+    "mutable 关键字(C++): set 中的节点 val 用 mutable 修饰才能直接修改"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "split_r",
+        "label": "split(r+1): 在 r+1 处分裂"
+      },
+      {
+        "id": "split_l",
+        "label": "split(l): 在 l 处分裂"
+      },
+      {
+        "id": "erase",
+        "label": "erase [itl, itr): 删除目标区间内所有段"
+      },
+      {
+        "id": "insert",
+        "label": "insert(l,r,v): 插入新段"
+      },
+      {
+        "id": "perform",
+        "label": "perform: 遍历段做操作(求和/第k小等)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "split_r",
+        "to": "split_l"
+      },
+      {
+        "from": "split_l",
+        "to": "erase"
+      },
+      {
+        "from": "erase",
+        "to": "insert"
+      },
+      {
+        "from": "insert",
+        "to": "perform"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/misc/odt/",
+      "verified": true
+    },
+    {
+      "type": "wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Chtholly_tree",
+      "verified": true,
+      "note": "ODT 的原型与背景（Chtholly tree）"
+    }
+  ]
+}

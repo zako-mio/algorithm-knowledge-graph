@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二叉化树 DP Trick · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-10.html">前沿趋势组</a> / <span>二叉化树 DP Trick</span></div>
+  <h1>二叉化树 DP Trick</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-E-10</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="prefix-gcd-optimization.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">prefix-gcd-optimization</span></a>
+    <a class="nav-index" href="../03-groups/G-E-10.html"><span class="dir">组内第 3 / 6</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="bitmask-dp-optimization.html"><span class="dir">下一个 / 组内</span><span class="v">bitmask-dp-optimization</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">多叉树添加虚节点链转为二叉树，使 O(n²) 树形 DP 的合并复杂度成立</div><p>二叉化树 DP Trick 指：当树形 DP 的复杂度依赖『每个节点合并所有儿子的子树背包』且儿子数很多时，通过插入虚节点（值为中性/不可选）把多叉树转化为二叉树，使得每个节点至多两个『孩子』，从而让 O(子树大小×子树大小) 的合并复杂度（树上背包的经典 O(n²) 总复杂度）在形式上严格成立、更易分析与实现。本质是把『逐个合并多子』改写成『链式二叉化合并』，把本来需要仔细论证的 ∑ size_x·size_y 上界变成显式的二叉树形态。2026 CF Round 1100（Spectral::Cup）Editorial Problem I 作为前沿例题使用了该 trick。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>多叉节点一次合并 k 个儿子会让复杂度变成所有儿子两两组合，难以论证；而二叉树每个节点只有两个儿子，树上背包的合并 O(size_l × size_r) 累加后恰好是 O(n²)（每个点对在其 LCA 处被计一次）。二叉化就是用『虚链』把多叉掰成二叉，把复杂论证翻译成简单形态。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>设原多叉节点 u 有儿子 v1..vk。构造：以 u 为链头，依次把 v1 作为 u 的左儿子，然后新增虚节点 w1 作为 u 的右儿子，v2 作为 w1 的左儿子，再新增 w2 作为 w1 的右儿子……即『左儿子=真实儿子，右儿子=下一个虚节点』，末尾虚节点右儿子为空。虚节点的 DP 值设为对答案无影响的恒等值（如不选任何物品、代价为 0）。转化后每个节点度 ≤2，树大小 O(n)，树上背包合并总复杂度严格 O(n²)（对 CF Round 1100 一类题目，配合每个状态维度即可套用）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>二叉化（binarization）是树形 DP 的经典技巧，在『树上背包』的复杂度论证（如 OI Wiki dp/tree 章节，CTSC1997 选课 O(nm) 论证）中常隐含使用；显式『加虚节点成链』的写法在 2026 CF Round 1100 Spectral::Cup Editorial Problem I（blog entry 153948）中被作为关键 trick 提出，标志其在省选/CF 高频题目中的前沿复用。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 多叉树二叉化: u 的儿子 v1..vk 转为链</span>
+<span class="t-k">def</span> <span class="t-f">binarize</span>(u, children):
+    cur = u
+    <span class="t-k">for</span> v <span class="t-k">in</span> children:
+        left[cur] = v
+        <span class="t-k">if</span> v <span class="t-k">is</span> <span class="t-k">not</span> last:
+            nxt = <span class="t-f">new_node</span>(虚值)
+            right[cur] = nxt
+            cur = nxt
+    right[cur] = null
+<span class="t-c"># 按二叉树跑树上背包合并, 复杂度 O(∑ size_l*size_r)=O(n²)</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+
+<span class="t-k">def</span> <span class="t-f">binarize_tree</span>(n, children):
+    <span class="t-s">&quot;&quot;&quot;多叉树 -&gt; 二叉树（加虚节点）。
+    children: list[list[int]] 每个节点的真实儿子（1-indexed 节点号）。
+    返回: left[], right[] （0 表示空），虚节点从 n+1 开始编号。
+    结构：真实儿子放左子，右侧用虚节点串成链，保持原父子关系。
+    &quot;&quot;&quot;</span>
+    left = [<span class="t-n">0</span>] * (<span class="t-n">2</span> * n + <span class="t-n">5</span>)
+    right = [<span class="t-n">0</span>] * (<span class="t-n">2</span> * n + <span class="t-n">5</span>)
+    new_id = n + <span class="t-n">1</span>
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">if</span> <span class="t-k">not</span> children[u]:
+            <span class="t-k">continue</span>
+        left[u] = children[u][<span class="t-n">0</span>]
+        cur = u
+        <span class="t-k">for</span> v <span class="t-k">in</span> children[u][<span class="t-n">1</span>:]:
+            right[cur] = new_id
+            left[new_id] = v
+            cur = new_id
+            new_id += <span class="t-n">1</span>
+    <span class="t-k">return</span> left, right
+
+
+<span class="t-k">def</span> <span class="t-f">verify_binary</span>(n, children, left, right):
+    <span class="t-s">&quot;&quot;&quot;验证二叉化后每个真实节点的儿子集合与原多叉一致。&quot;&quot;&quot;</span>
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        got = []
+        <span class="t-c"># 从 u 沿左子取真实儿子，沿右子链收集</span>
+        c = u
+        seen = <span class="t-b">set</span>()
+        <span class="t-c"># u 的左子是真实儿子</span>
+        <span class="t-k">if</span> left[u]:
+            got.<span class="t-f">append</span>(left[u])
+        r = right[u]
+        <span class="t-k">while</span> r:
+            <span class="t-k">if</span> left[r]:
+                got.<span class="t-f">append</span>(left[r])
+            r = right[r]
+        <span class="t-k">assert</span> <span class="t-b">sorted</span>(got) == <span class="t-b">sorted</span>(children[u]), (u, got, children[u])
+    <span class="t-b">print</span>(<span class="t-s">&quot;二叉化验证通过：所有真实节点的儿子集合一致&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">10</span> ** <span class="t-n">6</span>)
+    <span class="t-c"># 例1: 三叉节点</span>
+    children = {<span class="t-n">1</span>: [<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>], <span class="t-n">2</span>: [], <span class="t-n">3</span>: [<span class="t-n">5</span>], <span class="t-n">4</span>: [], <span class="t-n">5</span>: []}
+    left, right = <span class="t-f">binarize_tree</span>(<span class="t-n">5</span>, children)
+    <span class="t-f">verify_binary</span>(<span class="t-n">5</span>, children, left, right)
+    <span class="t-c"># 例2: 链式多叉</span>
+    children2 = {<span class="t-n">1</span>: [<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">5</span>], <span class="t-n">2</span>: [], <span class="t-n">3</span>: [], <span class="t-n">4</span>: [], <span class="t-n">5</span>: [<span class="t-n">6</span>, <span class="t-n">7</span>], <span class="t-n">6</span>: [], <span class="t-n">7</span>: []}
+    left2, right2 = <span class="t-f">binarize_tree</span>(<span class="t-n">7</span>, children2)
+    <span class="t-f">verify_binary</span>(<span class="t-n">7</span>, children2, left2, right2)
+    <span class="t-b">print</span>(<span class="t-s">&quot;binary-tree-dp-trick 自测通过：二叉化结构正确&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">二叉化后递归层数与节点数同阶，需 setrecursionlimit；树上背包三层循环（节点×容量×子容量），PyPy 下 n≤500 可过，更大时考虑常数优化或 C++。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>二叉化本身 O(n)；转化后树上背包合并总复杂度 O(n²)（严格）</td></tr><tr><th>空间复杂度</th><td>O(n)（left/right 数组，虚节点 ≤ n-1 个）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">虚节点需设定对 DP 无影响的恒等状态（通常『选 0 个/代价 0』），实现时要保证虚节点不会贡献非法答案；虚链使树长 O(n)，若 DP 状态与深度相关需留意。仅当 DP 确实是『背包合并』型（状态量=子树规模）时复杂度论证才成立。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>虚节点的 DP 值必须设恒等中性值，否则污染答案</li><li>二叉化后实节点仍要通过右链找到所有真实儿子，遍历别漏</li><li>虚节点本身不参与状态计数，空间开 2n 足够</li><li>与『左儿子右兄弟』表示法区分：本 trick 是动态加虚节点而非复用原边</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P2014</strong></td><td>4</td><td>CTSC1997 选课：树上背包经典题（OI Wiki dp/tree 例题，二叉化思想隐含于复杂度论证）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2014" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2014</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-binary-tree-dp-trick" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "chain", "label": "真实儿子依次作为链上左子，右子串虚节点"}}, {"data": {"id": "neutral", "label": "虚节点设中性 DP 状态"}}, {"data": {"id": "merge", "label": "在二叉树上跑背包合并"}}, {"data": {"id": "echain->neutral", "source": "chain", "target": "neutral"}}, {"data": {"id": "eneutral->merge", "source": "neutral", "target": "merge"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-binary-tree-dp-trick'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-cooccurrence" href="monotonic-stack-dp.html" title="均为近年CF教程中的DP优化新思路">单调栈优化DP<span class="etype">共现</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="bitmask-dp-optimization.html" title="同出CF Round 1100 Editorial，同属前沿DP技巧">位掩码DP优化<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">web</span><span class="v-warn">&#9651;</span> <a href="https://codeforces.com/blog/entry/153948" target="_blank" rel="noopener">https://codeforces.com/blog/entry/153948</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/tree/" target="_blank" rel="noopener">https://oi-wiki.org/dp/tree/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

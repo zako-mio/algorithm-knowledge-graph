@@ -1,0 +1,214 @@
+{
+  "source": "CPH",
+  "author": "Antti Laaksonen",
+  "total_pages": 296,
+  "toc_source": "outline",
+  "chapters": [
+    {
+      "index": 1,
+      "title": "Introduction",
+      "start_page": 13,
+      "end_page": 26
+    },
+    {
+      "index": 2,
+      "title": "Time complexity",
+      "start_page": 27,
+      "end_page": 34
+    },
+    {
+      "index": 3,
+      "title": "Sorting",
+      "start_page": 35,
+      "end_page": 44
+    },
+    {
+      "index": 4,
+      "title": "Data structures",
+      "start_page": 45,
+      "end_page": 56
+    },
+    {
+      "index": 5,
+      "title": "Complete search",
+      "start_page": 57,
+      "end_page": 66
+    },
+    {
+      "index": 6,
+      "title": "Greedy algorithms",
+      "start_page": 67,
+      "end_page": 74
+    },
+    {
+      "index": 7,
+      "title": "Dynamic programming",
+      "start_page": 75,
+      "end_page": 86
+    },
+    {
+      "index": 8,
+      "title": "Amortized analysis",
+      "start_page": 87,
+      "end_page": 92
+    },
+    {
+      "index": 9,
+      "title": "Range queries",
+      "start_page": 93,
+      "end_page": 104
+    },
+    {
+      "index": 10,
+      "title": "Bit manipulation",
+      "start_page": 105,
+      "end_page": 116
+    },
+    {
+      "index": 11,
+      "title": "Basics of graphs",
+      "start_page": 119,
+      "end_page": 126
+    },
+    {
+      "index": 12,
+      "title": "Graph traversal",
+      "start_page": 127,
+      "end_page": 132
+    },
+    {
+      "index": 13,
+      "title": "Shortest paths",
+      "start_page": 133,
+      "end_page": 142
+    },
+    {
+      "index": 14,
+      "title": "Tree algorithms",
+      "start_page": 143,
+      "end_page": 150
+    },
+    {
+      "index": 15,
+      "title": "Spanning trees",
+      "start_page": 151,
+      "end_page": 158
+    },
+    {
+      "index": 16,
+      "title": "Directed graphs",
+      "start_page": 159,
+      "end_page": 166
+    },
+    {
+      "index": 17,
+      "title": "Strong connectivity",
+      "start_page": 167,
+      "end_page": 172
+    },
+    {
+      "index": 18,
+      "title": "Tree queries",
+      "start_page": 173,
+      "end_page": 182
+    },
+    {
+      "index": 19,
+      "title": "Paths and circuits",
+      "start_page": 183,
+      "end_page": 190
+    },
+    {
+      "index": 20,
+      "title": "Flows and cuts",
+      "start_page": 191,
+      "end_page": 204
+    },
+    {
+      "index": 21,
+      "title": "Number theory",
+      "start_page": 207,
+      "end_page": 216
+    },
+    {
+      "index": 22,
+      "title": "Combinatorics",
+      "start_page": 217,
+      "end_page": 226
+    },
+    {
+      "index": 23,
+      "title": "Matrices",
+      "start_page": 227,
+      "end_page": 234
+    },
+    {
+      "index": 24,
+      "title": "Probability",
+      "start_page": 235,
+      "end_page": 244
+    },
+    {
+      "index": 25,
+      "title": "Game theory",
+      "start_page": 245,
+      "end_page": 252
+    },
+    {
+      "index": 26,
+      "title": "String algorithms",
+      "start_page": 253,
+      "end_page": 260
+    },
+    {
+      "index": 27,
+      "title": "Square root algorithms",
+      "start_page": 261,
+      "end_page": 266
+    },
+    {
+      "index": 28,
+      "title": "Segment trees revisited",
+      "start_page": 267,
+      "end_page": 274
+    },
+    {
+      "index": 29,
+      "title": "Geometry",
+      "start_page": 275,
+      "end_page": 284
+    },
+    {
+      "index": 30,
+      "title": "Sweep line algorithms",
+      "start_page": 285,
+      "end_page": 290
+    }
+  ],
+  "parts": [
+    {
+      "name": "Part I",
+      "title": "Basic techniques",
+      "chapter_range": [
+        1,
+        10
+      ]
+    },
+    {
+      "name": "Part II",
+      "title": "Graph algorithms",
+      "chapter_range": [
+        11,
+        20
+      ]
+    },
+    {
+      "name": "Part III",
+      "title": "Advanced topics",
+      "chapter_range": [
+        21,
+        30
+      ]
+    }
+  ]
+}

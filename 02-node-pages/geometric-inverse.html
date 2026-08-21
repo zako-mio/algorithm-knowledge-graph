@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>反演变换 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-3.html">计算几何基础与度量</a> / <span>反演变换</span></div>
+  <h1>反演变换</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-3</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="random-incremental.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">random-incremental</span></a>
+    <a class="nav-index" href="../03-groups/G-D-3.html"><span class="dir">组内第 7 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-D-3.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">圆/直线相切问题经反演简化，保角变换</div><p>反演变换（Inversion）：给定反演中心 O 与反演半径 R，点 P 的反演点 P&#x27; 满足 P&#x27; 在射线 OP 上且 |OP|·|OP&#x27;| = R²。关键性质：① 过 O 的直线仍为过 O 的直线，不过 O 的直线变为过 O 的圆，过 O 的圆变为不过 O 的直线，不过 O 的圆仍为不过 O 的圆（圆心与半径有公式）；② 反演是保角变换（交角不变），相切关系保持；③ O 上的点不变。因此，圆/直线相切类问题（如&#x27;过一点与两圆相切的圆&#x27;）可在反演后变成&#x27;求两圆公切线&#x27;等简单问题。典型应用：Apollonius 圆问题、Soddy 圆、插入圆半径。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>反演像一面&#x27;凸面镜&#x27;：以 O 为圆心把平面翻进去，离 O 近的点被弹远，离 O 远的点被拉近，圆周上的点不动。圆与直线的界限被打破——不过圆心的圆会&#x27;拉直&#x27;成直线，这正是魔法所在：原本难解的圆-圆相切，反演后变成直线-直线/直线-圆相切，而相切关系又被保角性原封不动地保留，于是难题被&#x27;透视&#x27;成了简单题。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>定义 |OP|·|OP&#x27;|=R²。核心几何事实（坐标计算可得）：不过 O 的圆 C(圆心 A 半径 r) 反演成不过 O 的圆 C&#x27;，半径 r&#x27; = (1/(|OA|-r) - 1/(|OA|+r))·R²/2，圆心 A&#x27; 在射线 OA 上满足 |OA&#x27;| = |OA|·r&#x27;/r 等；过 O 的圆反演成直线（直线过两交点方向的延伸），过 O 的直线反演为自身，不过 O 的直线反演为过 O 的圆。由于反演是保角的（两曲线交角反演后不变），相切/相离/相交关系全部保持，从而可以把&#x27;找过点 P 且与两圆相切的圆&#x27;转化为&#x27;找两圆反演像的公切线&#x27;，再反演回去。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>反演几何（Inversive geometry）由 Steiner、Laguerre 等在 19 世纪系统发展，与射影几何、圆几何（Möbius 变换）同源；Apollonius 圆问题（求与三已知圆相切的圆）是古典几何著名难题，反演是标准解法之一。CP/OI 圈经 OI-wiki 的 inverse 页整理，出现于 HDU 4773（ICPC 2013 杭州）等题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 点反演: inv(P) = O + R² * (P-O) / |P-O|²</span>
+<span class="t-c"># 圆反演（不过 O）: 记 OA=|A-O|, r 为半径</span>
+d   = OA
+r2  = <span class="t-n">0.5</span> * (<span class="t-n">1</span>/(d-r) - <span class="t-n">1</span>/(d+r)) * R²
+d2  = d * r2 / r
+A&#x27;  = O + (A-O) * (d2 / d)
+返回 (A&#x27;, r2)
+
+<span class="t-c"># 直线反演为过 O 的圆: 取 O 到直线垂足 P, 距离 h</span>
+<span class="t-s">r&#x27; = R² / (2h); 圆心在 OP 方向, 距 O 为 r&#x27;</span>
+
+<span class="t-c"># 使用流程</span>
+<span class="t-n">1</span>) 选反演中心 O（常为<span class="t-s">&#x27;过某点&#x27;</span>的切圆问题取该点）
+<span class="t-n">2</span>) 对已知圆做反演
+<span class="t-n">3</span>) 求反演后图形的公切线/交点
+<span class="t-n">4</span>) 把结果反演回原平面</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+<span class="t-k">import</span> math
+
+
+<span class="t-k">def</span> <span class="t-f">invert_point</span>(P, O, R):
+    <span class="t-s">&quot;&quot;&quot;点 P 关于圆心 O 半径 R 的反演点。&quot;&quot;&quot;</span>
+    dx = P[<span class="t-n">0</span>] - O[<span class="t-n">0</span>]
+    dy = P[<span class="t-n">1</span>] - O[<span class="t-n">1</span>]
+    d2 = dx*dx + dy*dy
+    <span class="t-k">if</span> d2 &lt; <span class="t-n">1e-30</span>:
+        <span class="t-k">return</span> <span class="t-k">None</span>
+    k = R * R / d2
+    <span class="t-k">return</span> (O[<span class="t-n">0</span>] + dx * k, O[<span class="t-n">1</span>] + dy * k)
+
+
+<span class="t-k">def</span> <span class="t-f">invert_circle</span>(circle, O, R):
+    <span class="t-s">&quot;&quot;&quot;不过 O 的圆 (圆心, 半径) 的反演圆。返回 (圆心, 半径)。&quot;&quot;&quot;</span>
+    cx, cy, r = circle
+    d = math.<span class="t-f">hypot</span>(cx - O[<span class="t-n">0</span>], cy - O[<span class="t-n">1</span>])
+    <span class="t-k">if</span> <span class="t-b">abs</span>(d - r) &lt; <span class="t-n">1e-12</span>:
+        <span class="t-k">return</span> <span class="t-k">None</span>          <span class="t-c"># 过 O 的圆反演成直线</span>
+    r2 = <span class="t-n">0.5</span> * (<span class="t-n">1</span>/(d - r) - <span class="t-n">1</span>/(d + r)) * R * R
+    d2 = d * r2 / r
+    nx = O[<span class="t-n">0</span>] + (cx - O[<span class="t-n">0</span>]) * (d2 / d)
+    ny = O[<span class="t-n">1</span>] + (cy - O[<span class="t-n">1</span>]) * (d2 / d)
+    <span class="t-k">return</span> (nx, ny, r2)
+
+
+<span class="t-k">def</span> <span class="t-f">line_from_circle_through_O</span>(circle, O):
+    <span class="t-s">&quot;&quot;&quot;过 O 的圆反演为直线：返回 (线上一点, 方向向量)。
+    利用圆与以 O 为圆心的任一圆交点的连线方向。
+    &quot;&quot;&quot;</span>
+    cx, cy, r = circle
+    <span class="t-c"># 圆过 O, 取圆上与 O 相对的直径端点 T = 2*C - O</span>
+    tx = <span class="t-n">2</span>*cx - O[<span class="t-n">0</span>]
+    ty = <span class="t-n">2</span>*cy - O[<span class="t-n">1</span>]
+    dirv = (tx - O[<span class="t-n">0</span>], ty - O[<span class="t-n">1</span>])      <span class="t-c"># 方向 = 直径方向</span>
+    <span class="t-c"># 直线上另一点: 取圆上异于 O 的任意点</span>
+    d = math.<span class="t-f">hypot</span>(tx - O[<span class="t-n">0</span>], ty - O[<span class="t-n">1</span>])
+    perp = (-dirv[<span class="t-n">1</span>]/d, dirv[<span class="t-n">0</span>]/d)
+    p = (cx + perp[<span class="t-n">0</span>] * r, cy + perp[<span class="t-n">1</span>] * r)
+    <span class="t-k">return</span> (p, dirv)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 反演两次回到自身</span>
+    P = (<span class="t-n">3.0</span>, <span class="t-n">4.0</span>)
+    O = (<span class="t-n">0.0</span>, <span class="t-n">0.0</span>)
+    R = <span class="t-n">2.0</span>
+    P1 = <span class="t-f">invert_point</span>(P, O, R)
+    P2 = <span class="t-f">invert_point</span>(P1, O, R)
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(P2[<span class="t-n">0</span>]-P[<span class="t-n">0</span>]) &lt; <span class="t-n">1e-9</span> <span class="t-k">and</span> <span class="t-b">abs</span>(P2[<span class="t-n">1</span>]-P[<span class="t-n">1</span>]) &lt; <span class="t-n">1e-9</span>, (P2, P)
+    <span class="t-c"># 单位圆反演半径为 1 的圆(圆心(2,0) r=1) -&gt; 半径 = 1/(2-1) - ... 计算校验</span>
+    c = <span class="t-f">invert_circle</span>((<span class="t-n">2.0</span>, <span class="t-n">0.0</span>, <span class="t-n">1.0</span>), (<span class="t-n">0.0</span>, <span class="t-n">0.0</span>), <span class="t-n">1.0</span>)
+    <span class="t-k">assert</span> c <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>
+    <span class="t-c"># 反演保持相切：两圆在 (3,0) 相切（且 (3,0) 不是 O），反演后仍相切</span>
+    c1 = <span class="t-f">invert_circle</span>((<span class="t-n">2.0</span>, <span class="t-n">0.0</span>, <span class="t-n">1.0</span>), (<span class="t-n">0.0</span>, <span class="t-n">0.0</span>), <span class="t-n">2.0</span>)
+    c2 = <span class="t-f">invert_circle</span>((<span class="t-n">4.0</span>, <span class="t-n">0.0</span>, <span class="t-n">1.0</span>), (<span class="t-n">0.0</span>, <span class="t-n">0.0</span>), <span class="t-n">2.0</span>)
+    d = math.<span class="t-f">hypot</span>(c1[<span class="t-n">0</span>]-c2[<span class="t-n">0</span>], c1[<span class="t-n">1</span>]-c2[<span class="t-n">1</span>])
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(d - (c1[<span class="t-n">2</span>]+c2[<span class="t-n">2</span>])) &lt; <span class="t-n">1e-9</span> <span class="t-k">or</span> <span class="t-b">abs</span>(d - <span class="t-b">abs</span>(c1[<span class="t-n">2</span>]-c2[<span class="t-n">2</span>])) &lt; <span class="t-n">1e-9</span>, (d, c1, c2)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;geometric-inverse all tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">反演全部是 O(1) 坐标运算，Python 处理成百上千个圆毫无压力。注意浮点：当圆很接近过 O（|d-r|≈0）时反演半径爆炸，需要 eps 或按题目保证输入规避。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>单次反演 O(1)；整套流程 O(待反演图形数)</td></tr><tr><th>空间复杂度</th><td>O(1)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">反演中心不能落在待反演图形上（否则定义失效）；过反演中心的圆反演成直线，需单独分支处理；浮点误差在半径接近 0 或 d≈r 时放大；反演后求出的直线/圆要反演回原平面，注意原题目可能要求圆心与半径输出精度。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>反演中心选在&#x27;过某点&#x27;问题的该点上，否则不构成直线化</li><li>过反演中心的圆 → 直线，别当成普通圆处理</li><li>相切关系在反演下保持，但切点在 O 上的相切是例外（需注意）</li><li>反演半径 R 可任取，通常取便于计算的值（如点到图形距离）</li><li>浮点误差：圆半径接近 0 或过 O 时放大，需 eps 保护</li><li>反演回去时要判断哪个解对应原问题的有效解（如圆心在合法侧）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>HDU</td><td><strong>4773</strong></td><td>5</td><td>ICPC 2013 杭州 Apollonius 问题：过外点且与两圆相切的所有圆，反演后求公切线</td><td class="u"><a href="https://acm.hdu.edu.cn/showproblem.php?pid=4773" target="_blank" rel="noopener">https://acm.hdu.edu.cn/showproblem.php?pid=4773</a></td></tr><tr><td>HDU</td><td><strong>6158</strong></td><td>5</td><td>CCPC 2017 网络赛 The Designer：插入圆半径序列（反演技巧）</td><td class="u"><a href="https://acm.hdu.edu.cn/showproblem.php?pid=6158" target="_blank" rel="noopener">https://acm.hdu.edu.cn/showproblem.php?pid=6158</a></td></tr><tr><td>OI Wiki</td><td><strong>inverse</strong></td><td>5</td><td>反演变换性质与例题标准参考</td><td class="u"><a href="https://oi-wiki.org/geometry/inverse/" target="_blank" rel="noopener">https://oi-wiki.org/geometry/inverse/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-geometric-inverse" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "def", "label": "反演定义与保角性质"}}, {"data": {"id": "inv_point", "label": "点反演公式"}}, {"data": {"id": "inv_circle", "label": "圆反演公式（不过 O）"}}, {"data": {"id": "inv_line", "label": "过 O 圆→直线 分支"}}, {"data": {"id": "solve", "label": "反演后求解简化问题"}}, {"data": {"id": "uninv", "label": "反演回原平面并筛选解"}}, {"data": {"id": "edef->inv_point", "source": "def", "target": "inv_point"}}, {"data": {"id": "edef->inv_circle", "source": "def", "target": "inv_circle"}}, {"data": {"id": "edef->inv_line", "source": "def", "target": "inv_line"}}, {"data": {"id": "einv_circle->solve", "source": "inv_circle", "target": "solve"}}, {"data": {"id": "einv_line->solve", "source": "inv_line", "target": "solve"}}, {"data": {"id": "esolve->uninv", "source": "solve", "target": "uninv"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-geometric-inverse'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/inverse.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/inverse.md</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Inversive_geometry" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Inversive_geometry</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

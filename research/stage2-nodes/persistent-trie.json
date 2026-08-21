@@ -1,0 +1,78 @@
+{
+  "id": "persistent-trie",
+  "name": "可持久化 Trie",
+  "group": "G-D-5",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "保存历史版本的Trie，支持区间异或最值等查询",
+  "what": "可持久化 Trie（Persistent Trie）是可持久化思想在 Trie 上的应用：每次插入一个数/串时，沿插入路径复制新节点、复用未改动的子树，保存每个版本的根，从而支持『任意历史版本』的查询。竞赛中最常见的是可持久化 01-Trie：维护每个前缀插入数的二进制位统计，支持『在区间 [l,r] 中选一个数 x 与给定值异或的最大值』——用两版根差分出区间内的计数，贪心走与 x 相反位（有则走）。经典例题：Luogu P4735 最大异或和（维护可持久化前缀异或和）。",
+  "why": {
+    "intuition": "普通 01-Trie 能求『整个集合里与 x 异或最大』的数；加上区间限制 [l,r] 后，用可持久化：每个前缀 i 建一棵插入了前 i 个数的 01-Trie 版本。查询时第 r 版与第 l-1 版的计数差分，就像主席树的『值域计数相减』，得到 [l,r] 内的位统计，再贪心逐位取相反位。因为位数固定（如 30 位），每次插入只动 O(B) 个节点。",
+    "principle": "① 01-Trie 节点存 ch[2]（0/1 儿子）与 cnt（子树中数的个数）；② 可持久化插入：新根先拷贝旧根，沿二进制位逐位：该位旧儿子做新儿子并 cnt+1，未走的位直接复用旧指针；③ 每插入一个数保存新根 root[i]；④ 查询 max xor in [l,r]：同时走 u=root[l-1] 与 v=root[r]，对位 b，优先走与 x 相反的位（看 cnt[ch[v][want]]-cnt[ch[u][want]]>0），否则走同向位，累加贡献 2^b；⑤ 复杂度：插入/查询 O(B)（B 为位数，通常 30），空间 O(nB)。前缀异或和技巧：求 a_p..a_n 异或和 = s[p-1]^s[n]，配合可持久化 Trie 可转化为区间异或最值（P4735 正是如此）。",
+    "history": "可持久化 Trie 与可持久化线段树同源于函数式数据结构与 path copying 思想（1980s 可持久化数据结构研究）。在 OI 中因 P4735『最大异或和』等题普及。与主席树（可持久化权值线段树）是『区间查询 + 版本差分』思想的一体两面，常被放在同一章节学习。"
+  },
+  "how": {
+    "pseudocode": "ch[cur][2], cnt[cur]; roots=[0]\ninsert(prev_root, x):\n  new_root = 拷贝 prev_root 的根并 cnt+1\n  node = prev_root; cur = new_root\n  for b in 30..0:\n    bit = (x>>b)&1\n    old_child = ch[node][bit]\n    新建节点拷贝 old_child 的 ch 与 cnt，cnt+1\n    ch[cur][bit] = 新节点\n    node = old_child; cur = 新节点\n  roots.append(new_root)\nquery(l, r, x):   # [l,r] 内与 x 异或最大\n  u = roots[l-1]; v = roots[r]; ans = 0\n  for b in 30..0:\n    bit = (x>>b)&1; want = bit^1\n    if cnt[ch[v][want]] - cnt[ch[u][want]] > 0:\n      ans |= 1<<b; u = ch[u][want]; v = ch[v][want]\n    else:\n      u = ch[u][bit]; v = ch[v][bit]\n  return ans",
+    "python": "class PersistentTrie:\n    \"\"\"可持久化 01-Trie：支持前缀版本与区间异或最大值查询。\n    用法: pt = PersistentTrie(B); 对每个 x 调 pt.add(x);\n    pt.max_xor_in(l, r, x) 返回 max_{i in [l,r]}(arr[i] ^ x)。\"\"\"\n\n    def __init__(self, B=30):\n        self.B = B\n        self.ch = [[0, 0]]\n        self.cnt = [0]\n        self.roots = [0]\n\n    def add(self, x):\n        old = self.roots[-1]\n        new_root = len(self.ch)\n        self.ch.append([self.ch[old][0], self.ch[old][1]])\n        self.cnt.append(self.cnt[old] + 1)\n        cur, node = new_root, old\n        for b in range(self.B, -1, -1):\n            bit = (x >> b) & 1\n            old_child = self.ch[node][bit]\n            nxt = len(self.ch)\n            self.ch.append([self.ch[old_child][0], self.ch[old_child][1]])\n            self.cnt.append(self.cnt[old_child] + 1)\n            self.ch[cur][bit] = nxt\n            cur, node = nxt, old_child\n        self.roots.append(new_root)\n        return new_root\n\n    def max_xor_in(self, l, r, x):\n        \"\"\"区间 [l,r]（1 索引含端点，按插入顺序）内与 x 异或的最大值\"\"\"\n        u, v = self.roots[l - 1], self.roots[r]\n        ans = 0\n        for b in range(self.B, -1, -1):\n            bit = (x >> b) & 1\n            want = bit ^ 1\n            c = self.cnt[self.ch[v][want]] - self.cnt[self.ch[u][want]]\n            if c > 0:\n                ans |= 1 << b\n                u = self.ch[u][want]\n                v = self.ch[v][want]\n            else:\n                u = self.ch[u][bit]\n                v = self.ch[v][bit]\n        return ans\n\n\nif __name__ == '__main__':\n    import random\n\n    def brute(arr, l, r, x):\n        return max(x ^ v for v in arr[l - 1:r])\n\n    arr = [1, 2, 3, 4, 5]\n    pt = PersistentTrie(4)\n    for x in arr:\n        pt.add(x)\n    assert pt.max_xor_in(1, 5, 0) == 5 ^ 0  # 5\n    assert pt.max_xor_in(2, 4, 3) == brute(arr, 2, 4, 3)\n\n    random.seed(22)\n    for _ in range(300):\n        B = 4\n        pt = PersistentTrie(B)\n        n = random.randint(1, 12)\n        arr = [random.randint(0, 31) for _ in range(n)]\n        for x in arr:\n            pt.add(x)\n        for _ in range(20):\n            l = random.randint(1, n)\n            r = random.randint(l, n)\n            x = random.randint(0, 31)\n            assert pt.max_xor_in(l, r, x) == brute(arr, l, r, x), (l, r, x, arr)\n    print('persistent-trie: All tests passed.')",
+    "pypy_notes": "ch 用两列 list 存储（ch0/ch1 分开）或 [[0,0]] 列表均可，PyPy 下后者可接受。B 取 30（值域 2^31）或题目要求位数。构建/查询都是纯循环无递归，性能好；n=1e5 时节点约 n*(B+2) 个，内存注意预分配或动态 list。",
+    "complexity": {
+      "time": "插入/查询均 O(B)（B=位数，通常 30）；构建 n 个数 O(nB)",
+      "space": "O(nB) 节点（每个插入新建 B+1 个节点）+ O(n) 根数组"
+    },
+    "limitations": "主要用于『区间异或最值 / 区间与某数异或极值』类问题，若查询是普通字符串/字典序类则适用性不同。位数 B 固定时有效；若值域巨大（如 64 位）空间翻倍。只能静态前缀版本（在线前缀）；若要支持区间任意可持久化需平衡树/其他结构。与主席树一样大常数，n 巨大时注意内存。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4735",
+      "url": "https://www.luogu.com.cn/problem/P4735",
+      "difficulty": 5,
+      "key_point": "最大异或和：可持久化 01-Trie 维护前缀异或和，区间异或最值，OI Wiki 例题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P5283",
+      "url": "https://www.luogu.com.cn/problem/P5283",
+      "difficulty": 6,
+      "key_point": "【十二省联考2019】异或粽子：可持久化 Trie + 堆取前 k 大异或和，综合难题"
+    },
+    {
+      "oj": "SPOJ",
+      "pid": "XORX",
+      "url": "https://www.spoj.com/problems/XORX/",
+      "difficulty": 4,
+      "key_point": "区间异或极值经典题，可持久化 Trie 模板练习"
+    }
+  ],
+  "pitfalls": [
+    "插入时新节点必须完整拷贝旧儿子路径（ch 与 cnt），漏拷贝 cnt 会让计数错误",
+    "查询差分 u=roots[l-1]、v=roots[r] 写错索引导致区间错",
+    "贪心选择相反位时若 cnt 差为 0 必须退回同向位，不能跳过该位",
+    "前缀异或和的区间转换（P4735 中 [l,r] 下标要对应到 s[l-1..r-1]）容易差一",
+    "B 位选择不足（如值域 2^31 却用 B=30 少一位）导致高位丢失",
+    "ch 数组初始化 [0,0] 指向节点 0（空节点），cnt[0]=0 必须保证 0 号节点计数为 0"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "trie", "label": "01-Trie：每节点 ch[2] + 计数 cnt" },
+      { "id": "pcopy", "label": "path copying 插入：复制路径节点、复用旧子树" },
+      { "id": "versions", "label": "每前缀存根，形成版本数组" },
+      { "id": "diff", "label": "区间计数差分 [l,r] = v版 - (l-1)版" },
+      { "id": "greedy", "label": "逐位贪心选相反位求最大异或" },
+      { "id": "pref", "label": "前缀异或和技巧：区间异或 → 前缀异或" }
+    ],
+    "edges": [
+      { "from": "trie", "to": "pcopy" },
+      { "from": "pcopy", "to": "versions" },
+      { "from": "versions", "to": "diff" },
+      { "from": "diff", "to": "greedy" },
+      { "from": "pref", "to": "greedy" },
+      { "from": "pref", "to": "diff" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/ds/persistent-trie/", "verified": true },
+    { "type": "oiwiki", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-trie.md", "verified": true }
+  ]
+}

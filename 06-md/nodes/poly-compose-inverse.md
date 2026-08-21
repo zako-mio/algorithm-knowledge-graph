@@ -1,0 +1,170 @@
+---
+id: poly-compose-inverse
+name: 多项式复合与求逆
+group: G-C-13
+stage: frontier
+priority: P3
+depth_tier: brief
+---
+
+# 多项式复合与求逆
+
+> f(g(x)) mod x^n 与复合逆：朴素 O(n²)/分治，Kinoshita-Li 2024 O(M(n)log n)，拉格朗日反演应用
+
+<!-- 元信息: id=poly-compose-inverse · group=G-C-13 · stage=frontier · priority=P3 · depth_tier=brief -->
+
+## What · 是什么
+
+多项式复合（composition）计算 f(g(x)) mod x^n（f,g 为多项式/形式幂级数，g 常数项可为任意值则需处理），朴素算法按 f(g)=Σ_j f_j g(x)^j 用 FFT 每次 O(n log n) 共 O(n² log n)，更常见 O(n²)。复合逆（compositional inverse）：对满足 f_0=0、f'(0)≠0 的形式幂级数 f，求 g 使 f(g)=g(f)=x mod x^n。经典工具是拉格朗日反演：若 f(g)=x 且 f_1≠0，则 [x^n]g(x)^k = k/n·[x^{n−k}](x/f(x))^n，由此可由 f 的幂算出 g 的各系数，朴素 O(n²)/幂用 NTT O(n log n) 级别。2024 年 Kinoshita & Li（FOCS 2024，arXiv:2404.05177）给出 O(M(n)log n) 的复合与复合逆算法：核心是二元有理函数与『Power Projection』问题 [x^{n−1}](P(x,y)/Q(x,y)) mod y^m，通过加倍/平方法递归（Q(x,y)Q(−x,y) 归约到 z=x²）达到近线性；转置原理（transposition principle）表明复合与 Power Projection 互为转置。OI Wiki《形式幂级数复合 | 复合逆》页给出完整算法与模板题 P5373（复合）、P5809（复合逆）。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+普通算法把 f 的每项幂 g^j 逐个算太慢。Kinoshita–Li 的聪明处：把 f(g(x)) 看成二元有理函数 f(y^{-1})/(1−y·g(x)) 中 y^0 的系数——一个『对 x 取模、对 y 取系数』的 Power Projection 问题。然后利用 Q(x,y)·Q(−x,y)=V(x²,y) 把 x 的次数折半递归，每层只保留对 y^0 有贡献的系数，达到 O(n log n) 乘法总复杂度。复合逆则用拉格朗日反演把问题转化为『所有幂的单项系数』（本质也是 Power Projection），再由转置原理复用同一引擎。
+
+### 原理 · Principle
+
+复合：f(g)=[y^0] f(y^{-1})/(1−y·g(x))（展开 1/(1−yg)=Σg^j y^j）。对 Comp(P,Q,n,m)=[y^{(-m,0]}](P(y)/Q(x,y)) mod x^n 递归：n=1 时直接算 Q(0,y) 逆；否则令 V(x²,y)=Q(x,y)Q(−x,y) mod x^n，递归到 ceil(n/2) 层，再乘回 Q(−x,y) 取所需 y 系数。注意 g(0)≠0 时先做 f(x+g(0))∘(g−g(0)) 平移。复合逆：拉格朗日反演 [x^{n−1}]f(x)^k = k/(n−1)·[x^{n−1−k}](g(x)/x)^{−(n−1)}，只要对 k=0..n−1 求 [x^{n−1}]f(x)^k——正是 PowProj(1, 1−y·F(x), n, n)，再组装 G 与归一化（H=G^{1/(n−1)} 逆）。转置原理：PowProj 是 Modular Composition 的转置，算法对偶复用。
+
+### 历史 · History
+
+复合逆的 O(n log² n) 经典算法用分治 + NTT（如 Brent–Kung 分块，及 Newton 迭代）。2024 年 Yasunori Kinoshita 与李白天在 FOCS 2024 发表 *Power Series Composition in Near-Linear Time*（arXiv:2404.05177），把复杂度降到 O(M(n)log n)，其中 M(n) 为一次多项式乘法的开销——这是该方向二十年来首次实质性突破。OI Wiki 同年更新《形式幂级数复合 | 复合逆》页收录其算法与模板。该技术也反哺生成函数平移、组合计数（拉格朗日反演自动解隐含方程）。
+
+## How · 实现
+
+### 伪代码
+
+```python
+# 朴素复合 f(g) mod x^n (Horner, O(n^3) 朴素卷积 / 用 NTT 每步 O(n log n) => O(n^2 log n))
+def compose(f, g, n):
+  res = [0]*n
+  for i in range(len(f)-1, -1, -1):
+    res = conv(res, g[:n])[:n]
+    res[0] += f[i]
+  return res
+
+# 拉格朗日反演求复合逆(朴素, 演示): 若 g = f 的复合逆
+#   [x^n] g^k = k/n * [x^{n-k}] (x/f(x))^n
+# 需 f[0]==0, f[1]!=0
+
+def comp_inv_lagrange(f, n):
+  # 求 g 使 f(g)=x mod x^n
+  # g[x^1]=1/f1; 递推 x/f(x) 的幂... 这里给出简化伪码
+  ...
+```
+
+### Python 实现
+
+```python
+MOD = 998244353
+
+
+def _conv(a, b, mod=MOD):
+    c = [0] * (len(a) + len(b) - 1)
+    for i, x in enumerate(a):
+        for j, y in enumerate(b):
+            c[i + j] = (c[i + j] + x * y) % mod
+    return c
+
+
+def compose_naive(f, g, n, mod=MOD):
+    """f(g(x)) mod x^n, Horner 形式. 需 g 长度>=n (截断). O(n^3) 朴素卷积(演示)."""
+    g = (g + [0] * n)[:n]
+    res = [0] * n
+    for i in range(len(f) - 1, -1, -1):
+        res = _conv(res, g)[:n]
+        res[0] = (res[0] + f[i]) % mod
+    return res
+
+
+def _pow_series(a, e, n, mod=MOD):
+    """a(x)^e mod x^n, e 正整数, 朴素倍增."""
+    a = (a + [0] * n)[:n]
+    base = a[:]
+    result = [1]
+    exp = e
+    while exp:
+        if exp & 1:
+            result = _conv(result, base)[:n]
+        exp >>= 1
+        if exp:
+            base = _conv(base, base)[:n]
+    return (result + [0] * n)[:n]
+
+
+def compose_inverse_lagrange(f, n, mod=MOD):
+    """复合逆: 求 g 使 f(g(x)) = x mod x^n. 拉格朗日反演朴素实现:
+    g(x) = sum_{k>=1} (1/k) [x^{k-1}] (x/f(x))^k * x^k.
+    需 f[0]=0, f[1]!=0."""
+    assert f[0] % mod == 0 and f[1] % mod != 0
+    # H(x) = f(x)/x, 则 x/f(x) = 1/H(x)
+    H = [f[i + 1] if i + 1 < len(f) else 0 for i in range(n)]
+    g = [0] * n
+    for k in range(1, n):
+        invH = _poly_inv(H[:k + 1], k)      # 1/H mod x^k
+        powH = _pow_series(invH, k, k)      # (1/H)^k = (x/f)^k mod x^k
+        g[k] = powH[k - 1] * pow(k, mod - 2, mod) % mod
+    return g
+
+
+def _poly_inv(a, n, mod=MOD):
+    inv0 = pow(a[0], mod - 2, mod)
+    g = [inv0]
+    for k in range(1, n):
+        s = sum(a[i] % mod * g[k - i] for i in range(1, k + 1) if i < len(a)) % mod
+        g.append((-s * inv0) % mod)
+    return g
+
+
+if __name__ == "__main__":
+    # 复合验证: f = 1+x, g = x^2 -> f(g)=1+x^2
+    comp = compose_naive([1, 1], [0, 0, 1], 6)
+    assert comp == [1, 0, 1, 0, 0, 0], comp
+    # f(x) = x + x^2, 其复合逆 g 满足 g + g^2 = x; g = x - x^2 + 2x^3 - ...
+    # 用牛顿/拉格朗日反演验证: g1=1, g2=-1, g3=2 (Catalan-like: -C_{k-1}*(-1)^k ...)
+    f = [0, 1, 1]
+    g = compose_inverse_lagrange(f, 5)
+    assert g[1] == 1 and g[2] == MOD - 1, g   # g = x - x^2 + 2x^3 -5x^4+...
+    # 反演正确性: f(g(x)) = x
+    fg = compose_naive(f, g, 5)
+    assert fg == [0, 1, 0, 0, 0], fg
+    print("poly-compose-inverse: all tests passed")
+
+```
+
+**PyPy 提示**: 朴素实现仅演示；真实竞赛需 NTT + Kinoshita–Li / 分治复合（O(n² log n) 分块版本）+ 拉格朗日反演全套。拉格朗日反演朴素版需 O(n) 个幂运算（每幂 O(n² log)），只能小 n。模板题 n 达 1e5，必须用 NTT 实现 O(n log² n) 分治复合/复合逆。Python 建议上 numpy/自写 NTT。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | 朴素复合 O(n³)/O(n² log n)；Kinoshita-Li 复合与复合逆 O(M(n) log n) |
+| 空间 | O(n)（近线性算法按层） |
+
+### 局限
+
+① 复合逆要求 f_0=0、f_1≠0；② g 常数项非零时需先平移 f；③ 近线性算法实现复杂（二元有理函数 + 转置原理），竞赛多数场景 O(n log² n) 分治已够；④ 依赖 NTT/FFT 与高阶多项式操作。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| Luogu | P5373 | 7 | 【模板】多项式复合函数：OI Wiki comp-rev 页模板 | [https://www.luogu.com.cn/problem/P5373](https://www.luogu.com.cn/problem/P5373) |
+| Luogu | P5809 | 7 | 【模板】多项式复合逆：Kinoshita-Li / 拉格朗日反演模板 | [https://www.luogu.com.cn/problem/P5809](https://www.luogu.com.cn/problem/P5809) |
+| Luogu | P4721 | 4 | 【模板】分治 FFT：多项式复合类问题的分治基础（牛顿迭代与逆元） | [https://www.luogu.com.cn/problem/P4721](https://www.luogu.com.cn/problem/P4721) |
+
+## Pitfalls · 易错点
+
+- 复合逆条件 f_0=0,f_1≠0 未检查
+- g 常数项非零时直接复合导致错误（应先 f(x+g(0))∘(g−g(0))）
+- 拉格朗日反演系数下标 k/n 的比例因子写错
+- 幂运算 (x/f)^n 的次数 n 与截断长度混淆
+- 朴素实现复杂度爆炸未优化就上大 n
+
+## Sources · 信源
+
+- OI Wiki ✓ [https://oi-wiki.org/math/poly/comp-rev/](https://oi-wiki.org/math/poly/comp-rev/)
+- oiwiki-raw ✓ [https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/comp-rev.md](https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/comp-rev.md)
+- oiwiki-lagrange ✓ [https://oi-wiki.org/math/poly/lagrange-inversion/](https://oi-wiki.org/math/poly/lagrange-inversion/)
+- arxiv ✓ [https://arxiv.org/abs/2404.05177](https://arxiv.org/abs/2404.05177)

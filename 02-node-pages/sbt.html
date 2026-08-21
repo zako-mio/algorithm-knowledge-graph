@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Size Balanced Tree(SBT) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-8.html">平衡二叉搜索树族</a> / <span>Size Balanced Tree(SBT)</span></div>
+  <h1>Size Balanced Tree(SBT)</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="sgt.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">sgt</span></a>
+    <a class="nav-index" href="../03-groups/G-A-8.html"><span class="dir">组内第 6 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="avl.html"><span class="dir">下一个 / 组内</span><span class="v">avl</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">按子树size维护平衡，O(log n)操作</div><p>Size Balanced Tree（SBT，大小平衡树）由中国 OI 选手陈启峰（chenqifeng）2007 年提出，是一种自平衡二叉搜索树。每个节点额外维护以自身为根的子树节点数 size，通过旋转维持「任意节点的 size 不小于其兄弟节点的所有子节点的 size」这一平衡条件，从而保证 O(log n) 的树高与操作复杂度，且能高效支持 rank/按 rank 取值的排名查询。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>只依赖 size 字段就能判定失衡：一个节点若被「孙子」超过，说明某侧子树过重。SBT 的平衡条件保证任意节点的左/右子树高度差被限制在常数倍内（实际最多 2 倍），因此树高 O(log n)。旋转发生在递归返回路径上，且一次旋转后失衡会向根传播，需要 loop 检查。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>平衡条件（对任意节点 N）：size(N.left) ≥ size(N.right.left)，size(N.left) ≥ size(N.right.right)，size(N.right) ≥ size(N.left.left)，size(N.right) ≥ size(N.left.right)——即节点 size 不小于其兄弟的孙 size。维护操作 maintain(x)：插入发生在左子树且 size(左左) &gt; size(右) 时右旋；size(左右) &gt; size(右) 时先左旋左子树再右旋，递归 maintain 直到无需调整；右子树对称。由于每层至多常数次旋转、每操作路径 O(log n)，总复杂度 O(log n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>SBT 由陈启峰于 2007 年在中国提出，最早在 2007 年 NOI 冬令营/集训队论文中系统阐述，之后成为中国竞赛圈常见的平衡树实现，以旋转直接、常数小、代码量适中著称。OI Wiki 设有专门页面介绍其性质与维护算法。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">maintain</span>(x):               <span class="t-c"># 在插入/删除后调用恢复平衡</span>
+  <span class="t-k">if</span> <span class="t-f">size</span>(x.left) &lt; <span class="t-f">size</span>(x.right.left):        <span class="t-c"># 情况1：右子左孙过大</span>
+    右旋(right)?? 用旋转组合处理
+  ...四种失衡形态(l/r 子孙过大)分别做旋转
+  递归 maintain 左/右子树至稳定
+
+<span class="t-f">insert</span>(x, val):
+  <span class="t-k">if</span> val &lt; x.val: <span class="t-f">insert</span>(x.left, val)
+  <span class="t-k">else</span>: <span class="t-f">insert</span>(x.right, val)
+  <span class="t-f">push_up</span>(x); <span class="t-f">maintain</span>(x)
+
+<span class="t-f">delete</span>(x, val):   <span class="t-c"># 叶子直接删；单子顶替；双子用前驱/后继替换</span>
+  与 BST 删除一致，回溯 push_up + maintain</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> SBT:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self):
+        self.val = [<span class="t-n">0</span>]
+        self.ch = [[<span class="t-n">0</span>, <span class="t-n">0</span>]]
+        self.sz = [<span class="t-n">0</span>]
+        self.root = <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">_new</span>(self, v):
+        self.val.<span class="t-f">append</span>(v)
+        self.ch.<span class="t-f">append</span>([<span class="t-n">0</span>, <span class="t-n">0</span>])
+        self.sz.<span class="t-f">append</span>(<span class="t-n">1</span>)
+        <span class="t-k">return</span> <span class="t-b">len</span>(self.val) - <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">_pull</span>(self, x):
+        self.sz[x] = <span class="t-n">1</span> + self.sz[self.ch[x][<span class="t-n">0</span>]] + self.sz[self.ch[x][<span class="t-n">1</span>]]
+
+    <span class="t-k">def</span> <span class="t-f">_rr</span>(self, x):   <span class="t-c"># 右旋：x 的左儿子上浮</span>
+        y = self.ch[x][<span class="t-n">0</span>]
+        self.ch[x][<span class="t-n">0</span>] = self.ch[y][<span class="t-n">1</span>]
+        self.ch[y][<span class="t-n">1</span>] = x
+        self.<span class="t-f">_pull</span>(x)
+        self.<span class="t-f">_pull</span>(y)
+        <span class="t-k">return</span> y
+
+    <span class="t-k">def</span> <span class="t-f">_lr</span>(self, x):   <span class="t-c"># 左旋：x 的右儿子上浮</span>
+        y = self.ch[x][<span class="t-n">1</span>]
+        self.ch[x][<span class="t-n">1</span>] = self.ch[y][<span class="t-n">0</span>]
+        self.ch[y][<span class="t-n">0</span>] = x
+        self.<span class="t-f">_pull</span>(x)
+        self.<span class="t-f">_pull</span>(y)
+        <span class="t-k">return</span> y
+
+    <span class="t-k">def</span> <span class="t-f">fix</span>(self, x):
+        <span class="t-s">&quot;&quot;&quot;SBT 平衡维护（OI Wiki 四情形 + fixBalance 递归）&quot;&quot;&quot;</span>
+        <span class="t-k">if</span> <span class="t-k">not</span> x:
+            <span class="t-k">return</span> x
+        l, r = self.ch[x][<span class="t-n">0</span>], self.ch[x][<span class="t-n">1</span>]
+        <span class="t-k">if</span> self.sz[l] &lt; self.sz[self.ch[r][<span class="t-n">0</span>]]:      <span class="t-c"># Case1: 右左孙子过大</span>
+            self.ch[x][<span class="t-n">1</span>] = self.<span class="t-f">_rr</span>(r)
+            x = self.<span class="t-f">_lr</span>(x)
+            self.ch[x][<span class="t-n">0</span>] = self.<span class="t-f">fix</span>(self.ch[x][<span class="t-n">0</span>])
+            self.ch[x][<span class="t-n">1</span>] = self.<span class="t-f">fix</span>(self.ch[x][<span class="t-n">1</span>])
+            x = self.<span class="t-f">fix</span>(x)
+        <span class="t-k">elif</span> self.sz[l] &lt; self.sz[self.ch[r][<span class="t-n">1</span>]]:    <span class="t-c"># Case2: 右右孙子过大</span>
+            x = self.<span class="t-f">_lr</span>(x)
+            self.ch[x][<span class="t-n">0</span>] = self.<span class="t-f">fix</span>(self.ch[x][<span class="t-n">0</span>])
+            x = self.<span class="t-f">fix</span>(x)
+        <span class="t-k">elif</span> self.sz[r] &lt; self.sz[self.ch[l][<span class="t-n">0</span>]]:    <span class="t-c"># Case3: 左左孙子过大</span>
+            x = self.<span class="t-f">_rr</span>(x)
+            self.ch[x][<span class="t-n">1</span>] = self.<span class="t-f">fix</span>(self.ch[x][<span class="t-n">1</span>])
+            x = self.<span class="t-f">fix</span>(x)
+        <span class="t-k">elif</span> self.sz[r] &lt; self.sz[self.ch[l][<span class="t-n">1</span>]]:    <span class="t-c"># Case4: 左右孙子过大</span>
+            self.ch[x][<span class="t-n">0</span>] = self.<span class="t-f">_lr</span>(l)
+            x = self.<span class="t-f">_rr</span>(x)
+            self.ch[x][<span class="t-n">0</span>] = self.<span class="t-f">fix</span>(self.ch[x][<span class="t-n">0</span>])
+            self.ch[x][<span class="t-n">1</span>] = self.<span class="t-f">fix</span>(self.ch[x][<span class="t-n">1</span>])
+            x = self.<span class="t-f">fix</span>(x)
+        <span class="t-k">return</span> x
+
+    <span class="t-k">def</span> <span class="t-f">_insert</span>(self, x, v):
+        <span class="t-k">if</span> <span class="t-k">not</span> x:
+            <span class="t-k">return</span> self.<span class="t-f">_new</span>(v)
+        <span class="t-k">if</span> v &lt; self.val[x]:
+            self.ch[x][<span class="t-n">0</span>] = self.<span class="t-f">_insert</span>(self.ch[x][<span class="t-n">0</span>], v)
+        <span class="t-k">else</span>:
+            self.ch[x][<span class="t-n">1</span>] = self.<span class="t-f">_insert</span>(self.ch[x][<span class="t-n">1</span>], v)
+        self.<span class="t-f">_pull</span>(x)
+        <span class="t-k">return</span> self.<span class="t-f">fix</span>(x)
+
+    <span class="t-k">def</span> <span class="t-f">insert</span>(self, v):
+        self.root = self.<span class="t-f">_insert</span>(self.root, v)
+
+    <span class="t-k">def</span> <span class="t-f">_find</span>(self, x, v):
+        <span class="t-k">while</span> x <span class="t-k">and</span> self.val[x] != v:
+            x = self.ch[x][<span class="t-n">0</span>] <span class="t-k">if</span> v &lt; self.val[x] <span class="t-k">else</span> self.ch[x][<span class="t-n">1</span>]
+        <span class="t-k">return</span> x
+
+    <span class="t-k">def</span> <span class="t-f">search</span>(self, v):
+        <span class="t-k">return</span> self.<span class="t-f">_find</span>(self.root, v) != <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">_erase</span>(self, x, v):
+        <span class="t-s">&quot;&quot;&quot;删除：叶子直接删；单子顶替；双子用左子树最大节点(前驱)替换&quot;&quot;&quot;</span>
+        <span class="t-k">if</span> <span class="t-k">not</span> x:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        <span class="t-k">if</span> v &lt; self.val[x]:
+            self.ch[x][<span class="t-n">0</span>] = self.<span class="t-f">_erase</span>(self.ch[x][<span class="t-n">0</span>], v)
+        <span class="t-k">elif</span> v &gt; self.val[x]:
+            self.ch[x][<span class="t-n">1</span>] = self.<span class="t-f">_erase</span>(self.ch[x][<span class="t-n">1</span>], v)
+        <span class="t-k">else</span>:
+            <span class="t-k">if</span> <span class="t-k">not</span> self.ch[x][<span class="t-n">0</span>]:
+                <span class="t-k">return</span> self.ch[x][<span class="t-n">1</span>]
+            <span class="t-k">if</span> <span class="t-k">not</span> self.ch[x][<span class="t-n">1</span>]:
+                <span class="t-k">return</span> self.ch[x][<span class="t-n">0</span>]
+            p = self.ch[x][<span class="t-n">0</span>]
+            <span class="t-k">while</span> self.ch[p][<span class="t-n">1</span>]:
+                p = self.ch[p][<span class="t-n">1</span>]
+            self.val[x] = self.val[p]
+            self.ch[x][<span class="t-n">0</span>] = self.<span class="t-f">_erase</span>(self.ch[x][<span class="t-n">0</span>], self.val[p])
+        self.<span class="t-f">_pull</span>(x)
+        <span class="t-k">return</span> self.<span class="t-f">fix</span>(x)
+
+    <span class="t-k">def</span> <span class="t-f">delete</span>(self, v):
+        self.root = self.<span class="t-f">_erase</span>(self.root, v)
+
+    <span class="t-k">def</span> <span class="t-f">kth</span>(self, k):
+        x = self.root
+        <span class="t-k">while</span> x:
+            ls = self.sz[self.ch[x][<span class="t-n">0</span>]]
+            <span class="t-k">if</span> k == ls + <span class="t-n">1</span>:
+                <span class="t-k">return</span> self.val[x]
+            <span class="t-k">if</span> k &lt;= ls:
+                x = self.ch[x][<span class="t-n">0</span>]
+            <span class="t-k">else</span>:
+                k -= ls + <span class="t-n">1</span>
+                x = self.ch[x][<span class="t-n">1</span>]
+        <span class="t-k">raise</span> <span class="t-b">ValueError</span>(<span class="t-s">&quot;k out of range&quot;</span>)
+
+    <span class="t-k">def</span> <span class="t-f">rank</span>(self, v):
+        <span class="t-s">&quot;&quot;&quot;小于 v 的元素个数 + 1&quot;&quot;&quot;</span>
+        x = self.root
+        r = <span class="t-n">1</span>
+        <span class="t-k">while</span> x:
+            <span class="t-k">if</span> v &lt;= self.val[x]:
+                x = self.ch[x][<span class="t-n">0</span>]
+            <span class="t-k">else</span>:
+                r += self.sz[self.ch[x][<span class="t-n">0</span>]] + <span class="t-n">1</span>
+                x = self.ch[x][<span class="t-n">1</span>]
+        <span class="t-k">return</span> r
+
+    <span class="t-k">def</span> <span class="t-f">inorder</span>(self):
+        out = []
+        <span class="t-k">def</span> <span class="t-f">dfs</span>(x):
+            <span class="t-k">if</span> <span class="t-k">not</span> x:
+                <span class="t-k">return</span>
+            <span class="t-f">dfs</span>(self.ch[x][<span class="t-n">0</span>])
+            out.<span class="t-f">append</span>(self.val[x])
+            <span class="t-f">dfs</span>(self.ch[x][<span class="t-n">1</span>])
+        <span class="t-f">dfs</span>(self.root)
+        <span class="t-k">return</span> out
+
+
+<span class="t-k">def</span> <span class="t-f">balanced</span>(t):
+    <span class="t-k">def</span> <span class="t-f">go</span>(x):
+        <span class="t-k">if</span> <span class="t-k">not</span> x:
+            <span class="t-k">return</span> <span class="t-k">True</span>
+        l, r = t.ch[x][<span class="t-n">0</span>], t.ch[x][<span class="t-n">1</span>]
+        ok = t.sz[l] &gt;= t.sz[t.ch[r][<span class="t-n">0</span>]] <span class="t-k">and</span> t.sz[l] &gt;= t.sz[t.ch[r][<span class="t-n">1</span>]] \
+             <span class="t-k">and</span> t.sz[r] &gt;= t.sz[t.ch[l][<span class="t-n">0</span>]] <span class="t-k">and</span> t.sz[r] &gt;= t.sz[t.ch[l][<span class="t-n">1</span>]]
+        <span class="t-k">return</span> ok <span class="t-k">and</span> <span class="t-f">go</span>(l) <span class="t-k">and</span> <span class="t-f">go</span>(r)
+    <span class="t-k">return</span> <span class="t-f">go</span>(t.root)
+
+
+<span class="t-k">def</span> <span class="t-f">height</span>(t):
+    <span class="t-k">def</span> <span class="t-f">go</span>(x):
+        <span class="t-k">if</span> <span class="t-k">not</span> x:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        <span class="t-k">return</span> <span class="t-n">1</span> + <span class="t-b">max</span>(<span class="t-f">go</span>(t.ch[x][<span class="t-n">0</span>]), <span class="t-f">go</span>(t.ch[x][<span class="t-n">1</span>]))
+    <span class="t-k">return</span> <span class="t-f">go</span>(t.root)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">5</span>)
+    t = <span class="t-f">SBT</span>()
+    arr = []
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2000</span>):
+        v = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100000</span>)
+        t.<span class="t-f">insert</span>(v)
+        arr.<span class="t-f">append</span>(v)
+    got = t.<span class="t-f">inorder</span>()
+    <span class="t-k">assert</span> got == <span class="t-b">sorted</span>(arr)
+    <span class="t-k">assert</span> <span class="t-f">balanced</span>(t)
+    <span class="t-k">assert</span> <span class="t-f">height</span>(t) &lt;= <span class="t-n">60</span>, <span class="t-f">height</span>(t)
+    uniq = <span class="t-b">sorted</span>(<span class="t-b">set</span>(arr))
+    <span class="t-k">for</span> v <span class="t-k">in</span> uniq[::<span class="t-n">7</span>]:
+        <span class="t-k">assert</span> t.<span class="t-f">rank</span>(v) == <span class="t-b">sum</span>(<span class="t-n">1</span> <span class="t-k">for</span> a <span class="t-k">in</span> arr <span class="t-k">if</span> a &lt; v) + <span class="t-n">1</span>
+    <span class="t-k">for</span> k <span class="t-k">in</span> [<span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">50</span>, <span class="t-b">len</span>(got) // <span class="t-n">2</span>, <span class="t-b">len</span>(got)]:
+        <span class="t-k">assert</span> t.<span class="t-f">kth</span>(k) == got[k - <span class="t-n">1</span>]
+    removed = <span class="t-b">set</span>(uniq[:<span class="t-b">len</span>(uniq) // <span class="t-n">2</span>])
+    <span class="t-k">for</span> v <span class="t-k">in</span> removed:
+        <span class="t-k">while</span> t.<span class="t-f">search</span>(v):
+            t.<span class="t-f">delete</span>(v)
+    got2 = t.<span class="t-f">inorder</span>()
+    expect2 = <span class="t-b">sorted</span>(a <span class="t-k">for</span> a <span class="t-k">in</span> arr <span class="t-k">if</span> a <span class="t-k">not</span> <span class="t-k">in</span> removed)
+    <span class="t-k">assert</span> got2 == expect2, (<span class="t-b">len</span>(got2), <span class="t-b">len</span>(expect2))
+    <span class="t-k">assert</span> <span class="t-f">balanced</span>(t)
+    <span class="t-k">assert</span> <span class="t-f">height</span>(t) &lt;= <span class="t-n">60</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">SBT 维护代码略繁但无递归风险（平衡树高 ~log n），Python 可实现。旋转次数多但每次 O(1)；注意 _maintain 递归调用自身可能多层，但层数受 size 平衡限制。duplicate 处理同 BST（右子树允许等值）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>插入/删除/查找/排名 O(log n)；维护旋转均摊 O(1) 次每次 O(log n) 递归</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">实现较繁琐（四形态维护递归）；删除实现有陷阱（用前驱替换后需对左子树递归维护）；实际竞赛 Python 中用 FHQ-Treap 更简洁。SBT 无区间操作支持，无随机化、严格平衡保证但常数比红黑树小。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>_maintain 递归条件用错 size 关系（把 size(兄弟孙) 写成 size(兄弟)）</li><li>删除双子节点后漏掉对左子树的递归 maintain</li><li>kth/rank 中 size 未及时 push_up 导致结果偏移</li><li>把 SBT 平衡条件与 AVL 高度条件混淆，误判失衡</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3369</strong></td><td>4</td><td>普通平衡树：SBT 完整实现校验</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3369" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3369</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-sbt" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "node", "label": "节点:val+size"}}, {"data": {"id": "rotate", "label": "左旋/右旋+size更新"}}, {"data": {"id": "maintain", "label": "四种失衡形态维护(递归)"}}, {"data": {"id": "insert", "label": "插入后 push_up+maintain"}}, {"data": {"id": "delete", "label": "删除(前驱替换)+maintain"}}, {"data": {"id": "query", "label": "rank/kth/前驱后继"}}, {"data": {"id": "enode->rotate", "source": "node", "target": "rotate"}}, {"data": {"id": "erotate->maintain", "source": "rotate", "target": "maintain"}}, {"data": {"id": "emaintain->insert", "source": "maintain", "target": "insert"}}, {"data": {"id": "emaintain->delete", "source": "maintain", "target": "delete"}}, {"data": {"id": "enode->query", "source": "node", "target": "query"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-sbt'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="bst.html" title="SBT是按子树size平衡的BST变体">二叉搜索树基础<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/sbt/" target="_blank" rel="noopener">https://oi-wiki.org/ds/sbt/</a></li><li><span class="srctype">论文</span><span class="v-ok">&#10003;</span> <span class="ref">陈启峰《Size Balanced Tree》集训队论文 2007</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

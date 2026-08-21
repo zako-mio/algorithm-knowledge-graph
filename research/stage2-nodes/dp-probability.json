@@ -1,0 +1,109 @@
+{
+  "id": "dp-probability",
+  "name": "概率/期望DP",
+  "group": "G-A-11",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "概率顺推/期望逆推，可能需高斯消元处理环依赖",
+  "what": "概率/期望DP是用动态规划解决概率与期望问题的技术。概率问题通常用顺推（从初始状态推向结果），期望问题通常用逆推（从目标状态倒推回起始状态）。当状态转移存在后效性（环依赖）时，需用高斯消元处理线性方程组。",
+  "why": {
+    "intuition": "概率DP：从已知概率的初始状态出发，按事件发生的概率逐步推到最终状态的获胜/成功概率。期望DP：从目标状态（期望=0）出发，倒推到达目标的期望步数。若状态间存在环依赖（如机器人在同一行左右移动），期望方程构成线性方程组，需高斯消元。",
+    "principle": "概率DP顺推：f(S)=sum{P(转移) * f(next_S)}，从初始状态f(S0)=1开始。期望DP逆推：f(S)=sum{P(转移) * f(next_S)} + 1，从目标f(target)=0开始倒推。期望线性性质：E[X]=sum{P(x)*x}。环依赖时：f(S)出现在自身方程中，移项后构成线性方程组 Af=b，用高斯消元求解。",
+    "history": "概率/期望DP是竞赛数学的重要专题，结合了概率论与动态规划。OI Wiki将其分为概率DP(顺推)、期望DP(逆推)、有后效性DP(高斯消元)三部分。CF 148D(Bag of mice)和POJ 2096(Collecting Bugs)是经典教学题。NOIP2016换教室是期望DP的综合应用。"
+  },
+  "how": {
+    "pseudocode": "# 概率DP(顺推)\nf[S0] = 1  # 初始状态概率\nfor S in states (forward order):\n  for next_S, p in transitions(S):\n    f[next_S] += f[S] * p\n\n# 期望DP(逆推)\nf[target] = 0  # 目标状态期望\nfor S in states (reverse order):\n  f[S] = sum(p * f[next_S]) + 1  # +1为当前步\n\n# 有环依赖(高斯消元)\n# 整理为 Af = b 后解线性方程组",
+    "python": "def bag_of_mice(w, b):\n    \"\"\"CF 148D Bag of mice: 袋中w白鼠b黑鼠, 公主先抓\n    公主抓到白鼠则赢; 龙抓完后老鼠可能跑出来\n    返回公主赢的概率\n    \"\"\"\n    # f[i][j] = 轮到公主时袋中i白j黑, 公主赢概率\n    f = [[0.0] * (b + 1) for _ in range(w + 1)]\n\n    for i in range(w + 1):\n        for j in range(b + 1):\n            if i == 0:\n                f[i][j] = 0.0  # 没白鼠, 龙赢\n            elif j == 0:\n                f[i][j] = 1.0  # 全白鼠, 公主赢\n            else:\n                total = i + j\n                # 公主直接抓到白鼠\n                p_win = i / total\n                # 公主抓黑, 龙抓白 -> 龙赢(不贡献)\n                # 公主抓黑, 龙抓黑, 跑出黑 -> f[i][j-3]\n                p_lose_bb = (j / total) * ((j - 1) / (total - 1)) if j >= 2 else 0\n                p_case3 = p_lose_bb * ((j - 2) / (total - 2)) if j >= 3 else 0\n                # 公主抓黑, 龙抓黑, 跑出白 -> f[i-1][j-2]\n                p_case4 = p_lose_bb * (i / (total - 2)) if j >= 2 and total > 2 else 0\n                val = p_win\n                if j >= 3:\n                    val += p_case3 * f[i][j - 3]\n                if j >= 2 and i >= 1 and total > 2:\n                    val += p_case4 * f[i - 1][j - 2]\n                f[i][j] = val\n\n    return f[w][b]\n\n\ndef collecting_bugs(n, s):\n    \"\"\"POJ 2096 Collecting Bugs: n种bug分类s个子系统\n    每天发现1个bug, 属于某分类1/n概率, 属于某子系统1/s概率\n    求发现所有n种分类且所有s个子系统的期望天数\n    f[i][j] = 已发现i分类j子系统的期望天数\n    目标 f[n][s] = 0, 答案 f[0][0]\n    \"\"\"\n    f = [[0.0] * (s + 1) for _ in range(n + 1)]\n    # 逆序: 从 f[n][s]=0 倒推\n    for i in range(n, -1, -1):\n        for j in range(s, -1, -1):\n            if i == n and j == s:\n                f[i][j] = 0.0\n                continue\n            # P1: 已发现的分类和子系统\n            p1 = (i / n) * (j / s) if i > 0 else 0\n            # P2: 已发现分类, 新子系统\n            p2 = (i / n) * ((s - j) / s) if i > 0 else 0\n            # P3: 新分类, 已发现子系统\n            p3 = ((n - i) / n) * (j / s) if j > 0 else 0\n            # P4: 新分类, 新子系统\n            p4 = ((n - i) / n) * ((s - j) / s)\n            # f[i][j] = 1 + p1*f[i][j] + p2*f[i][j+1] + p3*f[i+1][j] + p4*f[i+1][j+1]\n            # (1-p1)*f[i][j] = 1 + p2*f[i][j+1] + p3*f[i+1][j] + p4*f[i+1][j+1]\n            rhs = 1.0\n            if j + 1 <= s:\n                rhs += p2 * f[i][j + 1]\n            if i + 1 <= n:\n                rhs += p3 * f[i + 1][j]\n            if i + 1 <= n and j + 1 <= s:\n                rhs += p4 * f[i + 1][j + 1]\n            f[i][j] = rhs / (1 - p1)\n\n    return f[0][0]\n\n\nif __name__ == \"__main__\":\n    # CF 148D: 1白鼠1黑鼠\n    # 公主抓: 1/2概率直接赢\n    # 公主抓黑(1/2), 龙抓白(1/1)->龙赢\n    # 所以公主赢概率=1/2\n    result = bag_of_mice(1, 1)\n    assert abs(result - 0.5) < 1e-9, f\"Expected 0.5, got {result}\"\n\n    # 2白0黑: 公主必赢\n    assert abs(bag_of_mice(2, 0) - 1.0) < 1e-9\n    # 0白1黑: 公主必输\n    assert abs(bag_of_mice(0, 1) - 0.0) < 1e-9\n\n    # POJ 2096: 1分类1子系统 -> 1天\n    result2 = collecting_bugs(1, 1)\n    assert abs(result2 - 1.0) < 1e-9, f\"Expected 1.0, got {result2}\"\n\n    # 2分类1子系统: f[0][0]=1/(1-0) + ... \n    # f[0][0] = (1 + 1*f[1][0]) / (1-0) ; f[1][0] = (1 + 0.5*f[1][0]) / 0.5 -> f[1][0]=2\n    # f[0][0] = 1 + 2 = 3\n    result3 = collecting_bugs(2, 1)\n    assert abs(result3 - 3.0) < 1e-9, f\"Expected 3.0, got {result3}\"\n\n    print(\"All tests passed.\")\n",
+    "pypy_notes": "PyPy对浮点数运算和二维列表访问快。概率/期望DP的状态数通常不大(n*m<=1e4)，PyPy足够。高斯消元部分需注意精度(eps=1e-9)。",
+    "complexity": {
+      "time": "O(状态数 * 转移数)；高斯消元O(状态数³)",
+      "space": "O(状态数)"
+    },
+    "limitations": "有环依赖时状态方程构成线性方程组，状态数>500时高斯消元O(n³)可能慢。浮点精度问题需注意。期望DP逆推方向容易搞反。"
+  },
+  "examples": [
+    {
+      "oj": "Codeforces",
+      "pid": "148D",
+      "url": "https://codeforces.com/problemset/problem/148/D",
+      "difficulty": 3,
+      "key_point": "Bag of mice：概率DP顺推经典题"
+    },
+    {
+      "oj": "POJ",
+      "pid": "2096",
+      "url": "http://poj.org/problem?id=2096",
+      "difficulty": 3,
+      "key_point": "Collecting Bugs：期望DP逆推经典题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2473",
+      "url": "https://www.luogu.com.cn/problem/P2473",
+      "difficulty": 4,
+      "key_point": "SCOI2008 奖励关：期望DP+状压，逆序递推"
+    }
+  ],
+  "pitfalls": [
+    "概率DP用顺推(从初始状态)，期望DP用逆推(从目标状态)，方向搞反导致错误",
+    "有环依赖时f(S)出现在自身方程中，需移项后用高斯消元",
+    "边界条件：概率题中不可能的状态概率为0，期望题中目标状态期望为0",
+    "浮点精度：概率乘法累积误差，建议用double而非float"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "state",
+        "label": "状态定义(概率/期望)"
+      },
+      {
+        "id": "direction",
+        "label": "确定递推方向(顺推/逆推)"
+      },
+      {
+        "id": "transition",
+        "label": "转移方程(全概率公式)"
+      },
+      {
+        "id": "boundary",
+        "label": "边界(初始/目标状态)"
+      },
+      {
+        "id": "answer",
+        "label": "答案 f(start)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "state",
+        "to": "direction"
+      },
+      {
+        "from": "direction",
+        "to": "transition"
+      },
+      {
+        "from": "transition",
+        "to": "boundary"
+      },
+      {
+        "from": "boundary",
+        "to": "answer"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/probability/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/dynamic_programming/knapsack.html",
+      "verified": true,
+      "note": "期望 DP 转移与背包递推同构示例"
+    }
+  ]
+}

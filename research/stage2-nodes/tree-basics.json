@@ -1,0 +1,113 @@
+{
+  "id": "tree-basics",
+  "name": "树基础",
+  "group": "G-B-7",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "树的基本概念：根、叶、深度、子树、父亲；无根树/有根树定义，邻接表/父数组存储，DFS/BFS 遍历",
+  "what": "树是无圈连通无向图，n 个结点 n-1 条边，任意两点间有且仅有一条简单路径。树是图论、DP、数据结构(线段树/平衡树)、LCA、直径、重心、树剖等一系列算法的基础载体。需要掌握：无根树与有根树的等价定义、叶/深度/高度/子树/祖先等术语、邻接表/父数组/左孩子右兄弟等存储方式、树上 DFS/BFS 遍历（含求深度与父亲）。",
+  "why": {
+    "intuition": "树是一种'处处唯一路径'的图，信息传播没有分叉闭环，因此遍历一次即可把整棵树信息（深度、父亲、子树大小、子树信息聚合）收集全。几乎所有树算法都建立在'深度+父亲+子树'三件套之上，后续的直径、LCA、树剖、DP 都是在其上叠加技巧。",
+    "principle": "无根树：指定任意一个结点为根即得根节点，遍历时记录每个结点的父亲(parent)与深度(depth=根到该点边数)。邻接表存储：对无向输入，从根出发 DFS，用 from 参数避免回走父结点即可区分父子关系。树遍历的核心性质：n 个结点 n-1 条边，因此 DFS/BFS 均为 O(n)，不会重复访问。常用三种存储：父数组(自底向上递推)、邻接表(通用)、左孩子右兄弟(节省内存的变种)。",
+    "history": "树论是图论最古老的分支之一。Cayley(1889)证明了 n 个结点的标号树有 n^(n-2) 棵。竞赛中树作为'可递归处理的连通图'进入问题体系，OI Wiki 将其列为图论基础第一页；CPH(Competitive Programmer's Handbook)ch14 也以树遍历作为起点，树上 DP、LCA、直径、重心全部建立在树基础之上。"
+  },
+  "how": {
+    "pseudocode": "# 无根树转有根树 + 求深度(DFS)\ndef dfs(u, from_):\n  for v in adj[u]:\n    if v == from_: continue\n    parent[v] = u\n    depth[v] = depth[u] + 1\n    dfs(v, u)\n\ndfs(root, -1)\n\n# BFS 层序遍历(区分层次)\nq = [root]\nwhile q:\n  cur = q.pop(0)  # 用 collections.deque 更优\n  for v in adj[cur]:\n    if v == parent[cur]: continue\n    parent[v] = cur; depth[v] = depth[cur] + 1\n    q.append(v)",
+    "python": "from collections import deque\n\n\ndef build_tree(n, edges, root=0):\n    \"\"\"由无向边列表建邻接表。\n    返回 adj, parent, depth, order(dfs序)。\n    \"\"\"\n    adj = [[] for _ in range(n)]\n    for u, v in edges:\n        adj[u].append(v)\n        adj[v].append(u)\n    parent = [-1] * n\n    depth = [0] * n\n    order = []\n\n    def dfs(u, from_):\n        order.append(u)\n        for v in adj[u]:\n            if v == from_:\n                continue\n            parent[v] = u\n            depth[v] = depth[u] + 1\n            dfs(v, u)\n\n    dfs(root, -1)\n    return adj, parent, depth, order\n\n\ndef subtree_sizes(parent, order):\n    \"\"\"自底向上(逆dfs序)求子树大小。\n    每个结点初始大小1，逆序累加到父亲。\n    \"\"\"\n    size = [1] * len(parent)\n    for u in reversed(order[1:]):\n        size[parent[u]] += size[u]\n    return size\n\n\ndef bfs_levels(adj, root, parent):\n    \"\"\"BFS 层序遍历，返回 [[第0层], [第1层], ...]。\"\"\"\n    levels = []\n    dq = deque([root])\n    while dq:\n        level = []\n        for _ in range(len(dq)):\n            u = dq.popleft()\n            level.append(u)\n            for v in adj[u]:\n                if v != parent[u]:\n                    dq.append(v)\n        levels.append(level)\n    return levels\n\n\nif __name__ == '__main__':\n    # 0-1-2, 1-3, 1-4  即一棵有5个结点的树\n    edges = [(0, 1), (1, 2), (1, 3), (1, 4)]\n    adj, parent, depth, order = build_tree(5, edges, root=0)\n    assert order == [0, 1, 2, 3, 4], order\n    assert parent == [-1, 0, 1, 1, 1], parent\n    assert depth == [0, 1, 2, 2, 2], depth\n    assert sum(1 for x in parent[1:] if x != -1) == 4  # 4条边\n\n    size = subtree_sizes(parent, order)\n    assert size[1] == 4, size   # 子树1含 {1,2,3,4}\n    assert size[0] == 5, size\n\n    levels = bfs_levels(adj, 0, parent)\n    assert levels == [[0], [1], [2, 3, 4]], levels\n    assert all(len(level) >= 1 for level in levels)\n\n    print('DFS order:', order)\n    print('parent   :', parent)\n    print('depth    :', depth)\n    print('subtree  :', size)\n    print('BFS levels:', levels)\n    print('All tree-basics tests passed!')\n",
+    "pypy_notes": "PyPy 递归深度默认较小，树上 DFS 用递归在链状树(深度可达 10^5)时易栈溢出，建议 sys.setrecursionlimit(1 << 25) 或用显式栈迭代；BFS 用 collections.deque 而非 list.pop(0)(O(n) 弹出)。",
+    "complexity": {
+      "time": "O(N) — 遍历/建树/求深度与父亲均为 O(N)，每条边恰访问两次",
+      "space": "O(N) — 邻接表 O(N)，DFS 栈深度 O(N) 最坏"
+    },
+    "limitations": "递归 DFS 在链状大树上有栈溢出风险；无根树的'根'是任选的，不同根不影响直径/重心等结构量但会影响深度与父子关系；邻接矩阵存储稀疏树浪费空间，应优先邻接表。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "104",
+      "url": "https://leetcode.cn/problems/maximum-depth-of-binary-tree/",
+      "difficulty": 1,
+      "key_point": "二叉树深度: 树遍历基础，递归 max(左,右)+1"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "144",
+      "url": "https://leetcode.cn/problems/binary-tree-preorder-traversal/",
+      "difficulty": 1,
+      "key_point": "前序遍历: 根左右, 二叉树三种遍历的基础"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1305",
+      "url": "https://www.luogu.com.cn/problem/P1305",
+      "difficulty": 2,
+      "key_point": "前序遍历: 输入父子关系建树后按根左右输出"
+    }
+  ],
+  "pitfalls": [
+    "递归 DFS 不设递归上限，链状树深度 10^5 时 Python 直接 RecursionError",
+    "遍历时忘记排除 from/父亲结点，会在无向树上死循环",
+    "叶子定义不同：无根树叶=度数≤1(单点树根也是叶)，有根树叶=无子结点，两者在 n=1 时不一致",
+    "'满二叉树'在中文语境多指完美二叉树，不同教材定义不同，读题需谨慎"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "store",
+        "label": "选择存储方式(邻接表/父数组)并读入"
+      },
+      {
+        "id": "pick_root",
+        "label": "选定根(无根树任取; 有根树按给定)"
+      },
+      {
+        "id": "traverse",
+        "label": "DFS/BFS 遍历, 记录父亲与深度"
+      },
+      {
+        "id": "aggregate",
+        "label": "逆序遍历序自底向上聚合子树信息(可选)"
+      },
+      {
+        "id": "apply",
+        "label": "基于深度/父亲/子树做进一步处理"
+      }
+    ],
+    "edges": [
+      {
+        "from": "store",
+        "to": "pick_root"
+      },
+      {
+        "from": "pick_root",
+        "to": "traverse"
+      },
+      {
+        "from": "traverse",
+        "to": "aggregate"
+      },
+      {
+        "from": "aggregate",
+        "to": "apply"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/tree-basic/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/tree-basic.md",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch14 Tree algorithms, pp.143-150"
+    }
+  ]
+}

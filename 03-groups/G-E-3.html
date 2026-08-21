@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python竞赛特性族 · 组索引 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+.badge.cnt{background:#23272f;color:#9aa0ab;border-color:#3a3f4a;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h2 .dim{font-size:13px;font-weight:400;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.prchip,.stchip{display:inline-block;font-size:12px;font-weight:600;border-radius:4px;padding:1px 8px;margin-right:4px;border:1px solid transparent;}
+.prchip.pr-P0{color:#e08a89;background:#5a1f1f;border-color:#c0504d;}
+.prchip.pr-P1{color:#e8b06a;background:#3a2a12;border-color:#e8933b;}
+.prchip.pr-P2{color:#8fb5ff;background:#16273f;border-color:#4f8cff;}
+.prchip.pr-P3{color:#9aa0ab;background:#23272f;border-color:#6a707c;}
+.stchip.st-basic{color:#6fd3ae;background:#122b22;border-color:#2fb98a;}
+.stchip.st-intermediate{color:#e0a75e;background:#332412;border-color:#e8933b;}
+.stchip.st-advanced{color:#c9a8ef;background:#2b2040;border-color:#b48ae0;}
+.stchip.st-frontier{color:#dd8786;background:#3a1717;border-color:#c0504d;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.nid{white-space:nowrap;font-family:Consolas,monospace;font-size:12px;}
+td.nid a{color:#8fb5ff;}
+td .nname{font-weight:600;color:var(--text);}
+td.brief{font-size:12.5px;color:#b6c0d0;}
+td.ex{text-align:center;color:var(--dim);font-size:12px;}
+.pathbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:10px 0;}
+.path-label{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.path-seq{display:flex;flex-wrap:wrap;gap:4px 0;font-size:13px;}
+.path-seq a{display:inline-block;background:#16273f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;margin:2px;}
+.path-seq a:hover{background:#2b3d5f;}
+.dep-list{list-style:none;padding-left:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:8px;margin-top:8px;}
+.dep-list li{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;border-left:3px solid var(--warn);}
+.dep-list .evi{display:block;font-size:11px;color:var(--dim);margin-top:2px;font-family:Consolas,monospace;}
+.treenav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin:6px 0 18px;display:flex;flex-wrap:wrap;gap:2px 10px;}
+.treenav .label{font-size:12px;color:var(--dim);align-self:center;flex-shrink:0;}
+.treenav a{color:var(--dim);font-size:12px;text-decoration:none;border-radius:5px;padding:1px 6px;}
+.treenav a:hover{color:var(--accent);background:#1d2a3f;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.domnav{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;}
+.domnav .box{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;min-width:220px;}
+.domnav .box .lab{font-size:11px;color:var(--dim);margin-bottom:4px;}
+.domnav .box a{display:block;font-size:13px;color:#b8c2d4;}
+.domnav .box a .g{color:var(--accent);font-weight:600;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.treenav,.navseq,.domnav{display:none;}
+  th,td{border-color:#999;color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-3.html">组目录</a> / <span>组索引</span></div>
+  <h1>Python竞赛特性族</h1>
+  <div class="badges"><span class="badge grp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">语言特性</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge cnt" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">8 节点</span></div>
+</header>
+<main>
+  <div class="treenav"><span class="label">组目录:</span><a href="../03-groups/G-A-1.html">排序与基础算法族</a><a href="../03-groups/G-A-2.html">栈队列与单调结构族</a><a href="../03-groups/G-A-3.html">堆与优先队列族</a><a href="../03-groups/G-A-4.html">并查集族</a><a href="../03-groups/G-A-5.html">区间查询与分块族</a><a href="../03-groups/G-A-6.html">线段树族</a><a href="../03-groups/G-A-7.html">可持久化数据结构族</a><a href="../03-groups/G-A-8.html">平衡二叉搜索树族</a><a href="../03-groups/G-A-9.html">高级树结构族</a><a href="../03-groups/G-A-10.html">哈希与链表族</a><a href="../03-groups/G-A-11.html">动态规划基础族</a><a href="../03-groups/G-A-12.html">DP优化族</a><a href="../03-groups/G-A-13.html">高级DP族</a><a href="../03-groups/G-A-14.html">搜索算法族</a><a href="../03-groups/G-B-1.html">图基础与遍历</a><a href="../03-groups/G-B-2.html">最短路族</a><a href="../03-groups/G-B-3.html">生成树族</a><a href="../03-groups/G-B-4.html">连通性族</a><a href="../03-groups/G-B-5.html">网络流族</a><a href="../03-groups/G-B-6.html">二分图与匹配族</a><a href="../03-groups/G-B-7.html">树算法族</a><a href="../03-groups/G-B-8.html">欧拉与哈密顿族</a><a href="../03-groups/G-B-9.html">图论高级专题</a><a href="../03-groups/G-C-1.html">字符串匹配族</a><a href="../03-groups/G-C-2.html">字典树与AC自动机族</a><a href="../03-groups/G-C-3.html">后缀结构族</a><a href="../03-groups/G-C-4.html">后缀自动机族</a><a href="../03-groups/G-C-5.html">回文族</a><a href="../03-groups/G-C-6.html">Lyndon与周期族</a><a href="../03-groups/G-C-7.html">数论基础族</a><a href="../03-groups/G-C-8.html">数论进阶族</a><a href="../03-groups/G-C-9.html">数论高级族</a><a href="../03-groups/G-C-10.html">组合计数基础族</a><a href="../03-groups/G-C-11.html">组合进阶族</a><a href="../03-groups/G-C-12.html">多项式与FFT族</a><a href="../03-groups/G-C-13.html">生成函数族</a><a href="../03-groups/G-C-14.html">线性代数族</a><a href="../03-groups/G-C-15.html">概率族</a><a href="../03-groups/G-C-16.html">数值方法族</a><a href="../03-groups/G-C-18.html">大整数与数制族</a><a href="../03-groups/G-D-1.html">凸包族</a><a href="../03-groups/G-D-2.html">平面扫描与几何求交</a><a href="../03-groups/G-D-3.html">计算几何基础与度量</a><a href="../03-groups/G-D-4.html">树链剖分与动态树</a><a href="../03-groups/G-D-5.html">可持久化数据结构</a><a href="../03-groups/G-D-6.html">分块与根号算法</a><a href="../03-groups/G-D-7.html">莫队算法族</a><a href="../03-groups/G-D-8.html">高级线段树与离线</a><a href="../03-groups/G-D-9.html">专题(topic 域)</a><a href="../03-groups/G-D-10.html">调度与其他专题</a><a href="../03-groups/G-E-1.html">IO与常数优化族</a><a href="../03-groups/G-E-2.html">位运算族</a><a href="../03-groups/G-E-3.html">Python竞赛特性族</a><a href="../03-groups/G-E-4.html">调试与对拍族</a><a href="../03-groups/G-E-5.html">随机化与元启发式族</a><a href="../03-groups/G-E-6.html">博弈论族</a><a href="../03-groups/G-E-7.html">离线与杂项技巧族</a><a href="../03-groups/G-E-8.html">竞赛策略族</a><a href="../03-groups/G-E-9.html">工具链族</a><a href="../03-groups/G-E-10.html">前沿趋势组</a></div>
+
+  <div class="navseq">
+    <a class="nav-node" href="../03-groups/G-E-2.html"><span class="dir">&#8592; 上一组</span><span class="v">G-E-2</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="../03-groups/G-E-4.html"><span class="dir">下一组 &#8594;</span><span class="v">G-E-4</span></a>
+  </div>
+
+<div class="section"><h2>组简介</h2><p>本组 <strong>8</strong> 个知识点，属于 <strong>语言特性</strong> 域，覆盖阶段 <strong>basic / intermediate</strong>。</p><p class="dim">优先级分布：<span class="prchip pr-P0">P0 ×8</span></p><p class="dim">阶段分布：<span class="stchip st-basic">basic ×6</span> &middot; <span class="stchip st-intermediate">intermediate ×2</span></p></div>
+
+<div class="section"><h2>节点目录 <span class="dim">(8 个)</span></h2><div class="tblwrap"><table><tr><th>节点 ID</th><th>名称</th><th>阶段</th><th>优先级</th><th>简介</th><th>例题数</th></tr><tr><td class="nid"><a href="../02-node-pages/py-batch-io.html">py-batch-io</a></td><td><a href="../02-node-pages/py-batch-io.html" class="nname">Python批量读入</a></td><td><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span></td><td><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span></td><td class="brief">sys.stdin.read().split()一次性读入全部输入再map(int,...)，避免逐行input()超时</td><td class="ex">2</td></tr><tr><td class="nid"><a href="../02-node-pages/py-list-comp.html">py-list-comp</a></td><td><a href="../02-node-pages/py-list-comp.html" class="nname">列表推导优化</a></td><td><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span></td><td><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span></td><td class="brief">Python for循环极慢，用列表推导式/filter/map/内置函数替代显式循环获10x+加速</td><td class="ex">2</td></tr><tr><td class="nid"><a href="../02-node-pages/py-recursion-limit.html">py-recursion-limit</a></td><td><a href="../02-node-pages/py-recursion-limit.html" class="nname">递归栈限制设置</a></td><td><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span></td><td><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span></td><td class="brief">sys.setrecursionlimit(1&lt;&lt;20)避免深递归栈溢出；Python默认递归深度仅1000</td><td class="ex">2</td></tr><tr><td class="nid"><a href="../02-node-pages/py-lru-cache.html">py-lru-cache</a></td><td><a href="../02-node-pages/py-lru-cache.html" class="nname">lru_cache记忆化</a></td><td><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span></td><td><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span></td><td class="brief">functools.lru_cache(None)装饰器一行实现函数记忆化，递归DP利器</td><td class="ex">2</td></tr><tr><td class="nid"><a href="../02-node-pages/py-pypy.html">py-pypy</a></td><td><a href="../02-node-pages/py-pypy.html" class="nname">PyPy差异与注意事项</a></td><td><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span></td><td><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span></td><td class="brief">PyPy JIT加速循环但递归反而更慢；大整数/内存差异；部分库不可用；递归限stack需手动设</td><td class="ex">2</td></tr><tr><td class="nid"><a href="../02-node-pages/py-bigint.html">py-bigint</a></td><td><a href="../02-node-pages/py-bigint.html" class="nname">Python大整数原生支持</a></td><td><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span></td><td><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span></td><td class="brief">Python int无限精度，无需手写大数类；pow(a,b,mod)内置快速幂；2**512直接算</td><td class="ex">3</td></tr><tr><td class="nid"><a href="../02-node-pages/py-2d-array.html">py-2d-array</a></td><td><a href="../02-node-pages/py-2d-array.html" class="nname">二维列表正确创建</a></td><td><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span></td><td><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span></td><td class="brief">[[0]*n for _ in range(m)]创建独立行；[[0]*n]*m会导致所有行共享同一对象（引用陷阱）</td><td class="ex">2</td></tr><tr><td class="nid"><a href="../02-node-pages/py-builtin.html">py-builtin</a></td><td><a href="../02-node-pages/py-builtin.html" class="nname">内置库利用</a></td><td><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span></td><td><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span></td><td class="brief">bisect二分/heapq堆/collections.deque双端队列/itertools排列组合/math.gcd等竞赛常用内置库</td><td class="ex">3</td></tr></table></div></div>
+
+<div class="section"><h2>学习路径提示</h2><p class="dim">本组内节点之间没有显式前置依赖（prerequisite）边，可按目录表顺序依次学习，或按知识基础灵活跳转。</p></div>
+
+<div class="domnav"><div class="box"><div class="lab">所属领域</div><a><span class="g">语言特性</span> · 域内共 1 组</a></div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 组索引页由 algorithm-dag.json + stage2-nodes 内容库生成</footer>
+</body>
+</html>

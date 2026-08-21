@@ -1,0 +1,97 @@
+{
+  "id": "py-builtin",
+  "name": "内置库利用",
+  "group": "G-E-3",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "bisect二分/heapq堆/collections.deque双端队列/itertools排列组合/math.gcd等竞赛常用内置库",
+  "what": "Python 标准库提供竞赛常用算法的直接实现，调用内置库比手写更快更不易错。核心库：bisect（二分查找/插入）、heapq（最小堆优先队列）、collections.deque（O(1) 双端队列，BFS 必备）、itertools（permutations/combinations/product 排列组合枚举）、math（gcd/lcm/comb/isqrt/factorial 数论与数学函数）、array（紧凑定长数组省内存）、functools（lru_cache 记忆化）。这些库均 C 实现，比 Python 手写快数十倍。",
+  "why": {
+    "intuition": "竞赛中要写二分、堆、BFS 队列、排列组合等通用组件，手写不仅慢还易错。Python 把这些高频算法做成了标准库 C 实现——一行 import 就拿到经过千锤百炼的正确代码，比从零写快几十倍且零 bug。这是 Python 竞赛的最大优势之一：不用背模板。",
+    "principle": "标准库均在 C 层实现：bisect 用二分搜索维护有序序列；heapq 用数组模拟二叉小根堆，heappush/heappop O(log n)；collections.deque 用双向链表/环形数组，popleft/appendleft 均 O(1)（list.pop(0) 是 O(n)！）；itertools 的 permutations/combinations/product 用 C 迭代器无中间列表，省内存；math.gcd 用二进制 GCD，math.comb 内部用优化乘法。",
+    "history": "Python 标准库长期积累。bisect 自 Python 2.1；heapq 自 2.3；collections.deque 自 2.4；itertools 自 2.3；math.gcd 自 3.5；math.comb/lcm/isqrt 自 3.8-3.9。OI Wiki Python 页有常用内置库表格。"
+  },
+  "how": {
+    "pseudocode": "import bisect, heapq, collections, itertools, math\n\n# 二分查找\npos = bisect.bisect_left(sorted_lst, x)  # 第一个>=x 的位置\n\n# 优先队列（最小堆）\nhq = []; heapq.heappush(hq, (dist, node))\nval = heapq.heappop(hq)\n\n# BFS 双端队列\nq = collections.deque([start]); q.popleft()  # O(1)\n\n# 排列组合\nfor p in itertools.permutations(range(n), k): ...\nfor c in itertools.combinations(range(n), k): ...\n\n# 数论\nmath.gcd(a, b); math.lcm(a, b); math.comb(n, k); math.isqrt(n)",
+    "python": "# Python 竞赛常用内置库（含自测）\nimport bisect\nimport heapq\nimport collections\nimport itertools\nimport math\n\ndef bisect_demo():\n    a = [1, 3, 3, 5, 7, 9]\n    # bisect_left: 第一个 >= 3 的位置\n    assert bisect.bisect_left(a, 3) == 1\n    # bisect_right: 第一个 > 3 的位置\n    assert bisect.bisect_right(a, 3) == 3\n    # insort 保持有序插入\n    b = [1, 3, 5]\n    bisect.insort(b, 4)\n    assert b == [1, 3, 4, 5]\n\ndef heap_demo():\n    h = []\n    for v in [5, 3, 7, 1]:\n        heapq.heappush(h, v)\n    assert heapq.heappop(h) == 1  # 最小值\n    # 堆化 + nlargest/nsmallest\n    data = [3, 1, 4, 1, 5, 9, 2, 6]\n    heapq.heapify(data)\n    assert heapq.nsmallest(3, data) == [1, 1, 2]\n    assert heapq.nlargest(2, data) == [9, 6]\n\ndef deque_demo():\n    q = collections.deque([1, 2, 3])\n    q.appendleft(0)\n    q.append(4)\n    assert list(q) == [0, 1, 2, 3, 4]\n    assert q.popleft() == 0  # O(1)，list.pop(0) 是 O(n)!\n    # BFS 典型用法\n    dist = {0: 0}\n    q = collections.deque([0])\n    while q:\n        u = q.popleft()\n\ndef itertools_demo():\n    # 排列\n    perms = list(itertools.permutations([1, 2, 3], 2))\n    assert perms == [(1,2),(1,3),(2,1),(2,3),(3,1),(3,2)]\n    # 组合\n    combs = list(itertools.combinations([1,2,3,4], 2))\n    assert len(combs) == 6\n    # 笛卡尔积\n    prod = list(itertools.product([0,1], repeat=3))\n    assert len(prod) == 8\n    # accumulate 前缀和\n    acc = list(itertools.accumulate([1,2,3,4]))\n    assert acc == [1, 3, 6, 10]\n\ndef math_demo():\n    assert math.gcd(12, 18) == 6\n    assert math.lcm(4, 6) == 12\n    assert math.comb(10, 3) == 120\n    assert math.isqrt(100) == 10\n    assert math.isqrt(99) == 9  # 整数平方根向下取整\n    assert math.factorial(5) == 120\n\nif __name__ == \"__main__\":\n    bisect_demo()\n    heap_demo()\n    deque_demo()\n    itertools_demo()\n    math_demo()\n    print(\"py-builtin OK\")\n",
+    "pypy_notes": "PyPy 下这些标准库同样可用且优化得当。heapq/deque 在 PyPy 下性能优秀。注意 PyPy 对 itertools 的某些函数有额外优化。collections.deque 在两个实现下都是 O(1) 双端操作——务必用它而非 list 做 BFS 队列（list.pop(0) 是 O(n)）。",
+    "complexity": {
+      "time": "bisect O(log n)；heapq push/pop O(log n)；deque 双端 O(1)；itertools 枚举 O(结果数)；math.gcd O(log min(a,b))",
+      "space": "按使用，通常 O(n)"
+    },
+    "limitations": "1) heapq 只能做最小堆，最大堆需取负或自定义 __lt__；2) deque 不支持 O(1) 中间随机删除；3) itertools 排列组合结果数爆炸（P(n,k) 可达 n!），大 n 会超时；4) math.comb 不取模，大组合数位数爆炸。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1496",
+      "url": "https://www.luogu.com.cn/problem/P1496",
+      "difficulty": 3,
+      "key_point": "BFS 最短步数，deque 做 O(1) 队列"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1093",
+      "url": "https://www.luogu.com.cn/problem/P1093",
+      "difficulty": 3,
+      "key_point": "heapq.nlargest 或 sorted 取前 K"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "46",
+      "url": "https://leetcode.cn/problems/permutations/",
+      "difficulty": 3,
+      "key_point": "itertools.permutations 一行解决，面试应手写回溯"
+    }
+  ],
+  "pitfalls": [
+    "BFS 用 list 当队列 list.pop(0) 是 O(n) → 用 collections.deque",
+    "heapq 做最大堆忘取负 → heappush(-val) + heappop 取负",
+    "itertools.permutations 大 n 超时（n! 爆炸）→ 先判断可行性",
+    "math.comb 大组合数不取模位数爆炸 → 取模时手写或用 Lucas",
+    "bisect 作用于无序列表 → 结果无意义，必须先 sort"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "s1",
+        "label": "识别需求类型：二分/堆/队列/枚举/数论"
+      },
+      {
+        "id": "s2",
+        "label": "二分→bisect；堆→heapq；队列→deque"
+      },
+      {
+        "id": "s3",
+        "label": "排列组合→itertools；数论→math"
+      },
+      {
+        "id": "s4",
+        "label": "确认数据有序/规模可行后调用"
+      }
+    ],
+    "edges": [
+      {
+        "from": "s1",
+        "to": "s2"
+      },
+      {
+        "from": "s1",
+        "to": "s3"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/lang/python/",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://docs.python.org/3/library/index.html",
+      "verified": true
+    }
+  ]
+}

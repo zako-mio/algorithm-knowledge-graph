@@ -1,0 +1,180 @@
+---
+id: dp-number
+name: 数位DP
+group: G-A-11
+stage: intermediate
+priority: P1
+depth_tier: standard
+---
+
+# 数位DP
+
+> 按数位逐位枚举，记忆化记录合法状态，大区间计数
+
+<!-- 元信息: id=dp-number · group=G-A-11 · stage=intermediate · priority=P1 · depth_tier=standard -->
+
+## What · 是什么
+
+数位DP是一种用于解决「在区间[L,R]中满足特定条件的数的个数」类问题的动态规划。当上界很大(如10^18)时，朴素枚举不可行。数位DP按数位从高到低逐位枚举，用记忆化记录「不贴上界、无前导零」时的通用答案，避免重复计算。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+从7000到7999、8000到8999、9000到9999的过程高度相似——都是后三位从000变到999，只有千位不同。数位DP将这种重复提取为「不贴上限时后k位的通用答案」，用记忆化避免逐个数验证。
+
+### 原理 · Principle
+
+核心技巧：(1) 区间差分：ans[L,R]=solve(R)-solve(L-1)。(2) 从高到低枚举每一位，维护两个标记：lim(是否贴上界)和lead(是否有前导零)。(3) 当lim=false且lead=false时，后续答案是确定的，可记忆化。(4) 记忆化状态：f(pos, [其他约束], lim, lead)。时间复杂度O(位数 * 状态数)。
+
+### 历史 · History
+
+数位DP是竞赛中处理大数计数问题的标准技术。其核心思想——按位分解、标记上界与前导零、记忆化通用答案——适用于统计不含某数字、数位和限制、单调递增等各种约束。OI Wiki以P2602(数字计数)和HDU2089(不要62)为教学题。
+
+## How · 实现
+
+### 伪代码
+
+```python
+# 记忆化搜索框架
+@lru_cache
+def dfs(pos, ..., lim, lead):
+  if pos == 0: return 1  # 所有位都处理完
+  if not lim and not lead and f[pos][...] != -1:
+    return f[pos][...]
+  upper = digits[pos] if lim else 9
+  ans = 0
+  for d in 0..upper:
+    ans += dfs(pos-1, ..., lim and d==upper, lead and d==0)
+  if not lim and not lead: f[pos][...] = ans
+  return ans
+```
+
+### Python 实现
+
+```python
+from functools import lru_cache
+
+
+def count_digit(l, r, target):
+    """Luogu P2602 数字计数: 统计[L,R]中target数码出现次数
+    前导零不计入统计
+    """
+    def solve(n, d):
+        if n <= 0:
+            return 0
+        digits = []
+        tmp = n
+        while tmp:
+            digits.append(tmp % 10)
+            tmp //= 10
+        digits.reverse()
+        length = len(digits)
+
+        @lru_cache(maxsize=None)
+        def dfs(pos, cnt, lim, lead):
+            """从第pos位开始, 已累计cnt个target, lim=贴上界, lead=前导零"""
+            if pos == length:
+                return cnt
+            res = 0
+            upper = digits[pos] if lim else 9
+            for val in range(upper + 1):
+                new_lead = lead and (val == 0)
+                new_cnt = cnt
+                # 计数: 当前位等于target 且 非前导零
+                if val == d and not new_lead:
+                    new_cnt = cnt + 1
+                res += dfs(pos + 1, new_cnt, lim and (val == upper), new_lead)
+            return res
+
+        result = dfs(0, 0, True, True)
+        dfs.cache_clear()
+        return result
+
+    return solve(r, target) - solve(l - 1, target)
+
+
+def count_without_62(l, r):
+    """HDU 2089 不要62: 统计[L,R]中不含4且不含连续62的数的个数"""
+    def solve(n):
+        if n == 0:
+            return 1
+        digits = []
+        tmp = n
+        while tmp:
+            digits.append(tmp % 10)
+            tmp //= 10
+        digits.reverse()
+        length = len(digits)
+
+        @lru_cache(maxsize=None)
+        def dfs(pos, prev, lim, lead):
+            """pos: 当前位, prev: 上一位数字(-1表示开始), lim: 贴上界, lead: 前导零"""
+            if pos == length:
+                return 1
+            res = 0
+            upper = digits[pos] if lim else 9
+            for d in range(upper + 1):
+                if d == 4:
+                    continue  # 不含4
+                if prev == 6 and d == 2:
+                    continue  # 不含62
+                res += dfs(pos + 1, d, lim and (d == upper), lead and (d == 0))
+            return res
+
+        result = dfs(0, -1, True, True)
+        dfs.cache_clear()
+        return result
+
+    return solve(r) - solve(l - 1)
+
+
+if __name__ == "__main__":
+    # P2602: 统计[1,12]中每个数字出现次数
+    # 1: 4次(1,10,11,12), 2: 2次(2,12), ... 
+    assert count_digit(1, 12, 1) == 5, f"digit 1: {count_digit(1, 12, 1)}"  # 1,10,11,12: 1+1+2+1=5
+    assert count_digit(1, 12, 2) == 2, f"digit 2: {count_digit(1, 12, 2)}"
+    assert count_digit(1, 12, 0) == 1, f"digit 0: {count_digit(1, 12, 0)}"
+
+    # 不要62: [1,20]中不含4和62的数
+    # 含4的: 4,14 = 2个; 含62的: 无; 答案=20-2=18
+    assert count_without_62(1, 20) == 18, f"Expected 18, got {count_without_62(1, 20)}"
+    # [1,100]中含4的: 19个, 含62的: 62 = 1个, 共20个排除
+    assert count_without_62(1, 100) == 80, f"Expected 80, got {count_without_62(1, 100)}"
+
+    print("All tests passed.")
+
+```
+
+**PyPy 提示**: PyPy的lru_cache对记忆化搜索高效。注意每次solve后cache_clear避免状态污染。数位DP的状态数通常很小(位数*约束)，PyPy下速度足够。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | O(位数 * 状态数 * 10) — 位数通常<=18, 状态数取决于约束 |
+| 空间 | O(位数 * 状态数) — lru_cache |
+
+### 局限
+
+记忆化搜索需注意cache_clear避免不同上界间状态污染。前导零和贴上界的标记处理是出错高发区。迭代写法比递归快但实现复杂。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| Luogu | P2602 | 2 | 数字计数：数位DP经典模板，统计各数码出现次数 | [https://www.luogu.com.cn/problem/P2602](https://www.luogu.com.cn/problem/P2602) |
+| HDU | 2089 | 2 | 不要62：数位DP入门，不含4和连续62 | [https://acm.hdu.edu.cn/showproblem.php?pid=2089](https://acm.hdu.edu.cn/showproblem.php?pid=2089) |
+| Luogu | P4124 | 3 | 手机号码：数位DP进阶，多重数位约束 | [https://www.luogu.com.cn/problem/P4124](https://www.luogu.com.cn/problem/P4124) |
+
+## Pitfalls · 易错点
+
+- lim和lead标记的记忆化：只在lim=false且lead=false时才可缓存，否则上界不同答案不同
+- 前导零处理：如统计0出现次数时前导零的0不计入
+- lru_cache跨调用残留：每次solve不同上界时必须cache_clear
+- 区间差分方向：solve(R)-solve(L-1)而非solve(L)-solve(R)
+
+## Sources · 信源
+
+- OI Wiki ✓ [https://oi-wiki.org/dp/number/](https://oi-wiki.org/dp/number/)
+- CP-Algorithms ✓ [https://cp-algorithms.com/dynamic_programming/knapsack.html](https://cp-algorithms.com/dynamic_programming/knapsack.html)

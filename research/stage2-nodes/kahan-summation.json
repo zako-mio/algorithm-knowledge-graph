@@ -1,0 +1,118 @@
+{
+  "id": "kahan-summation",
+  "name": "Kahan求和",
+  "group": "G-E-7",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "补偿求和法降低浮点累加误差：维护误差补偿变量c，精度接近double但只多一个变量",
+  "what": "Kahan 求和(补偿求和/进位求和)通过额外变量 c 累积每次浮点加法丢失的低位误差，显著降低大量浮点数累加时的舍入误差。标准实现：y=num-c; t=sum+y; c=(t-sum)-y; sum=t。c 捕捉的是't 无法表示 y 的低位'被丢掉的量，下一轮补偿回去。Python 标准库 math.fsum 用 Shewchuk 算法得到精确舍入，效果更优。",
+  "why": {
+    "intuition": "浮点加法不满足结合律：sum 变大后，加小量 y 时低位被吞掉。Kahan 用 (t-sum)-y 把这次吞掉的量算出来存进 c，下轮先把它加进 y，于是误差被'找零'式地补偿。c 在代数值上总保持接近 0。",
+    "principle": "设 sum 大 y 小。t=sum+y 时 y 的低位丢失。代数上 (t-sum) 恢复 y 的'高位部分'，(t-sum)-y 为负，恰为丢失的低位(取负)，存入 c。下一轮 y'=num-c 就把上次丢失的低位提前加回，从而补偿。此即误差补偿(compensation)机制，由 William Kahan 于 1960s 发现；Ivo Babuška 独立提出类似算法，故又称 Kahan–Babuška 求和。",
+    "history": "William Kahan 因浮点误差研究获 1989 年图灵奖。Kahan 求和算法 1960s 提出，是 IEEE-754 浮点生态的基础补偿技巧。OI Wiki 将该算法收录为 misc 页面，并指出 Python 的 math.fsum(Shewchuk 多部分和算法)与 Julia 的 sum_kbn(Neumaier 变体)等更优实现的存在。"
+  },
+  "how": {
+    "pseudocode": "def kahan_sum(nums):\n  sum_ = 0.0\n  c = 0.0\n  for num in nums:\n    y = num - c\n    t = sum_ + y\n    c = (t - sum_) - y   # 捕获本次丢失的低位(负值)\n    sum_ = t\n  return sum_",
+    "python": "import math\n\n\ndef kahan_sum(nums):\n    \"\"\"Kahan 补偿求和。返回浮点累加和。\"\"\"\n    s = 0.0\n    c = 0.0\n    for num in nums:\n        y = num - c\n        t = s + y\n        c = (t - s) - y\n        s = t\n    return s\n\n\ndef naive_sum(nums):\n    \"\"\"朴素从左到右累加(手写循环, 不用 Python 内置 sum, 因其自带补偿)。\"\"\"\n    s = 0.0\n    for x in nums:\n        s += x\n    return s\n\n\nif __name__ == '__main__':\n    # 场景1: 2^53 之后 +1.0 每次都被吞(ulp=2), 朴素全丢\n    big = 2.0 ** 53\n    seq = [big] + [1.0] * 100 + [-big]\n    r_naive = naive_sum(seq)\n    r_kahan = kahan_sum(seq)\n    print(f'2^53+100x1.0-2^53: naive={r_naive}, kahan={r_kahan} (期望 100.0)')\n    assert abs(r_naive - 100.0) > 50       # 朴素丢失全部 1.0\n    assert abs(r_kahan - 100.0) < 1e-9     # Kahan 找回\n\n    # 场景2: 1e16 + 1000x1.0 + (-1e16)\n    seq2 = [1e16] + [1.0] * 1000 + [-1e16]\n    print(f'1e16+1000x1.0-1e16: naive={naive_sum(seq2)}, kahan={kahan_sum(seq2)} (期望 1000.0)')\n    assert abs(naive_sum(seq2) - 1000.0) > 500\n    assert abs(kahan_sum(seq2) - 1000.0) < 1e-9\n\n    # 场景3: 10000 x 0.1 累加误差\n    many = [0.1] * 10000\n    n = naive_sum(many)\n    k = kahan_sum(many)\n    print(f'10000x0.1: naive={n:.17g}, kahan={k:.17g}, fsum={math.fsum(many):.17g}')\n    assert abs(k - 1000.0) <= abs(n - 1000.0) and abs(k - 1000.0) < 1e-9\n\n    print('All kahan-summation tests passed!')\n",
+    "pypy_notes": "Kahan 求和是纯算术循环, PyPy 效率尚可; 若只需精确求和直接用 math.fsum(内置, C 实现更快更准); 竞赛中浮点精度敏感题(几何/数值)常配合 epsilon 比较。",
+    "complexity": {
+      "time": "O(N) — 每次加法固定 4 次浮点运算",
+      "space": "O(1) — 仅需两个累加变量"
+    },
+    "limitations": "Kahan 只降低舍入误差, 不消除(病态条件数时仍可能不够); 不适合大规模并行累加(可用分块/成对求和); Python 下更优选择是 math.fsum(Shewchuk 算法, 精确舍入); 对非浮点(整数)无效。"
+  },
+  "examples": [
+    {
+      "oj": "Codeforces",
+      "pid": "800A",
+      "url": "https://codeforces.com/contest/800/problem/A",
+      "difficulty": 3,
+      "key_point": "Voltage Keepsake: 二分答案时浮点累加, 可用Kahan降低误差(OI Wiki例题)"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "504B",
+      "url": "https://codeforces.com/problemset/problem/504/B",
+      "difficulty": 4,
+      "key_point": "Misha and Permutations Summation: 排列序数累加(大数场景)"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "539",
+      "url": "https://leetcode.cn/problems/minimum-time-difference/",
+      "difficulty": 2,
+      "key_point": "浮点时间差与累加场景, 体会精度对答案的影响"
+    }
+  ],
+  "pitfalls": [
+    "y=num-c 与 c=(t-sum)-y 的顺序不可调换, c 是'本次加法丢失的低位取负'",
+    "Kahan 对极端病态求和仍可能不准, 不是万能; 关键数据用 math.fsum",
+    "Python 的 float 是 double(53位), 1e16+1.0 必丢, 先理解再写补偿",
+    "多语言精度差异: C++ float/double 需要 Kahan, Python 大整数与 float 混用需注意",
+    "c 不会随 sum 增大而无限增长(代数值保持~0), 但数量级差异过大时仍失效"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "init",
+        "label": "初始化 sum=0, c=0"
+      },
+      {
+        "id": "compensate",
+        "label": "y = num - c (补偿上次误差)"
+      },
+      {
+        "id": "add",
+        "label": "t = sum + y"
+      },
+      {
+        "id": "capture",
+        "label": "c = (t - sum) - y (捕获丢失低位)"
+      },
+      {
+        "id": "commit",
+        "label": "sum = t, 遍历下一元素"
+      }
+    ],
+    "edges": [
+      {
+        "from": "init",
+        "to": "compensate"
+      },
+      {
+        "from": "compensate",
+        "to": "add"
+      },
+      {
+        "from": "add",
+        "to": "capture"
+      },
+      {
+        "from": "capture",
+        "to": "commit"
+      },
+      {
+        "from": "commit",
+        "to": "compensate"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/misc/kahan-summation/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/kahan-summation.md",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://en.wikipedia.org/wiki/Kahan_summation_algorithm",
+      "verified": true
+    }
+  ]
+}

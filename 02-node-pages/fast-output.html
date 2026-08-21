@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快速输出 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-1.html">IO与常数优化族</a> / <span>快速输出</span></div>
+  <h1>快速输出</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-1</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="fast-io.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">fast-io</span></a>
+    <a class="nav-index" href="../03-groups/G-E-1.html"><span class="dir">组内第 2 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="constant-opt.html"><span class="dir">下一个 / 组内</span><span class="v">constant-opt</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">整数快速输出：C++ 用 putchar/fwrite 攒缓冲；Python 用 &#x27;\n&#x27;.join(map(str, ...)) 一次 write，避免逐行 print() 慢</div><p>快速输出与快速读入配套。C++ 侧：把结果攒进大缓冲区，最后 fwrite 一次写出（或 putchar 逐字符）；Python 侧：不要逐行 print()，而是收集所有结果字符串后 `sys.stdout.write(&#x27;\n&#x27;.join(map(str, ans)))` 一次输出（可补尾换行）。print() 每次调用都有格式化 + 缓冲刷新开销，10^5 行以上输出在 CPython 会明显变慢。交互题则相反，需要每次输出后主动 flush（见 flush-buffer 节点）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>print() 的每次调用都有 Python 层开销（参数格式化、调用 print 函数、写流）；而 join 在 C 层把千万条字符串拼接成一块再一次 write，Python 层只做一次调用。输出量大时差距达到数倍到十几倍。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>sys.stdout.write(s) 接收完整字符串；&#x27;\n&#x27;.join(iterable) 在 C 层完成拼接。map(str, nums) 惰性转字符串列表；join 需要 list 或可迭代。要点：把『每条结果换行』放在 join 的分隔符里，最后一次性写。C++ 对应：ostringstream / 手动字符缓冲 + fwrite，避免每次输出都做系统调用。注意 stdout 是块缓冲（非 tty 时 8KB），普通 print 不会每次系统调用，但 Python 层逐次 print 的开销仍大。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>OI Wiki contest/io 页的 fwrite 输出、以及 Python 社区『用 join 代替逐行 print』的经验，都是 IO 优化的标准结论。现代 OJ 上 CPython 题目若输出 10^6 行，不 join 基本 TLE。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 批量输出模板</span>
+ans = []
+<span class="t-k">for</span> ...: ans.<span class="t-f">append</span>(<span class="t-b">str</span>(result))   <span class="t-c"># 或 ans.append(f&#x27;{x} {y}&#x27;)</span>
+sys.stdout.<span class="t-f">write</span>(<span class="t-s">&#x27;\n&#x27;</span>.<span class="t-f">join</span>(ans))
+<span class="t-c"># 需要结尾换行时</span>
+sys.stdout.<span class="t-f">write</span>(<span class="t-s">&#x27;\n&#x27;</span>.<span class="t-f">join</span>(ans) + <span class="t-s">&#x27;\n&#x27;</span>)
+
+<span class="t-c"># 若结果已全是整数：</span>
+sys.stdout.<span class="t-f">write</span>(<span class="t-s">&#x27;\n&#x27;</span>.<span class="t-f">join</span>(<span class="t-b">map</span>(<span class="t-b">str</span>, nums)) + <span class="t-s">&#x27;\n&#x27;</span>)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    <span class="t-c"># 自测：用 StringIO 捕获 stdout 对比 join 与逐行输出结果一致</span>
+    <span class="t-k">import</span> io
+    nums = <span class="t-b">list</span>(<span class="t-b">range</span>(<span class="t-n">5</span>))
+    buf = io.<span class="t-f">StringIO</span>()
+    old = sys.stdout
+    sys.stdout = buf
+    sys.stdout.<span class="t-f">write</span>(<span class="t-s">&#x27;\n&#x27;</span>.<span class="t-f">join</span>(<span class="t-b">map</span>(<span class="t-b">str</span>, nums)) + <span class="t-s">&#x27;\n&#x27;</span>)
+    sys.stdout = old
+    <span class="t-k">assert</span> buf.<span class="t-f">getvalue</span>() == <span class="t-s">&#x27;0\n1\n2\n3\n4\n&#x27;</span>
+    <span class="t-c"># 多 token 每行：如 (i, i*i)</span>
+    buf = io.<span class="t-f">StringIO</span>()
+    sys.stdout = buf
+    sys.stdout.<span class="t-f">write</span>(<span class="t-s">&#x27;\n&#x27;</span>.<span class="t-f">join</span>(<span class="t-s">f&#x27;{i} {i*i}&#x27;</span> <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">3</span>)) + <span class="t-s">&#x27;\n&#x27;</span>)
+    sys.stdout = old
+    <span class="t-k">assert</span> buf.<span class="t-f">getvalue</span>() == <span class="t-s">&#x27;0 0\n1 1\n2 4\n&#x27;</span>
+    <span class="t-c"># 空输出安全</span>
+    buf = io.<span class="t-f">StringIO</span>()
+    sys.stdout = buf
+    sys.stdout.<span class="t-f">write</span>(<span class="t-s">&#x27;\n&#x27;</span>.<span class="t-f">join</span>(<span class="t-b">map</span>(<span class="t-b">str</span>, [])))
+    sys.stdout = old
+    <span class="t-k">assert</span> buf.<span class="t-f">getvalue</span>() == <span class="t-s">&#x27;&#x27;</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;fast-output OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 的 print 比 CPython 快，但输出量仍建议 join 批量写；join 在 PyPy 下同样 C 层高效。注意 PyPy 的 sys.stdout.write 行为一致。生成器表达式给 join 会先物化为 list 再拼接，超大输出（10^7 行）时中间 list 内存翻倍，可用 list 推导 + 分块多次 write 折中。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>一次 write O(总输出字节)；join 拼接 O(总字节)</td></tr><tr><th>空间复杂度</th><td>O(总输出字节)（结果字符串整体驻留）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">交互题不能批量输出（必须逐次 flush）；输出本身占内存，10^7 行级可分批 write 控制峰值。对浮点格式化的 join 注意精度一致（str 与 format 结果）。stdout 重定向到文件时是块缓冲，普通 print 也还行，但 Python 层逐次调用开销依然在。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>join 里漏加结尾换行，部分 OJ 严格判重会导致 WA</li><li>逐行 print() 在输出 10^6 行时在 CPython 会 TLE，忘记换 join</li><li>map(str, nums) 里 nums 若含 float 会输出科学计数法，需先格式化</li><li>超大输出一次性 join 内存峰值高，分块处理</li><li>交互题误用批量输出 + 不 flush，会导致 ILE（见 flush-buffer）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3367</strong></td><td>3</td><td>并查集模板：每次查询输出一行 Y/N，m 达 2e5 必须用 join 批量输出</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3367" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3367</a></td></tr><tr><td>Luogu</td><td><strong>P4779</strong></td><td>4</td><td>最短路径标准版：输出 n 个距离，与快读配套使用</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4779" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4779</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-fast-output" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "收集结果到 list（str 或格式化）"}}, {"data": {"id": "s2", "label": "sys.stdout.write('\\n'.join(...)) 一次写出"}}, {"data": {"id": "s3", "label": "需要时补结尾换行"}}, {"data": {"id": "s4", "label": "超大输出分块多次 write"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es2->s3", "source": "s2", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-fast-output'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-cooccurrence" href="fast-io.html" title="快读快写通常配套使用">快速读入<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/contest/io/" target="_blank" rel="noopener">https://oi-wiki.org/contest/io/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

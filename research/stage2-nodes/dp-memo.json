@@ -1,0 +1,113 @@
+{
+  "id": "dp-memo",
+  "name": "记忆化搜索",
+  "group": "G-A-11",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "自顶向下DFS+缓存，DP的递归实现方式",
+  "what": "记忆化搜索（Memoization）是 DP 的自顶向下递归实现：从最终状态（答案）出发递归，每进入一个子问题先查缓存，命中则直接返回，未命中则递归计算后存入缓存。与自底向上递推（for 循环填表）等价但更直观——转移方程直接对应递归式。Python 中用 functools.lru_cache(maxsize=None) 装饰器一行实现，或手写 memo 字典。优点是只计算需要的状态（稀疏状态空间友好），缺点是递归栈开销与溢出风险。",
+  "why": {
+    "intuition": "自底向上填表需要先想清楚计算顺序，复杂状态（如数位 DP、博弈 DP、带维度的树形 DP）很难确定顺序。记忆化搜索反过来：从答案状态出发「需要什么就算什么」，递归自然表达依赖关系，缓存避免重复。就像查地图——你不用把整本地图背下来，只查你问的那条路，查过就记住。",
+    "principle": "记忆化搜索 = 递归 + 缓存字典。进入函数：if 状态 in memo: return memo[状态]；否则计算（含递归子调用）后 memo[状态]=结果; return 结果。只计算从答案状态可达的状态，跳过不可达状态（递推会全算）。代价是递归调用开销（Python 每帧 ~1μs）和栈溢出风险。状态必须可哈希（int/tuple 可，list 需 tuple）。在 Python 中 lru_cache 自动管理缓存。",
+    "history": "记忆化（memoization）术语由 Donald Michie 1968 年提出。Python functools.lru_cache 自 3.2 提供。OI Wiki Python 页以 lru_cache+斐波那契为例展示。记忆化与递推两种 DP 实现方式长期并存，记忆化在状态稀疏或转移顺序难定时更优。"
+  },
+  "how": {
+    "pseudocode": "# 记忆化搜索模板（手写 memo）\nmemo = {}\ndef solve(state):\n    if state in memo: return memo[state]\n    if base_case(state): return base_value\n    result = combine(solve(s1), solve(s2), ...)\n    memo[state] = result\n    return result\n# Python 简写: @lru_cache(maxsize=None)\n@lru_cache(maxsize=None)\ndef solve(state):\n    if base: return val\n    return combine(solve(s1), ...)",
+    "python": "# 记忆化搜索：斐波那契 + 网格路径数（含自测）\nimport sys\nfrom functools import lru_cache\n\n@lru_cache(maxsize=None)\ndef fib(n):\n    \"\"\"记忆化斐波那契 O(n)\"\"\"\n    if n < 2:\n        return n\n    return fib(n - 1) + fib(n - 2)\n\n@lru_cache(maxsize=None)\ndef unique_paths(m, n):\n    \"\"\"从 (1,1) 到 (m,n) 只能向右或向下的路径数\n    答案 = C(m+n-2, m-1)。记忆化搜索自顶向下\"\"\"\n    if m == 1 or n == 1:\n        return 1\n    return unique_paths(m - 1, n) + unique_paths(m, n - 1)\n\nif __name__ == \"__main__\":\n    sys.setrecursionlimit(10000)\n    # 斐波那契\n    assert fib(0) == 0 and fib(1) == 1 and fib(10) == 55\n    assert fib(100) == 354224848179261915075\n    # 缓存命中\n    assert fib.cache_info().hits > 0\n    # 网格路径数: C(m+n-2, m-1)\n    assert unique_paths(1, 1) == 1\n    assert unique_paths(3, 3) == 6       # C(4,2)=6\n    assert unique_paths(3, 7) == 28      # C(8,2)=28\n    assert unique_paths(10, 10) == 48620  # C(18,9)=48620\n    print(f\"dp-memo OK (fib hits={fib.cache_info().hits})\")\n",
+    "pypy_notes": "PyPy 下记忆化搜索递归调用比 CPython 慢且栈更重。lru_cache 本身快（C 实现）。若状态数大且转移简单，PyPy 下自底向上递推（for 循环填表）远优于记忆化——JIT 优化循环不优化递归。状态稀疏或转移顺序难定时仍用记忆化，但务必 setrecursionlimit + 线程栈。",
+    "complexity": {
+      "time": "O(可达状态数 × 每状态转移数)，只算需要的状态",
+      "space": "O(可达状态数) 缓存 + O(递归深度) 栈"
+    },
+    "limitations": "1) 递归深度受栈限制，需 setrecursionlimit + 可能线程栈；2) Python 递归调用开销大（每帧~1μs），状态多时递推更快；3) 参数必须可哈希；4) 多组数据需 cache_clear()。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1048",
+      "url": "https://www.luogu.com.cn/problem/P1048",
+      "difficulty": 2,
+      "key_point": "0-1 背包记忆化搜索 dp(i,remain)"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2602",
+      "url": "https://www.luogu.com.cn/problem/P2602",
+      "difficulty": 5,
+      "key_point": "数位 DP 统计各数字出现次数"
+    }
+  ],
+  "pitfalls": [
+    "不设 setrecursionlimit → 深递归 RecursionError 或 segfault",
+    "参数传 list → TypeError unhashable，需先 tuple()",
+    "多组数据不 cache_clear() → 答案串扰",
+    "状态数大用记忆化 → 递归调用开销累积超时，应改递推",
+    "PyPy 下深递归记忆化 → segfault，改递推或加线程栈"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "s1",
+        "label": "定义递归函数 solve(state) + @lru_cache"
+      },
+      {
+        "id": "s2",
+        "label": "入口: 查缓存，命中则返回"
+      },
+      {
+        "id": "s3",
+        "label": "递归: 基本情况返回初值；否则递归子状态"
+      },
+      {
+        "id": "s4",
+        "label": "合并子结果，写入缓存，返回"
+      },
+      {
+        "id": "s5",
+        "label": "从答案状态出发调用 solve(目标状态)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "s1",
+        "to": "s5"
+      },
+      {
+        "from": "s5",
+        "to": "s2"
+      },
+      {
+        "from": "s2",
+        "to": "s3",
+        "label": "未命中缓存"
+      },
+      {
+        "from": "s3",
+        "to": "s4"
+      },
+      {
+        "from": "s4",
+        "to": "s2",
+        "label": "下次调用命中"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/memo/",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://docs.python.org/3/library/functools.html#functools.lru_cache",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch7 p75 (DP section)",
+      "verified": true
+    }
+  ]
+}

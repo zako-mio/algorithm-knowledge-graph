@@ -1,0 +1,112 @@
+{
+  "id": "two-pointer",
+  "name": "双指针",
+  "group": "G-E-7",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "同向/相向移动两指针维护区间信息：O(n)解决单调性区间问题，莫队基础",
+  "what": "双指针(Two Pointers)是用两个指针在序列上同向或相向移动来维护区间信息的技巧。同向双指针(快慢指针)维护滑动窗口；相向双指针(左右指针)利用有序性从两端逼近。可在 O(n) 时间内解决具有单调性的区间问题，是莫队算法的基础。",
+  "why": {
+    "intuition": "暴力枚举区间是 O(n^2)。如果区间具有单调性(如正数之和随右端点递增)，则可以只移动一个指针：当区间不满足条件时移动左指针缩小，满足时移动右指针扩大。两个指针各自只前进不后退，总共最多各走 n 步 → O(n)。",
+    "principle": "同向双指针(滑动窗口)：l=0, 遍历 r 从 0 到 n-1，当 [l,r] 不满足条件时 l++。利用单调性：若 [l,r] 满足则 [l+1,r] 也满足(缩小只会更好)，若不满足则需 l++ 或 r++。相向双指针：l=0, r=n-1，根据 a[l]+a[r] 与 target 的关系移动 l++ 或 r--，利用有序性从两端逼近答案。",
+    "history": "双指针是竞赛和面试中最基础的技巧之一。CPH(Competitive Programmer's Handbook)ch5 将其归为 Complete Search 的高效变体。经典应用包括 LeetCode 167(两数之和II)、713(乘积小于K的子数组)。莫队算法即基于双指针的区间移动。"
+  },
+  "how": {
+    "pseudocode": "# 同向双指针(滑动窗口): 求满足条件的最长区间\nl = 0\nfor r in range(n):\n  add(arr[r])  # 扩展右端\n  while not valid():  # 不满足条件时收缩\n    remove(arr[l])\n    l += 1\n  ans = max(ans, r - l + 1)\n\n# 相向双指针: 有序数组两数之和\nl, r = 0, n-1\nwhile l < r:\n  s = arr[l] + arr[r]\n  if s == target: found\n  elif s < target: l += 1\n  else: r -= 1",
+    "python": "def subarray_product_less_than_k(nums, k):\n    \"\"\"LeetCode 713: 乘积小于K的子数组个数。\n    同向双指针(滑动窗口), 利用正整数乘积单调性。\n    \"\"\"\n    if k <= 1:\n        return 0\n    prod = 1\n    l = 0\n    ans = 0\n    for r in range(len(nums)):\n        prod *= nums[r]\n        while prod >= k:\n            prod //= nums[l]\n            l += 1\n        ans += r - l + 1  # 以r结尾的合法子数组个数\n    return ans\n\n\ndef two_sum_sorted(numbers, target):\n    \"\"\"LeetCode 167: 有序数组两数之和II。\n    相向双指针, 利用有序性从两端逼近。\n    返回两数下标(1-indexed)。\n    \"\"\"\n    l, r = 0, len(numbers) - 1\n    while l < r:\n        s = numbers[l] + numbers[r]\n        if s == target:\n            return [l + 1, r + 1]  # 1-indexed\n        elif s < target:\n            l += 1\n        else:\n            r -= 1\n    return []\n\n\ndef min_subarray_len(target, nums):\n    \"\"\"LeetCode 209: 长度最小的子数组(和>=target)。\n    同向双指针。\n    \"\"\"\n    l = 0\n    s = 0\n    ans = len(nums) + 1\n    for r in range(len(nums)):\n        s += nums[r]\n        while s >= target:\n            ans = min(ans, r - l + 1)\n            s -= nums[l]\n            l += 1\n    return ans if ans <= len(nums) else 0\n\n\ndef is_subsequence(s, t):\n    \"\"\"LeetCode 392: 判断s是否为t的子序列。\n    双指针匹配。\n    \"\"\"\n    i = 0\n    for ch in t:\n        if i < len(s) and s[i] == ch:\n            i += 1\n    return i == len(s)\n\n\nif __name__ == '__main__':\n    # 测试乘积小于K的子数组\n    assert subarray_product_less_than_k([10, 5, 2, 6], 100) == 8\n    print(f'Subarray product < 100: {subarray_product_less_than_k([10, 5, 2, 6], 100)}')  # 8\n\n    # 测试两数之和\n    assert two_sum_sorted([2, 7, 11, 15], 9) == [1, 2]\n    print(f'Two sum [2,7,11,15] target=9: {two_sum_sorted([2, 7, 11, 15], 9)}')  # [1,2]\n\n    # 测试最小子数组\n    assert min_subarray_len(7, [2, 3, 1, 2, 4, 3]) == 2\n    print(f'Min subarray len target=7: {min_subarray_len(7, [2, 3, 1, 2, 4, 3])}')  # 2\n\n    # 测试子序列\n    assert is_subsequence('abc', 'ahbgdc') == True\n    assert is_subsequence('axc', 'ahbgdc') == False\n    print(f'Is subsequence abc/ahbgdc: {is_subsequence(\"abc\", \"ahbgdc\")}')  # True\n\n    print('All two-pointer tests passed!')\n",
+    "pypy_notes": "PyPy 对双指针的简单数组操作优化极佳，性能接近 C；双指针是最轻量的算法之一，几乎无性能瓶颈。",
+    "complexity": {
+      "time": "O(N) — 两个指针各最多移动 N 次",
+      "space": "O(1) — 仅需常数额外空间(同向) / O(1) (相向)"
+    },
+    "limitations": "需要区间具有单调性(否则无法只前进不后退)；不适用于需要随机访问区间信息的问题(应用前缀和/线段树)；相向双指针要求序列有序。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "713",
+      "url": "https://leetcode.cn/problems/subarray-product-less-than-k/",
+      "difficulty": 2,
+      "key_point": "乘积小于K的子数组: 同向双指针经典模板"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "167",
+      "url": "https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/",
+      "difficulty": 2,
+      "key_point": "两数之和II: 相向双指针, 利用有序性"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "209",
+      "url": "https://leetcode.cn/problems/minimum-size-subarray-sum/",
+      "difficulty": 2,
+      "key_point": "最小长度子数组: 滑动窗口双指针"
+    }
+  ],
+  "pitfalls": [
+    "乘积/和的中间值可能溢出: C++ 需用 long long, Python 自动大整数无此问题",
+    "滑动窗口收缩条件错误: 应在'不满足'时收缩而非'满足'时, 方向搞反会漏解",
+    "k<=1 时乘积子数组无解(正整数乘积>=1不可能<k), 需特判",
+    "相向双指针要求序列有序: 无序数组需先排序(可能打乱原始下标)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "init",
+        "label": "初始化两指针(l=0, r=0 或 l=0,r=n-1)"
+      },
+      {
+        "id": "expand",
+        "label": "移动右指针扩展区间(同向) / 按条件移动(相向)"
+      },
+      {
+        "id": "shrink",
+        "label": "不满足条件时移动左指针收缩(同向)"
+      },
+      {
+        "id": "update",
+        "label": "更新答案"
+      },
+      {
+        "id": "advance",
+        "label": "继续移动直到遍历完"
+      }
+    ],
+    "edges": [
+      {
+        "from": "init",
+        "to": "expand"
+      },
+      {
+        "from": "expand",
+        "to": "shrink"
+      },
+      {
+        "from": "shrink",
+        "to": "update"
+      },
+      {
+        "from": "update",
+        "to": "advance"
+      },
+      {
+        "from": "advance",
+        "to": "expand"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/misc/two-pointer/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch5 Complete search, pp.57-66"
+    }
+  ]
+}

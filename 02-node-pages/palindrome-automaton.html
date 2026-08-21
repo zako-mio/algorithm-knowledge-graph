@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>回文自动机 / 回文树（PAM，Palindromic Automaton） · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-5.html">回文族</a> / <span>回文自动机 / 回文树（PAM，Palindromic Automaton）</span></div>
+  <h1>回文自动机 / 回文树（PAM，Palindromic Automaton）</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-5</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="manacher.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">manacher</span></a>
+    <a class="nav-index" href="../03-groups/G-C-5.html"><span class="dir">组内第 2 / 2</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-C-5.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">存储串中所有本质不同回文子串的最小 DFA（O(n) 个状态），增量 O(n) 构造；转移边表示在回文串两端加同一字符，fail 指向最长回文后缀，支持统计出现次数、最小回文划分等。</div><p>回文自动机（EER Tree / Palindromic Tree / PAM）是一棵『树 + fail 指针』结构，存储给定串的所有本质不同回文子串：每个节点代表一个回文子串，转移边 ch[c] 表示『在该回文串两端各加字符 c』得到的新回文串，fail 指针指向该回文串的最长回文后缀。有两个初始节点：奇根（长度 -1）与偶根（长度 0）。在线增量构造，加入每个字符时沿 fail 跳转找『两端可加该字符』的最长回文后缀，必要时新建节点并求其 fail。由于每加一个字符本质不同回文子串最多增 1，总状态数 O(n)，构造 O(n)。经典应用：本质不同回文子串个数、各回文子串出现次数（拓扑逆序累计）、最小回文划分（配合 dp 与等差数列优化）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>Manacher 只能得到半径数组，无法回答『每个回文子串出现次数』这类统计问题。PAM 的洞察：回文子串是『对称增长的』——想扩展一个回文，只能在两端同时加字符。于是回文子串之间的转移天然形成树结构（两端加字符），而『最长回文后缀』给出 fail 链。奇根长度 -1 的巧妙设计使单字符也能作为合法的扩展，处理了奇偶两种回文。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 结构：节点 = 本质不同回文子串；节点带 len；ch 转移在两端加字符；fail 指向最长回文后缀。② 构造：添加字符 c 于位置 p（下标从 0 起，s 前加哨兵），从上一字符结尾的最长回文后缀节点 last 沿 fail 跳，找到满足 s[p-len-1]==s[p] 的节点 cur，则 cur 扩展 c 后得到新回文节点；若 ch[cur][c] 不存在则新建 node（len=len[cur]+2），并沿 cur 的 fail 继续找其最长回文后缀的扩展作为新节点 fail。③ 线性性：状态 O(n)；每字符 fail 跳转均摊 O(1)（深度增 1 与跳转递减平衡）。④ 出现次数：节点创建顺序即拓扑序，逆序把 cnt[node] 累加到 cnt[fail[node]] 即可得每个回文子串出现次数。⑤ 最小回文划分：dp[i]=1+min{dp[j]}（s[j+1..i] 回文），用 fail 树的等差数列（slink）优化至 O(n log n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>回文树由 Mikhail Rubinchik 与 Arseny M. Shur 于 2015 年在论文《EERTREE: An Efficient Data Structure for Processing Palindromes in Strings》中提出；此前类似思想以 Palindromic Tree 之名在社区流传（adilet.org 博客等）。2017 年 IOI 国家候选队论文（翁文涛《回文树及其应用》）将其引入国内 OI，随后普及。APIO2014 回文串是其经典应用。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">struct PAM:
+    ch[MAXN][<span class="t-n">26</span>], fail[MAXN], <span class="t-b">len</span>[MAXN], cnt[MAXN], s[MAXN]
+    last = <span class="t-n">0</span>; node 计数 = <span class="t-n">1</span>  (<span class="t-n">0</span>=偶根 len0, <span class="t-n">1</span>=奇根 <span class="t-b">len</span>-<span class="t-n">1</span>)
+    fail[<span class="t-n">0</span>] = <span class="t-n">1</span>, fail[<span class="t-n">1</span>] = <span class="t-n">1</span>
+
+    <span class="t-f">get_fail</span>(x, p):   <span class="t-c"># 沿 fail 找两端可加 s[p] 的节点</span>
+        <span class="t-k">while</span> p - <span class="t-b">len</span>[x] - <span class="t-n">1</span> &lt; <span class="t-n">0</span> <span class="t-k">or</span> s[p] != s[p - <span class="t-b">len</span>[x] - <span class="t-n">1</span>]:
+            x = fail[x]
+        <span class="t-k">return</span> x
+
+    <span class="t-f">add</span>(p, c):
+        s[p] = c
+        cur = <span class="t-f">get_fail</span>(last, p)
+        <span class="t-k">if</span> <span class="t-k">not</span> ch[cur][c]:
+            new = 新建节点; <span class="t-b">len</span>[new] = <span class="t-b">len</span>[cur] + <span class="t-n">2</span>
+            fail[new] = ch[<span class="t-f">get_fail</span>(fail[cur], p)][c]
+            <span class="t-k">if</span> fail[new] == new: fail[new] = <span class="t-n">0</span>
+            ch[cur][c] = new
+        last = ch[cur][c]
+        cnt[last] += <span class="t-n">1</span>
+
+    <span class="t-f">build</span>(): <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-n">0.</span>.n-<span class="t-n">1</span>: <span class="t-f">add</span>(i, s[i])
+    出现次数: <span class="t-k">for</span> i 逆序: cnt[fail[i]] += cnt[i]</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> PAM:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, n):
+        self.maxn = n + <span class="t-n">3</span>
+        self.ch = [[<span class="t-n">0</span>] * <span class="t-n">26</span> <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(self.maxn)]
+        self.fail = [<span class="t-n">0</span>] * self.maxn
+        self.<span class="t-b">len</span> = [<span class="t-n">0</span>] * self.maxn
+        self.cnt = [<span class="t-n">0</span>] * self.maxn
+        self.s = [<span class="t-s">&#x27;&#x27;</span>] * self.maxn
+        self.cur_node = <span class="t-n">2</span>  <span class="t-c"># 0=偶根, 1=奇根, 新节点从 2 起</span>
+        self.last = <span class="t-n">0</span>
+        self.sz = <span class="t-n">0</span>  <span class="t-c"># 已处理字符数</span>
+        self.<span class="t-b">len</span>[<span class="t-n">0</span>] = <span class="t-n">0</span>
+        self.<span class="t-b">len</span>[<span class="t-n">1</span>] = -<span class="t-n">1</span>
+        self.fail[<span class="t-n">0</span>] = <span class="t-n">1</span>
+        self.fail[<span class="t-n">1</span>] = <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">get_fail</span>(self, x, p):
+        <span class="t-k">while</span> <span class="t-k">True</span>:
+            curlen = self.<span class="t-b">len</span>[x]
+            <span class="t-k">if</span> p - curlen - <span class="t-n">1</span> &gt;= <span class="t-n">0</span> <span class="t-k">and</span> self.s[p] == self.s[p - curlen - <span class="t-n">1</span>]:
+                <span class="t-k">return</span> x
+            x = self.fail[x]
+
+    <span class="t-k">def</span> <span class="t-f">add</span>(self, c):
+        p = self.sz
+        self.s[p] = c
+        self.sz += <span class="t-n">1</span>
+        code = <span class="t-b">ord</span>(c) - <span class="t-b">ord</span>(<span class="t-s">&#x27;a&#x27;</span>)
+        cur = self.<span class="t-f">get_fail</span>(self.last, p)
+        <span class="t-k">if</span> self.ch[cur][code] == <span class="t-n">0</span>:
+            nxt = self.cur_node
+            self.cur_node += <span class="t-n">1</span>
+            self.<span class="t-b">len</span>[nxt] = self.<span class="t-b">len</span>[cur] + <span class="t-n">2</span>
+            f = self.<span class="t-f">get_fail</span>(self.fail[cur], p)
+            self.fail[nxt] = self.ch[f][code]
+            <span class="t-k">if</span> self.fail[nxt] == nxt:
+                self.fail[nxt] = <span class="t-n">0</span>
+            self.ch[cur][code] = nxt
+        self.last = self.ch[cur][code]
+        self.cnt[self.last] += <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">build</span>(self, s):
+        <span class="t-k">for</span> c <span class="t-k">in</span> s:
+            self.<span class="t-f">add</span>(c)
+
+    <span class="t-k">def</span> <span class="t-f">distinct_palindromes</span>(self):
+        <span class="t-k">return</span> self.cur_node - <span class="t-n">2</span>
+
+    <span class="t-k">def</span> <span class="t-f">occurrence</span>(self):
+        <span class="t-s">&quot;&quot;&quot;返回各节点代表的回文子串出现次数（按节点编号）&quot;&quot;&quot;</span>
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(self.cur_node - <span class="t-n">1</span>, <span class="t-n">1</span>, -<span class="t-n">1</span>):
+            self.cnt[self.fail[i]] += self.cnt[i]
+        <span class="t-k">return</span> self.cnt[:self.cur_node]
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    s = <span class="t-s">&#x27;abacababbab&#x27;</span>
+    pam = <span class="t-f">PAM</span>(<span class="t-b">len</span>(s))
+    pam.<span class="t-f">build</span>(s)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;distinct palindromes =&#x27;</span>, pam.<span class="t-f">distinct_palindromes</span>())
+    occ = pam.<span class="t-f">occurrence</span>()
+    <span class="t-c"># 验证：手工枚举本质不同回文子串个数</span>
+    pal = <span class="t-b">set</span>()
+    n = <span class="t-b">len</span>(s)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, n):
+            sub = s[i:j + <span class="t-n">1</span>]
+            <span class="t-k">if</span> sub == sub[::-<span class="t-n">1</span>]:
+                pal.<span class="t-f">add</span>(sub)
+    <span class="t-k">assert</span> pam.<span class="t-f">distinct_palindromes</span>() == <span class="t-b">len</span>(pal), (pam.<span class="t-f">distinct_palindromes</span>(), <span class="t-b">len</span>(pal))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;distinct count matches brute force:&#x27;</span>, <span class="t-b">len</span>(pal))
+    <span class="t-c"># 出现次数抽样验证：枚举所有回文子串，逐串在 PAM 中匹配并核对次数</span>
+    <span class="t-k">from</span> collections <span class="t-k">import</span> Counter
+    brute = <span class="t-f">Counter</span>()
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i, n):
+            sub = s[i:j + <span class="t-n">1</span>]
+            <span class="t-k">if</span> sub == sub[::-<span class="t-n">1</span>]:
+                brute[sub] += <span class="t-n">1</span>
+    <span class="t-c"># 通过两端扩展在 PAM 上定位节点（fail 链寻址）</span>
+    <span class="t-k">def</span> <span class="t-f">node_of</span>(pal):
+        <span class="t-k">if</span> pal == <span class="t-s">&#x27;&#x27;</span>:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        <span class="t-k">if</span> <span class="t-b">len</span>(pal) == <span class="t-n">1</span>:
+            <span class="t-k">return</span> pam.ch[<span class="t-n">1</span>][<span class="t-b">ord</span>(pal) - <span class="t-b">ord</span>(<span class="t-s">&#x27;a&#x27;</span>)]
+        inner = pal[<span class="t-n">1</span>:-<span class="t-n">1</span>]
+        nid = <span class="t-f">node_of</span>(inner)
+        <span class="t-k">return</span> pam.ch[nid][<span class="t-b">ord</span>(pal[<span class="t-n">0</span>]) - <span class="t-b">ord</span>(<span class="t-s">&#x27;a&#x27;</span>)]
+    checked = <span class="t-n">0</span>
+    <span class="t-k">for</span> pal_s, c <span class="t-k">in</span> brute.<span class="t-f">items</span>():
+        occ_id = <span class="t-f">node_of</span>(pal_s)
+        <span class="t-k">assert</span> occ[occ_id] == c, (pal_s, occ[occ_id], c)
+        checked += <span class="t-n">1</span>
+    <span class="t-k">assert</span> checked == <span class="t-b">len</span>(brute) == <span class="t-b">len</span>(pal)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;occurrence counts verified for %d distinct palindromes&#x27;</span> % checked)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;OK&#x27;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">ch 用 list-of-list 在 PyPy 下内存与访问开销可接受（n≤1e5）；若内存紧张可改 dict 转移或滚动数组。get_fail 是热点，用 while True 且缓存 len/fail 局部变量。cnt 的逆序累加用纯 for 循环。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>构造 O(n)（每字符均摊 O(1)）；出现次数统计 O(n)；最小回文划分朴素 O(n²)，slink 优化 O(n log n)</td></tr><tr><th>空间复杂度</th><td>O(n·Σ)（ch 表）或 O(n)（dict 转移）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只能处理固定字符集（本实现 26 字母，需扩展或 dict）；本质不同回文子串上限 O(n) 保证状态数，但含大量重复字符时转移表可能稀疏；最小回文划分的 slink 优化（引理：回文串后缀为 border 当且仅当其回文）较难理解，需先掌握 border/周期概念。Python 实现 n≤1e6 时 get_fail 递归链长可能退化，需保证 fail 树深度可控。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>奇根 len=-1 的意义与 fail 初值（fail[0]=fail[1]=1）缺一不可，否则单字符失配处理错误</li><li>新建节点 fail 的求取必须从 fail[cur] 出发而非 cur，否则得到自身或错链</li><li>get_fail 的边界条件 p-len[x]-1&lt;0 必须先判，防止负下标访问哨兵前</li><li>cnt 只在 add 时 +1，出现次数必须在全部添加完后逆序累加到 fail</li><li>ch 表大小 = n+3（含奇偶根），开小会越界；多组数据需重置 0/1 根</li><li>最小回文划分的 dp 方向与 slink 前缀和 g 数组需与节点顺序一致</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3649</strong></td><td>5</td><td>[APIO2014] 回文串：最大『出现次数×长度』，PAM 构造后逆序累加 cnt 即得</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3649" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3649</a></td></tr><tr><td>Luogu</td><td><strong>P4555</strong></td><td>6</td><td>[国家集训队] 最长双回文串：PAM 或 Manacher 预处理左右最长回文，PAM 亦可</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4555" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4555</a></td></tr><tr><td>Luogu</td><td><strong>P1659</strong></td><td>4</td><td>[国家集训队] 拉拉队排练：前 k 大奇数长度回文子串长度之积，PAM+计数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1659" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1659</a></td></tr><tr><td>Luogu</td><td><strong>P4287</strong></td><td>5</td><td>[SHOI2011] 双倍回文：一半长度也是回文的回文串计数，PAM 结构+倍增/哈希</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4287" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4287</a></td></tr><tr><td>Codeforces</td><td><strong>932G Palindrome Partition</strong></td><td>8</td><td>最小/计数回文划分的 slink 等差数列优化，PAM 高级应用</td><td class="u"><a href="https://codeforces.com/problemset/problem/932/G" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/932/G</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-palindrome-automaton" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "structure", "label": "奇偶根 / 节点 / 转移 / fail"}}, {"data": {"id": "construct", "label": "在线增量构造 get_fail"}}, {"data": {"id": "linearity", "label": "状态数 O(n) 与线性性证明"}}, {"data": {"id": "occurrence", "label": "出现次数统计"}}, {"data": {"id": "partition", "label": "最小回文划分与 slink 优化"}}, {"data": {"id": "estructure->construct", "source": "structure", "target": "construct"}}, {"data": {"id": "econstruct->linearity", "source": "construct", "target": "linearity"}}, {"data": {"id": "elinearity->occurrence", "source": "linearity", "target": "occurrence"}}, {"data": {"id": "eoccurrence->partition", "source": "occurrence", "target": "partition"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-palindrome-automaton'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="manacher.html" title="PAM是回文子串的自动机结构，Manacher是算法；PAM更通用">Manacher算法<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/string/pam.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/string/pam.md</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/string/pam/" target="_blank" rel="noopener">https://oi-wiki.org/string/pam/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

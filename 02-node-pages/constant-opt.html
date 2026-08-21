@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>常数优化 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-1.html">IO与常数优化族</a> / <span>常数优化</span></div>
+  <h1>常数优化</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-1</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="fast-output.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">fast-output</span></a>
+    <a class="nav-index" href="../03-groups/G-E-1.html"><span class="dir">组内第 3 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="flush-buffer.html"><span class="dir">下一个 / 组内</span><span class="v">flush-buffer</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">算法正确但常数过大超时的优化：局部性/循环展开（C++）、Python 局部变量绑定、避免属性访问、列表推导、预分配数组、用 int 位集等</div><p>常数优化：不改变渐近复杂度，降低每步操作的实际耗时。C++ 侧：O2 优化开关、常量折叠、循环展开、代码布局、局部性（cache 友好）、用引用/数组避免 STL 开销。Python 侧（更关键）：把频繁使用的全局名/方法名绑定为局部变量（如 `append = lst.append`）、用列表推导代替显式循环、预分配数组、用 int 当位集、避免重复属性查找与函数调用、避免在热循环里用 dict/list 的慢操作、适当用 PyPy 特性。Python 常数优化的收益常是数量级的，可决定 TLE/AC。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>Python 每条语句都有解释器调度开销：名字查找（LOCAL/CELL/GLOBAL/BUILTIN 依次查）、属性访问（getattr）、函数调用（压栈）。热循环里这些微小开销叠加起来就是几倍差距。而列表推导、join、map 等在 C 层执行整段循环，解释器只跑一圈。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>1) 局部变量快于全局：字节码 LOAD_FAST 快于 LOAD_GLOBAL；函数内 `x = 大量重复的对象` 并复用。2) 绑定方法：`push = stack.append` 后 `push(v)` 免去每次 `stack.append` 的属性查找。3) 列表推导：`[f(x) for x in it]` 在 C 层循环，快于 `for` + `append`（Python 层循环）。4) 预分配：`[0]*n` 一次性分配。5) 内建优先：`sum`, `max`, `min`, `sorted`, `count` 都是 C 循环。6) 局部性：顺序访问数组/列表比随机访问 cache 命中高；Python list 是连续内存的引用数组。7) 字符串拼接用 join 而非 +=。C++ 侧同理：连续内存、少分配、编译器优化。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>OI Wiki 的 lang/optimizations 页介绍 C++ 的 O2、常量折叠、死代码消除、循环展开、代码布局；contest/common-tricks 页讲局部性原理。Python 社区则有长期积累的『性能技巧』清单（局部绑定、推导式、内建函数）。对纯 Python 选手，常数优化等同于『把 Python 写快』，重要性不亚于算法本身。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># Python 核心技巧</span>
+<span class="t-c"># 1) 局部绑定热循环方法</span>
+push = out.append
+<span class="t-k">for</span> x <span class="t-k">in</span> it:
+    <span class="t-k">if</span> cond: <span class="t-f">push</span>(x)
+
+<span class="t-c"># 2) 列表推导替代显式 append</span>
+squares = [x*x <span class="t-k">for</span> x <span class="t-k">in</span> data]   <span class="t-c"># C 层循环</span>
+
+<span class="t-c"># 3) 预分配</span>
+res = [<span class="t-n">0</span>] * n
+
+<span class="t-c"># 4) 内建优先</span>
+total = <span class="t-b">sum</span>(data)
+
+<span class="t-c"># 5) 字符串 join 而非 +=（在循环里）</span>
+s = <span class="t-s">&#x27;&#x27;</span>.<span class="t-f">join</span>(parts)
+
+<span class="t-c"># 6) 局部变量引用模块函数</span>
+<span class="t-k">from</span> math <span class="t-k">import</span> sqrt
+<span class="t-c"># 循环内用 sqrt(x)（全局已绑定）</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> time
+
+
+<span class="t-k">def</span> <span class="t-f">slow_version</span>(data):
+    out = []
+    <span class="t-k">for</span> x <span class="t-k">in</span> data:
+        <span class="t-k">if</span> x % <span class="t-n">2</span> == <span class="t-n">0</span>:
+            out.<span class="t-f">append</span>(x * x)
+    <span class="t-k">return</span> out
+
+
+<span class="t-k">def</span> <span class="t-f">fast_version</span>(data):
+    out = []
+    push = out.append
+    <span class="t-k">for</span> x <span class="t-k">in</span> data:
+        <span class="t-k">if</span> x % <span class="t-n">2</span> == <span class="t-n">0</span>:
+            <span class="t-f">push</span>(x * x)
+    <span class="t-k">return</span> out
+
+
+<span class="t-k">def</span> <span class="t-f">fast_version2</span>(data):
+    <span class="t-k">return</span> [x * x <span class="t-k">for</span> x <span class="t-k">in</span> data <span class="t-k">if</span> x % <span class="t-n">2</span> == <span class="t-n">0</span>]
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    data = <span class="t-b">list</span>(<span class="t-b">range</span>(<span class="t-n">1000</span>))
+    a = <span class="t-f">slow_version</span>(data)
+    b = <span class="t-f">fast_version</span>(data)
+    c = <span class="t-f">fast_version2</span>(data)
+    <span class="t-k">assert</span> a == b == c
+    <span class="t-c"># 预分配</span>
+    res = [<span class="t-n">0</span>] * <span class="t-b">len</span>(data)
+    <span class="t-k">assert</span> <span class="t-b">len</span>(res) == <span class="t-b">len</span>(data)
+    <span class="t-c"># 内建 vs 手写循环结果一致</span>
+    <span class="t-k">assert</span> <span class="t-b">sum</span>(data) == <span class="t-b">sum</span>(x <span class="t-k">for</span> x <span class="t-k">in</span> data)
+    <span class="t-c"># 快速基准（仅展示，不比较严格耗时）</span>
+    <span class="t-k">import</span> random
+    big = <span class="t-b">list</span>(<span class="t-b">range</span>(<span class="t-n">10</span>**<span class="t-n">6</span>))
+    t0 = time.<span class="t-f">perf_counter</span>(); s = <span class="t-b">sum</span>(big); t1 = time.<span class="t-f">perf_counter</span>()
+    <span class="t-c"># join 快于 += 拼串</span>
+    parts = [<span class="t-b">str</span>(i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1000</span>)]
+    s_join = <span class="t-s">&#x27;&#x27;</span>.<span class="t-f">join</span>(parts)
+    <span class="t-k">assert</span> s_join.<span class="t-f">startswith</span>(<span class="t-s">&#x27;0&#x27;</span>)
+    <span class="t-b">print</span>(<span class="t-s">&quot;constant-opt OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 的 JIT 会做循环优化与内联，局部绑定/推导式的收益比 CPython 小（JIT 已优化），但仍是良好习惯。PyPy 下字符串 join、int 大数、dict 等实现不同。PyPy 启动慢但循环快，CPU 密集任务在 PyPy 下可快 2-5 倍；IO 密集任务两边都需快读快出。对纯 Python 竞赛（如洛谷/牛客允许 Python），优先 PyPy3。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>渐近不变；常数通常可降 2~10 倍（CPython 场景收益大）</td></tr><tr><th>空间复杂度</th><td>不变或略增（预分配/临时列表）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">常数优化无法挽救错误的复杂度（TLE 根因仍要先看算法）；过度优化伤可读性且易引入 bug，先写清晰版本再对热路径优化。PyPy 与 CPython 性能特征不同，代码在两者间有差异；不要把 C++ 的优化思路（如循环展开）直接搬到 Python（解释器下收益小）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>在函数外（模块级）做热循环，变量走 GLOBAL 查找，慢；应放入函数内</li><li>for i in range(len(a)): 里反复 a[i] 索引与属性查找，可先用局部变量/迭代</li><li>热循环里 `len(lst)` 每次调用，可提前 len_=len(lst) 或直接迭代</li><li>字符串循环拼接用 += 是 O(n^2) 陷阱，必须 join</li><li>过度微优化导致可读性差、难调试；先测量再优化（profile）</li><li>把 print 放在热循环里逐次调用是常见 TLE 原因，改用批量输出</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4779</strong></td><td>4</td><td>最短路径标准版：Python 需 heap 局部绑定+快读快出+预分配，全套常数优化才能过</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4779" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4779</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-constant-opt" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "确认复杂度正确，锁定热循环"}}, {"data": {"id": "s2", "label": "局部变量绑定方法/避免属性查找"}}, {"data": {"id": "s3", "label": "列表推导/内建函数替代手写循环"}}, {"data": {"id": "s4", "label": "快读快出（IO 层面）"}}, {"data": {"id": "s5", "label": "profile 验证收益，避免过度优化"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es2->s3", "source": "s2", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}, {"data": {"id": "es4->s5", "source": "s4", "target": "s5"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-constant-opt'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-cooccurrence" href="fast-io.html" title="大输入题常共需快速读入和常数优化">快速读入<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/lang/optimizations/" target="_blank" rel="noopener">https://oi-wiki.org/lang/optimizations/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/contest/common-tricks/" target="_blank" rel="noopener">https://oi-wiki.org/contest/common-tricks/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

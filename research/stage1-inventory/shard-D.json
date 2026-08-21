@@ -1,0 +1,1743 @@
+{
+  "shard": "D",
+  "shard_name": "计算几何与高级数据结构",
+  "groups": [
+    {
+      "id": "G-D-1",
+      "name": "凸包族",
+      "domain": "计算几何",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "convex-hull",
+        "rotating-calipers",
+        "half-plane-intersection",
+        "convex-hull-trick",
+        "minkowski-sum",
+        "point-in-polygon",
+        "enclosing-circle"
+      ]
+    },
+    {
+      "id": "G-D-2",
+      "name": "平面扫描与几何求交",
+      "domain": "计算几何",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "sweep-line",
+        "line-intersection",
+        "segment-intersection",
+        "vertical-decomposition",
+        "nearest-points",
+        "triangulation",
+        "delaunay-triangulation",
+        "circle-intersection",
+        "tangents-two-circles",
+        "segments-union-length"
+      ]
+    },
+    {
+      "id": "G-D-3",
+      "name": "计算几何基础与度量",
+      "domain": "计算几何",
+      "stage_range": [
+        "basic",
+        "advanced"
+      ],
+      "node_ids": [
+        "2d-geometry",
+        "3d-geometry",
+        "distance-metric",
+        "pick-theorem",
+        "lattice-points",
+        "random-incremental",
+        "geometric-inverse"
+      ]
+    },
+    {
+      "id": "G-D-4",
+      "name": "树链剖分与动态树",
+      "domain": "高级数据结构",
+      "stage_range": [
+        "advanced",
+        "frontier"
+      ],
+      "node_ids": [
+        "hld",
+        "lct",
+        "euler-tour-tree",
+        "top-tree"
+      ]
+    },
+    {
+      "id": "G-D-5",
+      "name": "可持久化数据结构",
+      "domain": "高级数据结构",
+      "stage_range": [
+        "advanced"
+      ],
+      "node_ids": [
+        "persistent-seg",
+        "persistent-trie",
+        "persistent-balanced",
+        "persistent-heap",
+        "persistent-block-array"
+      ]
+    },
+    {
+      "id": "G-D-6",
+      "name": "分块与根号算法",
+      "domain": "高级数据结构",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "sqrt-decomposition",
+        "block-array",
+        "block-list",
+        "odt",
+        "sqrt-tree",
+        "cat-tree",
+        "kdt",
+        "cartesian-tree"
+      ]
+    },
+    {
+      "id": "G-D-7",
+      "name": "莫队算法族",
+      "domain": "高级数据结构",
+      "stage_range": [
+        "intermediate",
+        "frontier"
+      ],
+      "node_ids": [
+        "mo-algo",
+        "modifiable-mo-algo",
+        "mo-algo-on-tree",
+        "rollback-mo-algo",
+        "mo-algo-2dimen",
+        "mo-algo-secondary-offline",
+        "mo-algo-with-bitset"
+      ]
+    },
+    {
+      "id": "G-D-8",
+      "name": "高级线段树与离线",
+      "domain": "高级数据结构",
+      "stage_range": [
+        "advanced",
+        "frontier"
+      ],
+      "node_ids": [
+        "seg-beats",
+        "li-chao-tree",
+        "kinetic-tournament-tree",
+        "seg-merge-split",
+        "segment-tree-offline",
+        "nested-segment-tree"
+      ]
+    },
+    {
+      "id": "G-D-9",
+      "name": "专题(topic 域)",
+      "domain": "高级专题",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "rmq",
+        "bracket-sequence",
+        "dsu-application"
+      ]
+    },
+    {
+      "id": "G-D-10",
+      "name": "调度与其他专题",
+      "domain": "高级专题",
+      "stage_range": [
+        "intermediate",
+        "advanced"
+      ],
+      "node_ids": [
+        "schedule-one-machine",
+        "schedule-two-machines",
+        "schedule-deadline-duration",
+        "josephus-problem",
+        "15-puzzle",
+        "maximum-average-segment",
+        "stern-brocot-tree",
+        "tortoise-hare"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "convex-hull",
+      "name": "凸包(Andrew/Graham)",
+      "group_id": "G-D-1",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "O(nlogn) 求点集凸包，Andrew 单调链与 Graham 扫描两种实现",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/convex-hull.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/convex-hull.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "rotating-calipers",
+      "name": "旋转卡壳",
+      "group_id": "G-D-1",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "在凸包上枚举对踵点，O(n) 求凸包直径/最小矩形覆盖",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/rotating-calipers.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "half-plane-intersection",
+      "name": "半平面交",
+      "group_id": "G-D-1",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "S&I 算法 O(nlogn) 求半平面交，结果为凸多边形",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/half-plane.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/halfplane-intersection.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "convex-hull-trick",
+      "name": "凸包优化(CHT)",
+      "group_id": "G-D-1",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "维护下/上凸壳按斜率二分求 DP 转移最值，斜率优化经典",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/convex_hull_trick.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch28",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "minkowski-sum",
+      "name": "闵可夫斯基和",
+      "group_id": "G-D-1",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "两凸多边形 Minkowski 和仍为凸多边形，用于碰撞检测/半平面并",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/minkowski.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "point-in-polygon",
+      "name": "点在多边形内判定",
+      "group_id": "G-D-1",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "射线法判一般多边形，凸多边形用有序二分 O(logn)",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/point-in-convex-polygon.html",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/point-location.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/misc.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "enclosing-circle",
+      "name": "最小覆盖圆",
+      "group_id": "G-D-1",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "随机增量法 O(期望n) 求覆盖所有点的最小圆(Welzl)",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/enclosing-circle.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/random-incremental.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "sweep-line",
+      "name": "扫描线",
+      "group_id": "G-D-2",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "线扫过平面处理事件，求矩形面积并/周长并/二维数点",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/scanning.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch30",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "line-intersection",
+      "name": "直线交点",
+      "group_id": "G-D-2",
+      "stage": "intermediate",
+      "priority": "P2",
+      "brief": "用叉积判定两直线位置关系并求交点坐标",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/lines-intersection.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/2d.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "segment-intersection",
+      "name": "线段相交判定与求交",
+      "group_id": "G-D-2",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "跨立实验判两线段是否相交并求交点，几何求交基础",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/check-segments-intersection.html",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/segments-intersection.html",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/intersecting-segments.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/2d.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "vertical-decomposition",
+      "name": "垂直剖分(梯形剖分)",
+      "group_id": "G-D-2",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "将平面按线段端点垂直切分为梯形单元，支持点定位与求交",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/vertical_decomposition.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch30",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "nearest-points",
+      "name": "最近点对",
+      "group_id": "G-D-2",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "分治 O(nlogn) 求平面最近点对，合并时按扫描线对检查",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/nearest-points.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/nearest_points.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "triangulation",
+      "name": "三角剖分",
+      "group_id": "G-D-2",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "将平面点集细分为三角形，常用耳切与对偶图",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/triangulation.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "delaunay-triangulation",
+      "name": "Delaunay 三角剖分",
+      "group_id": "G-D-2",
+      "stage": "frontier",
+      "priority": "P3",
+      "brief": "满足空圆性质的三角剖分，对偶为 Voronoi 图",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/delaunay.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "circle-intersection",
+      "name": "圆与直线/圆求交",
+      "group_id": "G-D-2",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "解几何方程求圆与直线、圆与圆交点",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/circle-line-intersection.html",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/circle-circle-intersection.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/misc.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "tangents-two-circles",
+      "name": "两圆公切线",
+      "group_id": "G-D-2",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "求两圆内外公切线，几何方程或向量构造",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/tangents-to-two-circles.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/misc.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "segments-union-length",
+      "name": "线段并集长度",
+      "group_id": "G-D-2",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "扫描线求一维/二维线段并集长度，离散化+区间合并",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/length-of-segments-union.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/scanning.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "2d-geometry",
+      "name": "二维几何基础",
+      "group_id": "G-D-3",
+      "stage": "basic",
+      "priority": "P1",
+      "brief": "向量运算/点积叉积/多边形面积/有向面积/线段转直线等基础",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/2d.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/basic-geometry.html",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/area-of-simple-polygon.html",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/oriented-triangle-area.html",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/segment-to-line.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "3d-geometry",
+      "name": "三维几何",
+      "group_id": "G-D-3",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "三维向量/平面/法向量/多面体体积与表面积，由二维推广",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/3d.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "distance-metric",
+      "name": "距离度量",
+      "group_id": "G-D-3",
+      "stage": "intermediate",
+      "priority": "P2",
+      "brief": "欧氏/曼哈顿/切比雪夫距离及其变换(切比雪夫↔曼哈顿)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/distance.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/manhattan-distance.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "pick-theorem",
+      "name": "皮克定理",
+      "group_id": "G-D-3",
+      "stage": "intermediate",
+      "priority": "P2",
+      "brief": "A=i+b/2-1 关联整点多边形面积与内部/边上格点数",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/pick.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/picks-theorem.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "lattice-points",
+      "name": "格点计数",
+      "group_id": "G-D-3",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "线段/多边形内整点计数，结合皮克定理与整除递推",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/lattice-points.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/pick.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "random-incremental",
+      "name": "随机增量法",
+      "group_id": "G-D-3",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "按随机序逐点加入并增量维护结构，期望线性复杂度",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/random-incremental.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch29",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "geometric-inverse",
+      "name": "反演变换",
+      "group_id": "G-D-3",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "圆/直线相切问题经反演简化，保角变换",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/inverse.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "hld",
+      "name": "树链剖分(重链剖分)",
+      "group_id": "G-D-4",
+      "stage": "advanced",
+      "priority": "P0",
+      "brief": "按轻重边将树剖为链，配合线段树 O(log^2 n) 维护路径/子树",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/hld.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/hld.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch18",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "lct",
+      "name": "Link-Cut Tree",
+      "group_id": "G-D-4",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "基于 Splay 维护实链剖分，支持动态连断边与路径查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/lct.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "euler-tour-tree",
+      "name": "Euler Tour Tree",
+      "group_id": "G-D-4",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "将动态树转为欧拉序上的平衡树区间操作，支持连断边",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/ett.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "top-tree",
+      "name": "Top Tree",
+      "group_id": "G-D-4",
+      "stage": "frontier",
+      "priority": "P3",
+      "brief": "Self-Adjusting Top Tree 维护完全动态森林的路径与子树信息",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/top-tree.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "persistent-seg",
+      "name": "可持久化线段树(主席树)",
+      "group_id": "G-D-5",
+      "stage": "advanced",
+      "priority": "P0",
+      "brief": "函数式线段树按版本共享节点，支持历史版本查询与区间k小值",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-seg.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch28",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "persistent-trie",
+      "name": "可持久化 Trie",
+      "group_id": "G-D-5",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "每次只新建被改节点，保留旧版本，支持历史版本字符串查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-trie.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "persistent-balanced",
+      "name": "可持久化平衡树",
+      "group_id": "G-D-5",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "可持久化无旋转 Treap，函数式节点复用实现历史版本",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-balanced.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "persistent-heap",
+      "name": "可持久化堆",
+      "group_id": "G-D-5",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "可持久化可并堆(左偏树)，常用于 k 短路问题",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-heap.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "persistent-block-array",
+      "name": "可持久化分块数组",
+      "group_id": "G-D-5",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "可持久化思想与分块结合，按版本复用块信息",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-block-array.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "sqrt-decomposition",
+      "name": "根号分块(通用)",
+      "group_id": "G-D-6",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "按块长 sqrt(n) 分块，整块维护+散块暴力，O(sqrt n) 操作",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/sqrt_decomposition.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch27",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "block-array",
+      "name": "分块数组",
+      "group_id": "G-D-6",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "块状数组实现区间修改/查询，块内整体保存散块暴力",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/block-array.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/sqrt_decomposition.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch27",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "block-list",
+      "name": "分块链表",
+      "group_id": "G-D-6",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "块状链表，链式分块支持插入删除与区间查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/block-list.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "odt",
+      "name": "珂朵莉树(ODT)",
+      "group_id": "G-D-6",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "颜色段均摊，随机数据下区间赋值均摊 O(logn)，源自 CF896C",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/odt.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "sqrt-tree",
+      "name": "sqrt 树",
+      "group_id": "G-D-6",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "O(n sqrt n) 预处理静态序列，支持结合律运算 O(1) 查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/sqrt-tree.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/data_structures/sqrt-tree.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "cat-tree",
+      "name": "猫树",
+      "group_id": "G-D-6",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "分治预处理静态区间，跨越中点的查询 O(1)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/cat-tree.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "kdt",
+      "name": "KD 树",
+      "group_id": "G-D-6",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "k 维空间分块树，高效处理 k 维最近邻/范围查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/kdt.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "cartesian-tree",
+      "name": "笛卡尔树",
+      "group_id": "G-D-6",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "键满足 BST、权满足堆性质，可将 RMQ 转为 LCA 实现线性",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/cartesian-tree.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "mo-algo",
+      "name": "普通莫队",
+      "group_id": "G-D-7",
+      "stage": "intermediate",
+      "priority": "P0",
+      "brief": "离线排序区间询问，块长 sqrt n，O(n sqrt n) 处理可 O(1) 扩展的区间",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo.md",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo-intro.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch27",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "modifiable-mo-algo",
+      "name": "带修莫队",
+      "group_id": "G-D-7",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "增加时间维三元组排序，支持单点修改的区间询问",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/modifiable-mo-algo.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "mo-algo-on-tree",
+      "name": "树上莫队",
+      "group_id": "G-D-7",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "用括号序将树压成序列，对路径询问跑莫队",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo-on-tree.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "rollback-mo-algo",
+      "name": "回滚莫队",
+      "group_id": "G-D-7",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "只增不删，按左端点块排序后回滚，处理难删除的转移",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/rollback-mo-algo.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "mo-algo-2dimen",
+      "name": "二维莫队",
+      "group_id": "G-D-7",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "四方向扩展指针，块长 n^(2/3)，处理矩阵区域询问",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo-2dimen.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "mo-algo-secondary-offline",
+      "name": "二次离线莫队",
+      "group_id": "G-D-7",
+      "stage": "frontier",
+      "priority": "P3",
+      "brief": "单次转移非 O(1) 时再离线一次，降低整体复杂度",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo-secondary-offline.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "mo-algo-with-bitset",
+      "name": "莫队+bitset",
+      "group_id": "G-D-7",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "bitset 维护状态，莫队转移后位运算加速判定类统计",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/mo-algo-with-bitset.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "seg-beats",
+      "name": "吉司机线段树(Segment Beats)",
+      "group_id": "G-D-8",
+      "stage": "frontier",
+      "priority": "P2",
+      "brief": "区间取 min/max 等操作利用势能标记，均摊高效维护复杂区间信息",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/seg-beats.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "li-chao-tree",
+      "name": "李超线段树",
+      "group_id": "G-D-8",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "线段树维护线段/直线集合，标记永久化求横坐标处最值",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/li-chao-tree.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/geometry/convex_hull_trick.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "kinetic-tournament-tree",
+      "name": "Kinetic Tournament Tree",
+      "group_id": "G-D-8",
+      "stage": "frontier",
+      "priority": "P3",
+      "brief": "线段树维护线性函数序列，支持线段插入删除的最值查询",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/kinetic-tournament-tree.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "seg-merge-split",
+      "name": "线段树合并与分裂",
+      "group_id": "G-D-8",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "按权值线段树合并实现集合操作，分裂还原，用于树上信息合并",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/seg-merge-split.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch28",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "segment-tree-offline",
+      "name": "线段树分治(离线)",
+      "group_id": "G-D-8",
+      "stage": "advanced",
+      "priority": "P1",
+      "brief": "将时间轴建成线段树，把只存在于某时段的信息离线分发到节点",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/topic/segment-tree-offline.md",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch28",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "nested-segment-tree",
+      "name": "线段树嵌套(树套树)",
+      "group_id": "G-D-8",
+      "stage": "frontier",
+      "priority": "P3",
+      "brief": "seg-in-seg/seg-in-bit/seg-in-balanced 等多维信息维护结构",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/seg-in-seg.md",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/seg-in-bit.md",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/seg-in-balanced.md",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/balanced-in-seg.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "rmq",
+      "name": "RMQ 专题",
+      "group_id": "G-D-9",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "区间最值查询：ST 表 O(1)/线段树/±1RMQ 线性预处理",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/topic/rmq.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/sequences/rmq.html",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/graph/rmq_linear.html",
+          "verified": true
+        },
+        {
+          "type": "book",
+          "ref": "CPH ch9",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "bracket-sequence",
+      "name": "括号序列专题",
+      "group_id": "G-D-9",
+      "stage": "intermediate",
+      "priority": "P2",
+      "brief": "合法括号序列判定/计数/线段树维护匹配(CF380C)",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/topic/bracket.md",
+          "verified": true
+        },
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/combinatorics/bracket_sequences.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "dsu-application",
+      "name": "并查集应用",
+      "group_id": "G-D-9",
+      "stage": "intermediate",
+      "priority": "P1",
+      "brief": "扩展域/带权/可撤销并查集与 Kruskal 重构树处理连通性问题",
+      "sources": [
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/topic/dsu-app.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "schedule-one-machine",
+      "name": "单机调度",
+      "group_id": "G-D-10",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "单机作业排序使最大延迟/完工时间最优，按截止期贪心",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/schedules/schedule_one_machine.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "schedule-two-machines",
+      "name": "双机调度(Johnson 法则)",
+      "group_id": "G-D-10",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "两台流水机作业调度，Johnson 法则求最短完工时间",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/schedules/schedule_two_machines.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "schedule-deadline-duration",
+      "name": "截止期限-工期调度",
+      "group_id": "G-D-10",
+      "stage": "advanced",
+      "priority": "P3",
+      "brief": "给定截止期限与工期求最优调度可行性，贪心+堆",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/schedules/schedule-with-completion-duration.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "josephus-problem",
+      "name": "约瑟夫问题",
+      "group_id": "G-D-10",
+      "stage": "intermediate",
+      "priority": "P2",
+      "brief": "递推 f(i)=(f(i-1)+m)%i 求 n 人循环报数幸存者",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/others/josephus_problem.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/josephus.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "15-puzzle",
+      "name": "15 数码可解性",
+      "group_id": "G-D-10",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "N 数码可解性判据：逆序对奇偶性(奇数阶)或行距+逆序对(偶数阶)",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/others/15-puzzle.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/15-puzzle.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "maximum-average-segment",
+      "name": "最大/小子段和",
+      "group_id": "G-D-10",
+      "stage": "intermediate",
+      "priority": "P2",
+      "brief": "Kadane 算法 O(n) 求最大子段和，前缀和+单调队列求限制长度的最大/小子段",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/others/maximum_average_segment.html",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "stern-brocot-tree",
+      "name": "Stern-Brocot 树与 Farey 序列",
+      "group_id": "G-D-10",
+      "stage": "advanced",
+      "priority": "P2",
+      "brief": "生成所有既约分数的二叉搜索树，二分定位有理数，关联 Farey 序列",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/others/stern_brocot_tree_farey_sequences.html",
+          "verified": true
+        },
+        {
+          "type": "oiwiki",
+          "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/number-theory/stern-brocot.md",
+          "verified": true
+        }
+      ]
+    },
+    {
+      "id": "tortoise-hare",
+      "name": "龟兔赛跑(环检测)",
+      "group_id": "G-D-10",
+      "stage": "intermediate",
+      "priority": "P2",
+      "brief": "Floyd 双指针 O(1) 空间检测链表/序列中的环并定位",
+      "sources": [
+        {
+          "type": "cpalg",
+          "url": "https://cp-algorithms.com/others/tortoise_and_hare.html",
+          "verified": true
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "2d-geometry",
+      "to": "convex-hull",
+      "type": "prerequisite",
+      "evidence": "凸包构建依赖二维向量与叉积"
+    },
+    {
+      "from": "convex-hull",
+      "to": "rotating-calipers",
+      "type": "prerequisite",
+      "evidence": "旋转卡壳在凸包上枚举对踵点"
+    },
+    {
+      "from": "convex-hull",
+      "to": "half-plane-intersection",
+      "type": "prerequisite",
+      "evidence": "半平面交结果为凸多边形，基于凸性"
+    },
+    {
+      "from": "convex-hull",
+      "to": "minkowski-sum",
+      "type": "prerequisite",
+      "evidence": "两凸多边形 Minkowski 和仍为凸多边形"
+    },
+    {
+      "from": "convex-hull",
+      "to": "point-in-polygon",
+      "type": "prerequisite",
+      "evidence": "凸多边形内点判定基于凸包有序性"
+    },
+    {
+      "from": "convex-hull",
+      "to": "convex-hull-trick",
+      "type": "combination",
+      "evidence": "CHT 维护凸壳按斜率二分求最优"
+    },
+    {
+      "from": "convex-hull-trick",
+      "to": "li-chao-tree",
+      "type": "variant",
+      "evidence": "两者都维护直线集合取最值，李超树为线段树实现"
+    },
+    {
+      "from": "li-chao-tree",
+      "to": "kinetic-tournament-tree",
+      "type": "variant",
+      "evidence": "都维护线性函数最值，后者支持线段删除"
+    },
+    {
+      "from": "random-incremental",
+      "to": "enclosing-circle",
+      "type": "combination",
+      "evidence": "最小覆盖圆用随机增量法实现"
+    },
+    {
+      "from": "2d-geometry",
+      "to": "line-intersection",
+      "type": "prerequisite",
+      "evidence": "直线交依赖向量与叉积"
+    },
+    {
+      "from": "line-intersection",
+      "to": "segment-intersection",
+      "type": "prerequisite",
+      "evidence": "线段判定由直线相交扩展"
+    },
+    {
+      "from": "segment-intersection",
+      "to": "vertical-decomposition",
+      "type": "prerequisite",
+      "evidence": "垂直剖分基于线段求交与排序"
+    },
+    {
+      "from": "segment-intersection",
+      "to": "half-plane-intersection",
+      "type": "combination",
+      "evidence": "半平面边界为有向直线，需线段/直线求交"
+    },
+    {
+      "from": "sweep-line",
+      "to": "segments-union-length",
+      "type": "combination",
+      "evidence": "线段并集长度为扫描线经典应用"
+    },
+    {
+      "from": "sweep-line",
+      "to": "nearest-points",
+      "type": "combination",
+      "evidence": "最近点对合并阶段用扫描线对检查"
+    },
+    {
+      "from": "sweep-line",
+      "to": "half-plane-intersection",
+      "type": "combination",
+      "evidence": "半平面交用排序+双端队列扫描"
+    },
+    {
+      "from": "2d-geometry",
+      "to": "circle-intersection",
+      "type": "prerequisite",
+      "evidence": "圆与直线/圆求交依赖几何方程"
+    },
+    {
+      "from": "circle-intersection",
+      "to": "tangents-two-circles",
+      "type": "variant",
+      "evidence": "公切线为圆几何求交的延伸"
+    },
+    {
+      "from": "triangulation",
+      "to": "delaunay-triangulation",
+      "type": "variant",
+      "evidence": "Delaunay 是满足空圆性质的三角剖分特例"
+    },
+    {
+      "from": "2d-geometry",
+      "to": "3d-geometry",
+      "type": "prerequisite",
+      "evidence": "三维概念由二维推广"
+    },
+    {
+      "from": "2d-geometry",
+      "to": "distance-metric",
+      "type": "prerequisite",
+      "evidence": "距离度量基于向量长度"
+    },
+    {
+      "from": "pick-theorem",
+      "to": "lattice-points",
+      "type": "combination",
+      "evidence": "皮克定理关联多边形面积与格点数"
+    },
+    {
+      "from": "hld",
+      "to": "lct",
+      "type": "variant",
+      "evidence": "均维护树链，LCT 支持动态连断边"
+    },
+    {
+      "from": "hld",
+      "to": "euler-tour-tree",
+      "type": "variant",
+      "evidence": "ETT 以欧拉序+平衡树维护动态树，与树剖同为链维护"
+    },
+    {
+      "from": "lct",
+      "to": "top-tree",
+      "type": "variant",
+      "evidence": "Top Tree 推广维护子树信息，LCT 维护路径"
+    },
+    {
+      "from": "persistent-seg",
+      "to": "persistent-trie",
+      "type": "variant",
+      "evidence": "可持久化思想从线段树推广到 Trie"
+    },
+    {
+      "from": "persistent-seg",
+      "to": "persistent-balanced",
+      "type": "variant",
+      "evidence": "可持久化平衡树共享函数式节点复用"
+    },
+    {
+      "from": "persistent-seg",
+      "to": "persistent-heap",
+      "type": "variant",
+      "evidence": "可持久化堆共享函数式节点复用"
+    },
+    {
+      "from": "persistent-seg",
+      "to": "persistent-block-array",
+      "type": "variant",
+      "evidence": "可持久化分块数组复用历史版本"
+    },
+    {
+      "from": "sqrt-decomposition",
+      "to": "block-array",
+      "type": "variant",
+      "evidence": "块状数组是根号分块的具体实现"
+    },
+    {
+      "from": "sqrt-decomposition",
+      "to": "block-list",
+      "type": "variant",
+      "evidence": "块状链表为分块的链式实现"
+    },
+    {
+      "from": "sqrt-decomposition",
+      "to": "sqrt-tree",
+      "type": "variant",
+      "evidence": "sqrt 树为根号预处理的静态查询结构"
+    },
+    {
+      "from": "sqrt-decomposition",
+      "to": "odt",
+      "type": "combination",
+      "evidence": "ODT 颜色段均摊基于区间分块思想"
+    },
+    {
+      "from": "block-array",
+      "to": "mo-algo",
+      "type": "prerequisite",
+      "evidence": "莫队按块长 sqrt 重排区间，依赖分块"
+    },
+    {
+      "from": "mo-algo",
+      "to": "modifiable-mo-algo",
+      "type": "variant",
+      "evidence": "带修莫队增加时间维"
+    },
+    {
+      "from": "mo-algo",
+      "to": "mo-algo-on-tree",
+      "type": "variant",
+      "evidence": "树上莫队用括号序将树压成序列"
+    },
+    {
+      "from": "mo-algo",
+      "to": "rollback-mo-algo",
+      "type": "variant",
+      "evidence": "回滚莫队处理不支撤删的转移"
+    },
+    {
+      "from": "mo-algo",
+      "to": "mo-algo-2dimen",
+      "type": "variant",
+      "evidence": "二维莫队四方向扩展指针"
+    },
+    {
+      "from": "mo-algo",
+      "to": "mo-algo-secondary-offline",
+      "type": "variant",
+      "evidence": "二次离线降低单次转移复杂度"
+    },
+    {
+      "from": "mo-algo",
+      "to": "mo-algo-with-bitset",
+      "type": "combination",
+      "evidence": "莫队+bitset 加速判定类统计"
+    },
+    {
+      "from": "mo-algo-on-tree",
+      "to": "rollback-mo-algo",
+      "type": "combination",
+      "evidence": "树上莫队常与回滚配合处理难删除转移"
+    },
+    {
+      "from": "cartesian-tree",
+      "to": "rmq",
+      "type": "combination",
+      "evidence": "笛卡尔树将 RMQ 转为 LCA，实现线性预处理"
+    },
+    {
+      "from": "cat-tree",
+      "to": "rmq",
+      "type": "variant",
+      "evidence": "猫树为静态 RMQ 的分治预处理实现"
+    },
+    {
+      "from": "seg-merge-split",
+      "to": "segment-tree-offline",
+      "type": "combination",
+      "evidence": "线段树分治常配合合并/分裂与可撤销结构"
+    },
+    {
+      "from": "segment-tree-offline",
+      "to": "sweep-line",
+      "type": "combination",
+      "evidence": "线段树分治即时间维扫描线"
+    },
+    {
+      "from": "li-chao-tree",
+      "to": "seg-beats",
+      "type": "combination",
+      "evidence": "均为线段树区间高级维护的推广"
+    },
+    {
+      "from": "nested-segment-tree",
+      "to": "seg-beats",
+      "type": "combination",
+      "evidence": "树套树与 Beats 同属复杂标记线段树"
+    },
+    {
+      "from": "schedule-one-machine",
+      "to": "schedule-two-machines",
+      "type": "variant",
+      "evidence": "由单机扩展到双机流水调度"
+    }
+  ],
+  "unresolved": [
+    "HLD(OI graph/hld.md, CPAlg graph/hld.html) 可能与 Shard B(图论)重叠；本分片按高级数据结构归属纳入，待主 Agent 与 Shard B 去重",
+    "高级数据结构族(LCT/可持久化族/分块族/树套树/高级线段树)可能被 Shard A(基础数据结构)覆盖；按规则6\"无法确定时纳入并 unresolved\"全量纳入，待主 Agent 协调去重",
+    "LCT 仅 OI Wiki 单源(CP-Algorithms 无 LCT 页面)，核心机制第二来源待补",
+    "CPAlg geometry/planar.html 与图论域平面图(OI graph/planar.md)可能重叠，未建独立节点，待裁决归属",
+    "convex-hull-trick/li-chao-tree 属 DP 斜率优化，可能与 Shard C(DP 优化)重叠，已纳入待去重",
+    "stern-brocot-tree/josephus/15-puzzle 位于 OI misc/math 域，本分片按 CPAlg others 归入，可能与 math/misc 分片重叠",
+    "P0 节点 3/65≈4.6%，低于通用 20-30% 指引；本域以 advanced/frontier 为主且 P0 列表由 priority 规则显式限定为{树链剖分,莫队基础,可持久化线段树}，依规则\"本域高级多 P0 可略低\"",
+    "cdq-divide 与 parallel-binary-search(OI misc 域)未纳入，疑似归属其他\"高级专题/离线\"分片，待确认",
+    "geometric-inverse 仅 OI 单源，CP-Algorithms 无对应页面，第二来源待补"
+  ]
+}

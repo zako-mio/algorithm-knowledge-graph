@@ -1,0 +1,116 @@
+{
+ "id": "persistent-dsu",
+ "name": "可持久化并查集",
+ "group": "G-A-4",
+ "stage": "advanced",
+ "priority": "P2",
+ "depth_tier": "standard",
+ "brief": "用主席树（可持久化数组）存 fa/秩，支持历史版本回溯的并查集，O(log n)/操作",
+ "what": "可持久化并查集解决『并查集带回滚/历史版本查询』问题（如离线可撤销并查集、二分答案需要回到中间版本）。核心思路：用可持久化线段树（主席树）实现一个支持历史版本单点修改/查询的『可持久化数组』，fa[] 与 size[]（或秩）各用一棵主席树维护。因为路径压缩会修改大量节点导致版本复制开销巨大，所以可持久化并查集【只用启发式合并（按大小/秩），不做路径压缩】，每次操作 O(log n) 修改两个点（fa 一个点、size 一个点）。每个版本对应一组 (fa_ver, size_ver)；操作 2 直接令当前版本指向历史版本（O(1) 回退）。空间 O((n+m) log n)。",
+ "why": {
+  "intuition": "普通并查集的数组每改一次就整体拷贝一份，太贵；但每次 merge 只改两个下标。主席树恰好‘共享没改的节点、只新建改动的 O(log n) 个路径节点’，让每个版本只多花 O(log n) 空间。回退就是把『当前指针』指回历史版本，连拷贝都不用。",
+  "principle": "① 建一棵值域 [1,n] 的主席树，叶子存 fa[i]=i；另一棵存 size（秩）。② find(x)：在当前版本树上反复查询 fa，沿树向上跳（不做路径压缩，深度由启发式合并保证 O(log n)）。③ union(a,b)：find 两棵，若同根则新版本直接复制当前版本；否则把 size 小的根挂到大根下，用主席树 modify 改一个 fa 叶子（O(log n) 新建路径节点）并改大根的 size。④ 回退到版本 k：roots[k] 直接复用。空间每个操作至多 O(log n) 新节点，总 O((n+m) log n)。正确性：启发式合并保证高度 O(log n)（无路径压缩），因此 find 是 O(log^2 n)（外层深度 log n，内层树查询 log n），可接受。",
+  "history": "可持久化数据结构概念源于 1980 年代（Driscoll 等），主席树（可持久化线段树）由黄嘉泰（HJT）引入中国 OI 圈。OI Wiki 在《可持久化线段树》页『拓展：基于主席树的可持久化并查集』给出完整实现，并强调此时必须只用启发式合并。经典题 Luogu P3402『可持久化并查集』。"
+ },
+ "how": {
+  "pseudocode": "class PersistSeg:  # 可持久化数组\n  roots = [build([1..n])]   # 版本 0\n  def get(ver, pos): query(roots[ver], 1, n, pos)\n  def set(ver, pos, val):   # 返回新版本号\n    newroot = modify(roots[ver], 1, n, pos, val)\n    roots.append(newroot); return len(roots)-1\n\nclass PersistDSU:\n  fa = PersistSeg(); sz = PersistSeg()\n  vers = [(0,0)]            # (fa_ver, sz_ver)\n  def find(x):\n    while True:\n      p = fa.get(vers[-1][0], x)\n      if p == x: return x\n      x = p\n  def union(a, b):\n    ra, rb = find(a), find(b)\n    if ra == rb: vers.append(vers[-1]); return\n    if sz.get(...ra) < sz.get(...rb): swap(ra, rb)\n    v1 = fa.set(vers[-1][0], rb, ra)\n    v2 = sz.set(vers[-1][1], ra, sz.get(...ra)+sz.get(...rb))\n    vers.append((v1, v2))\n  def rollback(k): vers.append(vers[k])  # O(1) 回退",
+  "python": "class PersistSeg:\n    \"\"\"可持久化数组(主席树式): 支持对历史版本 O(log n) 单点查询/修改, 返回新版本根.\"\"\"\n    def __init__(self, n, init_list):\n        self.n = n\n        self.lc = [0]\n        self.rc = [0]\n        self.val = [0]\n        # 初始版本 root=1\n        self.roots = [self._build(1, n, init_list)]\n\n    def _build(self, l, r, arr):\n        p = len(self.val); self.val.append(0); self.lc.append(0); self.rc.append(0)\n        if l == r:\n            self.val[p] = arr[l - 1]\n            return p\n        m = (l + r) // 2\n        self.lc[p] = self._build(l, m, arr)\n        self.rc[p] = self._build(m + 1, r, arr)\n        return p\n\n    def _clone(self, p):\n        self.lc.append(self.lc[p]); self.rc.append(self.rc[p]); self.val.append(self.val[p])\n        return len(self.val) - 1\n\n    def _query(self, p, l, r, pos):\n        if l == r: return self.val[p]\n        m = (l + r) // 2\n        if pos <= m: return self._query(self.lc[p], l, m, pos)\n        return self._query(self.rc[p], m + 1, r, pos)\n\n    def _modify(self, p, l, r, pos, newval):\n        q = self._clone(p)\n        if l == r:\n            self.val[q] = newval\n            return q\n        m = (l + r) // 2\n        if pos <= m: self.lc[q] = self._modify(self.lc[p], l, m, pos, newval)\n        else:       self.rc[q] = self._modify(self.rc[p], m + 1, r, pos, newval)\n        return q\n\n    def get(self, ver, pos): return self._query(self.roots[ver], 1, self.n, pos)\n    def set(self, ver, pos, newval):\n        newroot = self._modify(self.roots[ver], 1, self.n, pos, newval)\n        self.roots.append(newroot)\n        return len(self.roots) - 1\n\n\nclass PersistDSU:\n    \"\"\"可持久化并查集: 基于主席树(可持久化数组)存 fa 与 size(秩), 只按秩合并, 不做路径压缩.\n    支持在历史版本上进行 union / 回退(回到任意历史版本), 查询连通性.\"\"\"\n    def __init__(self, n):\n        self.n = n\n        fa = list(range(1, n + 1))          # 1-indexed\n        sz = [1] * (n + 1)                  # 秩/大小\n        self.fa = PersistSeg(n, fa)\n        self.sz = PersistSeg(n, sz)\n        self.roots = [(0, 0)]               # (fa_ver, sz_ver) 时间轴\n\n    def _find(self, x):\n        ver, _ = self.roots[-1]\n        while True:\n            p = self.fa.get(ver, x)\n            if p == x: return x\n            x = p\n\n    def _find_on(self, ver_fa, x):\n        while True:\n            p = self.fa.get(ver_fa, x)\n            if p == x: return x\n            x = p\n\n    def find(self, x):\n        return self._find(x)\n\n    def union(self, a, b):\n        ver_fa, ver_sz = self.roots[-1]\n        ra, rb = self._find_on(ver_fa, a), self._find_on(ver_fa, b)\n        if ra == rb:\n            # 无变化, 复制当前版本\n            self.roots.append((ver_fa, ver_sz))\n            return False\n        sa, sb = self.sz.get(ver_sz, ra), self.sz.get(ver_sz, rb)\n        if sa < sb: ra, rb = rb, ra\n        # rb 挂到 ra\n        v1 = self.fa.set(ver_fa, rb, ra)\n        v2 = self.sz.set(ver_sz, ra, sa + sb)\n        self.roots.append((v1, v2))\n        return True\n\n    def rollback(self, version):\n        self.roots.append(self.roots[version])\n        return version\n\n    def connected(self, a, b):\n        return self.find(a) == self.find(b)\n\n    def version_count(self):\n        return len(self.roots) - 1\n\n\nif __name__ == \"__main__\":\n    import random\n    random.seed(2024)\n    n = 50\n    pd = PersistDSU(n)\n    naive = list(range(n + 1))\n    def nfind(x):\n        while naive[x] != x:\n            naive[x] = naive[naive[x]]\n            x = naive[x]\n        return x\n    ver_ops = [[]]           # 每个 pd 版本对应的存活 union 操作\n    for t in range(300):\n        op = random.random()\n        if op < 0.5:\n            a, b = random.randint(1, n), random.randint(1, n)\n            r1 = pd.union(a, b)\n            r2 = (nfind(a) != nfind(b))\n            uops = ver_ops[-1][:]\n            if r2: uops.append((a, b))\n            ver_ops.append(uops)\n            assert r1 == r2, (t, a, b)\n            if r2: naive[nfind(a)] = nfind(b)\n        elif op < 0.6:\n            v = random.randint(0, pd.version_count())\n            pd.rollback(v)\n            naive = list(range(n + 1))\n            for a, b in ver_ops[v]:\n                ra, rb = nfind(a), nfind(b)\n                if ra != rb: naive[ra] = rb\n            ver_ops.append(ver_ops[v][:])\n        else:\n            a, b = random.randint(1, n), random.randint(1, n)\n            assert pd.connected(a, b) == (nfind(a) == nfind(b)), (t, a, b)\n    print(\"persistent-dsu: all tests passed\")\n",
+  "pypy_notes": "递归实现主席树节点克隆/修改时，函数调用次数 O(log n)×操作数，PyPy 下递归深 ~log n 没问题；但每次 modify 都深拷贝 lc/rc/val 三个 list 节点，建议用数组模拟节点池（self.lc/rc/val 三个 list 并行扩容）避免大量对象开销。回退用数组下标 O(1)。PyPy 下大数据建议将 find 写成迭代 while 而非递归。",
+  "complexity": {
+   "time": "find/union 每操作 O(log^2 n)（深度 O(log n) × 树查询 O(log n)）；回退 O(1)",
+   "space": "O((n+m) log n) 节点"
+  },
+  "limitations": "① 不能路径压缩（会一次性修改过多点，破坏可持久化摊销），因此常数比普通并查集大很多；② 空间大，n,m 达 1e5 时节点约 (n+m)·20 个；③ find 是 log^2，若要 O(log) 可改用可持久化平衡树/二元提升但实现复杂；④ 只支持版本回溯，不适用于需要当前时刻动态删除的在线场景（那用线段树分治）。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P3402",
+   "url": "https://www.luogu.com.cn/problem/P3402",
+   "difficulty": 4,
+   "key_point": "可持久化并查集模板：合并/回退到历史版本/查询连通性三操作"
+  },
+  {
+   "oj": "Library Checker",
+   "pid": "Persistent Unionfind",
+   "url": "https://judge.yosupo.jp/problem/persistent_unionfind",
+   "difficulty": 4,
+   "key_point": "Library Checker 可持久化并查集模板题"
+  }
+ ],
+ "pitfalls": [
+  "忘了去路径压缩——这是最隐蔽的错误，加了路径压缩的‘可持久化’并查集不正确",
+  "modify 要克隆整个路径节点再改，不能就地改共享节点（会污染其他版本）",
+  "合并时 size/秩 的更新位置（大根的 size 才累加）写错",
+  "回退后继续合并是基于回退后的版本，勿沿用旧 fa 版本号",
+  "数组版本号与‘操作数’对应错位（rollback 也产生新版本），测试要按版本号索引",
+  "递归 find 与递归 modify 混用时节点下标越界（节点池不足）"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "persist-seg",
+    "label": "可持久化数组(主席树): build/get/set"
+   },
+   {
+    "id": "init",
+    "label": "fa 初值 i, size 初值 1, 版本0"
+   },
+   {
+    "id": "find",
+    "label": "当前版本上沿 fa 迭代找根(无路径压缩)"
+   },
+   {
+    "id": "union",
+    "label": "启发式合并: 改 fa 一点 + size 一点, 出新版本"
+   },
+   {
+    "id": "rollback",
+    "label": "回退: vers.append(vers[k]) O(1)"
+   },
+   {
+    "id": "ext",
+    "label": "扩展: 线段树分治/二分答案中回到中间版本"
+   }
+  ],
+  "edges": [
+   {
+    "from": "persist-seg",
+    "to": "init"
+   },
+   {
+    "from": "init",
+    "to": "find"
+   },
+   {
+    "from": "find",
+    "to": "union"
+   },
+   {
+    "from": "union",
+    "to": "rollback"
+   },
+   {
+    "from": "rollback",
+    "to": "ext"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/persistent-seg/#拓展基于主席树的可持久化并查集",
+   "verified": true
+  },
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/dsu/",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "ref": "CPH ch14.2? (可持久化) —— 见 OI Wiki persistent-seg 参考",
+   "verified": true
+  }
+ ]
+}

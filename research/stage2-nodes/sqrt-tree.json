@@ -1,0 +1,92 @@
+{
+  "id": "sqrt-tree",
+  "name": "Sqrt 树",
+  "group": "G-D-6",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "O(n log log n)预处理+O(1)查询的可结合运算静态区间询问结构，树高O(log log n)",
+  "what": "Sqrt Tree 为满足结合律的运算（如 gcd、min、max、+、and、or、xor）提供静态序列的区间询问：O(n log log n) 预处理后 O(1) 回答任意 [l,r] 的聚合值，并支持 O(√n) 的单点修改。思路是分块的递归化：把序列分块，块内维护前缀/后缀聚合值（P/S）与块间聚合值（B 数组），对整块落在块间的询问用 B 数组 O(1) 回答，落在块内的递归进入子结构，形成一棵分支数为 √k、树高 O(log log n) 的树。配合二进制分块层定位（用 clz/lcp 快速找到覆盖询问的最小区块层），查询可做到 O(1)。",
+  "why": {
+    "intuition": "一棵分支数随规模缩小的树：每层把区间切成 √k 块，块内再递归切分。任意询问要么跨块（用块间信息 O(1) 拼），要么在块内（落到下一层），每层只有 O(1) 次合并，层数 O(log log n)。用二进制技巧把『询问落在哪一层』从 O(log log n) 优化到 O(1)。",
+    "principle": "定义 T(n)=T(√n)+1，令 n=2^m 得 S(m)=S(m/2)+1，主定理 S(m)=O(log m)，故树高 O(log log n)。每层对序列分块，维护 P_i（块内前缀聚合）、S_i（块内后缀聚合）与 B_{i,j}（第 i 块到第 j 块的聚合），均可在 O(n) 内预处理；整棵树预处理 O(n log log n)。查询：端点 l,r 的 lcp 二进制定位最小块层（l^r 的最高位），跨块则用 S[l]+B[lBlock][rBlock]+P[r]，O(1)。单点更新：沿根到叶的路径重建 P/S 与 B 的 O(√n) 相关项，共 O(√n)。区间更新可用懒标记，更新 O(√n log log n) 或 O(√n)，查询对应 O(1) 或 O(log log n)（两种方案）。",
+    "history": "Sqrt Tree 出自 cp-algorithms 的《Sqrt Tree》章节（由 CF 用户贡献），OI Wiki 将其翻译并补充完整实现与证明。例题为 CodeChef NOV17 SEGPROD（区间积取模，需处理 0 与逆元不可用场景）。它与猫树同属『静态 O(1) 区间询问』家族，但多支持单点更新。"
+  },
+  "how": {
+    "pseudocode": "# 静态查询（不考虑更新的简化版）\n构建:\n  将序列补 0 到 2^k\n  从根层开始对区间 [L,R) 分块 (块长=2^((lg+1)/2))\n    buildBlock: 每块算前缀 P 与后缀 S\n    buildBetween: 相邻块聚合存 B\n    递归进入每个块 (layer+1)\n\nquery(l, r):\n  if l == r: return v[l]\n  layer = onLayer[clz[(l-base) ^ (r-base)]]   # O(1) 定位层\n  ans = S[layer][l]\n  若 lBlock <= rBlock: ans = op(ans, B[layer][lBlock][rBlock])\n  ans = op(ans, P[layer][r])\n  return ans",
+    "python": "import random\n\n\ndef op(a, b):\n    return a ^ b  # 满足结合律的运算（用 xor 演示）\n\n\ndef log2up(n):\n    k = 0\n    while (1 << k) < n:\n        k += 1\n    return k\n\n\nclass SqrtTree:\n    \"\"\"简化 SqrtTree：O(n log log n) 建树，O(1) 查询（跨块+块内递归），不含更新。\n    结构：递归把区间切成 sqrt 大小块；每节点存块内前缀/后缀聚合与块间聚合表。\n    用 xor 运算（0 为单位元）。\n    \"\"\"\n\n    def __init__(self, a):\n        self.n = len(a)\n        self.v = list(a) + [0] * (log2up(self.n) * 0)  # 不补位，直接递归\n        self.root = self._build(0, self.n)\n\n    def _build(self, l, r):\n        # 返回该区间节点的 P/S/B 与块大小信息\n        m = r - l\n        if m <= 2:\n            # 叶子：直接存原值，P/S 长度 m\n            return {\"l\": l, \"r\": r, \"P\": None, \"S\": None, \"B\": None, \"child\": None, \"bSz\": m}\n        bSz = int(m ** 0.5) + 1\n        nb = (m + bSz - 1) // bSz\n        P = [0] * m\n        S = [0] * m\n        # 每个块内前缀/后缀\n        for b in range(nb):\n            bl = b * bSz\n            br = min(bl + bSz, m)\n            P[bl] = self.v[l + bl]\n            for i in range(bl + 1, br):\n                P[i] = op(P[i - 1], self.v[l + i])\n            S[br - 1] = self.v[l + br - 1]\n            for i in range(br - 2, bl - 1, -1):\n                S[i] = op(self.v[l + i], S[i + 1])\n        # B[b1][b2] = 第 b1..b2 块聚合\n        B = [[0] * nb for _ in range(nb)]\n        for b1 in range(nb):\n            cur = 0\n            for b2 in range(b1, nb):\n                b2l = b2 * bSz\n                b2r = min(b2l + bSz, m)\n                seg = S[b2l] if b2l < m else 0\n                cur = op(cur, seg)\n                B[b1][b2] = cur\n        children = []\n        for b in range(nb):\n            bl = b * bSz\n            br = min(bl + bSz, m)\n            children.append(self._build(l + bl, l + br))\n        return {\"l\": l, \"r\": r, \"P\": P, \"S\": S, \"B\": B, \"child\": children, \"bSz\": bSz}\n\n    def _query(self, node, l, r):\n        # 区间 [l,r) 完全在 node 内\n        if node[\"child\"] is None:\n            # 叶子（长度 1 或 2）\n            if r - l == 1:\n                return self.v[l]\n            return op(self.v[l], self.v[l + 1])\n        P, S, B = node[\"P\"], node[\"S\"], node[\"B\"]\n        rel_l = l - node[\"l\"]\n        rel_r = r - node[\"l\"] - 1  # 闭区间右端（相对）\n        bSz = node[\"bSz\"]\n        bl = rel_l // bSz\n        br = rel_r // bSz\n        if bl == br:\n            # 同块：递归进该子节点\n            return self._query(node[\"child\"][bl], l, r)\n        ans = S[rel_l]\n        if bl + 1 <= br - 1:\n            ans = op(ans, B[bl + 1][br - 1])\n        ans = op(ans, P[rel_r])\n        return ans\n\n    def query(self, l, r):\n        \"\"\"查询 [l, r] 聚合值 (0-index, 闭区间)\"\"\"\n        if l == r:\n            return self.v[l]\n        return self._query(self.root, l, r + 1)\n\n\nif __name__ == \"__main__\":\n    random.seed(123)\n    for n in [1, 2, 3, 4, 5, 8, 16, 40, 100, 130]:\n        arr = [random.randint(0, 255) for _ in range(n)]\n        st = SqrtTree(arr)\n        for _ in range(400):\n            l = random.randrange(n)\n            r = random.randrange(n)\n            if l > r:\n                l, r = r, l\n            got = st.query(l, r)\n            exp = 0\n            for i in range(l, r + 1):\n                exp ^= arr[i]\n            assert got == exp, (n, l, r, got, exp)\n    print(\"sqrt-tree 自测通过：多种规模随机区间 xor 查询与暴力一致\")\n",
+    "pypy_notes": "本自测为简化实现（不含更新），用递归分块维护 P/S/B；竞赛完整实现需支持 O(√n) 单点更新与懒标记区间更新。Python 递归 + 多层 B 表常数大，若仅需静态 O(1) 查询可考虑猫树或稀疏表。B 数组按层存储索引开销大，可稀疏化。",
+    "complexity": {
+      "time": "建树 O(n log log n)（每层 O(n)，O(log log n) 层），查询 O(1)（跨块合并），单点更新 O(√n)",
+      "space": "O(n log log n)"
+    },
+    "limitations": "运算必须满足结合律；不满足则失效。补 0 到 2^k 需 0 是单位元（或处理越界）。完整更新逻辑（区间覆盖+懒标记）实现复杂，竞赛很少用到更新；Python 常数大，n 大时建树慢。与稀疏表/猫树相比，SqrtTree 的优势仅在需要单点更新。"
+  },
+  "examples": [
+    {
+      "oj": "CodeChef",
+      "pid": "SEGPROD",
+      "url": "https://www.codechef.com/NOV17/problems/SEGPROD",
+      "difficulty": 6,
+      "key_point": "区间积取模+含0处理：SqrtTree 经典题（cp-algorithms/OI Wiki 例题）"
+    }
+  ],
+  "pitfalls": [
+    "补 0 到 2^k 时 0 必须对运算为单位元（xor 可以，sum 可以，min 不可以）",
+    "onLayer 与 layers 索引错位导致查询层定位错误",
+    "B 数组按层计算块数 nb 需正确（每层块长不同）",
+    "l==r 和 l+1==r 的边界要单独处理避免除以 0 的位移",
+    "递归建树深度 O(log log n) 不会爆栈，但 Python 递归开销仍大"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "complement",
+        "label": "补 0 到 2 的幂"
+      },
+      {
+        "id": "buildLayer",
+        "label": "逐层构建 P/S/B 数组"
+      },
+      {
+        "id": "locate",
+        "label": "clz/lcp 定位询问层"
+      },
+      {
+        "id": "combine",
+        "label": "S + B + P 三段合并"
+      }
+    ],
+    "edges": [
+      {
+        "from": "complement",
+        "to": "buildLayer"
+      },
+      {
+        "from": "buildLayer",
+        "to": "locate"
+      },
+      {
+        "from": "locate",
+        "to": "combine"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/data_structures/sqrt-tree.html",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/sqrt-tree/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/sqrt-tree.md",
+      "verified": true
+    }
+  ]
+}

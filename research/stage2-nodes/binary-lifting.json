@@ -1,0 +1,79 @@
+{
+  "id": "binary-lifting",
+  "name": "倍增",
+  "group": "G-A-1",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "预处理2^k次幂跳跃，用于ST表/LCA/稀疏表等",
+  "what": "倍增（Binary Lifting）是一种「成倍增长」的预处理思想：预先计算状态在跳 1、2、4、8... 步之后的结果，利用任意整数可写成若干个 2 的幂之和这一性质，将 O(n) 的暴力递推压缩为 O(log n) 的单次查询。经典应用包括：树上倍增求 LCA、RMQ 的 ST 表、函数迭代 f^m(x)（m 可达 10^18）、快速幂等。",
+  "why": {
+    "intuition": "倍增对应一个朴素直觉：你想让一个人一次跳 13 级台阶，与其一格格跳 13 次，不如先预处理出「跳 1、2、4、8 级」各到达哪里，然后 13 = 8+4+1，只跳三次。预处理量只有 log 级，查询也只要 log 级，这就是倍增的威力。",
+    "principle": "设 f[k][x] 表示从状态 x 出发做 2^k 次操作后的状态，预处理满足 f[k][x]=f[k-1][f[k-1][x]]（先跳 2^(k-1) 再跳 2^(k-1)）。查询时把目标步数 m 按二进制拆位，从低位到高位逐个应用对应 k 的转移表即可。用于 LCA 时再配合「从大往小试探跳到不同的祖先」的标准倍增思路。",
+    "history": "倍增思想最早被用于快速幂（每步平方），后被推广到稀疏表（Sparse Table，用于 O(1) RMQ）与树上 LCA（Tarjan 提出的倍增式 LCA 成为树上问题最常用的工具之一）。李煜东《算法竞赛进阶指南》0x06 节系统阐述了倍增范式，OI Wiki 也专辟「倍增」基础专题。"
+  },
+  "how": {
+    "pseudocode": "# 预处理\nLOG = floor(log2(max_m)) + 1\nf[0][x] = next_state(x)\nfor k in 1..LOG:\n  for x in all_states:\n    f[k][x] = f[k-1][f[k-1][x]]\n\n# 查询跳 m 步（可附带累计值 sum）\ncur = start; res = identity\nfor k in 0..LOG:\n  if m >> k & 1:\n    res = combine(res, sum[k][cur])\n    cur = f[k][cur]\n\n# LCA(u, v):\n# 先把深度深的提到同深度，再一起往上跳，最后差一步时返回父亲",
+    "python": "def build_lifting(n, nxt):\n    \"\"\"n 个节点，nxt[i]=i 走一步到的节点（函数图）。\n    返回 f[k][i]：i 跳 2^k 步后的节点。\n    \"\"\"\n    LOG = 1\n    while (1 << LOG) <= n:\n        LOG += 1\n    f = [[nxt[i] for i in range(n)] for _ in range(LOG)]\n    for k in range(1, LOG):\n        fk, fk1 = f[k], f[k - 1]\n        for i in range(n):\n            fk[i] = fk1[fk1[i]]\n    return f\n\n\ndef jump(f, x, m):\n    \"\"\"从 x 出发跳 m 步（函数图可反复走）。\n    表不够深时按需向上扩展（m 可能大于 2^LOG）。\n    \"\"\"\n    k = 0\n    while m:\n        if m & 1:\n            while k >= len(f):\n                last = f[-1]\n                f.append([last[last[i]] for i in range(len(last))])\n            x = f[k][x]\n        m >>= 1\n        k += 1\n    return x\n\n\nclass TreeLCA:\n    \"\"\"树上倍增 LCA。parent 用邻接表 adj 建树，root 为根。\"\"\"\n\n    def __init__(self, n, adj, root=0):\n        LOG = 1\n        while (1 << LOG) <= n:\n            LOG += 1\n        self.LOG = LOG\n        self.up = [[0] * n for _ in range(LOG)]\n        self.depth = [0] * n\n        # BFS/DFS 求 parent 与 depth\n        stack = [root]\n        self.up[0][root] = root\n        order = [root]\n        seen = [False] * n\n        seen[root] = True\n        while order:\n            u = order.pop()\n            for v in adj[u]:\n                if not seen[v]:\n                    seen[v] = True\n                    self.up[0][v] = u\n                    self.depth[v] = self.depth[u] + 1\n                    order.append(v)\n        for k in range(1, LOG):\n            for i in range(n):\n                self.up[k][i] = self.up[k - 1][self.up[k - 1][i]]\n\n    def lca(self, u, v):\n        if self.depth[u] < self.depth[v]:\n            u, v = v, u\n        diff = self.depth[u] - self.depth[v]\n        u = jump(self.up, u, diff)\n        if u == v:\n            return u\n        for k in range(self.LOG - 1, -1, -1):\n            if self.up[k][u] != self.up[k][v]:\n                u = self.up[k][u]\n                v = self.up[k][v]\n        return self.up[0][u]\n\n\nif __name__ == \"__main__\":\n    # 函数图测试: 0->1->2->3->4->4\n    nxt = [1, 2, 3, 4, 4]\n    f = build_lifting(5, nxt)\n    assert jump(f, 0, 0) == 0\n    assert jump(f, 0, 3) == 3\n    assert jump(f, 0, 100) == 4\n    assert jump(f, 2, 1) == 3\n\n    # 树测试: 0-1, 0-2, 1-3, 1-4\n    adj = [[] for _ in range(5)]\n    for u, v in [(0, 1), (0, 2), (1, 3), (1, 4)]:\n        adj[u].append(v)\n        adj[v].append(u)\n    t = TreeLCA(5, adj, 0)\n    assert t.lca(3, 4) == 1\n    assert t.lca(3, 2) == 0\n    assert t.lca(1, 2) == 0\n    assert t.lca(4, 4) == 4\n\n    print(\"All tests passed.\")",
+    "pypy_notes": "Python 中 LOG×n 的二维 list 是主要内存开销，n=1e6 时 20×1e6 个 Python int 约 560MB，建议用 array('i') 或分块存储。树上倍增查询每步 O(LOG)，PyPy 下 n=1e5 可轻松通过。跳 m 步用 while m 拆位比 for k 快。",
+    "complexity": {
+      "time": "预处理 O(n log n)，单次查询/跳跃 O(log n)",
+      "space": "O(n log n) — 存储 2^k 级跳转表"
+    },
+    "limitations": "倍增要求转移是「可叠加」的（函数迭代、RMQ 的可合并性等），否则无法合并两段信息。步数上限决定 LOG，需注意 m 可达 10^18 时 LOG 取 60+。空间占用是主要瓶颈，n 极大时考虑重链剖分（O(n) 空间）替代。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3379",
+      "url": "https://www.luogu.com.cn/problem/P3379",
+      "difficulty": 4,
+      "key_point": "【模板】最近公共祖先：树上倍增 LCA 的标准模板题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3865",
+      "url": "https://www.luogu.com.cn/problem/P3865",
+      "difficulty": 4,
+      "key_point": "【模板】ST表：倍增思想在 RMQ 区间最值上的应用"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "abc146_f",
+      "url": "https://atcoder.jp/contests/abc146/tasks/abc146_f",
+      "difficulty": 1100,
+      "key_point": "Sugoroku：倒推最短路+倍增式贪心跳，或直接模拟贪心"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3128",
+      "url": "https://www.luogu.com.cn/problem/P3128",
+      "difficulty": 5,
+      "key_point": "USACO15DEC 最大流：倍增 LCA 配合树上差分求路径覆盖次数"
+    }
+  ],
+  "pitfalls": [
+    "LOG 开得不够导致跳转越界（m 可达 10^18 时应取 60+）",
+    "f[k][x]=f[k-1][f[k-1][x]] 的合并顺序写反",
+    "LCA 跳到同深度后忘记判断 u==v 就直接进入二进制试探",
+    "拆分 m 时位运算优先级错误：if m & (1<<k) 应写 if (m >> k) & 1",
+    "Python 中 LOG×n 二维表内存爆炸，需用 array 或换重链剖分"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "base", "label": "构造 f[0][x]=一步转移" },
+      { "id": "merge", "label": "递推 f[k][x]=f[k-1][f[k-1][x]]" },
+      { "id": "query", "label": "按二进制拆位查询/跳跃" },
+      { "id": "lca", "label": "LCA：提深度+一起跳+返回父亲" }
+    ],
+    "edges": [
+      { "from": "base", "to": "merge" },
+      { "from": "merge", "to": "query" },
+      { "from": "query", "to": "lca" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/basic/binary-lifting/", "verified": true },
+    { "type": "book", "ref": "李煜东《算法竞赛进阶指南》0x06 倍增", "verified": true }
+  ]
+}

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPFA算法 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-2.html">最短路族</a> / <span>SPFA算法</span></div>
+  <h1>SPFA算法</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-B-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="bellman-ford.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">bellman-ford</span></a>
+    <a class="nav-index" href="../03-groups/G-B-2.html"><span class="dir">组内第 4 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="johnson.html"><span class="dir">下一个 / 组内</span><span class="v">johnson</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">Bellman-Ford队列优化，均摊快但最坏O(VE)</div><p>SPFA（Shortest Path Faster Algorithm）是 Bellman-Ford 的队列优化：只把『上一轮被松弛的节点』入队并松弛其出边，跳过无用的全边扫描。均摊情况很快（随机图近似 O(E)），但最坏时间复杂度 O(VE)，可被构造卡死。用 cnt[v] 记录 v 被松弛的次数（等价最短路经过边数），当 cnt[v]≥n 判定源可达负环。是判负环与含负权图最短路的常用实现，但竞赛中『无负权优先 Dijkstra』是铁律。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>Bellman-Ford 每轮盲目扫全部边。观察：只有 dis 刚变小（被松弛）的节点 u，它的出边才可能在下一轮继续松弛别人。于是维护一个队列，谁的 dis 变了谁入队，队空即收敛。负环检测：一个节点若最短路的边数超过 n-1（cnt≥n），必然走了重复环且环权为负。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① dis[s]=0 入队；② 每次弹出 u，松弛 u 的所有出边，若 v 被松弛且不在队中则入队；③ cnt[v]=cnt[u]+1 记录路径边数；④ 若 cnt[v]≥n 说明经 v 的最短路边数超上限 → 存在从源可达的负环；⑤ 出队时置 vis[u]=False 允许再次入队（区别于 Dijkstra 的永久标记）。注意 SLF/LLL/栈优化等变体可提升部分图性能，但最坏仍 O(VE)，甚至堆优化版可被卡到指数级。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>SPFA 由段凡丁 1994 年在中国提出并命名，本质即 Bellman-Ford 的队列版本（Bellman 1958）。因实现简单、随机图快，曾在中国 OI 圈广泛使用；随着针对性的卡 SPFA 数据出现，OI Wiki 明确警示『最坏 O(nm) 且易卡，考试谨慎使用』。CP-Algorithms 将其归入 D&#x27;Esopo-Pape 算法族。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">spfa</span>(adj, n, s):
+  dis=[INF]*n; dis[s]=<span class="t-n">0</span>; vis=[<span class="t-k">False</span>]*n; cnt=[<span class="t-n">0</span>]*n
+  q=<span class="t-f">deque</span>([s]); vis[s]=<span class="t-k">True</span>
+  <span class="t-k">while</span> q:
+    u=q.<span class="t-f">popleft</span>(); vis[u]=<span class="t-k">False</span>
+    <span class="t-k">for</span> (v,w) <span class="t-k">in</span> adj[u]:
+      <span class="t-k">if</span> dis[u]+w &lt; dis[v]:
+        dis[v]=dis[u]+w
+        cnt[v]=cnt[u]+<span class="t-n">1</span>
+        <span class="t-k">if</span> cnt[v]&gt;=n: <span class="t-k">return</span> <span class="t-k">False</span>, <span class="t-k">None</span>   <span class="t-c"># 负环</span>
+        <span class="t-k">if</span> <span class="t-k">not</span> vis[v]: q.<span class="t-f">append</span>(v); vis[v]=<span class="t-k">True</span>
+  <span class="t-k">return</span> <span class="t-k">True</span>, dis</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+
+<span class="t-k">def</span> <span class="t-f">spfa</span>(n, adj, s):
+    <span class="t-s">&quot;&quot;&quot;SPFA 单源最短路(可负权) + 负环检测.
+    adj: 邻接表 adj[u]=[(v,w),...].
+    返回 (True, dis) 或 (False, None) 表示 s 可达负环.&quot;&quot;&quot;</span>
+    INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    dis = [INF] * n
+    vis = [<span class="t-k">False</span>] * n
+    cnt = [<span class="t-n">0</span>] * n
+    dis[s] = <span class="t-n">0</span>
+    q = <span class="t-f">deque</span>([s])
+    vis[s] = <span class="t-k">True</span>
+    <span class="t-k">while</span> q:
+        u = q.<span class="t-f">popleft</span>()
+        vis[u] = <span class="t-k">False</span>
+        du = dis[u]
+        <span class="t-k">for</span> v, w <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> du + w &lt; dis[v]:
+                dis[v] = du + w
+                cnt[v] = cnt[u] + <span class="t-n">1</span>
+                <span class="t-k">if</span> cnt[v] &gt;= n:
+                    <span class="t-k">return</span> <span class="t-k">False</span>, <span class="t-k">None</span>
+                <span class="t-k">if</span> <span class="t-k">not</span> vis[v]:
+                    q.<span class="t-f">append</span>(v)
+                    vis[v] = <span class="t-k">True</span>
+    <span class="t-k">return</span> <span class="t-k">True</span>, dis
+
+
+<span class="t-k">def</span> <span class="t-f">spfa_global_neg_cycle</span>(n, adj):
+    <span class="t-s">&quot;&quot;&quot;全图负环检测: 虚拟源点连 0 权边 (等价所有点初始入队 dis=0)&quot;&quot;&quot;</span>
+    INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    dis = [<span class="t-n">0</span>] * n
+    vis = [<span class="t-k">True</span>] * n
+    cnt = [<span class="t-n">0</span>] * n
+    q = <span class="t-f">deque</span>(<span class="t-b">range</span>(n))
+    <span class="t-k">while</span> q:
+        u = q.<span class="t-f">popleft</span>()
+        vis[u] = <span class="t-k">False</span>
+        du = dis[u]
+        <span class="t-k">for</span> v, w <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> du + w &lt; dis[v]:
+                dis[v] = du + w
+                cnt[v] = cnt[u] + <span class="t-n">1</span>
+                <span class="t-k">if</span> cnt[v] &gt;= n:
+                    <span class="t-k">return</span> <span class="t-k">False</span>
+                <span class="t-k">if</span> <span class="t-k">not</span> vis[v]:
+                    q.<span class="t-f">append</span>(v)
+                    vis[v] = <span class="t-k">True</span>
+    <span class="t-k">return</span> <span class="t-k">True</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 用例</span>
+    adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">5</span>)]
+    edges = [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">6</span>), (<span class="t-n">0</span>, <span class="t-n">2</span>, <span class="t-n">7</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">8</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>, <span class="t-n">5</span>), (<span class="t-n">1</span>, <span class="t-n">4</span>, -<span class="t-n">4</span>), (<span class="t-n">2</span>, <span class="t-n">3</span>, -<span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">9</span>), (<span class="t-n">3</span>, <span class="t-n">1</span>, -<span class="t-n">2</span>), (<span class="t-n">4</span>, <span class="t-n">0</span>, <span class="t-n">2</span>), (<span class="t-n">4</span>, <span class="t-n">3</span>, <span class="t-n">7</span>)]
+    <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+        adj[u].<span class="t-f">append</span>((v, w))
+    ok, dis = <span class="t-f">spfa</span>(<span class="t-n">5</span>, adj, <span class="t-n">0</span>)
+    <span class="t-k">assert</span> ok <span class="t-k">and</span> dis == [<span class="t-n">0</span>, <span class="t-n">2</span>, <span class="t-n">7</span>, <span class="t-n">4</span>, -<span class="t-n">2</span>], dis
+
+    <span class="t-c"># 负环</span>
+    adj2 = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">3</span>)]
+    <span class="t-k">for</span> u, v, w <span class="t-k">in</span> [(<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>, -<span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">0</span>, <span class="t-n">1</span>)]:
+        adj2[u].<span class="t-f">append</span>((v, w))
+    ok, _ = <span class="t-f">spfa</span>(<span class="t-n">3</span>, adj2, <span class="t-n">0</span>)
+    <span class="t-k">assert</span> ok <span class="t-k">is</span> <span class="t-k">False</span>
+
+    <span class="t-c"># 与 Bellman-Ford 交叉验证 (随机图)</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">31</span>)
+
+    <span class="t-k">def</span> <span class="t-f">bf</span>(n, edges, s):
+        INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+        dis = [INF] * n
+        dis[s] = <span class="t-n">0</span>
+        <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n - <span class="t-n">1</span>):
+            upd = <span class="t-k">False</span>
+            <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+                <span class="t-k">if</span> dis[u] != INF <span class="t-k">and</span> dis[u] + w &lt; dis[v]:
+                    dis[v] = dis[u] + w
+                    upd = <span class="t-k">True</span>
+            <span class="t-k">if</span> <span class="t-k">not</span> upd:
+                <span class="t-k">break</span>
+        <span class="t-k">for</span> u, v, w <span class="t-k">in</span> edges:
+            <span class="t-k">if</span> dis[u] != INF <span class="t-k">and</span> dis[u] + w &lt; dis[v]:
+                <span class="t-k">return</span> <span class="t-k">False</span>, <span class="t-k">None</span>
+        <span class="t-k">return</span> <span class="t-k">True</span>, dis
+
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">400</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">7</span>)
+        edges = []
+        a = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> i != j <span class="t-k">and</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.3</span>:
+                    w = random.<span class="t-f">randint</span>(-<span class="t-n">6</span>, <span class="t-n">9</span>)
+                    edges.<span class="t-f">append</span>((i, j, w))
+                    a[i].<span class="t-f">append</span>((j, w))
+        s = random.<span class="t-f">randrange</span>(n)
+        o1, d1 = <span class="t-f">spfa</span>(n, a, s)
+        o2, d2 = <span class="t-f">bf</span>(n, edges, s)
+        <span class="t-k">assert</span> o1 == o2, (n, edges, s, o1, o2)
+        <span class="t-k">if</span> o1:
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">assert</span> d1[i] == d2[i], (i, d1[i], d2[i])
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">队列用 collections.deque（popleft O(1)）。判负环用 cnt 数组；若要全图负环检测，可初始化所有点 dis=0 入队（等价虚拟源）。PyPy 下随机图接近 O(E)，但务必警惕恶意数据。SLF 优化（与队首比较决定插队头/尾）可加但防不住构造数据。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>均摊接近 O(E)；最坏 O(VE)</td></tr><tr><th>空间复杂度</th><td>O(V+E)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">最坏 O(VE) 且极易被构造数据卡死（网格图等）；堆优化变体甚至可被卡到指数级。无负权图必须用 Dijkstra。含负权且图很大时，先判断是否有负环，无负环且边权非负仍优先 Dijkstra。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>与 Dijkstra 混淆：vis[] 必须出队后置 False（SPFA 允许重复入队），否则负权图会漏松弛</li><li>负环判定 cnt[v]≥n 用『边数』而非入队次数，二者在特殊实现下可能不等价</li><li>初始化所有点入队做全图负环检测时，dis 全部置 0 而非 INF</li><li>被卡 TLE 时无脑优化队列不如换算法（无负权→Dijkstra）</li><li>重边/负自环：负自环直接判负环</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3385</strong></td><td>3</td><td>【模板】负环：SPFA 判负环标准模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3385" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3385</a></td></tr><tr><td>Luogu</td><td><strong>P1993</strong></td><td>4</td><td>小 K 的农场：差分约束转最短路/负环判定（OI Wiki 例题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1993" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1993</a></td></tr><tr><td>Luogu</td><td><strong>P2850</strong></td><td>4</td><td>虫洞 Wormholes：负环检测判定时间回溯</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2850" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2850</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-spfa" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "queue", "label": "队列维护被松弛节点"}}, {"data": {"id": "relax", "label": "弹出 u 松弛出边"}}, {"data": {"id": "requeue", "label": "vis 出队置 False 允许再入队"}}, {"data": {"id": "cnt", "label": "cnt[v]>=n 判负环"}}, {"data": {"id": "global", "label": "全图负环: 所有点 dis=0 入队"}}, {"data": {"id": "equeue->relax", "source": "queue", "target": "relax"}}, {"data": {"id": "erelax->requeue", "source": "relax", "target": "requeue"}}, {"data": {"id": "erelax->cnt", "source": "relax", "target": "cnt"}}, {"data": {"id": "ecnt->global", "source": "cnt", "target": "global"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-spfa'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="bellman-ford.html" title="SPFA是Bellman-Ford的队列优化实现">Bellman-Ford算法<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/shortest-path/" target="_blank" rel="noopener">https://oi-wiki.org/graph/shortest-path/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/desopo_pape.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/desopo_pape.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch13 pp133-142</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

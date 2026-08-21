@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>倍增 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-1.html">排序与基础算法族</a> / <span>倍增</span></div>
+  <h1>倍增</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-1</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="prefix-sum.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">prefix-sum</span></a>
+    <a class="nav-index" href="../03-groups/G-A-1.html"><span class="dir">组内第 18 / 20</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="complexity.html"><span class="dir">下一个 / 组内</span><span class="v">complexity</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">预处理2^k次幂跳跃，用于ST表/LCA/稀疏表等</div><p>倍增（Binary Lifting）是一种「成倍增长」的预处理思想：预先计算状态在跳 1、2、4、8... 步之后的结果，利用任意整数可写成若干个 2 的幂之和这一性质，将 O(n) 的暴力递推压缩为 O(log n) 的单次查询。经典应用包括：树上倍增求 LCA、RMQ 的 ST 表、函数迭代 f^m(x)（m 可达 10^18）、快速幂等。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>倍增对应一个朴素直觉：你想让一个人一次跳 13 级台阶，与其一格格跳 13 次，不如先预处理出「跳 1、2、4、8 级」各到达哪里，然后 13 = 8+4+1，只跳三次。预处理量只有 log 级，查询也只要 log 级，这就是倍增的威力。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>设 f[k][x] 表示从状态 x 出发做 2^k 次操作后的状态，预处理满足 f[k][x]=f[k-1][f[k-1][x]]（先跳 2^(k-1) 再跳 2^(k-1)）。查询时把目标步数 m 按二进制拆位，从低位到高位逐个应用对应 k 的转移表即可。用于 LCA 时再配合「从大往小试探跳到不同的祖先」的标准倍增思路。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>倍增思想最早被用于快速幂（每步平方），后被推广到稀疏表（Sparse Table，用于 O(1) RMQ）与树上 LCA（Tarjan 提出的倍增式 LCA 成为树上问题最常用的工具之一）。李煜东《算法竞赛进阶指南》0x06 节系统阐述了倍增范式，OI Wiki 也专辟「倍增」基础专题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 预处理</span>
+LOG = <span class="t-f">floor</span>(<span class="t-f">log2</span>(max_m)) + <span class="t-n">1</span>
+f[<span class="t-n">0</span>][x] = <span class="t-f">next_state</span>(x)
+<span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-n">1.</span>.LOG:
+  <span class="t-k">for</span> x <span class="t-k">in</span> all_states:
+    f[k][x] = f[k-<span class="t-n">1</span>][f[k-<span class="t-n">1</span>][x]]
+
+<span class="t-c"># 查询跳 m 步（可附带累计值 sum）</span>
+cur = start; res = identity
+<span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-n">0.</span>.LOG:
+  <span class="t-k">if</span> m &gt;&gt; k &amp; <span class="t-n">1</span>:
+    res = <span class="t-f">combine</span>(res, <span class="t-b">sum</span>[k][cur])
+    cur = f[k][cur]
+
+<span class="t-c"># LCA(u, v):</span>
+<span class="t-c"># 先把深度深的提到同深度，再一起往上跳，最后差一步时返回父亲</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">build_lifting</span>(n, nxt):
+    <span class="t-s">&quot;&quot;&quot;n 个节点，nxt[i]=i 走一步到的节点（函数图）。
+    返回 f[k][i]：i 跳 2^k 步后的节点。
+    &quot;&quot;&quot;</span>
+    LOG = <span class="t-n">1</span>
+    <span class="t-k">while</span> (<span class="t-n">1</span> &lt;&lt; LOG) &lt;= n:
+        LOG += <span class="t-n">1</span>
+    f = [[nxt[i] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(LOG)]
+    <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, LOG):
+        fk, fk1 = f[k], f[k - <span class="t-n">1</span>]
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            fk[i] = fk1[fk1[i]]
+    <span class="t-k">return</span> f
+
+
+<span class="t-k">def</span> <span class="t-f">jump</span>(f, x, m):
+    <span class="t-s">&quot;&quot;&quot;从 x 出发跳 m 步（函数图可反复走）。
+    表不够深时按需向上扩展（m 可能大于 2^LOG）。
+    &quot;&quot;&quot;</span>
+    k = <span class="t-n">0</span>
+    <span class="t-k">while</span> m:
+        <span class="t-k">if</span> m &amp; <span class="t-n">1</span>:
+            <span class="t-k">while</span> k &gt;= <span class="t-b">len</span>(f):
+                last = f[-<span class="t-n">1</span>]
+                f.<span class="t-f">append</span>([last[last[i]] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(last))])
+            x = f[k][x]
+        m &gt;&gt;= <span class="t-n">1</span>
+        k += <span class="t-n">1</span>
+    <span class="t-k">return</span> x
+
+
+<span class="t-k">class</span> TreeLCA:
+    <span class="t-s">&quot;&quot;&quot;树上倍增 LCA。parent 用邻接表 adj 建树，root 为根。&quot;&quot;&quot;</span>
+
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, n, adj, root=<span class="t-n">0</span>):
+        LOG = <span class="t-n">1</span>
+        <span class="t-k">while</span> (<span class="t-n">1</span> &lt;&lt; LOG) &lt;= n:
+            LOG += <span class="t-n">1</span>
+        self.LOG = LOG
+        self.up = [[<span class="t-n">0</span>] * n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(LOG)]
+        self.depth = [<span class="t-n">0</span>] * n
+        <span class="t-c"># BFS/DFS 求 parent 与 depth</span>
+        stack = [root]
+        self.up[<span class="t-n">0</span>][root] = root
+        order = [root]
+        seen = [<span class="t-k">False</span>] * n
+        seen[root] = <span class="t-k">True</span>
+        <span class="t-k">while</span> order:
+            u = order.<span class="t-f">pop</span>()
+            <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+                <span class="t-k">if</span> <span class="t-k">not</span> seen[v]:
+                    seen[v] = <span class="t-k">True</span>
+                    self.up[<span class="t-n">0</span>][v] = u
+                    self.depth[v] = self.depth[u] + <span class="t-n">1</span>
+                    order.<span class="t-f">append</span>(v)
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, LOG):
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                self.up[k][i] = self.up[k - <span class="t-n">1</span>][self.up[k - <span class="t-n">1</span>][i]]
+
+    <span class="t-k">def</span> <span class="t-f">lca</span>(self, u, v):
+        <span class="t-k">if</span> self.depth[u] &lt; self.depth[v]:
+            u, v = v, u
+        diff = self.depth[u] - self.depth[v]
+        u = <span class="t-f">jump</span>(self.up, u, diff)
+        <span class="t-k">if</span> u == v:
+            <span class="t-k">return</span> u
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(self.LOG - <span class="t-n">1</span>, -<span class="t-n">1</span>, -<span class="t-n">1</span>):
+            <span class="t-k">if</span> self.up[k][u] != self.up[k][v]:
+                u = self.up[k][u]
+                v = self.up[k][v]
+        <span class="t-k">return</span> self.up[<span class="t-n">0</span>][u]
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 函数图测试: 0-&gt;1-&gt;2-&gt;3-&gt;4-&gt;4</span>
+    nxt = [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">4</span>]
+    f = <span class="t-f">build_lifting</span>(<span class="t-n">5</span>, nxt)
+    <span class="t-k">assert</span> <span class="t-f">jump</span>(f, <span class="t-n">0</span>, <span class="t-n">0</span>) == <span class="t-n">0</span>
+    <span class="t-k">assert</span> <span class="t-f">jump</span>(f, <span class="t-n">0</span>, <span class="t-n">3</span>) == <span class="t-n">3</span>
+    <span class="t-k">assert</span> <span class="t-f">jump</span>(f, <span class="t-n">0</span>, <span class="t-n">100</span>) == <span class="t-n">4</span>
+    <span class="t-k">assert</span> <span class="t-f">jump</span>(f, <span class="t-n">2</span>, <span class="t-n">1</span>) == <span class="t-n">3</span>
+
+    <span class="t-c"># 树测试: 0-1, 0-2, 1-3, 1-4</span>
+    adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">5</span>)]
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> [(<span class="t-n">0</span>, <span class="t-n">1</span>), (<span class="t-n">0</span>, <span class="t-n">2</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">1</span>, <span class="t-n">4</span>)]:
+        adj[u].<span class="t-f">append</span>(v)
+        adj[v].<span class="t-f">append</span>(u)
+    t = <span class="t-f">TreeLCA</span>(<span class="t-n">5</span>, adj, <span class="t-n">0</span>)
+    <span class="t-k">assert</span> t.<span class="t-f">lca</span>(<span class="t-n">3</span>, <span class="t-n">4</span>) == <span class="t-n">1</span>
+    <span class="t-k">assert</span> t.<span class="t-f">lca</span>(<span class="t-n">3</span>, <span class="t-n">2</span>) == <span class="t-n">0</span>
+    <span class="t-k">assert</span> t.<span class="t-f">lca</span>(<span class="t-n">1</span>, <span class="t-n">2</span>) == <span class="t-n">0</span>
+    <span class="t-k">assert</span> t.<span class="t-f">lca</span>(<span class="t-n">4</span>, <span class="t-n">4</span>) == <span class="t-n">4</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 中 LOG×n 的二维 list 是主要内存开销，n=1e6 时 20×1e6 个 Python int 约 560MB，建议用 array(&#x27;i&#x27;) 或分块存储。树上倍增查询每步 O(LOG)，PyPy 下 n=1e5 可轻松通过。跳 m 步用 while m 拆位比 for k 快。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>预处理 O(n log n)，单次查询/跳跃 O(log n)</td></tr><tr><th>空间复杂度</th><td>O(n log n) — 存储 2^k 级跳转表</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">倍增要求转移是「可叠加」的（函数迭代、RMQ 的可合并性等），否则无法合并两段信息。步数上限决定 LOG，需注意 m 可达 10^18 时 LOG 取 60+。空间占用是主要瓶颈，n 极大时考虑重链剖分（O(n) 空间）替代。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>LOG 开得不够导致跳转越界（m 可达 10^18 时应取 60+）</li><li>f[k][x]=f[k-1][f[k-1][x]] 的合并顺序写反</li><li>LCA 跳到同深度后忘记判断 u==v 就直接进入二进制试探</li><li>拆分 m 时位运算优先级错误：if m &amp; (1&lt;&lt;k) 应写 if (m &gt;&gt; k) &amp; 1</li><li>Python 中 LOG×n 二维表内存爆炸，需用 array 或换重链剖分</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3379</strong></td><td>4</td><td>【模板】最近公共祖先：树上倍增 LCA 的标准模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3379" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3379</a></td></tr><tr><td>Luogu</td><td><strong>P3865</strong></td><td>4</td><td>【模板】ST表：倍增思想在 RMQ 区间最值上的应用</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3865" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3865</a></td></tr><tr><td>AtCoder</td><td><strong>abc146_f</strong></td><td>1100</td><td>Sugoroku：倒推最短路+倍增式贪心跳，或直接模拟贪心</td><td class="u"><a href="https://atcoder.jp/contests/abc146/tasks/abc146_f" target="_blank" rel="noopener">https://atcoder.jp/contests/abc146/tasks/abc146_f</a></td></tr><tr><td>Luogu</td><td><strong>P3128</strong></td><td>5</td><td>USACO15DEC 最大流：倍增 LCA 配合树上差分求路径覆盖次数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3128" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3128</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-binary-lifting" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "base", "label": "构造 f[0][x]=一步转移"}}, {"data": {"id": "merge", "label": "递推 f[k][x]=f[k-1][f[k-1][x]]"}}, {"data": {"id": "query", "label": "按二进制拆位查询/跳跃"}}, {"data": {"id": "lca", "label": "LCA：提深度+一起跳+返回父亲"}}, {"data": {"id": "ebase->merge", "source": "base", "target": "merge"}}, {"data": {"id": "emerge->query", "source": "merge", "target": "query"}}, {"data": {"id": "equery->lca", "source": "query", "target": "lca"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-binary-lifting'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="sparse-table.html" title="ST表基于倍增思想预处理2^k次幂区间信息">ST表(稀疏表)<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/basic/binary-lifting/" target="_blank" rel="noopener">https://oi-wiki.org/basic/binary-lifting/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">李煜东《算法竞赛进阶指南》0x06 倍增</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

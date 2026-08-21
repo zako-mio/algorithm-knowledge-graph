@@ -1,0 +1,101 @@
+{
+  "id": "py-recursion-limit",
+  "name": "递归栈限制设置",
+  "group": "G-E-3",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "sys.setrecursionlimit(1<<20)避免深递归栈溢出；Python默认递归深度仅1000",
+  "what": "Python 默认递归深度上限仅 1000（CPython），深递归（如 DFS、树形 DP）会抛 RecursionError。用 sys.setrecursionlimit(N) 可提高上限。但 setrecursionlimit 只是改了 Python 层检查阈值，底层 C 栈若溢出仍会段错误（segfault），尤其在 PyPy 上更常见。终极方案是放线程里设 threading.stack_size 后运行，或改用迭代（手写栈）。",
+  "why": {
+    "intuition": "Python 解释器用 C 栈跟踪每次函数调用。默认 1000 层保护防止 C 栈溢出导致进程崩溃。竞赛中 DFS 可能递归 10^5-10^6 层，必须放宽。但放宽太多可能让 C 栈溢出直接 segfault（无 Python 异常可捕获），所以还需配合增大线程栈。",
+    "principle": "sys.setrecursionlimit(limit) 设置解释器允许的最大递归深度。超限抛 RecursionError（3.5+）。但实际 C 栈大小由操作系统/线程决定（Linux 默认 8MB，每帧约 1-4KB → 物理上限约 2000-8000 层）。突破物理上限需用 threading.stack_size(N) 创建大栈线程运行递归函数。PyPy 每帧栈更大，setrecursionlimit 后更易 segfault。",
+    "history": "CPython 早期递归上限 1000，3.0 前超限抛 RuntimeError，3.5+ 改为 RecursionError 子类。OI Wiki 提到竞赛需 setrecursionlimit。社区长期流传线程栈方案解决 segfault。"
+  },
+  "how": {
+    "pseudocode": "import sys, threading\nsys.setrecursionlimit(1 << 25)\n# 方案1: 直接调（可能 segfault 若 C 栈不够）\n# main()\n# 方案2: 放线程里增大栈\ndef run(): main()\nthreading.stack_size(256 << 20)  # 256MB\nth = threading.Thread(target=run)\nth.start(); th.join()",
+    "python": "# 递归栈限制设置（含自测）\nimport sys\nimport threading\n\ndef deep_sum(n):\n    \"\"\"递归求 1+2+...+n\"\"\"\n    if n == 0:\n        return 0\n    return n + deep_sum(n - 1)\n\ndef run_with_big_stack(func, *args, stack_mb=256):\n    \"\"\"在大栈线程中运行 func，避免 C 栈溢出 segfault\"\"\"\n    result = [None]\n    def wrapper():\n        result[0] = func(*args)\n    threading.stack_size(stack_mb * (1 << 20))\n    th = threading.Thread(target=wrapper)\n    th.start()\n    th.join()\n    return result[0]\n\nif __name__ == \"__main__\":\n    # 默认限制 1000，递归 1001 层应抛 RecursionError\n    try:\n        deep_sum(2000)\n        raised = False\n    except RecursionError:\n        raised = True\n    assert raised, \"默认限制应拦截深递归\"\n\n    # 放宽限制\n    sys.setrecursionlimit(1 << 20)\n    assert deep_sum(100000) == 100000 * 100001 // 2\n\n    # 更深递归放线程大栈运行\n    sys.setrecursionlimit(1 << 25)\n    val = run_with_big_stack(deep_sum, 500000, stack_mb=512)\n    assert val == 500000 * 500001 // 2\n    print(\"py-recursion-limit OK\")\n",
+    "pypy_notes": "PyPy 每调用帧占 C 栈更多（约 4-8KB vs CPython ~1KB），setrecursionlimit 后极易 segfault。务必用 threading.stack_size + 线程方案。另外 PyPy 递归调用本身比迭代慢很多（JIT 不优化递归），能改迭代就改。",
+    "complexity": {
+      "time": "setrecursionlimit O(1)；线程创建约 0.1ms",
+      "space": "线程栈按设定值分配（如 256MB）"
+    },
+    "limitations": "1) setrecursionlimit 设过高但 C 栈不足时直接 segfault（无法捕获）；2) 线程方案需 join 等待，交互题需注意；3) PyPy 递归即使不栈溢出也慢，优先改迭代。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1683",
+      "url": "https://www.luogu.com.cn/problem/P1683",
+      "difficulty": 3,
+      "key_point": "树退化链时 DFS 深度 1e5，须 setrecursionlimit"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P5661",
+      "url": "https://www.luogu.com.cn/problem/P5661",
+      "difficulty": 3,
+      "key_point": "CSP-J Python 选手常因未设递归上限 RE"
+    }
+  ],
+  "pitfalls": [
+    "只设 setrecursionlimit 不增大 C 栈 → segfault（尤其在 PyPy）",
+    "设了 limit 但线程栈不够大，仍 segfault；须二者配合",
+    "交互题用线程方案可能导致输出缓冲乱序，需在 join 后统一输出",
+    "PyPy 下深递归即使不崩溃也极慢，应优先改写成迭代（手写栈）",
+    "忘了 setrecursionlimit 导致正常大小的树 DFS 在 Python 抛 RecursionError"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "s1",
+        "label": "评估最大递归深度 D"
+      },
+      {
+        "id": "s2",
+        "label": "sys.setrecursionlimit(D+缓冲)"
+      },
+      {
+        "id": "s3",
+        "label": "D 较大或 PyPy→threading.stack_size + 线程运行"
+      },
+      {
+        "id": "s4",
+        "label": "D 极大→改迭代（手写栈）避免递归"
+      }
+    ],
+    "edges": [
+      {
+        "from": "s1",
+        "to": "s2"
+      },
+      {
+        "from": "s2",
+        "to": "s3",
+        "cond": "D>5000 或 PyPy"
+      },
+      {
+        "from": "s3",
+        "to": "s4",
+        "cond": "仍 segfault 或超时"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/lang/python/",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://docs.python.org/3/library/sys.html#sys.setrecursionlimit",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://docs.python.org/3/library/threading.html#threading.stack_size",
+      "verified": true
+    }
+  ]
+}

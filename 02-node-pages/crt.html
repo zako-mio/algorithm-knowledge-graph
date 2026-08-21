@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国剩余定理(CRT) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-8.html">数论进阶族</a> / <span>中国剩余定理(CRT)</span></div>
+  <h1>中国剩余定理(CRT)</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-C-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-C-8.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-C-8.html"><span class="dir">组内第 1 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="bsgs.html"><span class="dir">下一个 / 组内</span><span class="v">bsgs</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">求解同余方程组，将模互素的大模数分解为小模数合并，exCRT处理不互素</div><p>中国剩余定理（CRT）求解一元线性同余方程组 x ≡ a_i (mod n_i)（i=1..k，模数两两互素），并保证在模 N=∏n_i 下有唯一解。解法：令 N_i=N/n_i，求 N_i 在模 n_i 下的逆元 inv_i，则 x ≡ Σ a_i·N_i·inv_i (mod N)。应用极广：大数取模分解（把模合数拆成互素因子再合并）、exLucas、组合数取模、『物不知数』类问题、公钥密码。模数不互素时用扩展 CRT（exCRT）：两两用扩展欧几里得合并方程。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>『物不知数』：三三数之剩二、五五数之剩三、七七数之剩二，问物几何？思想是构造一个『只对第 i 个模数贡献、对其他模数贡献 0』的基函数：N_i=N/n_i 整除除 n_i 外所有模数，故 N_i≡0 (mod n_j)(j≠i)；乘以逆元后 a_i·N_i·inv_i ≡ a_i (mod n_i) 且 ≡0 (mod n_j)。把 k 个这样的项相加即得解。这就是『分解成单方程的解再线性组合』。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 两两互素保证 N_i 在模 n_i 下有逆元（gcd(N_i,n_i)=1）；② 解 x_0=Σ a_i·N_i·inv_i (mod N)；③ 唯一性：若 x,y 都是解则 x-y≡0 (mod n_i) 全成立，由互素得 x≡y (mod N)；④ exCRT（不互素）：合并两个方程 x≡a₁(n₁), x≡a₂(n₂) → 存在 p,q 使 a₁+p·n₁ = a₂+q·n₂，即 n₁·p - n₂·q = a₂-a₁，用扩展欧几里得求 p 得特解 x&#x27;，新方程 x≡x&#x27; (mod lcm(n₁,n₂))；反复合并 k-1 次；⑤ Garner 算法是数值稳定的变体（不要求质数，只要求两两互素），适合 k 较大的 CRT 合并。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>问题最早见《孙子算经》（约公元 3-5 世纪）『物不知数』，宋朝秦九韶 1247 年《数书九章》『大衍求一术』给出完整系统解法，比欧洲（Gauss 1801《算术研究》）早约 500 年，故称中国剩余定理。明朝程大位《算法统宗》的口诀『三人同行七十稀…』即具体实例。现代被用于 RSA 加速、数论变换等。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># CRT (模数两两互素)</span>
+<span class="t-k">def</span> <span class="t-f">crt</span>(a, n):        <span class="t-c"># a: 余数列表, n: 模数列表</span>
+  N = <span class="t-f">prod</span>(n)
+  x = <span class="t-n">0</span>
+  <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(k):
+    Ni = N // n[i]
+    inv = <span class="t-f">mod_inverse</span>(Ni, n[i])
+    x += a[i] * Ni * inv
+  <span class="t-k">return</span> x % N
+
+<span class="t-c"># exCRT (任意模数)</span>
+<span class="t-c"># 反复合并 (x mod cur_m) 与 (a_i mod n_i)</span>
+<span class="t-k">def</span> <span class="t-f">ex_crt</span>(a, n):
+  x, m = <span class="t-n">0</span>, <span class="t-n">1</span>
+  <span class="t-k">for</span> ai, ni <span class="t-k">in</span> <span class="t-b">zip</span>(a, n):
+    g, p, q = <span class="t-f">exgcd</span>(m, ni)
+    <span class="t-k">if</span> (ai - x) % g: <span class="t-k">return</span> <span class="t-k">None</span>
+    m2 = m // g * ni
+    x = (x + (ai-x)//g * p % (ni//g) * m) % m2
+    m = m2
+  <span class="t-k">return</span> x % m</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> math <span class="t-k">import</span> gcd
+
+
+<span class="t-k">def</span> <span class="t-f">egcd</span>(a, b):
+    <span class="t-s">&quot;&quot;&quot;扩展欧几里得: 返回 (g, x, y) 使 a*x+b*y=g&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> b == <span class="t-n">0</span>:
+        <span class="t-k">return</span> a, <span class="t-n">1</span>, <span class="t-n">0</span>
+    g, x1, y1 = <span class="t-f">egcd</span>(b, a % b)
+    <span class="t-k">return</span> g, y1, x1 - (a // b) * y1
+
+
+<span class="t-k">def</span> <span class="t-f">mod_inverse</span>(a, m):
+    <span class="t-s">&quot;&quot;&quot;a 在模 m 下逆元 (gcd(a,m)==1)&quot;&quot;&quot;</span>
+    g, x, _ = <span class="t-f">egcd</span>(a, m)
+    <span class="t-k">assert</span> g == <span class="t-n">1</span>, <span class="t-s">&quot;no inverse&quot;</span>
+    <span class="t-k">return</span> x % m
+
+
+<span class="t-k">def</span> <span class="t-f">crt</span>(a, n):
+    <span class="t-s">&quot;&quot;&quot;CRT: 模数两两互素. 返回 x (0&lt;=x&lt;N) 满足 x≡a_i (mod n_i).&quot;&quot;&quot;</span>
+    N = <span class="t-n">1</span>
+    <span class="t-k">for</span> ni <span class="t-k">in</span> n:
+        N *= ni
+    x = <span class="t-n">0</span>
+    <span class="t-k">for</span> ai, ni <span class="t-k">in</span> <span class="t-b">zip</span>(a, n):
+        Ni = N // ni
+        inv = <span class="t-f">mod_inverse</span>(Ni, ni)
+        x = (x + ai * Ni * inv) % N
+    <span class="t-k">return</span> x
+
+
+<span class="t-k">def</span> <span class="t-f">ex_crt</span>(a, n):
+    <span class="t-s">&quot;&quot;&quot;exCRT: 任意模数(不要求互素). 无解返回 None; 否则返回最小非负解.&quot;&quot;&quot;</span>
+    x, m = <span class="t-n">0</span>, <span class="t-n">1</span>
+    <span class="t-k">for</span> ai, ni <span class="t-k">in</span> <span class="t-b">zip</span>(a, n):
+        g, p, _ = <span class="t-f">egcd</span>(m, ni)
+        <span class="t-k">if</span> (ai - x) % g != <span class="t-n">0</span>:
+            <span class="t-k">return</span> <span class="t-k">None</span>
+        m2 = m // g * ni
+        <span class="t-c"># (ai - x)/g * p 是 (m/g) 逆元的系数</span>
+        t = (ai - x) // g * p % (ni // g)
+        x = (x + t * m) % m2
+        m = m2
+    <span class="t-k">return</span> x % m
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 物不知数: x≡2(3), x≡3(5), x≡2(7) =&gt; 最小 23</span>
+    <span class="t-k">assert</span> <span class="t-f">crt</span>([<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">2</span>], [<span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">7</span>]) == <span class="t-n">23</span>
+    <span class="t-c"># 另例: x≡1(2),2(3),3(5) =&gt; 最小解 23</span>
+    <span class="t-k">assert</span> <span class="t-f">crt</span>([<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>], [<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">5</span>]) == <span class="t-n">23</span>
+
+    <span class="t-c"># CRT 与暴力枚举交叉验证 (互素模数)</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">83</span>)
+
+    <span class="t-k">def</span> <span class="t-f">brute</span>(a, n):
+        N = <span class="t-n">1</span>
+        <span class="t-k">for</span> ni <span class="t-k">in</span> n:
+            N *= ni
+        <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(N):
+            <span class="t-k">if</span> <span class="t-b">all</span>(x % ni == ai <span class="t-k">for</span> ai, ni <span class="t-k">in</span> <span class="t-b">zip</span>(a, n)):
+                <span class="t-k">return</span> x
+        <span class="t-k">return</span> <span class="t-k">None</span>
+
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>):
+        n = []
+        <span class="t-k">while</span> <span class="t-k">True</span>:
+            cand = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">12</span>)
+            <span class="t-k">if</span> <span class="t-b">all</span>(<span class="t-f">gcd</span>(cand, x) == <span class="t-n">1</span> <span class="t-k">for</span> x <span class="t-k">in</span> n):
+                n.<span class="t-f">append</span>(cand)
+                <span class="t-k">if</span> <span class="t-b">len</span>(n) == <span class="t-n">3</span>:
+                    <span class="t-k">break</span>
+        a = [random.<span class="t-f">randrange</span>(ni) <span class="t-k">for</span> ni <span class="t-k">in</span> n]
+        <span class="t-k">assert</span> <span class="t-f">crt</span>(a, n) == <span class="t-f">brute</span>(a, n), (a, n)
+
+    <span class="t-c"># exCRT 与暴力验证 (含不互素)</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">400</span>):
+        n = [random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">12</span>), random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">12</span>), random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">12</span>)]
+        a = [random.<span class="t-f">randrange</span>(ni) <span class="t-k">for</span> ni <span class="t-k">in</span> n]
+        sol = <span class="t-f">ex_crt</span>(a, n)
+        <span class="t-k">if</span> sol <span class="t-k">is</span> <span class="t-k">None</span>:
+            <span class="t-c"># 验证确实无解</span>
+            <span class="t-k">assert</span> <span class="t-f">brute</span>(a, n) <span class="t-k">is</span> <span class="t-k">None</span>, (a, n)
+        <span class="t-k">else</span>:
+            <span class="t-k">assert</span> <span class="t-b">all</span>(sol % ni == ai <span class="t-k">for</span> ai, ni <span class="t-k">in</span> <span class="t-b">zip</span>(a, n)), (a, n, sol)
+
+    <span class="t-c"># 与 CRT 一致 (互素情形)</span>
+    a = [<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">2</span>]; n = [<span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">7</span>]
+    <span class="t-k">assert</span> <span class="t-f">ex_crt</span>(a, n) == <span class="t-f">crt</span>(a, n) == <span class="t-n">23</span>
+    <span class="t-c"># 无解情形: x≡1(2), x≡0(4) -&gt; 无解</span>
+    <span class="t-k">assert</span> <span class="t-f">ex_crt</span>([<span class="t-n">1</span>, <span class="t-n">0</span>], [<span class="t-n">2</span>, <span class="t-n">4</span>]) <span class="t-k">is</span> <span class="t-k">None</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">大模数乘法用 Python int 无溢出；egcd 递归深度小（O(log m)）。k 很大时迭代乘法 N 可能到 1e18 甚至更大，Python 可处理；C++ 需 __int128。exCRT 合并中 t=(ai-x)//g*p%(ni//g) 是关键防溢出写法，PyPy 下同理。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>CRT: O(k·log max(n_i))（每次求逆）；exCRT: O(k·log max(n_i))</td></tr><tr><th>空间复杂度</th><td>O(k)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">CRT 要求模数两两互素；不互素必须用 exCRT。a_i 需规范到 0≤a_i&lt;n_i。乘积 N 很大时注意 Python 大整数（或 C++ __int128）。exCRT 两两合并要求每一步 gcd 检查无解。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>用 CRT 前忘记检查模数两两互素（不互素用 exCRT）</li><li>求逆对象搞混：是对 N_i=N/n_i 求模 n_i 逆元，不是对 a_i</li><li>a_i 未规范到 [0,n_i) 导致结果偏移</li><li>exCRT 合并时 (ai-x) 可能为负，Python % 是余数语义需 % m2 归一</li><li>乘积 N 溢出（C++）或浮点；Python int 无此问题</li><li>无解判断：两两合并时 gcd 不整除 (a2-a1) 即无解</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1495</strong></td><td>3</td><td>【模板】中国剩余定理（CRT）/曹冲养猪：CRT 标准模板</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1495" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1495</a></td></tr><tr><td>Luogu</td><td><strong>P4777</strong></td><td>4</td><td>【模板】扩展中国剩余定理：exCRT 标准模板（模数不互素）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4777" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4777</a></td></tr><tr><td>Luogu</td><td><strong>P2480</strong></td><td>6</td><td>SDOI2010 古代猪文：CRT 合并 exLucas 的经典综合题（OI Wiki 例题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2480" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2480</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-crt" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "form", "label": "标准形式 x≡a_i (mod n_i)"}}, {"data": {"id": "ni_inv", "label": "计算 N_i 与模逆元"}}, {"data": {"id": "combine", "label": "线性组合 x=Σ a_i·N_i·inv"}}, {"data": {"id": "uniqueness", "label": "互素保证唯一性(mod N)"}}, {"data": {"id": "ex_crt", "label": "exCRT: 两两合并(扩展欧几里得)"}}, {"data": {"id": "apply", "label": "应用: 分解合数模/合并 exLucas"}}, {"data": {"id": "eform->ni_inv", "source": "form", "target": "ni_inv"}}, {"data": {"id": "eni_inv->combine", "source": "ni_inv", "target": "combine"}}, {"data": {"id": "ecombine->uniqueness", "source": "combine", "target": "uniqueness"}}, {"data": {"id": "euniqueness->ex_crt", "source": "uniqueness", "target": "ex_crt"}}, {"data": {"id": "eex_crt->apply", "source": "ex_crt", "target": "apply"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-crt'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="ext-euclidean.html" title="exCRT合并同余方程需扩展欧几里得求逆元">扩展欧几里得<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="extended-lucas.html" title="exLucas将模数分解为质因子幂后用CRT合并">扩展卢卡斯(exLucas)<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/crt/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/crt/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/algebra/chinese-remainder-theorem.html" target="_blank" rel="noopener">https://cp-algorithms.com/algebra/chinese-remainder-theorem.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch21 Number theory (p207-216)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,116 @@
+{
+ "id": "bst",
+ "name": "二叉搜索树基础",
+ "group": "G-A-8",
+ "stage": "intermediate",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "左<根<右性质，期望O(log n)操作，最坏O(n)退化",
+ "what": "二叉搜索树（Binary Search Tree, BST）是满足「左子树所有节点值 < 根节点值 < 右子树所有节点值」的二叉树。中序遍历得到有序序列。支持查找、插入、删除、前驱/后继、排名/按排名取值等操作，每个操作的时间与树高 h 成正比，最优情形 O(log n)，最坏（退化成链）O(n)。",
+ "why": {
+  "intuition": "每次比较都把候选空间减半：小于当前节点向左，大于向右，与二分查找同理。理想的满二叉树高度 O(log n)，所以查询像二分一样快；但插入顺序若有序，树会退化成一维链表，比较次数退化为 O(n)。",
+  "principle": "删除分三情况：无子节点直接删；单子节点让子顶替；双子节点用左子树最大值（前驱）或右子树最小值（后继）替换后删除，保证中序性质不变。排名 = 左子树 size + 1；按排名反查沿 size 分支递归。所有操作依赖递归下探，复杂度等于路径长度（树高）。",
+  "history": "BST 是平衡树家族的原型，源自 1960 年代二叉搜索思想。1962 年 Adelson-Velsky 与 Landis 提出 AVL 树，此后 Splay(1985)、Treap(1989)、替罪羊树(1989)等先后出现，皆以维持 BST 有序性为基座。OI Wiki《二叉搜索树》为当前通用教程。"
+ },
+ "how": {
+  "pseudocode": "insert(root, val):\n  if root 为空: 返回新节点\n  if val < root.val: root.left = insert(root.left, val)\n  else if val > root.val: root.right = insert(root.right, val)\n  else: 已存在，直接返回\n  更新 root.size，返回 root\n\ndelete(root, val):\n  if root 为空: 返回 None\n  if val < root.val: root.left = delete(root.left, val)\n  elif val > root.val: root.right = delete(root.right, val)\n  else:\n    若左/右子树为空 → 返回另一侧\n    否则找左子树最大节点(前驱)代替之，删前驱\n  更新 root.size，返回 root\n\nsearch/rank/kth 沿左右分支递归即可",
+  "python": "class Node:\n    def __init__(self, val):\n        self.val = val\n        self.left = None\n        self.right = None\n        self.size = 1\n\nclass BST:\n    def __init__(self):\n        self.root = None\n\n    @staticmethod\n    def _sz(n):\n        return n.size if n else 0\n\n    def _pull(self, n):\n        n.size = 1 + self._sz(n.left) + self._sz(n.right)\n\n    def insert(self, val):\n        self.root = self._insert(self.root, val)\n\n    def _insert(self, n, val):\n        if n is None:\n            return Node(val)\n        if val < n.val:\n            n.left = self._insert(n.left, val)\n        else:\n            n.right = self._insert(n.right, val)\n        self._pull(n)\n        return n\n\n    def search(self, val):\n        n = self.root\n        while n and n.val != val:\n            n = n.left if val < n.val else n.right\n        return n is not None\n\n    def delete(self, val):\n        self.root = self._delete(self.root, val)\n\n    def _delete(self, n, val):\n        if n is None:\n            return None\n        if val < n.val:\n            n.left = self._delete(n.left, val)\n        elif val > n.val:\n            n.right = self._delete(n.right, val)\n        else:\n            if n.left is None:\n                return n.right\n            if n.right is None:\n                return n.left\n            p = n.left\n            while p.right:\n                p = p.right\n            n.val = p.val\n            n.left = self._delete(n.left, p.val)\n        self._pull(n)\n        return n\n\n    def kth(self, k):\n        n = self.root\n        while n:\n            ls = self._sz(n.left)\n            if k == ls + 1:\n                return n.val\n            if k <= ls:\n                n = n.left\n            else:\n                k -= ls + 1\n                n = n.right\n        raise ValueError(\"k out of range\")\n\n    def inorder(self):\n        out = []\n        def dfs(n):\n            if n is None:\n                return\n            dfs(n.left)\n            out.append(n.val)\n            dfs(n.right)\n        dfs(self.root)\n        return out\n\n\ndef _check_bst_property(n, lo, hi):\n    if n is None:\n        return True\n    if not (lo < n.val < hi):\n        return False\n    return _check_bst_property(n.left, lo, n.val) and _check_bst_property(n.right, n.val, hi)\n\n\nif __name__ == \"__main__\":\n    import random\n    random.seed(1)\n    t = BST()\n    for _ in range(200):\n        t.insert(random.randint(0, 1000))\n    vals = t.inorder()\n    assert vals == sorted(vals)\n    k = random.randint(1, len(vals))\n    assert t.kth(k) == vals[k - 1]\n    for v in set(vals):\n        while t.search(v):\n            t.delete(v)\n        assert not t.search(v)\n    assert t.inorder() == []\n    t = BST()\n    for i in range(500):   # 1000 会触发行链递归上限\n        t.insert(i)\n    assert _check_bst_property(t.root, -1, 500)\n    assert t.kth(250) == 249\n    print(\"All tests passed.\")",
+  "pypy_notes": "Python 实现 BST 建议显式用 while 而非深度递归（深度可能 O(n) 触发递归上限）；删除用前驱替换法时注意递归删除前驱的边界。竞赛中裸 BST 常被卡退化，Python 选手更应直接上 FHQ-Treap 或直接用内置 sortedcontainers/平衡树库，或离线离散化+树状数组。",
+  "complexity": {
+   "time": "查找/插入/删除/排名 O(h)；理想 h=O(log n)，最坏 h=O(n)",
+   "space": "O(n)"
+  },
+  "limitations": "对有序插入序列退化成链，全部操作退化 O(n)。无自平衡机制，竞赛中几乎不裸用，而是作为理解平衡树（Treap/Splay/AVL/替罪羊树）的前置概念。重复元素需约定左闭右开或计数合并。"
+ },
+ "examples": [
+  {
+   "oj": "LeetCode.cn",
+   "pid": "700",
+   "url": "https://leetcode.cn/problems/search-in-a-binary-search-tree/",
+   "difficulty": 1,
+   "key_point": "BST 最基础查找：沿分支下探"
+  },
+  {
+   "oj": "LeetCode.cn",
+   "pid": "450",
+   "url": "https://leetcode.cn/problems/delete-node-in-a-bst/",
+   "difficulty": 3,
+   "key_point": "删除的三种情况与前驱/后继替换"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P3369",
+   "url": "https://www.luogu.com.cn/problem/P3369",
+   "difficulty": 4,
+   "key_point": "普通平衡树模板：裸 BST 会被卡，需平衡化"
+  }
+ ],
+ "pitfalls": [
+  "删除双子节点时直接删根导致子树丢失，必须用前驱/后继替换",
+  "把「期望 O(log n)」当成「最坏 O(log n)」，忽略有序插入退化",
+  "递归深度在退化树上可到 n，Python 超递归上限 RecursionError",
+  "重复元素处理不一致（按 < / <= 分支），导致查找遗漏或死循环"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "define",
+    "label": "节点定义(值/左右子/子树size)"
+   },
+   {
+    "id": "traverse",
+    "label": "中序遍历有序性验证"
+   },
+   {
+    "id": "search",
+    "label": "查找/最小/最大/前驱后继"
+   },
+   {
+    "id": "insert",
+    "label": "插入：沿分支下探到空位"
+   },
+   {
+    "id": "delete",
+    "label": "删除三情况(叶子/单子/双子替换)"
+   },
+   {
+    "id": "order",
+    "label": "排名与按排名取值(size辅助)"
+   }
+  ],
+  "edges": [
+   {
+    "from": "define",
+    "to": "traverse"
+   },
+   {
+    "from": "define",
+    "to": "search"
+   },
+   {
+    "from": "search",
+    "to": "insert"
+   },
+   {
+    "from": "insert",
+    "to": "delete"
+   },
+   {
+    "from": "define",
+    "to": "order"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/bst/",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "ref": "CLRS《算法导论》ch12 二叉搜索树",
+   "verified": true
+  }
+ ]
+}

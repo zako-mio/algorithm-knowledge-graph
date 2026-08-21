@@ -1,0 +1,62 @@
+{
+  "id": "constant-opt",
+  "name": "常数优化",
+  "group": "G-E-1",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "算法正确但常数过大超时的优化：局部性/循环展开（C++）、Python 局部变量绑定、避免属性访问、列表推导、预分配数组、用 int 位集等",
+  "what": "常数优化：不改变渐近复杂度，降低每步操作的实际耗时。C++ 侧：O2 优化开关、常量折叠、循环展开、代码布局、局部性（cache 友好）、用引用/数组避免 STL 开销。Python 侧（更关键）：把频繁使用的全局名/方法名绑定为局部变量（如 `append = lst.append`）、用列表推导代替显式循环、预分配数组、用 int 当位集、避免重复属性查找与函数调用、避免在热循环里用 dict/list 的慢操作、适当用 PyPy 特性。Python 常数优化的收益常是数量级的，可决定 TLE/AC。",
+  "why": {
+    "intuition": "Python 每条语句都有解释器调度开销：名字查找（LOCAL/CELL/GLOBAL/BUILTIN 依次查）、属性访问（getattr）、函数调用（压栈）。热循环里这些微小开销叠加起来就是几倍差距。而列表推导、join、map 等在 C 层执行整段循环，解释器只跑一圈。",
+    "principle": "1) 局部变量快于全局：字节码 LOAD_FAST 快于 LOAD_GLOBAL；函数内 `x = 大量重复的对象` 并复用。2) 绑定方法：`push = stack.append` 后 `push(v)` 免去每次 `stack.append` 的属性查找。3) 列表推导：`[f(x) for x in it]` 在 C 层循环，快于 `for` + `append`（Python 层循环）。4) 预分配：`[0]*n` 一次性分配。5) 内建优先：`sum`, `max`, `min`, `sorted`, `count` 都是 C 循环。6) 局部性：顺序访问数组/列表比随机访问 cache 命中高；Python list 是连续内存的引用数组。7) 字符串拼接用 join 而非 +=。C++ 侧同理：连续内存、少分配、编译器优化。",
+    "history": "OI Wiki 的 lang/optimizations 页介绍 C++ 的 O2、常量折叠、死代码消除、循环展开、代码布局；contest/common-tricks 页讲局部性原理。Python 社区则有长期积累的『性能技巧』清单（局部绑定、推导式、内建函数）。对纯 Python 选手，常数优化等同于『把 Python 写快』，重要性不亚于算法本身。"
+  },
+  "how": {
+    "pseudocode": "# Python 核心技巧\n# 1) 局部绑定热循环方法\npush = out.append\nfor x in it:\n    if cond: push(x)\n\n# 2) 列表推导替代显式 append\nsquares = [x*x for x in data]   # C 层循环\n\n# 3) 预分配\nres = [0] * n\n\n# 4) 内建优先\ntotal = sum(data)\n\n# 5) 字符串 join 而非 +=（在循环里）\ns = ''.join(parts)\n\n# 6) 局部变量引用模块函数\nfrom math import sqrt\n# 循环内用 sqrt(x)（全局已绑定）",
+    "python": "import time\n\n\ndef slow_version(data):\n    out = []\n    for x in data:\n        if x % 2 == 0:\n            out.append(x * x)\n    return out\n\n\ndef fast_version(data):\n    out = []\n    push = out.append\n    for x in data:\n        if x % 2 == 0:\n            push(x * x)\n    return out\n\n\ndef fast_version2(data):\n    return [x * x for x in data if x % 2 == 0]\n\n\ndef main():\n    data = list(range(1000))\n    a = slow_version(data)\n    b = fast_version(data)\n    c = fast_version2(data)\n    assert a == b == c\n    # 预分配\n    res = [0] * len(data)\n    assert len(res) == len(data)\n    # 内建 vs 手写循环结果一致\n    assert sum(data) == sum(x for x in data)\n    # 快速基准（仅展示，不比较严格耗时）\n    import random\n    big = list(range(10**6))\n    t0 = time.perf_counter(); s = sum(big); t1 = time.perf_counter()\n    # join 快于 += 拼串\n    parts = [str(i) for i in range(1000)]\n    s_join = ''.join(parts)\n    assert s_join.startswith('0')\n    print(\"constant-opt OK\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "pypy_notes": "PyPy 的 JIT 会做循环优化与内联，局部绑定/推导式的收益比 CPython 小（JIT 已优化），但仍是良好习惯。PyPy 下字符串 join、int 大数、dict 等实现不同。PyPy 启动慢但循环快，CPU 密集任务在 PyPy 下可快 2-5 倍；IO 密集任务两边都需快读快出。对纯 Python 竞赛（如洛谷/牛客允许 Python），优先 PyPy3。",
+    "complexity": {
+      "time": "渐近不变；常数通常可降 2~10 倍（CPython 场景收益大）",
+      "space": "不变或略增（预分配/临时列表）"
+    },
+    "limitations": "常数优化无法挽救错误的复杂度（TLE 根因仍要先看算法）；过度优化伤可读性且易引入 bug，先写清晰版本再对热路径优化。PyPy 与 CPython 性能特征不同，代码在两者间有差异；不要把 C++ 的优化思路（如循环展开）直接搬到 Python（解释器下收益小）。",
+    "examples": []
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4779",
+      "url": "https://www.luogu.com.cn/problem/P4779",
+      "difficulty": 4,
+      "key_point": "最短路径标准版：Python 需 heap 局部绑定+快读快出+预分配，全套常数优化才能过"
+    }
+  ],
+  "pitfalls": [
+    "在函数外（模块级）做热循环，变量走 GLOBAL 查找，慢；应放入函数内",
+    "for i in range(len(a)): 里反复 a[i] 索引与属性查找，可先用局部变量/迭代",
+    "热循环里 `len(lst)` 每次调用，可提前 len_=len(lst) 或直接迭代",
+    "字符串循环拼接用 += 是 O(n^2) 陷阱，必须 join",
+    "过度微优化导致可读性差、难调试；先测量再优化（profile）",
+    "把 print 放在热循环里逐次调用是常见 TLE 原因，改用批量输出"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "s1", "label": "确认复杂度正确，锁定热循环"},
+      {"id": "s2", "label": "局部变量绑定方法/避免属性查找"},
+      {"id": "s3", "label": "列表推导/内建函数替代手写循环"},
+      {"id": "s4", "label": "快读快出（IO 层面）"},
+      {"id": "s5", "label": "profile 验证收益，避免过度优化"}
+    ],
+    "edges": [
+      {"from": "s1", "to": "s2"},
+      {"from": "s2", "to": "s3"},
+      {"from": "s3", "to": "s4"},
+      {"from": "s4", "to": "s5"}
+    ]
+  },
+  "sources": [
+    {"type": "oiwiki", "url": "https://oi-wiki.org/lang/optimizations/", "verified": true},
+    {"type": "oiwiki", "url": "https://oi-wiki.org/contest/common-tricks/", "verified": true}
+  ]
+}

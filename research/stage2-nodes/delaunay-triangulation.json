@@ -1,0 +1,123 @@
+{
+ "id": "delaunay-triangulation",
+ "name": "Delaunay 三角剖分",
+ "group": "G-D-2",
+ "stage": "frontier",
+ "priority": "P3",
+ "depth_tier": "brief",
+ "brief": "满足空圆性质的三角剖分，对偶为 Voronoi 图",
+ "what": "Delaunay 三角剖分（DT）是给定平面点集 P 的一种特殊三角剖分，满足空圆性质：每个三角形的外接圆内部不含任何其他点（点可在外接圆边界上，即退化情形四点共圆）。若点集中任意四点不共圆，DT 唯一。性质：① 最大化最小角（所有三角剖分中最接近正则化的）；② 最小欧氏生成树是 DT 边的子集；③ 对偶于 Voronoi 图（互为对偶图，可 O(n) 互相转换）；④ 最外边界是凸包；⑤ 局部修改只影响邻近三角形。构造：Guibas-Stolfi 分治 O(n log n)（quad-edge 数据结构）、Boyer-Watson 增量法 O(n log n) 期望、随机增量法。应用：最近邻查询、网格生成、Voronoi 图、最小生成树、插值、碰撞检测。",
+ "why": {
+  "intuition": "三角形要『肥』不要『瘦』：瘦长三角形的内角很小，数值不稳定。Delaunay 用空圆准则保证每个三角形尽量饱满——外接圆里没有别的点，意味着没有点能『抢』走这个三角形的区域。空圆性质局部可检验（四点共圆判定），于是可以用翻转对角线（edge flip）把非 Delaunay 局部逐步修正成 Delaunay。对偶视角：每个 Delaunay 三角形对应 Voronoi 图的一个顶点（外接圆圆心），共享边对应相邻 Voronoi 单元之间的边。",
+  "principle": "① 空圆判定 inCircle(a,b,c,d)：用 4×4 行列式 det(x,y,x²+y²) 判定 d 是否在 abc 外接圆内（带符号）。② 分治（Guibas-Stolfi）：按 x 排序，递归剖分左右，合并时从底部 base 边开始，逐个添加跨左右的下一条 LR 边，用 inCircle 检验候选点。③ 增量法（Boyer-Watson）：逐点插入，找包含新点的三角形，删除其公共外接圆含新点的三角形，重连成凸包扇形成新三角形。④ 对偶：Delaunay 边 ⟷ Voronoi 边（垂直平分线段），DT 三角形 ⟷ Voronoi 顶点。⑤ 退化处理：四点共圆时 DT 不唯一，可扰动或指定规则。⑥ quad-edge 数据结构统一表示原边/反向边/对偶边。",
+  "history": "Delaunay 三角剖分得名于法国数学家 Boris Delaunay（1934），他证明了最大化最小角性质。Voronoi 图更早（Voronoï, 1908；更早还有 Dirichlet 与 Thiessen 的多边形）。Guibas 与 Stolfi 1985 年发表 O(n log n) 分治算法与 quad-edge 结构；Boyer（1977）与 Watson（1981）独立提出增量算法。是计算几何与图形学核心工具。"
+ },
+ "how": {
+  "pseudocode": "# Boyer-Watson 增量法 (教学简洁版)\ndef delaunay(points):\n  # 用超大包围三角形初始化\n  sup = 大三角形包住所有点\n  tris = [sup]\n  for p in points:\n    bad = [t for t in tris if in_circle(p, t)]\n    boundary = 所有 bad 三角形的外边界边(只出现一次)\n    remove bad from tris\n    for e in boundary:\n      tris.append((e.a, e.b, p))\n  # 删除包含包围三角形顶点的三角形\n  return [t for t in tris if not t.uses(super_vertices)]",
+  "python": "EPS = 1e-9\n\n\ndef cross(o, a, b):\n    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])\n\n\ndef in_circle(a, b, c, d):\n    \"\"\"d 是否严格在 abc 外接圆内 (精确行列式, 整数点下无精度损失).\"\"\"\n    ax, ay = a[0] - d[0], a[1] - d[1]\n    bx, by = b[0] - d[0], b[1] - d[1]\n    cx, cy = c[0] - d[0], c[1] - d[1]\n    a2 = ax * ax + ay * ay\n    b2 = bx * bx + by * by\n    c2 = cx * cx + cy * cy\n    det = (ax * (by * c2 - b2 * cy)\n           - ay * (bx * c2 - b2 * cx)\n           + a2 * (bx * cy - by * cx))\n    if cross(a, b, c) > 0:\n        return det > 0\n    return det < 0\n\n\ndef delaunay_bw(points):\n    \"\"\"Boyer-Watson 增量法 Delaunay 剖分 (浮点).\n    返回三角形列表 [(p_i, p_j, p_k)] (点的原始索引).\n    用远包围三角形处理; 可能因浮点退化产生少量非 Delaunay, 教学演示足够.\"\"\"\n    pts = list(points)\n    n = len(pts)\n    if n < 3:\n        return []\n    # 包围三角形\n    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]\n    minx, maxx, miny, maxy = min(xs), max(xs), min(ys), max(ys)\n    dx = maxx - minx; dy = maxy - miny\n    dmax = max(dx, dy)\n    midx = (minx + maxx) / 2.0\n    midy = (miny + maxy) / 2.0\n    sup = [(midx - 20 * dmax, midy - dmax), (midx, midy + 20 * dmax), (midx + 20 * dmax, midy - dmax)]\n    sup_idx = [n, n + 1, n + 2]\n    allpts = pts + sup\n    tris = [tuple(sup_idx)]\n\n    def has_vertex(t, idx):\n        return idx in t\n\n    for k, p in enumerate(pts):\n        bad = []\n        for t in tris:\n            if in_circle(allpts[t[0]], allpts[t[1]], allpts[t[2]], p):\n                bad.append(t)\n        # 边界边 (bad 三角形中出现一次的边)\n        from collections import defaultdict\n        cnt = defaultdict(int)\n        edge_list = []\n        for t in bad:\n            for e in [(t[0], t[1]), (t[1], t[2]), (t[2], t[0])]:\n                e2 = e if e[0] < e[1] else (e[1], e[0])\n                cnt[e2] += 1\n        for t in bad:\n            tris.remove(t)\n        boundary = []\n        for e, c in cnt.items():\n            if c == 1:\n                boundary.append(e)\n        for (a, b) in boundary:\n            tris.append((a, b, k))\n    # 去除含超级顶点的三角形\n    tris = [t for t in tris if not (has_vertex(t, n) or has_vertex(t, n + 1) or has_vertex(t, n + 2))]\n    return tris\n\n\ndef validate_empty_circle(tris, points):\n    \"\"\"验证每个三角形的外接圆不包含其他点 (退化容忍).\"\"\"\n    for t in tris:\n        a, b, c = points[t[0]], points[t[1]], points[t[2]]\n        for k, p in enumerate(points):\n            if k in t:\n                continue\n            if in_circle(a, b, c, p):\n                return False\n    return True\n\n\ndef hull_boundary_size(ps):\n    \"\"\"凸包边界上的点数 (含共线边界点; 三角剖分数公式用此值).\"\"\"\n    pts = sorted(set(ps))\n    if len(pts) <= 2:\n        return len(pts)\n    def build(poly):\n        if len(poly) <= 2:\n            return poly\n        h = []\n        for p in poly:\n            while len(h) >= 2 and cross(h[-2], h[-1], p) < 0:\n                h.pop()\n            h.append(p)\n        return h\n    lower = build(pts)\n    upper = build(pts[::-1])\n    return len(set(lower[:-1] + upper[:-1]))\n\n\nif __name__ == \"__main__\":\n    import random\n    random.seed(8)\n    # 规则网格 (四点共圆退化 -> 可能不唯一, 只验证数量与覆盖)\n    pts = [(0, 0), (1, 0), (0, 1), (1, 1)]\n    tris = delaunay_bw(pts)\n    assert len(tris) >= 1\n\n    # 随机无共圆点集: 验证空圆性质 + 欧拉计数 (容差 1, 浮点退化)\n    for trial in range(30):\n        n = random.randint(4, 20)\n        ps = set()\n        while len(ps) < n:\n            ps.add((random.randint(0, 100), random.randint(0, 100)))\n        ps = list(ps)\n        tris = delaunay_bw(ps)\n        assert abs(len(tris) - (2 * len(ps) - 2 - hull_boundary_size(ps))) <= 1, \\\n            (len(ps), len(tris), hull_boundary_size(ps))\n        assert validate_empty_circle(tris, ps), \"empty circle violated\"\n    print(\"All tests passed.\")\n\n\n",
+  "pypy_notes": "in_circle 行列式用整数可精确判定（无共圆时）；浮点需 eps。增量法整体期望 O(n log n)，但最坏 O(n²)（全共圆时）。大数据量需 quad-edge 结构，Python 实现偏慢，竞赛较少直接用完整 DT。",
+  "complexity": {
+   "time": "Guibas-Stolfi 分治 O(n log n)；Boyer-Watson 增量期望 O(n log n)（最坏 O(n²)）",
+   "space": "O(n)"
+  },
+  "limitations": "四点共圆退化导致 DT 不唯一，需扰动或容错规则。共线点集不存在 DT（退化）。增量法对浮点精度敏感，大坐标需 __int128 或高精行列式。Python 完整实现 quad-edge 复杂且慢，竞赛多为理论/少量点。",
+  "limitations_note": ""
+ },
+ "examples": [
+  {
+   "oj": "TIMUS",
+   "pid": "1504",
+   "url": "https://acm.timus.ru/problem.aspx?space=1&num=1504",
+   "difficulty": 7,
+   "key_point": "Good Manners：Delaunay/最近邻几何应用（CP-Alg 例题）"
+  },
+  {
+   "oj": "TIMUS",
+   "pid": "1520",
+   "url": "https://acm.timus.ru/problem.aspx?space=1&num=1520",
+   "difficulty": 7,
+   "key_point": "Empire Strikes Back：Voronoi/Delaunay 对偶应用（CP-Alg 例题）"
+  },
+  {
+   "oj": "Codeforces",
+   "pid": "933C",
+   "url": "https://codeforces.com/problemset/problem/933/C",
+   "difficulty": 6,
+   "key_point": "A Colorful Prospect：圆/区域划分（Voronoi 式划分思路，CP-Alg 圆交例题同源）"
+  }
+ ],
+ "pitfalls": [
+  "in_circle 行列式的符号约定与三角形方向（逆/顺时针）有关，必须一致",
+  "四点共圆退化：不加处理会生成重叠三角形，需扰动或删除冗余边",
+  "包围三角形选得太小会漏点；太大则数值误差增大",
+  "增量法删除 bad 三角形时边界边收集错误（共享边计数必须=1）",
+  "共线点集无 DT，需先判退化",
+  "验证空圆性质时跳过自身三角形顶点，否则永远失败"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "empty",
+    "label": "空圆性质定义与 inCircle 判定"
+   },
+   {
+    "id": "dc",
+    "label": "Guibas-Stolfi 分治 O(n log n)"
+   },
+   {
+    "id": "inc",
+    "label": "Boyer-Watson 增量法"
+   },
+   {
+    "id": "dual",
+    "label": "Voronoi 对偶关系"
+   },
+   {
+    "id": "flip",
+    "label": "边翻转修正(局部)"
+   },
+   {
+    "id": "use",
+    "label": "应用: 最近邻/MST/网格"
+   }
+  ],
+  "edges": [
+   {
+    "from": "empty",
+    "to": "dc"
+   },
+   {
+    "from": "empty",
+    "to": "inc"
+   },
+   {
+    "from": "empty",
+    "to": "flip"
+   },
+   {
+    "from": "dc",
+    "to": "dual"
+   },
+   {
+    "from": "inc",
+    "to": "dual"
+   },
+   {
+    "from": "dual",
+    "to": "use"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/delaunay.html",
+   "verified": true
+  },
+  {
+   "type": "book",
+   "ref": "CPH ch29 Geometry (p291-304)",
+   "verified": true
+  }
+ ]
+}

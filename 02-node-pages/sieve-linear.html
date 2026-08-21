@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线性筛(欧拉筛) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-7.html">数论基础族</a> / <span>线性筛(欧拉筛)</span></div>
+  <h1>线性筛(欧拉筛)</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-C-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="sieve-eratosthenes.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">sieve-eratosthenes</span></a>
+    <a class="nav-index" href="../03-groups/G-C-7.html"><span class="dir">组内第 2 / 10</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="euclidean-gcd.html"><span class="dir">下一个 / 组内</span><span class="v">euclidean-gcd</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">O(n)筛素数，每个合数只被最小质因子筛一次，可同时求积性函数</div><p>线性筛（Linear Sieve / Euler Sieve）保证每个合数只被它的最小质因子筛掉一次，从而总时间复杂度严格 O(n)。与埃氏筛（一个合数被多个质因子重复标记）相比，线性筛在 O(n) 内同时求出每个数的最小质因子，并可在筛的过程中顺带计算各种积性函数（欧拉函数 phi、莫比乌斯函数 mu、约数个数 d、约数和 sigma 等），是数论中最高效、最常用的筛法。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>埃氏筛浪费在对 12=2×2×3 既被 2 划又被 3 划。线性筛规定「只允许最小的质因子来划掉一个合数」：每个合数 n 只由 n/min_prime × min_prime 产生，且当内层质数 p 已经是 i 的最小质因子（i%p==0）时立即 break，防止更大的质数再来划 n。这样每个数恰被标记一次。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>外层 i 从 2 到 n：若 i 未被标记则加入素数表；随后用素数表里的每个 p 标记 i×p（p≤i 的最小质因子）：若 i%p==0，标记后 break（因为更大的 p&#x27; 的 i×p&#x27; 会由 (i×p&#x27;)/(p&#x27;) 这个更小的数乘上其最小质因子 p&#x27; 标记）。标记的同时维护积性函数：i%p==0 时 f[i×p]=f[i]×p 类公式，否则 f[i×p]=f[i]×f[p]。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>线性筛由计算机科学家在 20 世纪中期系统化（常归功于对埃氏筛的优化探索），在中国算法圈常称「欧拉筛」。其同时求最小质因子与积性函数的能力使它在 MO 数论（莫比乌斯反演、欧拉函数前缀和）中成为标准预处理工具。OI Wiki 与 CP-Algorithms 均给出详细实现与正确性证明。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">pri = []; not_prime[<span class="t-n">0.</span>.n] = false; phi[<span class="t-n">0.</span>.n] = <span class="t-n">0</span>
+<span class="t-k">for</span> i = <span class="t-n">2.</span>.n:
+  <span class="t-k">if</span> <span class="t-k">not</span> not_prime[i]:
+    pri.<span class="t-f">append</span>(i); phi[i] = i-<span class="t-n">1</span>
+  <span class="t-k">for</span> p <span class="t-k">in</span> pri:
+    <span class="t-k">if</span> i*p &gt; n: <span class="t-k">break</span>
+    not_prime[i*p] = true
+    <span class="t-k">if</span> i % p == <span class="t-n">0</span>:
+      phi[i*p] = phi[i] * p     <span class="t-c"># p 已是最小质因子</span>
+      <span class="t-k">break</span>
+    <span class="t-k">else</span>:
+      phi[i*p] = phi[i] * (p-<span class="t-n">1</span>) <span class="t-c"># 互质, 积性</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">linear_sieve_phi</span>(n):
+    <span class="t-s">&quot;&quot;&quot;线性筛: 同时求出素数表 pri 和欧拉函数 phi[1..n]&quot;&quot;&quot;</span>
+    pri = []
+    not_prime = [<span class="t-k">False</span>] * (n + <span class="t-n">1</span>)
+    phi = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    phi[<span class="t-n">1</span>] = <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">if</span> <span class="t-k">not</span> not_prime[i]:
+            pri.<span class="t-f">append</span>(i)
+            phi[i] = i - <span class="t-n">1</span>
+        <span class="t-k">for</span> p <span class="t-k">in</span> pri:
+            <span class="t-k">if</span> i * p &gt; n:
+                <span class="t-k">break</span>
+            not_prime[i * p] = <span class="t-k">True</span>
+            <span class="t-k">if</span> i % p == <span class="t-n">0</span>:
+                phi[i * p] = phi[i] * p
+                <span class="t-k">break</span>
+            phi[i * p] = phi[i] * (p - <span class="t-n">1</span>)
+    <span class="t-k">return</span> pri, phi
+
+
+<span class="t-k">def</span> <span class="t-f">linear_sieve_mu</span>(n):
+    <span class="t-s">&quot;&quot;&quot;线性筛莫比乌斯函数 mu&quot;&quot;&quot;</span>
+    pri = []
+    not_prime = [<span class="t-k">False</span>] * (n + <span class="t-n">1</span>)
+    mu = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    mu[<span class="t-n">1</span>] = <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>):
+        <span class="t-k">if</span> <span class="t-k">not</span> not_prime[i]:
+            pri.<span class="t-f">append</span>(i)
+            mu[i] = -<span class="t-n">1</span>
+        <span class="t-k">for</span> p <span class="t-k">in</span> pri:
+            <span class="t-k">if</span> i * p &gt; n:
+                <span class="t-k">break</span>
+            not_prime[i * p] = <span class="t-k">True</span>
+            <span class="t-k">if</span> i % p == <span class="t-n">0</span>:
+                mu[i * p] = <span class="t-n">0</span>
+                <span class="t-k">break</span>
+            mu[i * p] = -mu[i]
+    <span class="t-k">return</span> pri, mu
+
+
+<span class="t-k">def</span> <span class="t-f">is_prime_simple</span>(x, pri):
+    <span class="t-s">&quot;&quot;&quot;用素数表判断 x 是否为素数（x 较小）&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> math
+    <span class="t-k">if</span> x &lt; <span class="t-n">2</span>:
+        <span class="t-k">return</span> <span class="t-k">False</span>
+    <span class="t-k">for</span> p <span class="t-k">in</span> pri:
+        <span class="t-k">if</span> p * p &gt; x:
+            <span class="t-k">break</span>
+        <span class="t-k">if</span> x % p == <span class="t-n">0</span>:
+            <span class="t-k">return</span> x == p
+    <span class="t-k">return</span> <span class="t-k">True</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    pri, phi = <span class="t-f">linear_sieve_phi</span>(<span class="t-n">100</span>)
+    <span class="t-k">assert</span> pri[:<span class="t-n">10</span>] == [<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">7</span>, <span class="t-n">11</span>, <span class="t-n">13</span>, <span class="t-n">17</span>, <span class="t-n">19</span>, <span class="t-n">23</span>, <span class="t-n">29</span>]
+    <span class="t-k">assert</span> <span class="t-n">97</span> <span class="t-k">in</span> pri
+    <span class="t-k">assert</span> <span class="t-n">91</span> <span class="t-k">not</span> <span class="t-k">in</span> pri
+    <span class="t-c"># 欧拉函数已知值: phi(12)=4, phi(9)=6, phi(1)=1, phi(97)=96</span>
+    <span class="t-k">assert</span> phi[<span class="t-n">12</span>] == <span class="t-n">4</span>
+    <span class="t-k">assert</span> phi[<span class="t-n">9</span>] == <span class="t-n">6</span>
+    <span class="t-k">assert</span> phi[<span class="t-n">1</span>] == <span class="t-n">1</span>
+    <span class="t-k">assert</span> phi[<span class="t-n">97</span>] == <span class="t-n">96</span>
+
+    <span class="t-c"># 与埃氏筛交叉验证素数集合（用 n=500 重跑一遍线性筛）</span>
+    pri500, _ = <span class="t-f">linear_sieve_phi</span>(<span class="t-n">500</span>)
+    <span class="t-k">from</span> math <span class="t-k">import</span> isqrt
+    n = <span class="t-n">500</span>
+    s = [<span class="t-k">True</span>] * (n + <span class="t-n">1</span>)
+    s[<span class="t-n">0</span>] = s[<span class="t-n">1</span>] = <span class="t-k">False</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, <span class="t-f">isqrt</span>(n) + <span class="t-n">1</span>):
+        <span class="t-k">if</span> s[i]:
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i * i, n + <span class="t-n">1</span>, i):
+                s[j] = <span class="t-k">False</span>
+    expected = {i <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>, n + <span class="t-n">1</span>) <span class="t-k">if</span> s[i]}
+    <span class="t-k">assert</span> <span class="t-b">set</span>(pri500) == expected
+
+    <span class="t-c"># 暴力验证欧拉函数</span>
+    <span class="t-k">def</span> <span class="t-f">phi_brute</span>(x):
+        <span class="t-k">return</span> <span class="t-b">sum</span>(<span class="t-n">1</span> <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, x + <span class="t-n">1</span>) <span class="t-k">if</span> <span class="t-f">__import__</span>(<span class="t-s">&#x27;math&#x27;</span>).<span class="t-f">gcd</span>(k, x) == <span class="t-n">1</span>)
+    <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-n">50</span>):
+        <span class="t-k">assert</span> phi[x] == <span class="t-f">phi_brute</span>(x), (x, phi[x], <span class="t-f">phi_brute</span>(x))
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 下线性筛 n=1e7 约 1-2s，与埃氏筛相当但还附带积性函数表。Python 内层 for p in pri 的 Python 级循环是瓶颈（比 C 慢），n&gt;1e7 时建议用字节级优化或 numpy 向量化（若 OJ 允许）。mu 数组仅需 int 小值，可用 array(&#x27;b&#x27;) 省内存。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n) — 每个合数恰被最小质因子筛一次</td></tr><tr><th>空间复杂度</th><td>O(n) — 素数表 + not_prime + 函数表</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Python 的线性筛常数较大（内层 Python 循环），n 超 1e8 时仍会超时/超内存；此时应寻求数论分块+杜教筛等亚线性方法。线性筛需要至少一个积性函数需要维护时才有优势，纯筛素数时埃氏筛+位压缩常数更小。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>忘记在内层 if i%p==0 时 break，导致合数被重复标记（退化为非线性）</li><li>break 条件写反（i%p!=0 时 break），产生漏筛</li><li>i*p 可能溢出 int（Python 无此问题，但乘法仍要趁早判断 &gt;n 再 break）</li><li>维护积性函数时分不清 i%p==0 与互质两分支的公式</li><li>phi[1]=1 漏初始化导致后续累加错位</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3383</strong></td><td>3</td><td>【模板】线性筛素数：线性筛/埃氏筛均可，检验基础实现</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3383" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3383</a></td></tr><tr><td>Luogu</td><td><strong>P2568</strong></td><td>6</td><td>GCD：线性筛预处理欧拉函数前缀和求 sum gcd=素数 的对数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2568" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2568</a></td></tr><tr><td>Luogu</td><td><strong>P2158</strong></td><td>4</td><td>仪仗队：线性筛欧拉函数求和，互素对数计数</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2158" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2158</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-sieve-linear" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "init", "label": "初始化 not_prime 与素数表"}}, {"data": {"id": "mark", "label": "外循环: 未标记则入素数表"}}, {"data": {"id": "sieve", "label": "内循环: 标记 i×p, i%p==0 时 break"}}, {"data": {"id": "func", "label": "同时按分支维护积性函数"}}, {"data": {"id": "einit->mark", "source": "init", "target": "mark"}}, {"data": {"id": "emark->sieve", "source": "mark", "target": "sieve"}}, {"data": {"id": "esieve->func", "source": "sieve", "target": "func"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-sieve-linear'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="euler-totient.html" title="线性筛可O(n)同时求欧拉函数等积性函数">欧拉函数<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/sieve/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/sieve/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/algebra/prime-sieve-linear.html" target="_blank" rel="noopener">https://cp-algorithms.com/algebra/prime-sieve-linear.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch21 Number theory (p207-216)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

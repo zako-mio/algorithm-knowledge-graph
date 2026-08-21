@@ -1,0 +1,110 @@
+{
+  "id": "partial-score",
+  "name": "骗分/部分分",
+  "group": "G-E-8",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "OI 赛制按数据范围分档拿分：暴力/特殊性质部分分，namespace 分治提交",
+  "what": "在 OI 赛制（一次提交、按测试点多点给分）中，正解之外按数据范围或特殊性质拿部分分的策略统称「骗分」。常见手段：①小数据暴力（n 小直接枚举/DFS）；②特殊性质点（如无环→树、权值相等→简单公式、输入小→打表）；③最朴素的正确算法（O(n^2) 换满数据的部分分）；④多个部分分版本共存时按输入特征分支（用 namespace 封装不同子任务，main 里按条件调用），一份代码拿多个子任务分。OI Wiki 以 NOI 2018 屠龙勇士的 40 分部分分代码为例展示 namespace 分治写法。",
+  "why": {
+    "intuition": "OI 的得分是累加的：满分 100 分由若干测试点构成，正解拿 100，暴力至少拿 20-40。与其花 3 小时追一个解不出的正解，不如 30 分钟写暴力先锁 30 分，剩余时间再优化。部分分策略的本质是「把确定性能拿到的分数先拿进兜里」，这是 OI 赛制区别于 ICPC（必须全对）的核心心法。",
+    "principle": "每个测试点对应数据范围或特殊条件，题目数据范围通常分层（如 n<=10 暴力、n<=500 O(n^2)、n<=1e5 正解）。因此一个程序里可同时实现多个复杂度档位，运行时读入数据规模判断用哪档：namespace 隔离各档实现避免命名冲突，main 读入特征后分派。子任务分=该档数据规模对应的所有测试点分数。注意必须保证每档实现在该档数据下是正确的（含边界），否则连部分分也拿不到。",
+    "history": "OI Wiki 的 contest/common-tricks 页以「善用 namespace」小节给出 NOI2018 屠龙勇士 40 分部分分代码（按 n==1&&m==1、p[1]==1 等条件分派 namespace::solve），并系统介绍打表、随机化、对拍等技巧，是「骗分学」的权威总结。"
+  },
+  "how": {
+    "pseudocode": "namespace subtask1 {  # n<=100 暴力\n  void solve() { 暴力枚举/DFS }\n}\nnamespace subtask2 {  # 特殊性质: 无环\n  void solve() { 特殊算法 }\n}\nnamespace full { void solve() { 正解 } }\nmain():\n  read(n)\n  if n <= 100: subtask1::solve()\n  elif 满足无环性质: subtask2::solve()\n  else: full::solve()",
+    "python": "import sys\n\n\ndef subtask_brute(n, a):\n    # 暴力档：n<=1000，O(n^2) 直接算\n    ans = 0\n    for i in range(n):\n        for j in range(i + 1, n):\n            if a[i] > a[j]:\n                ans += 1\n    return ans\n\n\ndef subtask_special(n, a):\n    # 特殊性质档：元素两两不同 且 只有相邻两元素会逆序（假设）\n    cnt = 0\n    for i in range(n - 1):\n        if a[i] > a[i + 1]:\n            cnt += 1\n    return cnt\n\n\ndef full_solve(n, a):\n    # 正解档：O(n log n) 归并排序数逆序对\n    tmp = [0] * n\n\n    def merge(lo, hi):\n        if hi - lo <= 1:\n            return 0\n        mid = (lo + hi) // 2\n        res = merge(lo, mid) + merge(mid, hi)\n        i, j, k = lo, mid, lo\n        while i < mid and j < hi:\n            if a[i] <= a[j]:\n                tmp[k] = a[i]; i += 1\n            else:\n                tmp[k] = a[j]; j += 1\n                res += mid - i\n            k += 1\n        while i < mid:\n            tmp[k] = a[i]; i += 1; k += 1\n        while j < hi:\n            tmp[k] = a[j]; j += 1; k += 1\n        a[lo:hi] = tmp[lo:hi]\n        return res\n\n    return merge(0, n)\n\n\ndef main():\n    # 典型部分分程序：读入规模，按档分派\n    data = list(map(int, sys.stdin.buffer.read().split()))\n    if not data:\n        # 无输入时自测三档结果一致（小数据验证）\n        test_a = [3, 2, 1, 5, 4]\n        b1 = subtask_brute(5, test_a[:])\n        f1 = full_solve(5, test_a[:])\n        print(f\"brute={b1} full={f1}\")\n        assert b1 == f1\n        print(\"OK (self-test)\")\n        return\n    n = data[0]\n    a = data[1:]\n    special = all(a[i] != a[j] for i in range(n) for j in range(i + 1, n)) and n <= 200\n    if n <= 1000 and not special:\n        print(subtask_brute(n, a))\n    elif special:\n        print(subtask_special(n, a))\n    else:\n        print(full_solve(n, a))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "pypy_notes": "OI 中部分分程序可能被用在很大的暴力数据上，O(n^2) 档建议 PyPy；多档并存时每档都要独立可跑，善用参数化读入（是否读第二行等）避免档间读入错位。namespace 在 Python 中用「函数/类 + 模块级命名」模拟即可。",
+    "complexity": {
+      "time": "各档复杂度不同：暴力 O(n^2)、特殊性质 O(n)、正解 O(n log n)——由输入规模分派",
+      "space": "O(n) 或按档"
+    },
+    "limitations": "部分分策略只在 OI/IOI 按测试点给分的赛制有效；ICPC 全对才得分，写部分分纯属浪费时间。子任务判定条件必须能从输入判断（题目需保证），且各档实现都要正确。同一测试点不会同时匹配两档，分派顺序需确定。"
+  },
+  "examples": [
+    {
+      "oj": "NOI",
+      "pid": "2018 屠龙勇士",
+      "url": "https://www.luogu.com.cn/problem/P4774",
+      "difficulty": 7,
+      "key_point": "OI Wiki 引用的 40 分部分分例题：按 n/m/特判 分 namespace 分派"
+    },
+    {
+      "oj": "CSP-S",
+      "pid": "常见套路",
+      "url": "https://oi-wiki.org/contest/common-tricks/",
+      "difficulty": 2,
+      "key_point": "数据范围分档：n<=20 状压/搜索、特殊性质无环/相等、大范围正解"
+    },
+    {
+      "oj": "IOI",
+      "pid": "子任务制",
+      "url": "https://oi-wiki.org/contest/oi/",
+      "difficulty": 2,
+      "key_point": "IOI 赛制按子任务给分，暴力+特殊性质分档是最低保障"
+    }
+  ],
+  "pitfalls": [
+    "暴力的边界处理不严谨，把暴力档的分也丢了",
+    "分档条件写错（如 special 判定用全量 O(n^2) 检查导致本身 TLE）",
+    "多档读入不一致：某档不读的部分若也被读走，后续档数据错位",
+    "OI 赛制一次提交：未充分自测就交，浪费唯一机会",
+    "把部分分策略用在 ICPC（全对才得分）上浪费了时间",
+    "打表/暴力数据过大导致 MLE/OLE"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "read",
+        "label": "读入数据规模与特征"
+      },
+      {
+        "id": "classify",
+        "label": "判定匹配哪一档(暴力/特殊/正解)"
+      },
+      {
+        "id": "dispatch",
+        "label": "按 namespace/分支调用对应实现"
+      },
+      {
+        "id": "verify",
+        "label": "每档在小样本上自测"
+      },
+      {
+        "id": "submit",
+        "label": "一次性提交"
+      }
+    ],
+    "edges": [
+      {
+        "from": "read",
+        "to": "classify"
+      },
+      {
+        "from": "classify",
+        "to": "dispatch"
+      },
+      {
+        "from": "dispatch",
+        "to": "verify"
+      },
+      {
+        "from": "verify",
+        "to": "submit"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/contest/common-tricks/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/contest/oi/",
+      "verified": true
+    }
+  ]
+}

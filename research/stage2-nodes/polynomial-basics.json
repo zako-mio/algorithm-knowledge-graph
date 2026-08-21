@@ -1,0 +1,114 @@
+{
+  "id": "polynomial-basics",
+  "name": "多项式基础",
+  "group": "G-C-12",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "多项式表示、求值、乘法、求导积分，FFT/NTT的前置知识",
+  "what": "多项式基础是形式幂级数理论及所有多项式算法（FFT/NTT、求逆、ln/exp、开方、多点求值、拉格朗日反演等）的地基。核心概念：多项式环 R[x] 与形式幂级数环 R[[x]]（系数序列视角）；次数 deg f；乘法（系数卷积，FFT/NTT 加速到 O(n log n)）；复合 f∘g；形式导数与不定积分（逐项求导/积分）；乘法逆元（常数项非零存在，牛顿迭代 O(n log n)）；带余除法与模多项式（q、r 的唯一性）；常见的幂级数展开式（e^x、ln(1+x)、(1+x)^a、三角/反三角）；生成函数。",
+  "why": {
+    "intuition": "把多项式想成'系数序列'，x 只是占位符。这样 导数=乘下标、积分=除下标、逆元=解递推、卷积=乘积——所有操作都变成序列上的运算，可以用 NTT 加速，最后就能'操纵'生成函数解计数题。",
+    "principle": "形式导数 f'=Σ k·a_k x^{k-1} 无需极限即可定义；形式积分是导数的逆(任取常数项)。乘法逆元满足 (f·f^{-1})_0=1 的递推 f^{-1}_n=-f_0^{-1}Σ_{k<n} f^{-1}_k f_{n-k}，朴素 O(n^2)，牛顿迭代 O(n log n)。带余除法 f=qg+r 中 q、r 唯一(deg r<deg g)，可 O(n^2) 也可用逆元+反转 O(n log n)。复合逆存在当且仅当 f(0)=0 且 f'(0)≠0。",
+    "history": "形式幂级数方法源自 18-19 世纪的分析/生成函数传统(Euler、Laplace)，20 世纪组合学中发展成 powerful 工具（Stanley 的 Enumerative Combinatorics 是标准文献）。OI 中 2010s 起以 FFT/NTT 为引擎普及全套多项式操作，OI Wiki 的 poly/intro 页面是中文社区的标准入门。"
+  },
+  "how": {
+    "pseudocode": "# 核心操作一览\n乘:    c = conv(a,b)                 # 卷积, NTT O(n log n)\n导数:  df[i-1] = i*a[i]\n积分:  it[i] = a[i-1]/i (i>=1)\n逆元:  inv(f, n) 牛顿迭代 O(n log n)\n带余除: q = rev(rev(f) * inv(rev(g)) mod x^{n-m+1}); r = f - q*g\n求值:  Horner O(n) 单点",
+    "python": "MOD = 998244353\n\n\ndef poly_mul(a, b, mod=MOD):\n    \"\"\"朴素多项式乘法(教学版)。O(nm)。\"\"\"\n    res = [0] * (len(a) + len(b) - 1)\n    for i, x in enumerate(a):\n        if x == 0:\n            continue\n        for j, y in enumerate(b):\n            res[i + j] = (res[i + j] + x * y) % mod\n    return res\n\n\ndef poly_add(a, b, mod=MOD):\n    n = max(len(a), len(b))\n    res = [(a[i] if i < len(a) else 0) + (b[i] if i < len(b) else 0) for i in range(n)]\n    return [x % mod for x in res]\n\n\ndef poly_sub(a, b, mod=MOD):\n    n = max(len(a), len(b))\n    res = [((a[i] if i < len(a) else 0) - (b[i] if i < len(b) else 0)) % mod for i in range(n)]\n    return res\n\n\ndef poly_derivative(a, mod=MOD):\n    \"\"\"形式导数 f'(x)。\"\"\"\n    return [(i * a[i]) % mod for i in range(1, len(a))]\n\n\ndef poly_integral(a, mod=MOD):\n    \"\"\"形式不定积分(取 0 常数项). 需要模逆元预计算。\"\"\"\n    n = len(a) + 1\n    inv = [0] * n\n    inv[1] = 1\n    for i in range(2, n):\n        inv[i] = (mod - mod // i) * inv[mod % i] % mod\n    return [0] + [a[i - 1] * inv[i] % mod for i in range(1, n)]\n\n\ndef poly_evaluate(a, x, mod=MOD):\n    \"\"\"Horner 求值。\"\"\"\n    r = 0\n    for c in reversed(a):\n        r = (r * x + c) % mod\n    return r\n\n\ndef poly_naive_inverse(a, n, mod=MOD):\n    \"\"\"多项式逆元 O(n^2)(教学版): f0 != 0 时存在。a 可不足 n 项(高位视为 0)。\"\"\"\n    aa = a[:] + [0] * (n - len(a))\n    inv0 = pow(aa[0], mod - 2, mod)\n    res = [inv0]\n    for i in range(1, n):\n        s = 0\n        for k in range(i):\n            s = (s + res[k] * aa[i - k]) % mod\n        res.append((-inv0 * s) % mod)\n    return res\n\n\ndef poly_naive_division(f, g, mod=MOD):\n    \"\"\"带余除法 f = q*g + r (系数从低到高), deg(g)<=deg(f)。O(n^2)。\"\"\"\n    f = f[:]\n    g = g[:]\n    n, m = len(f), len(g)\n    if n < m:\n        return [], f[:]\n    inv_lead = pow(g[-1], mod - 2, mod)\n    q = [0] * (n - m + 1)\n    for i in range(n - 1, m - 2, -1):\n        coef = f[i] * inv_lead % mod\n        pos = i - m + 1\n        q[pos] = coef\n        for j in range(m):\n            f[pos + j] = (f[pos + j] - coef * g[j]) % mod\n    return q, f[:m - 1]\n\n\ndef poly_compose_naive(f, g, n, mod=MOD):\n    \"\"\"多项式复合 f(g(x)) 前 n 项, O(n^2)。\"\"\"\n    res = [0] * n\n    cur = [1]\n    for c in f:\n        if c:\n            for i in range(len(cur)):\n                if i < n:\n                    res[i] = (res[i] + c * cur[i]) % mod\n        # cur = cur * g\n        new = [0] * min(n, len(cur) + len(g) - 1)\n        for i in range(len(cur)):\n            if cur[i] == 0:\n                continue\n            for j in range(len(g)):\n                if i + j < n:\n                    new[i + j] = (new[i + j] + cur[i] * g[j]) % mod\n        cur = new\n    return res\n\n\nif __name__ == \"__main__\":\n    import random\n    for _ in range(100):\n        n = random.randint(1, 8)\n        m = random.randint(1, 8)\n        f = [random.randint(0, 9) for _ in range(n)]\n        g = [random.randint(0, 9) for _ in range(m)]\n        # 乘法: (f*g) 系数\n        prod = poly_mul(f, g)\n        prod2 = [0] * (n + m - 1)\n        for i, x in enumerate(f):\n            for j, y in enumerate(g):\n                prod2[i + j] = (prod2[i + j] + x * y) % MOD\n        assert prod == prod2\n        # 带余除法回代: f = q*g + r\n        if len(f) >= len(g) and g[-1] % MOD != 0:\n            q, r = poly_naive_division(f, g)\n            back = poly_add(poly_mul(q, g), r + [0] * (len(f) - len(r)))\n            assert back[:len(f)] == f\n    # 多项式逆元: (1 - x)^{-1} = 1 + x + x^2 + ...\n    inv = poly_naive_inverse([1, MOD - 1], 6)\n    assert inv == [1, 1, 1, 1, 1, 1], inv\n    # 导数与积分\n    f = [1, 2, 3, 4]\n    df = poly_derivative(f)\n    assert df == [2, 6, 12]\n    it = poly_integral([2, 6, 12])  # 积分(常数项取 0)\n    assert it == [0, 2, 3, 4]\n    # 导积分还原(去常数项)\n    assert poly_derivative(it) == [2, 6, 12]\n    print(\"polynomial-basics tests passed\")\n",
+    "pypy_notes": "朴素 O(n^2) 实现教学足够(1e4 级); 生产用 NTT 版乘法+牛顿迭代。Python 大 n 依赖 NTT 常数优化。",
+    "complexity": {
+      "time": "朴素: 乘/逆 O(n^2); NTT 版: 乘 O(n log n), 逆 O(n log n)",
+      "space": "O(n)"
+    },
+    "limitations": "逆元要求常数项非零(否则不存在); 导数求导次数到 0 次项消失; 幂级数展开只在收敛域内成立(形式幂级数层面不需收敛, 但换元复合需常数项为 0); 形式积分需模逆元预计算。教学朴素版大 n 慢, 实际使用要换 NTT 实现。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3803",
+      "url": "https://www.luogu.com.cn/problem/P3803",
+      "difficulty": 3,
+      "key_point": "多项式乘法: 检验基础卷积与 FFT/NTT 实现"
+    },
+    {
+      "oj": "Library Checker",
+      "pid": "inv_of_formal_power_series",
+      "url": "https://judge.yosupo.jp/problem/inv_of_formal_power_series",
+      "difficulty": 4,
+      "key_point": "形式幂级数求逆: 牛顿迭代入门"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "abc331_g",
+      "url": "https://atcoder.jp/contests/abc331/tasks/abc331_g",
+      "difficulty": 5,
+      "key_point": "生成函数思想用于计数问题(容斥+FWT)"
+    }
+  ],
+  "pitfalls": [
+    "逆元存在性条件(常数项非零)忽略",
+    "卷积长度/补零错误导致结果截断",
+    "形式导数的常数项消失, 积分后再求导常数丢失",
+    "复合运算要求内层常数项为 0(否则项数无穷)",
+    "幂级数展开盲目代入非收敛域(数值问题)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "represent",
+        "label": "掌握系数序列表示与次数"
+      },
+      {
+        "id": "mul",
+        "label": "卷积乘法(FFT/NTT)"
+      },
+      {
+        "id": "calc",
+        "label": "导数/积分/求值"
+      },
+      {
+        "id": "inverse",
+        "label": "乘法逆元与带余除法"
+      },
+      {
+        "id": "expansions",
+        "label": "常用幂级数展开与生成函数应用"
+      }
+    ],
+    "edges": [
+      {
+        "from": "represent",
+        "to": "mul"
+      },
+      {
+        "from": "mul",
+        "to": "calc"
+      },
+      {
+        "from": "calc",
+        "to": "inverse"
+      },
+      {
+        "from": "inverse",
+        "to": "expansions"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/poly/intro/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/intro.md",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/algebra/polynomial.html",
+      "verified": true
+    }
+  ]
+}

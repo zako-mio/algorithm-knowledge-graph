@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>吉司机线段树(Segment Beats) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-8.html">高级线段树与离线</a> / <span>吉司机线段树(Segment Beats)</span></div>
+  <h1>吉司机线段树(Segment Beats)</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-D-8.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-D-8.html"><span class="dir">组内第 1 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="li-chao-tree.html"><span class="dir">下一个 / 组内</span><span class="v">li-chao-tree</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">区间取 min/max 等操作利用势能标记，均摊高效维护复杂区间信息</div><p>Segment Beats 是一种维护区间最值操作(区间 chmin/chmax)的懒标记线段树：每个节点记录最大值 mx1、严格次大值 mx2、最大值个数 cntm，当新值 x 满足 mx2&lt;x&lt;mx1 时可直接打标记(O(1))，否则暴力递归下传。用势能分析保证总复杂度 O(m log n)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>区间取 min 只影响「大于 x」的数；若当前区间里所有数都 ≤x 直接跳过，若次大值都 &lt;x 说明只有最大值会变——这时一个标记就够；只有当 x≤次大值、无法确定影响范围时才被迫向下递归。这种「能懒则懒、不能就暴力」配合势能分析得到均摊高效。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>节点维护 mx1/mx2/cntm/sum。chmin(l,r,x)：若 mx1≤x 跳过；若 mx2&lt;x&lt;mx1 则 sum+=cntm*(x-mx1)、mx1=x 打标记返回；若 x≤mx2 则 pushdown 后递归左右子节点再 pull。复杂度用势能函数(不同最大值段数)分析为 O(m log n)。可进一步推广到区间 chmax、区间加、历史最值。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Segment Beats 由吉如一提出，2014-2015 年在 Codeforces（Blog entry 57319）与 UOJ 发布，故名吉司机线段树；核心的势能分析保证区间取 min/max 均摊 O((n+m) log n)。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">apply_tag</span>(p,x): 若 mx1[p]&gt;x: <span class="t-b">sum</span>+=cntm*(x-mx1); mx1=x
+<span class="t-f">chmin</span>(l,r,x,s,t,p): 若 mx1≤x 返回; 若 ⊆且 mx2&lt;x: apply_tag; 否则 pushdown 递归 pull</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+<span class="t-c"># 区间 chmin(a_i, x) + 区间 max/sum 查询 (Segment Tree Beats)</span>
+INF = <span class="t-n">1</span> &lt;&lt; <span class="t-n">60</span>
+mx1 = []   <span class="t-c"># 最大值</span>
+mx2 = []   <span class="t-c"># 严格次大值</span>
+cntm = []  <span class="t-c"># 最大值个数</span>
+sm = []    <span class="t-c"># 区间和</span>
+
+
+<span class="t-k">def</span> <span class="t-f">build</span>(a, s, t, p):
+    <span class="t-k">if</span> s == t:
+        mx1[p] = a[s]; mx2[p] = -INF; cntm[p] = <span class="t-n">1</span>; sm[p] = a[s]
+        <span class="t-k">return</span>
+    m = s + ((t - s) &gt;&gt; <span class="t-n">1</span>)
+    <span class="t-f">build</span>(a, s, m, p * <span class="t-n">2</span>); <span class="t-f">build</span>(a, m + <span class="t-n">1</span>, t, p * <span class="t-n">2</span> + <span class="t-n">1</span>)
+    <span class="t-f">pull</span>(p)
+
+
+<span class="t-k">def</span> <span class="t-f">pull</span>(p):
+    l, r = p * <span class="t-n">2</span>, p * <span class="t-n">2</span> + <span class="t-n">1</span>
+    sm[p] = sm[l] + sm[r]
+    <span class="t-k">if</span> mx1[l] &gt; mx1[r]:
+        mx1[p] = mx1[l]; cntm[p] = cntm[l]
+        mx2[p] = <span class="t-b">max</span>(mx2[l], mx1[r])
+    <span class="t-k">elif</span> mx1[l] &lt; mx1[r]:
+        mx1[p] = mx1[r]; cntm[p] = cntm[r]
+        mx2[p] = <span class="t-b">max</span>(mx1[l], mx2[r])
+    <span class="t-k">else</span>:
+        mx1[p] = mx1[l]; cntm[p] = cntm[l] + cntm[r]
+        mx2[p] = <span class="t-b">max</span>(mx2[l], mx2[r])
+
+
+<span class="t-k">def</span> <span class="t-f">apply_tag</span>(p, x):
+    <span class="t-c"># chmin: 把当前最大值 mx1 限制为 x (仅当 mx1 &gt; x)</span>
+    <span class="t-k">if</span> mx1[p] &lt;= x:
+        <span class="t-k">return</span>
+    sm[p] += (x - mx1[p]) * cntm[p]
+    mx1[p] = x
+
+
+<span class="t-k">def</span> <span class="t-f">pushdown</span>(p):
+    <span class="t-k">if</span> mx1[p * <span class="t-n">2</span>] &gt; mx1[p]:
+        <span class="t-f">apply_tag</span>(p * <span class="t-n">2</span>, mx1[p])
+    <span class="t-k">if</span> mx1[p * <span class="t-n">2</span> + <span class="t-n">1</span>] &gt; mx1[p]:
+        <span class="t-f">apply_tag</span>(p * <span class="t-n">2</span> + <span class="t-n">1</span>, mx1[p])
+
+
+<span class="t-k">def</span> <span class="t-f">chmin</span>(l, r, x, s, t, p):
+    <span class="t-c"># 把 [l,r] 中 &gt; x 的数变为 x</span>
+    <span class="t-k">if</span> r &lt; s <span class="t-k">or</span> t &lt; l <span class="t-k">or</span> mx1[p] &lt;= x:
+        <span class="t-k">return</span>
+    <span class="t-k">if</span> l &lt;= s <span class="t-k">and</span> t &lt;= r <span class="t-k">and</span> mx2[p] &lt; x:
+        <span class="t-f">apply_tag</span>(p, x)
+        <span class="t-k">return</span>
+    m = s + ((t - s) &gt;&gt; <span class="t-n">1</span>)
+    <span class="t-f">pushdown</span>(p)
+    <span class="t-f">chmin</span>(l, r, x, s, m, p * <span class="t-n">2</span>)
+    <span class="t-f">chmin</span>(l, r, x, m + <span class="t-n">1</span>, t, p * <span class="t-n">2</span> + <span class="t-n">1</span>)
+    <span class="t-f">pull</span>(p)
+
+
+<span class="t-k">def</span> <span class="t-f">qmax</span>(l, r, s, t, p):
+    <span class="t-k">if</span> l &lt;= s <span class="t-k">and</span> t &lt;= r:
+        <span class="t-k">return</span> mx1[p]
+    m = s + ((t - s) &gt;&gt; <span class="t-n">1</span>); <span class="t-f">pushdown</span>(p); res = -INF
+    <span class="t-k">if</span> l &lt;= m:
+        res = <span class="t-b">max</span>(res, <span class="t-f">qmax</span>(l, r, s, m, p * <span class="t-n">2</span>))
+    <span class="t-k">if</span> r &gt; m:
+        res = <span class="t-b">max</span>(res, <span class="t-f">qmax</span>(l, r, m + <span class="t-n">1</span>, t, p * <span class="t-n">2</span> + <span class="t-n">1</span>))
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">1</span> &lt;&lt; <span class="t-n">20</span>)
+    n = <span class="t-n">5</span>
+    a = [<span class="t-n">0</span>, <span class="t-n">10</span>, <span class="t-n">11</span>, <span class="t-n">12</span>, <span class="t-n">13</span>, <span class="t-n">14</span>]
+    k = <span class="t-n">4</span> * n + <span class="t-n">4</span>
+    <span class="t-k">for</span> v <span class="t-k">in</span> (mx1, mx2, cntm, sm):
+        v.<span class="t-f">extend</span>([<span class="t-n">0</span>] * k)
+    <span class="t-f">build</span>(a, <span class="t-n">1</span>, n, <span class="t-n">1</span>)
+    <span class="t-f">chmin</span>(<span class="t-n">1</span>, <span class="t-n">5</span>, <span class="t-n">12</span>, <span class="t-n">1</span>, n, <span class="t-n">1</span>)  <span class="t-c"># 所有&gt;12的变12</span>
+    <span class="t-b">print</span>(<span class="t-f">qmax</span>(<span class="t-n">1</span>, <span class="t-n">5</span>, <span class="t-n">1</span>, n, <span class="t-n">1</span>))  <span class="t-c"># 12</span>
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">递归+多条件分支 PyPy 常数较大；mx1/mx2/cntm 用三个平行列表存、局部变量化可加速。n,q=1e5 时 Python 常接近时限，必要时用数组而非对象。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>区间 chmin 均摊 O(log n)（整体 O(m log n)）；区间 chmax/加同理</td></tr><tr><th>空间复杂度</th><td>O(4N) — 多维护 mx1/mx2/cntm/sum</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Python 实现常数极大，n,m=1e5 在 1s 时限几乎必 TLE，仅适合学习/小数据；实际竞赛用 C++。标记下传涉及多种标记(加/chmin/chmax)时顺序极易写错，需严格按 apply 优先级处理。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>mx2 必须是严格次大值(等于 mx1 的不算)，否则 chmin 标记会误伤</li><li>多种标记(加+chmin+chmax)并存时 apply/pushdown 顺序极易错，需逐种分析偏序关系</li><li>忘记在叶子节点特判导致 mx2 仍为 -INF 参与比较出错</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>HDU</td><td><strong>5306</strong></td><td>2400</td><td>Gorgeous Sequence：区间取min+区间max/sum，Segment Beats 标准模板题</td><td class="u"><a href="https://acm.hdu.edu.cn/showproblem.php?pid=5306" target="_blank" rel="noopener">https://acm.hdu.edu.cn/showproblem.php?pid=5306</a></td></tr><tr><td>LOJ</td><td><strong>6565</strong></td><td>2700</td><td>最假女选手：区间加/chmax/chmin + 三种最值查询，多标记 Segment Beats</td><td class="u"><a href="https://loj.ac/p/6565" target="_blank" rel="noopener">https://loj.ac/p/6565</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-seg-beats" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "build", "label": "建树(维护mx1/mx2/cntm/sum)"}}, {"data": {"id": "chmin", "label": "chmin: 判断 mx2\u003cx\u003cmx1?"}}, {"data": {"id": "apply_tag", "label": "apply: sum+=cntm*(x-mx1), mx1=x"}}, {"data": {"id": "pushdown", "label": "暴力递归(标记下传)"}}, {"data": {"id": "pull", "label": "合并子节点最值信息"}}, {"data": {"id": "ebuild->chmin", "source": "build", "target": "chmin"}}, {"data": {"id": "echmin->apply_tag", "source": "chmin", "target": "apply_tag"}}, {"data": {"id": "echmin->pushdown", "source": "chmin", "target": "pushdown"}}, {"data": {"id": "epushdown->pull", "source": "pushdown", "target": "pull"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-seg-beats'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="seg-basic.html" title="Segment Beats是线段树的区间最值操作扩展">线段树基础<span class="etype">变体</span></a><a class="chip e-combination" href="li-chao-tree.html" title="均为线段树区间高级维护的推广">李超线段树<span class="etype">组合</span></a><a class="chip e-combination" href="nested-segment-tree.html" title="树套树与 Beats 同属复杂标记线段树">线段树嵌套(树套树)<span class="etype">组合</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="li-chao-tree.html" title="均为近年高频进阶数据结构，常在同一赛题集出现">李超线段树<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/seg-beats.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/seg-beats.md</a></li><li><span class="srctype">web</span><span class="v-ok">&#10003;</span> <a href="https://atcoder.jp/contests/abc430/editorial/14433" target="_blank" rel="noopener">https://atcoder.jp/contests/abc430/editorial/14433</a></li><li><span class="srctype">web</span><span class="v-warn">&#9651;</span> <a href="https://codeforces.com/blog/entry/57319" target="_blank" rel="noopener">https://codeforces.com/blog/entry/57319</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

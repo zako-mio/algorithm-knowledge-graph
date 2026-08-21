@@ -1,0 +1,128 @@
+{
+ "id": "segment-intersection",
+ "name": "线段相交判定与求交",
+ "group": "G-D-2",
+ "stage": "intermediate",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "跨立实验判两线段是否相交并求交点，几何求交基础",
+ "what": "给定两条线段 AB、CD（各由两端点定义，可退化为单点），判定是否相交并求交集的形状：空集、单个点、或整条重叠线段。整数坐标下可用纯整数运算（跨立实验）判定：① 先做包围盒检查（x/y 投影区间相交），处理共线重叠；② 跨立实验：A、B 分居直线 CD 两侧且 C、D 分居直线 AB 两侧（用叉积符号判定）。求交点：构造两线段的直线方程，用 Cramer 法则求直线交点，再检查交点是否在两条线段上（包围盒内）。共线时交点为区间交叠。这是几何求交、扫描线线段求交、以及众多平面几何题的基础原语。",
+ "why": {
+  "intuition": "叉积的几何意义是『有向面积/方向判断』：cross(P,Q)>0 表示 Q 在 P 的逆时针方向。线段相交判定的本质是方向测试：若 A、B 在直线 CD 的两侧，说明 AB 与直线 CD 相交；同时 C、D 在直线 AB 的两侧，则 AB 与 CD 真的『互相穿过』。边界情形（端点共线、共线重叠）用包围盒区间交叠兜住。这比『求交点再看是否在段上』更快且能处理整数。",
+  "principle": "① 叉积 cross(a,b,c)=(b-a)×(c-a)，符号表示 c 在 ab 的哪侧。② 跨立实验：sgn(cross(a,b,c))≠sgn(cross(a,b,d)) 且 sgn(cross(c,d,a))≠sgn(cross(c,d,b)) ⇒ 相交（严格内侧）。③ 共线情形：若 cross(a,b,c)=cross(a,b,d)=0 则四点共线，检查投影区间 [min(a.x,b.x),max(a.x,b.x)] 与 [min(c.x,d.x),max(c.x,d.x)] 相交（x 与 y 两个方向），用 inter1 函数 max(l1,l2)≤min(r1,r2)。④ 求交点：直线方程 Cramer 法则，若平行则共线重叠情形取左端点最大/右端点最小；否则交点需满足 0≤t≤1 参数化在段内。⑤ EPS 处理浮点；整数情形 sgn 精确。",
+  "history": "线段相交判定是计算几何的经典基础问题，出现在 Bentley-Ottmann 扫描线算法（1979）以及大量几何问题中。CP-Algorithms 收录了整数版『Check if two segments intersect』（源自 e-maxx.ru）与浮点版『Intersection of Segments』，是目前标准参考。OI Wiki 的 2D 几何也把它列为基本运算。"
+ },
+ "how": {
+  "pseudocode": "# 判定相交 (整数, 精确)\ndef sgn(x): return 1 if x>0 else (-1 if x<0 else 0)\ndef cross(a,b,c): return (b-a)×(c-a)   # 叉积\n\ndef segments_intersect(a,b,c,d):\n  if cross(a,b,c)==0 and cross(a,b,d)==0:\n    # 共线: 检查 x 和 y 投影区间\n    return inter1(a.x,b.x,c.x,d.x) and inter1(a.y,b.y,c.y,d.y)\n  return sgn(cross(a,b,c))!=sgn(cross(a,b,d)) and \\\n         sgn(cross(c,d,a))!=sgn(cross(c,d,b))\n\ndef inter1(l1,r1,l2,r2):\n  if l1>r1: l1,r1=r1,l1\n  if l2>r2: l2,r2=r2,l2\n  return max(l1,l2) <= min(r1,r2)\n\n# 求交点 (浮点): 直线方程 Cramer + 参数化检查",
+  "python": "EPS = 1e-9\n\n\ndef cross(ax, ay, bx, by):\n    return ax * by - ay * bx\n\n\ndef orient(a, b, c):\n    \"\"\"叉积 (b-a)×(c-a), 判断 c 相对 ab 的方位.\"\"\"\n    return cross(b[0] - a[0], b[1] - a[1], c[0] - a[0], c[1] - a[1])\n\n\ndef on_segment(a, b, p, eps=EPS):\n    \"\"\"点 p 是否在闭线段 ab 上 (含端点).\"\"\"\n    return (min(a[0], b[0]) - eps <= p[0] <= max(a[0], b[0]) + eps and\n            min(a[1], b[1]) - eps <= p[1] <= max(a[1], b[1]) + eps and\n            abs(orient(a, b, p)) <= eps)\n\n\ndef segments_intersect(a, b, c, d, eps=EPS):\n    \"\"\"整数或浮点通用: 判定两线段是否相交 (含端点).\"\"\"\n    o1 = orient(a, b, c)\n    o2 = orient(a, b, d)\n    o3 = orient(c, d, a)\n    o4 = orient(c, d, b)\n    if abs(o1) < eps and abs(o2) < eps and abs(o3) < eps and abs(o4) < eps:\n        # 共线: 投影区间交叠\n        ix = max(min(a[0], b[0]), min(c[0], d[0])) <= min(max(a[0], b[0]), max(c[0], d[0])) + eps\n        iy = max(min(a[1], b[1]), min(c[1], d[1])) <= min(max(a[1], b[1]), max(c[1], d[1])) + eps\n        return ix and iy\n    def sgn(v):\n        return 1 if v > eps else (-1 if v < -eps else 0)\n    return sgn(o1) != sgn(o2) and sgn(o3) != sgn(o4)\n\n\ndef segment_intersection_point(a, b, c, d):\n    \"\"\"求两线段交点(浮点).\n    返回 ('point',x,y) 单点; ('segment',p,q) 重叠段; ('none',) 无交点.\"\"\"\n    # 直线 ax+by+c=0\n    def lf(p, q):\n        A = q[1] - p[1]; B = p[0] - q[0]; C = -A * p[0] - B * p[1]\n        return (A, B, C)\n    A1, B1, C1 = lf(a, b)\n    A2, B2, C2 = lf(c, d)\n    det = cross(A1, B1, A2, B2)\n    if abs(det) < EPS:\n        # 平行: 若共线且区间交叠 -> 重叠段\n        if abs(orient(a, b, c)) < EPS and segments_intersect(a, b, c, d):\n            # 取两个方向的左端最大值, 右端最小值\n            pts = sorted([a, b, c, d])\n            lo = max(min(a, b), min(c, d))\n            hi = min(max(a, b), max(c, d))\n            return ('segment', tuple(lo), tuple(hi))\n        return ('none',)\n    x = -(C1 * B2 - C2 * B1) / det\n    y = -(A1 * C2 - A2 * C1) / det\n    if on_segment(a, b, (x, y)) and on_segment(c, d, (x, y)):\n        return ('point', x, y)\n    return ('none',)\n\n\nif __name__ == \"__main__\":\n    # 相交: (0,0)-(2,2) 与 (0,2)-(2,0) 交于 (1,1)\n    assert segments_intersect((0, 0), (2, 2), (0, 2), (2, 0))\n    r = segment_intersection_point((0, 0), (2, 2), (0, 2), (2, 0))\n    assert r[0] == 'point' and abs(r[1] - 1) < 1e-9 and abs(r[2] - 1) < 1e-9\n\n    # 不相交: 平行且不共线\n    assert not segments_intersect((0, 0), (1, 1), (0, 2), (1, 3))\n    assert segment_intersection_point((0, 0), (1, 1), (0, 2), (1, 3))[0] == 'none'\n\n    # 共线重叠: (0,0)-(3,0) 与 (1,0)-(4,0)\n    assert segments_intersect((0, 0), (3, 0), (1, 0), (4, 0))\n    r = segment_intersection_point((0, 0), (3, 0), (1, 0), (4, 0))\n    assert r[0] == 'segment'\n    assert abs(r[1][0] - 1) < 1e-9 and abs(r[2][0] - 3) < 1e-9\n\n    # 端点相接: (0,0)-(1,1) 与 (1,1)-(2,0)\n    assert segments_intersect((0, 0), (1, 1), (1, 1), (2, 0))\n    r = segment_intersection_point((0, 0), (1, 1), (1, 1), (2, 0))\n    assert r[0] == 'point' and abs(r[1] - 1) < 1e-9 and abs(r[2] - 1) < 1e-9\n\n    # 相距很远\n    assert not segments_intersect((0, 0), (1, 0), (10, 10), (11, 10))\n\n    # 随机交叉验证 (用整数精确 orient 判定)\n    import random\n    random.seed(9)\n\n    def exact_int(a, b, c, d):\n        def sgn(v):\n            return 1 if v > 0 else (-1 if v < 0 else 0)\n        o1 = sgn(orient(a, b, c))\n        o2 = sgn(orient(a, b, d))\n        o3 = sgn(orient(c, d, a))\n        o4 = sgn(orient(c, d, b))\n        if o1 == 0 and o2 == 0:\n            ix = max(min(a[0], b[0]), min(c[0], d[0])) <= min(max(a[0], b[0]), max(c[0], d[0]))\n            iy = max(min(a[1], b[1]), min(c[1], d[1])) <= min(max(a[1], b[1]), max(c[1], d[1]))\n            return ix and iy\n        return o1 != o2 and o3 != o4\n\n    for _ in range(500):\n        pts = [(random.randint(-10, 10), random.randint(-10, 10)) for _ in range(4)]\n        a, b, c, d = pts\n        g = segments_intersect(a, b, c, d)\n        e = exact_int(a, b, c, d)\n        assert g == e, (pts, g, e)\n    print(\"All tests passed.\")",
+  "pypy_notes": "整数坐标下 orient 全整数运算无精度问题；浮点需 eps。高频调用时把 orient 写成局部变量/内联可显著提速。sorted 对点按 x 再 y 排序即可做共线区间取交。",
+  "complexity": {
+   "time": "O(1) 单次判定；n 条线段两两 O(n²)",
+   "space": "O(1)"
+  },
+  "limitations": "浮点坐标下四点近似共线的判定可能不稳定（eps 敏感性）。整数坐标是最佳场景（sgn 精确）。跨立实验对『T 形』接触（一端点落在另一条上）仍正确，但浮点时端点恰在线上需要 eps 宽容。求交点需要额外一次直线求交。",
+  "limitations_note": ""
+ },
+ "examples": [
+  {
+   "oj": "CSES",
+   "pid": "2190",
+   "url": "https://cses.fi/problemset/task/2190",
+   "difficulty": 3,
+   "key_point": "Line Segment Intersection：纯整数线段相交判定模板（CP-Alg 例题）"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P1496",
+   "url": "https://www.luogu.com.cn/problem/P1496",
+   "difficulty": 3,
+   "key_point": "火烧赤壁：线段覆盖/区间合并，与线段相交同源的扫描线题"
+  },
+  {
+   "oj": "UVA",
+   "pid": "866",
+   "url": "https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=807",
+   "difficulty": 4,
+   "key_point": "Intersecting line segments in a grid：判断线段相交并计段数（经典 UVA 线段相交题）"
+  }
+ ],
+ "pitfalls": [
+  "只用跨立实验不检查共线情形（共线时必须检查投影区间交叠）",
+  "叉积符号判断方向写反（orient(a,b,c) 与 orient(b,a,c) 互为相反数）",
+  "浮点坐标下 sgn 误判 0：需用 eps 而非 ==0",
+  "求交点时平行/共线分不清：先判 det=0 再判是否共线，共线再取区间交",
+  "忽略退化线段（单点）：单点也要能判定相交",
+  "线段端点恰在对方上（T 形）容易漏判：跨立实验边界符号要用 ≥/≤ 处理（含 0）"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "orient",
+    "label": "叉积/方位判定基础"
+   },
+   {
+    "id": "straddle",
+    "label": "跨立实验(两侧方向测试)"
+   },
+   {
+    "id": "collinear",
+    "label": "共线情形(投影区间交叠)"
+   },
+   {
+    "id": "bbox",
+    "label": "包围盒快速排除"
+   },
+   {
+    "id": "point",
+    "label": "求交点(Cramer+段内检查)"
+   },
+   {
+    "id": "apply",
+    "label": "应用: 求交/多边形/扫描线"
+   }
+  ],
+  "edges": [
+   {
+    "from": "orient",
+    "to": "straddle"
+   },
+   {
+    "from": "orient",
+    "to": "collinear"
+   },
+   {
+    "from": "bbox",
+    "to": "straddle"
+   },
+   {
+    "from": "straddle",
+    "to": "point"
+   },
+   {
+    "from": "collinear",
+    "to": "point"
+   },
+   {
+    "from": "point",
+    "to": "apply"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/check-segments-intersection.html",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/segments-intersection.html",
+   "verified": true
+  },
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/geometry/2d/",
+   "verified": true
+  }
+ ]
+}

@@ -1,0 +1,136 @@
+{
+  "id": "dfs",
+  "name": "DFS深度优先搜索",
+  "group": "G-B-1",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "递归深入遍历O(V+E)，连通性判定与DFS生成树基础；沿一条路径深入到底再回溯，栈/递归实现，空间O(h)",
+  "what": "DFS（Depth First Search）是图/树遍历算法，从起点出发，每次尝试向更深的节点走，走到无路可走时回溯。通过递归调用自身或显式栈实现。每个节点仅访问一次（打访问标记）。DFS生成树是原图的一个生成树，其性质可用于求强连通分量、割点、桥等。DFS序列中每个子树对应连续区间，可用于树上问题。",
+  "why": {
+    "intuition": "想象走迷宫：每次选一条路走到尽头，走不通了就退回上一个岔路口换路。这就是'深度优先'——优先往深处探索，而非广度优先地逐层展开。",
+    "principle": "DFS的核心是递归调用自身+访问标记。对当前节点打标记后遍历其所有邻居，若邻居未访问则递归。递归调用栈天然实现回溯。时间O(V+E)需用邻接表存储图（均摊O(1)遍历每条边）。",
+    "history": "DFS由Tarjan在1972年系统化用于图论算法。递归实现利用函数调用栈，与BFS用队列形成对应。OI Wiki指出大部分竞赛支持无限栈空间。"
+  },
+  "how": {
+    "pseudocode": "DFS(v):\n  mark v as visited\n  for u in neighbors(v):\n    if u not visited:\n      DFS(u)",
+    "python": "import sys\nsys.setrecursionlimit(1000000)\n\ndef dfs_recursive(adj, start, visited=None):\n    if visited is None:\n        visited = set()\n    visited.add(start)\n    for v in adj[start]:\n        if v not in visited:\n            dfs_recursive(adj, v, visited)\n    return visited\n\ndef dfs_iterative(adj, start):\n    visited = set()\n    stack = [start]\n    while stack:\n        u = stack.pop()\n        if u in visited:\n            continue\n        visited.add(u)\n        for v in adj[u]:\n            if v not in visited:\n                stack.append(v)\n    return visited\n\ndef dfs_tree_edges(adj, start):\n    \"\"\"Return DFS tree edges (parent, child).\"\"\"\n    visited = set([start])\n    edges = []\n    def _dfs(u):\n        for v in adj[u]:\n            if v not in visited:\n                visited.add(v)\n                edges.append((u, v))\n                _dfs(v)\n    _dfs(start)\n    return edges\n\nif __name__ == \"__main__\":\n    adj = {0: [1, 2], 1: [0, 3], 2: [0, 3], 3: [1, 2]}\n    r1 = dfs_recursive(adj, 0)\n    r2 = dfs_iterative(adj, 0)\n    assert r1 == r2 == {0, 1, 2, 3}, f\"DFS failed: {r1}, {r2}\"\n    tree = dfs_tree_edges(adj, 0)\n    assert len(tree) == 3\n    # Disconnected graph: only reaches one component\n    adj2 = {0: [1], 1: [0], 2: [3], 3: [2]}\n    r3 = dfs_recursive(adj2, 0)\n    assert r3 == {0, 1}, f\"Discon DFS failed: {r3}\"\n    print(\"dfs: ALL TESTS PASSED\")\n",
+    "pypy_notes": "递归DFS在PyPy中可能因递归深度限制（默认1000）而崩溃。用sys.setrecursionlimit调大，或改用迭代栈实现。PyPy递归比CPython慢，深递归建议迭代化。",
+    "complexity": {
+      "time": "O(V+E)",
+      "space": "O(V)（含递归栈）"
+    },
+    "limitations": "递归深度受栈空间限制，深图（如链）可能栈溢出。非连通图只能访问起点所在连通分量。DFS序列不唯一（取决于邻居遍历顺序）。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "200",
+      "url": "https://leetcode.cn/problems/number-of-islands/",
+      "difficulty": 4,
+      "key_point": "用 DFS/BFS 统计连通块数量"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3916",
+      "url": "https://www.luogu.com.cn/problem/P3916",
+      "difficulty": 4,
+      "key_point": "反向建图 DFS 求可达最大编号"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "ABC277 D",
+      "url": "https://atcoder.jp/contests/abc277",
+      "difficulty": 3,
+      "key_point": "DFS 遍历连通分量求和"
+    }
+  ],
+  "pitfalls": [
+    "递归深度限制：Python默认1000层，需setrecursionlimit或改用栈",
+    "邻接矩阵存储时时间退化为O(V^2)",
+    "迭代栈实现中，pop顺序可能导致访问顺序与递归不同（逆序压栈）",
+    "未标记已访问节点可能导致重复访问/死循环"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "s1",
+        "label": "选择起始节点s"
+      },
+      {
+        "id": "s2",
+        "label": "标记s为已访问"
+      },
+      {
+        "id": "s3",
+        "label": "遍历s的邻居u"
+      },
+      {
+        "id": "s4",
+        "label": "u未访问？"
+      },
+      {
+        "id": "s5",
+        "label": "递归DFS(u)"
+      },
+      {
+        "id": "s6",
+        "label": "所有邻居遍历完→回溯"
+      }
+    ],
+    "edges": [
+      {
+        "from": "s1",
+        "to": "s2",
+        "type": "next"
+      },
+      {
+        "from": "s2",
+        "to": "s3",
+        "type": "next"
+      },
+      {
+        "from": "s3",
+        "to": "s4",
+        "type": "next"
+      },
+      {
+        "from": "s4",
+        "to": "s5",
+        "type": "yes"
+      },
+      {
+        "from": "s4",
+        "to": "s3",
+        "type": "no"
+      },
+      {
+        "from": "s5",
+        "to": "s3",
+        "type": "return"
+      },
+      {
+        "from": "s3",
+        "to": "s6",
+        "type": "done"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/dfs/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/graph/depth-first-search.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch12 pp127-132"
+    }
+  ]
+}

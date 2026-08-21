@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAG上的DP · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-11.html">动态规划基础族</a> / <span>DAG上的DP</span></div>
+  <h1>DAG上的DP</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-11</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="dp-number.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">dp-number</span></a>
+    <a class="nav-index" href="../03-groups/G-A-11.html"><span class="dir">组内第 14 / 15</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dp-probability.html"><span class="dir">下一个 / 组内</span><span class="v">dp-probability</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">有向无环图上的最长/最短路，拓扑序转移</div><p>DAG上的DP是在有向无环图(DAG)上求最长路或最短路的动态规划。由于DAG天然无环，节点间的依赖关系定义了一个偏序——按拓扑序处理可保证每个节点的状态在处理前已全部就绪。实际问题中的二元依赖关系（如砖块堆叠、任务调度）可建模为DAG，转化为最长/最短路问题。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>DAG没有环，所以从起点到终点的所有路径构成一个偏序结构。按拓扑序处理节点，每个节点的最优值只依赖于「指向它的节点」——这些节点在拓扑序中排在前面，已被处理。这就是DAG上DP无后效性的来源。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>状态定义：d(u)表示从u出发(或到u结束)的最长/短路。转移：d(u)=max{d(v)+w(u,v) | v是u的后继}（最长路）或min同理。处理顺序：按拓扑序（或逆拓扑序）遍历。记忆化搜索也可：DFS(u)时递归处理所有后继v后取最优。时间O(V+E)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>DAG上的DP是最自然的DP模型——DP本质上就是在DAG上做最长/短路（如OI Wiki basic页面所述）。巴比伦塔(UVa 437)是经典教学题，将砖块堆叠建模为DAG最长路。关键路径(CPM)调度也是DAG最长路的应用。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 方法1: 记忆化搜索</span>
+<span class="t-f">d</span>(u):
+  <span class="t-k">if</span> d[u] != -inf: <span class="t-k">return</span> d[u]
+  d[u] = <span class="t-n">0</span>
+  <span class="t-k">for</span> (v, w) <span class="t-k">in</span> adj[u]:
+    d[u] = <span class="t-b">max</span>(d[u], <span class="t-f">d</span>(v) + w)
+  <span class="t-k">return</span> d[u]
+
+<span class="t-c"># 方法2: 拓扑序递推</span>
+<span class="t-f">toposort</span>(G)  <span class="t-c"># 得到拓扑序列</span>
+<span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">reversed</span>(topo):
+  <span class="t-k">for</span> (v, w) <span class="t-k">in</span> adj[u]:
+    d[u] = <span class="t-b">max</span>(d[u], d[v] + w)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> defaultdict, deque
+
+
+<span class="t-k">def</span> <span class="t-f">dag_longest_path</span>(n, edges, weights=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;DAG最长路 (记忆化搜索)
+    n: 节点数 (0-indexed)
+    edges: [(u, v), ...] 有向边 u-&gt;v
+    weights: { (u,v): w } 边权, 默认为1
+    返回: (最长路长度, 最长路起点)
+    &quot;&quot;&quot;</span>
+    <span class="t-k">if</span> weights <span class="t-k">is</span> <span class="t-k">None</span>:
+        weights = {}
+    adj = <span class="t-f">defaultdict</span>(<span class="t-b">list</span>)
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> edges:
+        w = weights.<span class="t-f">get</span>((u, v), <span class="t-n">1</span>)
+        adj[u].<span class="t-f">append</span>((v, w))
+
+    memo = {}
+
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(u):
+        <span class="t-k">if</span> u <span class="t-k">in</span> memo:
+            <span class="t-k">return</span> memo[u]
+        best = <span class="t-n">0</span>
+        <span class="t-k">for</span> v, w <span class="t-k">in</span> adj.<span class="t-f">get</span>(u, []):
+            best = <span class="t-b">max</span>(best, <span class="t-f">dfs</span>(v) + w)
+        memo[u] = best
+        <span class="t-k">return</span> best
+
+    best_len, best_start = <span class="t-n">0</span>, -<span class="t-n">1</span>
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        val = <span class="t-f">dfs</span>(u)
+        <span class="t-k">if</span> val &gt; best_len:
+            best_len = val
+            best_start = u
+    <span class="t-k">return</span> best_len, best_start
+
+
+<span class="t-k">def</span> <span class="t-f">dag_longest_path_topo</span>(n, edges, weights=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;DAG最长路 (拓扑排序+递推)&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> weights <span class="t-k">is</span> <span class="t-k">None</span>:
+        weights = {}
+    adj = <span class="t-f">defaultdict</span>(<span class="t-b">list</span>)
+    in_deg = [<span class="t-n">0</span>] * n
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> edges:
+        w = weights.<span class="t-f">get</span>((u, v), <span class="t-n">1</span>)
+        adj[u].<span class="t-f">append</span>((v, w))
+        in_deg[v] += <span class="t-n">1</span>
+
+    <span class="t-c"># Kahn拓扑排序</span>
+    q = <span class="t-f">deque</span>(u <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(n) <span class="t-k">if</span> in_deg[u] == <span class="t-n">0</span>)
+    topo = []
+    <span class="t-k">while</span> q:
+        u = q.<span class="t-f">popleft</span>()
+        topo.<span class="t-f">append</span>(u)
+        <span class="t-k">for</span> v, w <span class="t-k">in</span> adj[u]:
+            in_deg[v] -= <span class="t-n">1</span>
+            <span class="t-k">if</span> in_deg[v] == <span class="t-n">0</span>:
+                q.<span class="t-f">append</span>(v)
+
+    <span class="t-c"># 逆拓扑序求最长路: dist[u] = max over v of (dist[v] + w)</span>
+    dist = [<span class="t-n">0</span>] * n
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">reversed</span>(topo):
+        <span class="t-k">for</span> v, w <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> dist[v] + w &gt; dist[u]:
+                dist[u] = dist[v] + w
+
+    <span class="t-k">return</span> <span class="t-b">max</span>(dist), dist.<span class="t-f">index</span>(<span class="t-b">max</span>(dist))
+
+
+<span class="t-k">def</span> <span class="t-f">babylon_tower</span>(blocks):
+    <span class="t-s">&quot;&quot;&quot;UVa 437 巴比伦塔: 每种砖块可3种摆放, 求最大堆叠高度
+    blocks: [(a, b, c), ...] 各砖块三条边
+    返回: 最大塔高
+    &quot;&quot;&quot;</span>
+    <span class="t-c"># 每个砖块拆为3种摆放方式(选不同边为高)</span>
+    <span class="t-c"># 底面取较小边作为长, 较大为宽</span>
+    items = []  <span class="t-c"># (length, width, height)</span>
+    <span class="t-k">for</span> a, b, c <span class="t-k">in</span> blocks:
+        <span class="t-k">for</span> h, (l, w) <span class="t-k">in</span> [(a, <span class="t-b">sorted</span>([b, c])), (b, <span class="t-b">sorted</span>([a, c])), (c, <span class="t-b">sorted</span>([a, b]))]:
+            items.<span class="t-f">append</span>((l, w, h))
+
+    n = <span class="t-b">len</span>(items)
+    <span class="t-c"># 建DAG: i可放在j上, 当j底面严格大于i底面</span>
+    adj = <span class="t-f">defaultdict</span>(<span class="t-b">list</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> i == j:
+                <span class="t-k">continue</span>
+            <span class="t-k">if</span> items[i][<span class="t-n">0</span>] &gt; items[j][<span class="t-n">0</span>] <span class="t-k">and</span> items[i][<span class="t-n">1</span>] &gt; items[j][<span class="t-n">1</span>]:
+                <span class="t-c"># i底面更大, j可放在i上, 边 i-&gt;j, 权=j的高度</span>
+                adj[i].<span class="t-f">append</span>((j, items[j][<span class="t-n">2</span>]))
+
+    memo = {}
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(u):
+        <span class="t-k">if</span> u <span class="t-k">in</span> memo:
+            <span class="t-k">return</span> memo[u]
+        best = items[u][<span class="t-n">2</span>]  <span class="t-c"># u本身的高度</span>
+        <span class="t-k">for</span> v, w <span class="t-k">in</span> adj.<span class="t-f">get</span>(u, []):
+            best = <span class="t-b">max</span>(best, <span class="t-f">dfs</span>(v) + items[u][<span class="t-n">2</span>])
+        <span class="t-c"># 注意: 边权应包含u的高度而非v的</span>
+        memo[u] = best
+        <span class="t-k">return</span> best
+
+    <span class="t-c"># 重新计算: d(u) = u为最底时最大高度</span>
+    memo.<span class="t-f">clear</span>()
+    <span class="t-k">def</span> <span class="t-f">dfs2</span>(u):
+        <span class="t-k">if</span> u <span class="t-k">in</span> memo:
+            <span class="t-k">return</span> memo[u]
+        best = <span class="t-n">0</span>  <span class="t-c"># 上面还能堆多高</span>
+        <span class="t-k">for</span> v, _ <span class="t-k">in</span> adj.<span class="t-f">get</span>(u, []):
+            <span class="t-k">if</span> items[u][<span class="t-n">0</span>] &gt; items[v][<span class="t-n">0</span>] <span class="t-k">and</span> items[u][<span class="t-n">1</span>] &gt; items[v][<span class="t-n">1</span>]:
+                best = <span class="t-b">max</span>(best, <span class="t-f">dfs2</span>(v))
+        memo[u] = best + items[u][<span class="t-n">2</span>]  <span class="t-c"># 加上自身高度</span>
+        <span class="t-k">return</span> memo[u]
+
+    <span class="t-k">return</span> <span class="t-b">max</span>(<span class="t-f">dfs2</span>(i) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n))
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># DAG最长路测试</span>
+    <span class="t-c"># 0-&gt;1-&gt;3, 0-&gt;2-&gt;3, 1-&gt;2</span>
+    <span class="t-c"># 0-&gt;1(w=1)-&gt;3(w=1) = 2</span>
+    <span class="t-c"># 0-&gt;2(w=1)-&gt;3(w=1) = 2</span>
+    <span class="t-c"># 最长路: 0-&gt;1-&gt;2-&gt;3 = 3 (边(0,1),(1,2),(2,3))</span>
+    edges = [(<span class="t-n">0</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">0</span>, <span class="t-n">2</span>), (<span class="t-n">2</span>, <span class="t-n">3</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>)]
+    weights = {(<span class="t-n">0</span>,<span class="t-n">1</span>):<span class="t-n">1</span>, (<span class="t-n">1</span>,<span class="t-n">3</span>):<span class="t-n">1</span>, (<span class="t-n">0</span>,<span class="t-n">2</span>):<span class="t-n">1</span>, (<span class="t-n">2</span>,<span class="t-n">3</span>):<span class="t-n">1</span>, (<span class="t-n">1</span>,<span class="t-n">2</span>):<span class="t-n">1</span>}
+    length, start = <span class="t-f">dag_longest_path</span>(<span class="t-n">4</span>, edges, weights)
+    <span class="t-k">assert</span> length == <span class="t-n">3</span>, <span class="t-s">f&quot;Expected 3, got {length}&quot;</span>
+
+    length2, _ = <span class="t-f">dag_longest_path_topo</span>(<span class="t-n">4</span>, edges, weights)
+    <span class="t-k">assert</span> length2 == <span class="t-n">3</span>, <span class="t-s">f&quot;Expected 3, got {length2}&quot;</span>
+
+    <span class="t-c"># 带权DAG: 0-&gt;1(w=3)-&gt;2(w=4) = 7</span>
+    edges2 = [(<span class="t-n">0</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>)]
+    weights2 = {(<span class="t-n">0</span>,<span class="t-n">1</span>):<span class="t-n">3</span>, (<span class="t-n">1</span>,<span class="t-n">2</span>):<span class="t-n">4</span>}
+    length3, _ = <span class="t-f">dag_longest_path</span>(<span class="t-n">3</span>, edges2, weights2)
+    <span class="t-k">assert</span> length3 == <span class="t-n">7</span>, <span class="t-s">f&quot;Expected 7, got {length3}&quot;</span>
+
+    <span class="t-c"># 巴比伦塔: 1个砖块(1,1,1) -&gt; 高度1</span>
+    <span class="t-k">assert</span> <span class="t-f">babylon_tower</span>([(<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>)]) == <span class="t-n">1</span>
+    <span class="t-c"># 2个砖块: (10,10,1)和(5,5,5)</span>
+    <span class="t-c"># 方案1: 块1竖放(h=10,base=1x10) -&gt; 高10</span>
+    <span class="t-c"># 方案2: 块1平放(h=1,base=10x10)+块2(h=5,base=5x5) -&gt; 高6</span>
+    <span class="t-c"># 最优=10</span>
+    <span class="t-k">assert</span> <span class="t-f">babylon_tower</span>([(<span class="t-n">10</span>, <span class="t-n">10</span>, <span class="t-n">1</span>), (<span class="t-n">5</span>, <span class="t-n">5</span>, <span class="t-n">5</span>)]) == <span class="t-n">10</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy对记忆化搜索(dict+递归)优化好，V+E=1e6时约0.3s。拓扑排序的Kahn算法用deque高效。注意递归深度需setrecursionlimit。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(V+E) — 每个节点和边各处理一次</td></tr><tr><th>空间复杂度</th><td>O(V+E) — 邻接表+记忆化数组</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">DAG上DP需保证图确实无环，否则记忆化搜索会死循环。有环时需先用SCC缩点。Python递归深度限制需注意。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>记忆化搜索前需确认图无环，否则DFS不会终止</li><li>拓扑序递推时方向：最长路从终点(逆拓扑序)向前推，最短路从起点(拓扑序)向后推</li><li>巴比伦塔中底面边长需排序(小为大)才能正确判断可堆叠</li><li>有多个起点时需对所有起点取最优，不能只从一个起点DFS</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>UVa</td><td><strong>437</strong></td><td>3</td><td>巴比伦塔：DAG最长路经典题，砖块拆解为3种摆放方式</td><td class="u"><a href="https://onlinejudge.org/external/4/437.pdf" target="_blank" rel="noopener">https://onlinejudge.org/external/4/437.pdf</a></td></tr><tr><td>Luogu</td><td><strong>P4017</strong></td><td>2</td><td>最大食物链计数：DAG上DP计数，拓扑序</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4017" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4017</a></td></tr><tr><td>Luogu</td><td><strong>P1137</strong></td><td>2</td><td>_STA_旅行计划：DAG最长路，拓扑序递推</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1137" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1137</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dp-dag" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "model", "label": "建模为DAG(依赖关系建边)"}}, {"data": {"id": "topo", "label": "拓扑排序(确定处理顺序)"}}, {"data": {"id": "state", "label": "状态定义 d(u)=最长/短路"}}, {"data": {"id": "transition", "label": "转移 d(u)=max{d(v)+w}"}}, {"data": {"id": "answer", "label": "答案 max(d(u))"}}, {"data": {"id": "emodel->topo", "source": "model", "target": "topo"}}, {"data": {"id": "etopo->state", "source": "topo", "target": "state"}}, {"data": {"id": "estate->transition", "source": "state", "target": "transition"}}, {"data": {"id": "etransition->answer", "source": "transition", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dp-dag'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="dp-basic.html" title="DAG上DP是DP基础在有向无环图上的应用">动态规划基础<span class="etype">前置依赖</span></a><a class="chip e-cooccurrence" href="dsu-basic.html" title="DAG上DP的连通性判断常配合并查集">并查集(路径压缩+按秩合并)<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/dag/" target="_blank" rel="noopener">https://oi-wiki.org/dp/dag/</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Directed_acyclic_graph</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

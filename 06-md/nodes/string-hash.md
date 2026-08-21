@@ -1,0 +1,117 @@
+---
+id: string-hash
+name: 字符串哈希
+group: G-C-1
+stage: intermediate
+priority: P0
+depth_tier: deep
+---
+
+# 字符串哈希
+
+> 多项式哈希，O(1)比较任意子串，双哈希/大素数防碰撞
+
+<!-- 元信息: id=string-hash · group=G-C-1 · stage=intermediate · priority=P0 · depth_tier=deep -->
+
+## What · 是什么
+
+字符串哈希(String Hashing)：把字符串映射为整数(通常是多项式哈希 f(s)=∑s[i]·base^(l−i) mod M)，使得 O(1) 判断两个子串是否相等。预处理前缀哈希后，任意子串 [l,r) 的哈希 = (h[r]−h[l]·base^(r−l)) mod M，O(1) 查询。碰撞概率约 1/M(单哈希)；用双模(两个不同 M/base)或大质数+随机 base 可将碰撞概率降到可忽略。应用广泛：字符串匹配(Rabin-Karp)、最长公共子串二分、本质不同子串数、回文判断、允许 k 次失配的匹配等。注意哈希是概率性算法，构造性测试(卡哈希)可被针对，必要时用双哈希或可验证方案。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+把字符串看作 base 进制的大整数再取模。两个相等子串的『数值』必然相同；不同子串碰巧同余的概率≈1/M。预处理时把每个前缀当作前导 0 补齐的大数存起来(模 M)，用『前缀差 ÷ base 幂』的模逆思想 O(1) 取出任意子串的值。base 取 131/13331 等小素数可加快乘法，M 取 1e9+7/1e9+9 等大素数。
+
+### 原理 · Principle
+
+定义 h[i]=hash(s[0..i)) = ∑_{k<i} s[k]·base^(i−1−k) mod M，即前 i 个字符组成 base 进制数。递推 h[i+1]=(h[i]·base+val(s[i])) mod M。子串 s[l..r)(长度 len=r−l) 的哈希：h[r] 中 s[l..r) 位于低 len 位，h[l] 恰是该子串的高 len 位部分，故 hash(l,r)=(h[r]−h[l]·base^len) mod M。O(1) 子串比较。碰撞分析：生日悖论下 n 次比较碰撞概率≈n²/2M，双哈希(两个独立模数)等效于单模数≈M1·M2。注意有被构造测试卡的风险(见 anti-hash 节点)。
+
+### 历史 · History
+
+哈希技术源于 Rabin(1981)指纹思想与 Karp–Rabin(1987)算法，把字符串比较转化为数字比较。多项式哈希在算法竞赛中因 O(1) 子串比较的便利成为字符串题的万能瑞士军刀，也因概率性被『卡哈希』题目(Hash Killer)反复针对，催生了随机 base、双模、反卡对抗的研究。
+
+## How · 实现
+
+### 伪代码
+
+```python
+class DoubleHash(s):
+  precompute h1/h2 (prefix hashes, mod m1/m2) and pow arrays
+  sub(l, r):   # [l,r)
+    return ((h1[r]-h1[l]*p1[r-l]) % m1, (h2[r]-h2[l]*p2[r-l]) % m2)
+```
+
+### Python 实现
+
+```python
+class DoubleHash:
+    """双模多项式字符串哈希: 支持 O(1) 子串哈希比较"""
+    def __init__(self, s, base=131, mod1=1000000007, mod2=1000000009):
+        self.n = len(s)
+        self.base = base
+        self.mod1 = mod1
+        self.mod2 = mod2
+        self.h1 = [0] * (self.n + 1)
+        self.h2 = [0] * (self.n + 1)
+        self.p1 = [1] * (self.n + 1)
+        self.p2 = [1] * (self.n + 1)
+        for i, ch in enumerate(s):
+            self.h1[i + 1] = (self.h1[i] * base + ord(ch)) % mod1
+            self.h2[i + 1] = (self.h2[i] * base + ord(ch)) % mod2
+            self.p1[i + 1] = self.p1[i] * base % mod1
+            self.p2[i + 1] = self.p2[i] * base % mod2
+
+    def sub(self, l, r):
+        """[l, r) 左闭右开的双哈希值"""
+        h1 = (self.h1[r] - self.h1[l] * self.p1[r - l]) % self.mod1
+        h2 = (self.h2[r] - self.h2[l] * self.p2[r - l]) % self.mod2
+        return (h1, h2)
+
+
+if __name__ == "__main__":
+    s = 'abracadabra'
+    H = DoubleHash(s)
+    assert H.sub(0, 4) == H.sub(7, 11)  # abra == abra
+    assert H.sub(0, 4) != H.sub(1, 5)   # abra != brac
+    h_a = DoubleHash('abc').sub(0, 3)
+    h_b = DoubleHash('abd').sub(0, 3)
+    assert h_a != h_b
+    print("string-hash OK")
+
+```
+
+**PyPy 提示**: 双哈希每查询两次取模，Python 里 O(1) 但常数不小；大规模(n=1e6)预处理 h/pow 数组两套各 n+1 个 int，PyPy 内存约 2×2×1e6×8B≈32MB+ 可接受。base 用 131/137 两套不同基底 + 两个模数更抗碰撞。若需排序/去重大量子串，可把双哈希打包成单个整数(tuple 排序即可)。注意 Python % 对负数返回非负，子串哈希计算无负号问题。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | 预处理 O(n)；每次子串哈希 O(1) |
+| 空间 | O(n) (双哈希两套前缀数组+幂数组) |
+
+### 局限
+
+1) 概率性：单哈希可被构造数据卡(1e6 次比较碰撞概率≈1)，必须双哈希/大模数+随机 base；2) 模数必须是素数且 base 与模互素(取模用逆元方案或低幂方案可不需逆元)；3) 不能用于需要『确定性』的场合；4) 修改字符串后需重建/树套哈希(如线段树维护哈希判断回文)；5) base 幂数组需预处理到 n，注意边界。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| Luogu | P3370 | 2 | 【模板】字符串哈希：统计不同字符串个数，哈希去重入门模板 | [https://www.luogu.com.cn/problem/P3370](https://www.luogu.com.cn/problem/P3370) |
+| Codeforces | 1200E | 4 | Compress Words：求最长前后缀重叠(哈希比较后缀与前缀)，经典哈希应用 | [https://codeforces.com/contest/1200/problem/E](https://codeforces.com/contest/1200/problem/E) |
+| LeetCode | 1044 | 4 | Longest Duplicate Substring：二分长度+哈希判重找最长重复子串 | [https://leetcode.cn/problems/longest-duplicate-substring/](https://leetcode.cn/problems/longest-duplicate-substring/) |
+
+## Pitfalls · 易错点
+
+- 单哈希被卡：大样例上碰撞概率不可忽略，务必双哈希
+- 子串哈希公式方向搞反(高幂在左还是右)，用取模减法前需补 +mod
+- base^len 幂数组下标越界(len 可到 n)
+- base 取 2 或与模数相关的小偶数是可被构造攻击的(见 OI-wiki Hash Killer)
+- 用浮点/字符串直接比较而非哈希数值去重，丢失 O(1) 优势
+
+## Sources · 信源
+
+- OI Wiki ✓ [https://oi-wiki.org/string/hash/](https://oi-wiki.org/string/hash/)
+- CP-Algorithms ✓ [https://cp-algorithms.com/string/string-hashing.html](https://cp-algorithms.com/string/string-hashing.html)
+- 书籍 ✓ `CPH ch26 String algorithms (p253-260)`

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>根号分块（通用分块） · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-6.html">分块与根号算法</a> / <span>根号分块（通用分块）</span></div>
+  <h1>根号分块（通用分块）</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-D-6.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-D-6.html"><span class="dir">组内第 1 / 6</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="block-array.html"><span class="dir">下一个 / 组内</span><span class="v">block-array</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">按块长 √n 分块，整块维护（打标记/预统计）+ 散块暴力，单次操作 O(√n)；通用性最强的区间结构。</div><p>根号分块（Sqrt Decomposition，国内常称「分块」）是把序列按块长 s≈√n 分成若干块，为每个整块预处理聚合信息（如块和、块最大值、懒惰标记），对区间操作时「整块整块处理、散块暴力扫」，单次操作 O(s+n/s)，s=√n 时最优 O(√n)。它是一类思想而非单一数据结构：从区间加/求和、区间第 k 小，到莫队（离线询问分块）、值域分块（O(√n) 插入 O(1) 排名查询）、对操作分块等，都是根号思想的体现。相比线段树/树状数组，通用性更强、能维护很多线段树维护不了的信息（如区间众数、区间 mex）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把长序列切成块后，「查询/修改一个区间」被拆成三部分：两头的散块（长度 &lt;s，暴力）和中间的整块（数量 ≈n/s，整块处理）。单次操作代价 = O(s)（散块）+ O(n/s)（整块），用均值不等式在 s=√n 处最小。整块的「懒」处理让区间修改只动块级标记，不必逐个元素改。这就是「空间换时间 + 懒维护」的朴素但极通用形态。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 分块：块长 s=⌈√n⌉，块数 n/s；记录每块和/最大值/标记等；② 区间加/求和：同块直接暴力；跨块则散块暴力逐元素（更新块聚合），整块只打加法标记（lazy）或直接用块聚合值；③ 区间第 k 小：块内排序 + 值域二分 + 整块二分；④ 值域分块：按值域分块支持 O(√n) 插入 + O(1) 查排名；⑤ 对询问分块（莫队的前身）：每 √n 个操作重构前缀，修改 O(1)、询问 O(√n)。复杂度核心是均值不等式平衡散块与整块代价。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>分块思想来自 sqrt-decomposition，CP-Algorithms 与 OI Wiki 均有系统介绍（OI Wiki 译自 e-maxx 博文）。它适用范围极广：从基础区间问题到 NOI 级 Ynoi 题都大量使用；莫队算法本质就是基于分块排序的离线分块。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">s = <span class="t-f">ceil</span>(<span class="t-f">sqrt</span>(n)); nb = (n+s-<span class="t-n">1</span>)//s
+sum_block[b] = 每块元素和; lazy[b] = 整块加法标记
+<span class="t-f">range_add</span>(l,r,x):
+    <span class="t-k">if</span> l,r 同块: <span class="t-k">for</span> i <span class="t-k">in</span> [l,r]: a[i]+=x; sum_block+=x*<span class="t-b">len</span>
+    <span class="t-k">else</span>:
+        <span class="t-k">for</span> i <span class="t-k">in</span> [l, 块l右界]: a[i]+=x; 更新 sum_block[l块]
+        <span class="t-k">for</span> b <span class="t-k">in</span> (l块+<span class="t-n">1</span> .. r块-<span class="t-n">1</span>): lazy[b]+=x
+        <span class="t-k">for</span> i <span class="t-k">in</span> [块r左界, r]: a[i]+=x; 更新 sum_block[r块]
+<span class="t-f">range_sum</span>(l,r): 同理，整块用 sum_block[b]+lazy[b]*<span class="t-b">len</span>，散块暴力</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> SqrtDecomp:
+    <span class="t-s">&quot;&quot;&quot;根号分块：区间加 + 区间求和. 单次 O(sqrt(n)).&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, arr):
+        self.n = <span class="t-b">len</span>(arr)
+        self.s = <span class="t-b">max</span>(<span class="t-n">1</span>, <span class="t-b">int</span>(self.n ** <span class="t-n">0.5</span>))
+        self.a = <span class="t-b">list</span>(arr)
+        self.nb = (self.n + self.s - <span class="t-n">1</span>) // self.s
+        self.sum_b = [<span class="t-n">0</span>] * self.nb
+        self.lazy = [<span class="t-n">0</span>] * self.nb
+        <span class="t-k">for</span> i, v <span class="t-k">in</span> <span class="t-b">enumerate</span>(arr):
+            self.sum_b[i // self.s] += v
+    <span class="t-k">def</span> <span class="t-f">_left</span>(self, b):
+        <span class="t-k">return</span> b * self.s
+    <span class="t-k">def</span> <span class="t-f">_right</span>(self, b):
+        <span class="t-k">return</span> <span class="t-b">min</span>(self.n - <span class="t-n">1</span>, (b + <span class="t-n">1</span>) * self.s - <span class="t-n">1</span>)
+    <span class="t-k">def</span> <span class="t-f">_push</span>(self, b):
+        <span class="t-k">if</span> self.lazy[b]:
+            L, R = self.<span class="t-f">_left</span>(b), self.<span class="t-f">_right</span>(b)
+            ln = R - L + <span class="t-n">1</span>
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(L, R + <span class="t-n">1</span>):
+                self.a[i] += self.lazy[b]
+            self.sum_b[b] += self.lazy[b] * ln
+            self.lazy[b] = <span class="t-n">0</span>
+    <span class="t-k">def</span> <span class="t-f">range_add</span>(self, l, r, x):
+        bl, br = l // self.s, r // self.s
+        <span class="t-k">if</span> bl == br:
+            self.<span class="t-f">_push</span>(bl)
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(l, r + <span class="t-n">1</span>):
+                self.a[i] += x
+            self.sum_b[bl] += x * (r - l + <span class="t-n">1</span>)
+            <span class="t-k">return</span>
+        <span class="t-c"># 散块</span>
+        self.<span class="t-f">_push</span>(bl)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(l, self.<span class="t-f">_right</span>(bl) + <span class="t-n">1</span>):
+            self.a[i] += x
+        self.sum_b[bl] += x * (self.<span class="t-f">_right</span>(bl) - l + <span class="t-n">1</span>)
+        self.<span class="t-f">_push</span>(br)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(self.<span class="t-f">_left</span>(br), r + <span class="t-n">1</span>):
+            self.a[i] += x
+        self.sum_b[br] += x * (r - self.<span class="t-f">_left</span>(br) + <span class="t-n">1</span>)
+        <span class="t-c"># 整块</span>
+        <span class="t-k">for</span> b <span class="t-k">in</span> <span class="t-b">range</span>(bl + <span class="t-n">1</span>, br):
+            self.lazy[b] += x
+    <span class="t-k">def</span> <span class="t-f">range_sum</span>(self, l, r):
+        bl, br = l // self.s, r // self.s
+        res = <span class="t-n">0</span>
+        <span class="t-k">if</span> bl == br:
+            self.<span class="t-f">_push</span>(bl)
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(l, r + <span class="t-n">1</span>):
+                res += self.a[i]
+            <span class="t-k">return</span> res
+        self.<span class="t-f">_push</span>(bl)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(l, self.<span class="t-f">_right</span>(bl) + <span class="t-n">1</span>):
+            res += self.a[i]
+        self.<span class="t-f">_push</span>(br)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(self.<span class="t-f">_left</span>(br), r + <span class="t-n">1</span>):
+            res += self.a[i]
+        <span class="t-k">for</span> b <span class="t-k">in</span> <span class="t-b">range</span>(bl + <span class="t-n">1</span>, br):
+            res += self.sum_b[b] + self.lazy[b] * (self.<span class="t-f">_right</span>(b) - self.<span class="t-f">_left</span>(b) + <span class="t-n">1</span>)
+        <span class="t-k">return</span> res
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    arr = [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">5</span>, <span class="t-n">6</span>, <span class="t-n">7</span>, <span class="t-n">8</span>]
+    sd = <span class="t-f">SqrtDecomp</span>(arr)
+    <span class="t-k">assert</span> sd.<span class="t-f">range_sum</span>(<span class="t-n">0</span>, <span class="t-n">7</span>) == <span class="t-n">36</span>
+    sd.<span class="t-f">range_add</span>(<span class="t-n">1</span>, <span class="t-n">6</span>, <span class="t-n">10</span>)      <span class="t-c"># 区间加</span>
+    <span class="t-c"># 暴力参照</span>
+    br = <span class="t-b">list</span>(arr)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-n">7</span>):
+        br[i] += <span class="t-n">10</span>
+    <span class="t-k">assert</span> sd.<span class="t-f">range_sum</span>(<span class="t-n">0</span>, <span class="t-n">7</span>) == <span class="t-b">sum</span>(br)
+    <span class="t-k">assert</span> sd.<span class="t-f">range_sum</span>(<span class="t-n">2</span>, <span class="t-n">5</span>) == <span class="t-b">sum</span>(br[<span class="t-n">2</span>:<span class="t-n">6</span>])
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">29</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">30</span>)
+        a = [random.<span class="t-f">randint</span>(-<span class="t-n">50</span>, <span class="t-n">50</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        sd = <span class="t-f">SqrtDecomp</span>(a)
+        b = <span class="t-b">list</span>(a)
+        <span class="t-k">for</span> _op <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">50</span>):
+            l = random.<span class="t-f">randrange</span>(n); r = random.<span class="t-f">randrange</span>(l, n)
+            <span class="t-k">if</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.5</span>:
+                x = random.<span class="t-f">randint</span>(-<span class="t-n">10</span>, <span class="t-n">10</span>)
+                sd.<span class="t-f">range_add</span>(l, r, x)
+                <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(l, r + <span class="t-n">1</span>):
+                    b[i] += x
+            <span class="t-k">else</span>:
+                g = sd.<span class="t-f">range_sum</span>(l, r)
+                e = <span class="t-b">sum</span>(b[l:r + <span class="t-n">1</span>])
+                <span class="t-k">assert</span> g == e, (a, l, r, g, e)
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">散块暴力前先 push 该块的 lazy；整块求和用 sum_b + lazy*len 避免逐个访问；块长可微调（√n 附近），大 n 时 PyPy 优势明显；区间第 k 小类问题块内排序 + 二分。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>单次操作 O(√n)；建块 O(n)；区间第 k 小 O(√n log n) 等</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">渐近复杂度不如线段树/树状数组（O(√n) vs O(log n)），但对「信息难合并」的问题（众数、mex、区间查询套查询）分块几乎唯一可行；块长需按问题微调；Python 下 O(√n)·q 在 n=q=1e5 时 3e7 次内层操作，需 PyPy 压常数。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>散块操作前必须 push 所在块的 lazy，否则散块读到旧值</li><li>整块求和用 sum_b + lazy*len，不要逐元素访问（退化为暴力）</li><li>块长不调优会劣化：s 过大整块慢，过小散块慢，取 √n 附近按题微调</li><li>最后一个块可能不满 s，_right 要取 min(n-1,...) 防越界</li><li>对每个问题「整块能维护什么信息」要想清楚，不是所有操作都能 O(1) 合并</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>LOJ</td><td><strong>6280</strong></td><td>3</td><td>数列分块入门 4：区间加 + 区间和，分块模板，OI Wiki 例题</td><td class="u"><a href="https://loj.ac/p/6280" target="_blank" rel="noopener">https://loj.ac/p/6280</a></td></tr><tr><td>CSES</td><td><strong>Range Updates and Sums</strong></td><td>4</td><td>区间加/赋值 + 区间和，分块或线段树</td><td class="u"><a href="https://cses.fi/problemset/task/1735" target="_blank" rel="noopener">https://cses.fi/problemset/task/1735</a></td></tr><tr><td>SPOJ</td><td><strong>GSS4</strong></td><td>4</td><td>区间开方 + 区间和：分块「块内全 1 后跳过」技巧</td><td class="u"><a href="https://www.spoj.com/problems/GSS4/" target="_blank" rel="noopener">https://www.spoj.com/problems/GSS4/</a></td></tr><tr><td>Codeforces</td><td><strong>797E</strong></td><td>4</td><td>Array Queries：按步长分块，DP 与暴力平衡的根号分治</td><td class="u"><a href="https://codeforces.com/problemset/problem/797/E" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/797/E</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-sqrt-decomposition" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "partition", "label": "按块长 s 分块并预处理块聚合"}}, {"data": {"id": "scatter", "label": "散块暴力处理（push lazy）"}}, {"data": {"id": "whole", "label": "整块处理（打标记/查聚合）"}}, {"data": {"id": "combine", "label": "合并散块与整块结果"}}, {"data": {"id": "update", "label": "更新块聚合信息"}}, {"data": {"id": "epartition->scatter", "source": "partition", "target": "scatter"}}, {"data": {"id": "epartition->whole", "source": "partition", "target": "whole"}}, {"data": {"id": "escatter->combine", "source": "scatter", "target": "combine"}}, {"data": {"id": "ewhole->combine", "source": "whole", "target": "combine"}}, {"data": {"id": "ecombine->update", "source": "combine", "target": "update"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-sqrt-decomposition'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="block-array.html" title="分块数组是Sqrt分解思想的具体实现">分块数组<span class="etype">变体</span></a><a class="chip e-variant" href="block-list.html" title="块状链表是Sqrt分解与链表的结合">分块链表<span class="etype">变体</span></a><a class="chip e-variant" href="sqrt-tree.html" title="sqrt 树为根号预处理的静态查询结构">sqrt 树<span class="etype">变体</span></a><a class="chip e-combination" href="odt.html" title="ODT 颜色段均摊基于区间分块思想">珂朵莉树/ODT<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/data_structures/sqrt_decomposition.html" target="_blank" rel="noopener">https://cp-algorithms.com/data_structures/sqrt_decomposition.html</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/decompose.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/decompose.md</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch27 p261</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

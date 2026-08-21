@@ -1,0 +1,68 @@
+{
+  "id": "anti-hash",
+  "name": "防卡Hash随机化",
+  "group": "G-E-5",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "字符串哈希用随机base/双哈希/随机化seed防止构造数据碰撞攻击",
+  "what": "防卡哈希随机化是针对字符串哈希（polynomial rolling hash）被'构造碰撞'攻击的反制手段。字符串哈希将字符串 s[1..l] 映射为 f(s)=Σ s[i]·b^(l−i) mod M（或自然溢出 mod 2^64）。攻击者可以构造两个不同但哈希值相同的字符串，从而让哈希判定出错。防御措施：①随机化 base（每次运行从大范围随机选 b）；②双哈希/多哈希（多个模数同时比较，一个不同即判不同）；③随机化模数；④用 2^64 自然溢出（模数极大难卡，但 b 为偶数时有构造方法）。本质是把'对固定参数的确定性攻击'变成'攻击者无法预知参数，碰撞概率 2^-64 量级'的概率事件。",
+  "why": {
+    "intuition": "多项式哈希像一个 base 进制的数。如果 base 固定（如 131），攻击者可以解方程构造两个串使哈希差为 0（模 M 或 mod 2^64 下）。但若 base 每次运行随机，攻击者无法预知用哪个 base 构造；要卡掉必须猜中 base，概率极小。类似地，双哈希用两个独立模数，碰撞需要两个哈希同时相同，概率乘积级。",
+    "principle": "随机化 base 的正确性：对固定输入，随机 base 下碰撞概率 ≈ 多项式的根个数的界，即至多 O(n) 个坏 base，随机选 base 命中坏 base 的概率 O(n/d)，d 为 base 范围。双哈希：两个模数 p1≠p2（如 1e9+7 与 1e9+9），单哈希碰撞概率 ~1/p，双哈希 ~1/(p1·p2)。自然溢出 mod 2^64 的坑：b 为偶数时，长度≥64 的字符串可构造冲突（如 'aaa...a' 与 'baa...a'）；b 为奇数时可构造 s 与 !s（字符反转）在 2^64 下冲突。卡大模数：若模数小（如 1e9+7），生日攻击下大量比较必碰撞（10^6 个长度 6 的串碰撞率 ~90%）。",
+    "history": "字符串哈希源于 Rabin-Karp 算法（1987，Karp 与 Rabin）；碰撞攻击与卡哈希的攻防研究随着竞赛 hack 文化深入，OI-Wiki 的 hash 条目专门总结'卡大模数 Hash'与'卡自然溢出 Hash'的构造方法，以及随机 base/双哈希/随机模数等防御手段，成为字符串比较场景下的标配稳健实践。"
+  },
+  "how": {
+    "pseudocode": "# 防御方案A: 随机 base (值域大, 如 [2**20, 2**30))\nbase = random.randrange(2**20, 2**30)\n# 防御方案B: 双哈希 (两个独立模数)\np1, p2 = 10**9+7, 10**9+9\nh1 = (h1*base + ord(c)) % p1\nh2 = (h2*base + ord(c)) % p2\n# 两个都相同才判等\n# 防御方案C: 随机模数/混合\n# 注意: 不要用固定 base=131 单哈希 (可构造碰撞)",
+    "python": "import random\n\nMOD1 = 10**9 + 7\nMOD2 = 10**9 + 9\n\n\nclass RandomHash:\n    \"\"\"随机 base + 双哈希字符串哈希.\n    每次实例化随机选 base, 提供 O(1) 子串哈希比较.\n    \"\"\"\n\n    def __init__(self, s):\n        self.s = s\n        self.n = len(s)\n        # 随机 base 在两个模数下都要非0\n        self.base = random.randrange(2**20, 2**30)\n        self.pow1 = [1] * (self.n + 1)\n        self.pow2 = [1] * (self.n + 1)\n        self.h1 = [0] * (self.n + 1)\n        self.h2 = [0] * (self.n + 1)\n        for i in range(1, self.n + 1):\n            c = ord(s[i - 1])\n            self.h1[i] = (self.h1[i - 1] * self.base + c) % MOD1\n            self.h2[i] = (self.h2[i - 1] * self.base + c) % MOD2\n            self.pow1[i] = self.pow1[i - 1] * self.base % MOD1\n            self.pow2[i] = self.pow2[i - 1] * self.base % MOD2\n\n    def get(self, l, r):\n        \"\"\"子串 s[l:r] (1-index, 含左不含右) 的双哈希值\"\"\"\n        a = (self.h1[r] - self.h1[l - 1] * self.pow1[r - l + 1]) % MOD1\n        b = (self.h2[r] - self.h2[l - 1] * self.pow2[r - l + 1]) % MOD2\n        return (a, b)\n\n    def substr_eq(self, l1, r1, l2, r2):\n        \"\"\"比较两个子串是否相等 (用双哈希, 1-index 含左不含右)\"\"\"\n        return self.get(l1, r1) == self.get(l2, r2)\n\n\nif __name__ == \"__main__\":\n    random.seed(7)\n\n    s = \"abracadabra\"\n    h = RandomHash(s)\n    # 相同子串比较\n    assert h.substr_eq(1, 4, 1, 4)  # 'abra'=='abra'\n    assert h.substr_eq(1, 4, 8, 11)  # 'abra'=='abra' (位置8起)\n    assert not h.substr_eq(1, 4, 5, 8)  # 'abra' != 'cada'\n    assert h.substr_eq(2, 4, 9, 11)  # 'bra'=='bra'\n    # 不同 base 实例互相比较仍应一致判定(同串判等)\n    h2 = RandomHash(s)\n    assert h2.substr_eq(1, 4, 8, 11)\n\n    # 防御验证: 固定 base=131 单哈希可被构造碰撞的样例测试\n    # (演示 anti-hash 的必要性: 大量随机串下固定base碰撞概率) -- 这里只验证双哈希自身一致性\n    import random as rnd\n    rnd.seed(123)\n    for _ in range(300):\n        n = rnd.randrange(1, 30)\n        t = ''.join(rnd.choice('ab') for _ in range(n))\n        rh = RandomHash(t)\n        for __ in range(30):\n            l1 = rnd.randrange(1, n + 1)\n            r1 = rnd.randrange(l1, n + 1)\n            l2 = rnd.randrange(1, n + 1)\n            r2 = rnd.randrange(l2, n + 1)\n            assert rh.substr_eq(l1, r1, l2, r2) == (t[l1 - 1:r1] == t[l2 - 1:r2])\n\n    print(\"anti-hash tests passed\")\n",
+    "pypy_notes": "Python 大模数乘法用 % 每字符一次较慢；1e6 级字符串双哈希在 PyPy 下可跑但注意常数。性能敏感时用 64 位自然溢出（Python int 任意精度，需手写掩码）或单模。base 选取注意与模数互素。",
+    "complexity": {
+      "time": "预处理 O(n)，子串比较 O(1)（双哈希两次取模）",
+      "space": "O(n)（存 pow 与 h 前缀）"
+    },
+    "limitations": "仍是概率算法：双哈希碰撞概率 ~1/(p1·p2) 极小但非零；随机 base 若每次固定（生产环境复现）则失去防卡意义；不可用于对 100% 确定性要求严格的场景；自然溢出在 b 为偶数/奇数下均有已知构造方法（长度≥64），需小心。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "U461211",
+      "url": "https://www.luogu.com.cn/problem/U461211",
+      "difficulty": 4,
+      "key_point": "字符串 Hash（数据加强）：单哈希会被卡，须随机 base/双哈希"
+    },
+    {
+      "oj": "UOJ",
+      "pid": "207",
+      "url": "https://uoj.ac/problem/207",
+      "difficulty": 5,
+      "key_point": "共价大爷游长沙：随机权值集合哈希维护必经边判定（随机化哈希更广的应用）"
+    }
+  ],
+  "pitfalls": [
+    "固定 base=131 + 单模 1e9+7 是最易被卡配置",
+    "自然溢出 mod 2^64 的偶数/奇数 base 构造（长度≥64）",
+    "双哈希选模数必须互质且不能太接近（如 1e9+7/1e9+9 是常见组合）",
+    "随机 base 值域要足够大，否则生日攻击仍有效",
+    "每次运行固定 seed 会让随机 base 可预测，等于没防"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "param", "label": "选择随机 base/双模数" },
+      { "id": "preprocess", "label": "预处理前缀哈希与幂" },
+      { "id": "substr", "label": "O(1) 子串哈希查询" },
+      { "id": "compare", "label": "双哈希同时判定相等" },
+      { "id": "robust", "label": "碰撞概率评估与防御校验" }
+    ],
+    "edges": [
+      { "from": "param", "to": "preprocess" },
+      { "from": "preprocess", "to": "substr" },
+      { "from": "substr", "to": "compare" },
+      { "from": "compare", "to": "robust" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/string/hash/", "verified": true },
+    { "type": "cpalg", "url": "https://cp-algorithms.com/string/string-hashing.html", "verified": true },
+    { "type": "oiwiki", "url": "https://oi-wiki.org/misc/rand-technique/", "verified": true }
+  ]
+}

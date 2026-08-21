@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>条件概率 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-15.html">概率族</a> / <span>条件概率</span></div>
+  <h1>条件概率</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-15</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="probability-basics.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">probability-basics</span></a>
+    <a class="nav-index" href="../03-groups/G-C-15.html"><span class="dir">组内第 2 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="random-variable.html"><span class="dir">下一个 / 组内</span><span class="v">random-variable</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">P(B|A)=P(AB)/P(A)，概率乘法公式、全概率公式与贝叶斯公式，事件独立性</div><p>条件概率刻画&#x27;已知某事件发生时另一事件发生的概率&#x27;。定义 P(B|A)=P(AB)/P(A)（需 P(A)&gt;0）。由定义直接推出概率乘法公式 P(AB)=P(A)P(B|A)；当一组事件 A_i 两两不交且并为全集时，全概率公式 P(B)=ΣP(A_i)P(B|A_i) 把复杂事件拆成互斥子情形；贝叶斯公式 P(A_i|B)=P(A_i)P(B|A_i)/P(B) 由&#x27;果&#x27;反推&#x27;因&#x27;。这是概率DP与期望DP建模最常用的工具。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>知道了一点额外信息，概率就要更新。抽卡连抽 50 发无六星后，单抽出六星的条件概率不再等于初始概率。全概率公式&#x27;分情况求和&#x27;：事件 B 的发生要归因于互斥的几类情形，按类加权求和。贝叶斯公式是&#x27;已知结果问原因&#x27;：看到 B 发生了，反推它来自哪个原因的概率。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>条件概率 P(·|A) 本身就是一个概率函数（满足规范性、可加性）。概率乘法公式来自条件概率定义变形。全概率公式依赖划分（partition）性质：A_1..A_n 两两不交且并集为 Ω，则 B 可按 B=∪(B∩A_i) 拆为互斥事件。贝叶斯公式分子分母同时应用乘法公式与全概率公式。独立性 P(AB)=P(A)P(B) 意味着条件概率退化为无条件概率。注意：两两独立推不出相互独立（OI Wiki 正四面体骰子反例）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>条件概率概念可追溯到 18 世纪贝叶斯（Thomas Bayes）的著作（1763 年死后出版），提出反推原因的公式；皮埃尔-西蒙·拉普拉斯后来将其一般化并独立推导。全概率公式与贝叶斯公式一起构成现代统计推断（贝叶斯学派）的数学基石。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 条件概率</span>
+<span class="t-f">P</span>(B|A) = <span class="t-f">P</span>(A∩B) / <span class="t-f">P</span>(A)   <span class="t-c"># 要求 P(A)&gt;0</span>
+
+<span class="t-c"># 概率乘法公式</span>
+<span class="t-f">P</span>(A∩B) = <span class="t-f">P</span>(A) * <span class="t-f">P</span>(B|A)
+<span class="t-f">P</span>(A∩B∩C) = <span class="t-f">P</span>(A)*<span class="t-f">P</span>(B|A)*<span class="t-f">P</span>(C|AB)
+
+<span class="t-c"># 全概率公式 (A1..An 为 Ω 的一个划分)</span>
+<span class="t-f">P</span>(B) = sum_i <span class="t-f">P</span>(A_i) * <span class="t-f">P</span>(B|A_i)
+
+<span class="t-c"># 贝叶斯公式</span>
+<span class="t-f">P</span>(A_i|B) = <span class="t-f">P</span>(A_i)*<span class="t-f">P</span>(B|A_i) / sum_j <span class="t-f">P</span>(A_j)*<span class="t-f">P</span>(B|A_j)
+
+<span class="t-c"># 独立性判定</span>
+独立 ⇔ <span class="t-f">P</span>(AB) = <span class="t-f">P</span>(A)*<span class="t-f">P</span>(B)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">conditional_probability</span>(p_ab, p_a):
+    <span class="t-s">&quot;&quot;&quot;P(B|A) = P(AB) / P(A)&quot;&quot;&quot;</span>
+    <span class="t-k">assert</span> p_a &gt; <span class="t-n">0</span>, <span class="t-s">&quot;条件事件概率必须为正&quot;</span>
+    <span class="t-k">return</span> p_ab / p_a
+
+
+<span class="t-k">def</span> <span class="t-f">multiplication_formula</span>(p_a, p_b_given_a):
+    <span class="t-s">&quot;&quot;&quot;概率乘法公式: P(AB) = P(A)P(B|A)&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> p_a * p_b_given_a
+
+
+<span class="t-k">def</span> <span class="t-f">total_probability</span>(partitions_p, cond_p):
+    <span class="t-s">&quot;&quot;&quot;全概率公式: P(B) = sum P(A_i)P(B|A_i)
+    partitions_p 为划分事件概率, 必须和为1
+    &quot;&quot;&quot;</span>
+    <span class="t-k">assert</span> <span class="t-b">len</span>(partitions_p) == <span class="t-b">len</span>(cond_p)
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(<span class="t-b">sum</span>(partitions_p) - <span class="t-n">1.0</span>) &lt; <span class="t-n">1e-9</span>, <span class="t-s">&quot;划分概率之和必须为1&quot;</span>
+    <span class="t-k">return</span> <span class="t-b">sum</span>(p * c <span class="t-k">for</span> p, c <span class="t-k">in</span> <span class="t-b">zip</span>(partitions_p, cond_p))
+
+
+<span class="t-k">def</span> <span class="t-f">bayes</span>(prior, likelihood):
+    <span class="t-s">&quot;&quot;&quot;贝叶斯公式: 由结果B反推各原因的概率
+    prior=[P(A1)..P(An)], likelihood=[P(B|A1)..P(B|An)]
+    返回后验概率列表与 P(B)
+    &quot;&quot;&quot;</span>
+    evidence_p = <span class="t-f">total_probability</span>(prior, likelihood)
+    posterior = [p * l / evidence_p <span class="t-k">for</span> p, l <span class="t-k">in</span> <span class="t-b">zip</span>(prior, likelihood)]
+    <span class="t-k">return</span> posterior, evidence_p
+
+
+<span class="t-k">def</span> <span class="t-f">independence_check</span>(p_ab, p_a, p_b):
+    <span class="t-s">&quot;&quot;&quot;事件独立判定: P(AB) == P(A)P(B)&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> <span class="t-b">abs</span>(p_ab - p_a * p_b) &lt; <span class="t-n">1e-9</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 骰子: A=偶点(1/2), AB=可被6整除即{6}(1/6)</span>
+    <span class="t-c"># P(B|A) = (1/6)/(1/2) = 1/3, 其中B=点数可被3整除</span>
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(<span class="t-f">conditional_probability</span>(<span class="t-n">1</span> / <span class="t-n">6</span>, <span class="t-n">1</span> / <span class="t-n">2</span>) - <span class="t-n">1</span> / <span class="t-n">3</span>) &lt; <span class="t-n">1e-9</span>
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(<span class="t-f">multiplication_formula</span>(<span class="t-n">0.5</span>, <span class="t-n">1</span> / <span class="t-n">3</span>) - <span class="t-n">1</span> / <span class="t-n">6</span>) &lt; <span class="t-n">1e-9</span>
+
+    <span class="t-c"># 全概率: 两工厂各占50%产量, 次品率2%/3% -&gt; P(次品)=2.5%</span>
+    ev = <span class="t-f">total_probability</span>([<span class="t-n">0.5</span>, <span class="t-n">0.5</span>], [<span class="t-n">0.02</span>, <span class="t-n">0.03</span>])
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(ev - <span class="t-n">0.025</span>) &lt; <span class="t-n">1e-9</span>
+
+    <span class="t-c"># 贝叶斯: 抽到次品来自工厂1的概率 = 0.5*0.02/0.025 = 0.4</span>
+    post, evidence = <span class="t-f">bayes</span>([<span class="t-n">0.5</span>, <span class="t-n">0.5</span>], [<span class="t-n">0.02</span>, <span class="t-n">0.03</span>])
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(evidence - <span class="t-n">0.025</span>) &lt; <span class="t-n">1e-9</span>
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(post[<span class="t-n">0</span>] - <span class="t-n">0.4</span>) &lt; <span class="t-n">1e-9</span>
+
+    <span class="t-c"># 独立性: 两骰子各掷出6 独立</span>
+    <span class="t-k">assert</span> <span class="t-f">independence_check</span>(<span class="t-n">1</span> / <span class="t-n">36</span>, <span class="t-n">1</span> / <span class="t-n">6</span>, <span class="t-n">1</span> / <span class="t-n">6</span>)
+    <span class="t-c"># 不独立: A=骰子=6(1/6), B=骰子为奇数(1/2), 两者不可能同时发生</span>
+    <span class="t-k">assert</span> <span class="t-k">not</span> <span class="t-f">independence_check</span>(<span class="t-n">0</span>, <span class="t-n">1</span> / <span class="t-n">6</span>, <span class="t-n">1</span> / <span class="t-n">2</span>)
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;conditional-probability all tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">条件概率/全概率/贝叶斯多为少量浮点运算，PyPy 无性能瓶颈。若需精确避免浮点误差，可用 fractions.Fraction 处理有理数概率。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>全概率/贝叶斯 O(n)，n 为划分事件数</td></tr><tr><th>空间复杂度</th><td>O(1)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">条件事件 P(A) 必须为正；划分事件必须两两不交且并为全集，否则全概率公式失效；两两独立不等于相互独立。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>条件概率中 P(A) 必须大于 0，P(A)=0 时条件概率无定义</li><li>全概率公式要求划分事件两两不交且并集为全集，缺一不可</li><li>事件两两独立推不出相互独立（正四面体骰子反例）</li><li>贝叶斯公式的&#x27;证据&#x27; P(B) 需用全概率公式计算，勿直接当已知数</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1030</strong></td><td>2</td><td>求先序排列：递归划分思想与全概率的&#x27;划分&#x27;同构</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1030" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1030</a></td></tr><tr><td>OI Wiki</td><td><strong>bayes-example</strong></td><td>2</td><td>正四面体骰子证明两两独立不蕴含相互独立</td><td class="u"><a href="https://oi-wiki.org/math/probability/conditional-probability/" target="_blank" rel="noopener">https://oi-wiki.org/math/probability/conditional-probability/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-conditional-probability" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "identify", "label": "识别已知条件与所求事件"}}, {"data": {"id": "partition", "label": "构造划分(全概率)或找条件(贝叶斯)"}}, {"data": {"id": "apply", "label": "套用乘法/全概率/贝叶斯公式"}}, {"data": {"id": "indep", "label": "判断独立性简化计算"}}, {"data": {"id": "answer", "label": "得到概率"}}, {"data": {"id": "eidentify->partition", "source": "identify", "target": "partition"}}, {"data": {"id": "epartition->apply", "source": "partition", "target": "apply"}}, {"data": {"id": "eindep->apply", "source": "indep", "target": "apply"}}, {"data": {"id": "eapply->answer", "source": "apply", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-conditional-probability'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="probability-basics.html" title="条件概率P(A|B)需概率基本概念">概率基础<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="random-variable.html" title="随机变量分布依赖条件概率与全概率公式">随机变量<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/probability/conditional-probability/" target="_blank" rel="noopener">https://oi-wiki.org/math/probability/conditional-probability/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch24 Probability (p235-244)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

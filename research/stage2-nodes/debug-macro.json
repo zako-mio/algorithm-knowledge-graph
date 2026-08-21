@@ -1,0 +1,56 @@
+{
+  "id": "debug-macro",
+  "name": "调试宏",
+  "group": "G-E-4",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "#ifdef DEBUG / -DONLINE_JUDGE 编译宏控制调试输出，提交时无需删代码",
+  "what": "调试宏是竞赛编程中控制调试输出的技术。C++中使用#ifdef DEBUG / #ifndef ONLINE_JUDGE预处理器指令，在本地调试时输出调试信息，提交OJ时自动关闭。Python中使用环境变量或全局常量实现类似功能。核心思想：调试代码始终保留在源码中，通过编译/运行时开关控制是否执行，避免提交前手动删除调试代码的风险。",
+  "why": {
+    "intuition": "调试宏就像'开关灯'：本地开发时打开调试灯看清内部状态，提交时关灯不影响评测。无需反复增删调试代码。",
+    "principle": "C++: #ifdef DEBUG检查宏定义，-DDEBUG编译选项定义DEBUG，-DONLINE_JUDGE由OJ自动定义。Python: os.environ.get('DEBUG')读取环境变量，DEBUG=1 python script.py启用。调试输出到stderr避免干扰stdout答案。",
+    "history": "预处理器调试宏是C/C++竞赛编程的传统技术。OI Wiki在'common-tricks'中介绍了使用宏进行调试。大部分OJ开启-DONLINE_JUDGE。"
+  },
+  "how": {
+    "pseudocode": "# C++:\n#ifdef DEBUG\n  #define debug(...) fprintf(stderr,__VA_ARGS__)\n#else\n  #define debug(...) 42\n#endif\n// Python:\nDEBUG = os.environ.get('DEBUG')=='1'\ndef dprint(*a):\n  if DEBUG: print(*a, file=stderr)",
+    "python": "\"\"\"Debug macro pattern for competitive programming in Python.\nUses environment variable or constant to toggle debug output.\nNo need to remove debug code when submitting.\n\"\"\"\nimport os\nimport sys\n\n# Method 1: Environment variable (recommended)\n# Set DEBUG=1 locally, unset on OJ\nDEBUG = os.environ.get('DEBUG', '0') == '1'\n\ndef dprint(*args, **kwargs):\n    \"\"\"Debug print: only outputs when DEBUG is True.\"\"\"\n    if DEBUG:\n        print(*args, file=sys.stderr, **kwargs)\n\ndef dpp(var_name, var):\n    \"\"\"Debug print variable with name.\"\"\"\n    if DEBUG:\n        print(f\"  {var_name} = {var}\", file=sys.stderr)\n\ndef darr(name, arr, start=0, end=None):\n    \"\"\"Debug print array.\"\"\"\n    if DEBUG:\n        if end is None:\n            end = len(arr)\n        print(f\"  {name}[{start}:{end}] = {arr[start:end]}\", file=sys.stderr)\n\n# Method 2: Assert-based debugging (disabled in production)\ndef dassert(condition, msg=\"\"):\n    \"\"\"Assert only in debug mode.\"\"\"\n    if DEBUG and not condition:\n        raise AssertionError(msg)\n\n# Method 3: Timing\nimport time\nclass Timer:\n    \"\"\"Simple timer for debugging performance.\"\"\"\n    def __init__(self, name=\"\"):\n        self.name = name\n        self.start = time.perf_counter()\n    def __call__(self, msg=\"\"):\n        if DEBUG:\n            elapsed = time.perf_counter() - self.start\n            print(f\"  [{self.name}] {msg}: {elapsed:.4f}s\", file=sys.stderr)\n            self.start = time.perf_counter()\n\n# Equivalent C++ pattern (for reference):\n# #ifdef DEBUG\n#     #define debug(...) fprintf(stderr, __VA_ARGS__)\n#     #define debugv(x) fprintf(stderr, \"  %s = %d\\n\", #x, x)\n# #else\n#     #define debug(...) 42\n#     #define debugv(x) 42\n# #endif\n# // Compile with -DDEBUG locally, -DONLINE_JUDGE on OJ\n\nif __name__ == \"__main__\":\n    # Test with DEBUG=True\n    import os\n    os.environ['DEBUG'] = '1'\n    # Note: DEBUG was set at import time, so need to reimport for demo\n    # In practice, set DEBUG before running: DEBUG=1 python script.py\n\n    # Direct test\n    DEBUG = True\n\n    dprint(\"This is a debug message\")\n    dpp(\"x\", 42)\n    darr(\"arr\", [1, 2, 3, 4, 5], 0, 3)\n    dassert(1 + 1 == 2, \"Math is broken\")\n    timer = Timer(\"test\")\n    import time\n    time.sleep(0.001)\n    timer(\"step1 done\")\n\n    # Test with DEBUG=False\n    DEBUG = False\n    dprint(\"This should NOT appear\")\n    dpp(\"y\", 99)\n    assert True  # dassert is no-op\n\n    print(\"debug-macro: ALL TESTS PASSED\")\n",
+    "pypy_notes": "Python用环境变量DEBUG控制。调试输出到stderr（sys.stderr）不影响stdout答案。C++中fprintf(stderr,...)同理。",
+    "complexity": {
+      "time": "O(1)（判断后跳过）",
+      "space": "O(1)"
+    },
+    "limitations": "Python无法像C++在编译时完全消除调试代码（运行时仍有判断开销，但极小）。C++中#ifdef在编译时移除，零开销。"
+  },
+  "examples": [
+    {
+      "oj": "OI-Wiki",
+      "pid": "contest/common-tricks",
+      "url": "https://oi-wiki.org/contest/common-tricks/",
+      "difficulty": 2,
+      "key_point": "使用宏进行调试的官方教程"
+    }
+  ],
+  "pitfalls": [
+    "调试输出必须到stderr而非stdout（否则干扰答案判定）",
+    "Python环境变量在import时读取，运行中修改os.environ不会更新已读取的DEBUG",
+    "C++中忘记-DDEBUG导致调试不生效",
+    "部分OJ可能不定义ONLINE_JUDGE，需确认"
+  ],
+  "step_dag": {
+    "nodes": [],
+    "edges": []
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/contest/common-tricks/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/tools/testlib/",
+      "verified": true
+    }
+  ]
+}

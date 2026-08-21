@@ -1,0 +1,93 @@
+{
+  "id": "leftist-tree",
+  "name": "左偏树(可并堆)",
+  "group": "G-A-3",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "支持O(log n)合并的可并堆，利用偏侧树高",
+  "what": "左偏树（Leftist Tree）是一种可并堆（mergeable heap）：在二叉堆的堆性质（父节点值 ≤ 子节点值，小根堆）之上，额外维护每个节点的 dist（到子树中最近『外节点』——即子节点数小于 2 的节点——经过的边数），并保证『左偏性质』：每个节点左儿子的 dist ≥ 右儿子的 dist。因此每个节点的 dist 等于其右儿子 dist 加一，且根的 dist 为 O(log n)。核心操作 merge 将两棵左偏树在 O(log n + log m) 内合并，其他操作（插入=与单点合并、删根=合并左右儿子、删任意节点=合并儿子+自底向上 pushup）都归约为 merge。由于每次递归使其中一个根 dist 减一，复杂度有保证。它是竞赛中实现可并堆（如 k 短路、树上合并堆）的最常用结构，也可持久化。",
+  "why": {
+    "intuition": "普通二叉堆的合并要重建整个数组是 O(n) 的。左偏树把堆改成指针二叉树，并刻意让『右边变短』——dist 小的永远是右儿子。合并时就递归合并右儿子与另一个堆，保证递归深度不超过两个根的 dist 之和，即 O(log n)。左偏性质是空间换深度：树整体可能很不平衡（甚至一条左链），但每次操作的递归深度被 dist 限制住。",
+    "principle": "① 定义 dist：外节点（子节点数<2）dist=0，空节点 dist=-1，节点 dist=右儿子 dist+1；② 左偏性质：左儿子 dist ≥ 右儿子 dist（等价于节点 dist=右儿子 dist+1）；③ 关键性质：dist 为 x 的二叉树至少有 2^x-1 个节点（所有二叉树都满足），故 n 个节点的树 dist ≤ ⌈log(n+1)⌉；④ merge(x,y)：取值小的根为新根，递归合并 x 右儿子与 y，合并后若不满足左偏性质则交换左右儿子，更新 dist。每次递归其中一个堆的根 dist 减 1，故 O(log n+log m)。",
+    "history": "可并堆家族经历了从左偏树（Leftist Tree，Knuth 归功于 Crane，1972）到二项堆、配对堆、斐波那契堆的演进。左偏树胜在实现简单、非均摊复杂度保证，是 OI 中最常用的可并堆，OI Wiki 与黄源河《左偏树的特点及其应用》系统讲述了其应用。"
+  },
+  "how": {
+    "pseudocode": "dist(空)=-1, dist(外节点)=0, dist(x)=dist(right(x))+1\nmerge(x, y):\n  if x 为空: return y\n  if y 为空: return x\n  if val(x) > val(y): swap(x, y)   # 取小根为根\n  right(x) = merge(right(x), y)\n  if dist(left(x)) < dist(right(x)): swap(left(x), right(x))\n  dist(x) = dist(right(x)) + 1\n  return x\ninsert(root, v) = merge(root, new_node(v))\npop_min(root)   = merge(left(root), right(root))",
+    "python": "import heapq\nimport random\nimport sys\nsys.setrecursionlimit(1000000)\n\n\nclass Node:\n    __slots__ = ('val', 'l', 'r', 'dist')\n\n    def __init__(self, val):\n        self.val = val\n        self.l = None\n        self.r = None\n        self.dist = 0   # 外节点 dist=0，空节点视为 -1\n\n\ndef _d(x):\n    return -1 if x is None else x.dist\n\n\ndef merge(x, y):\n    \"\"\"合并两棵左偏树（小根堆），返回新根。O(log n + log m)\"\"\"\n    if x is None:\n        return y\n    if y is None:\n        return x\n    if x.val > y.val:\n        x, y = y, x\n    x.r = merge(x.r, y)\n    if _d(x.l) < _d(x.r):\n        x.l, x.r = x.r, x.l\n    x.dist = _d(x.r) + 1\n    return x\n\n\ndef insert(root, val):\n    return merge(root, Node(val))\n\n\ndef pop_min(root):\n    \"\"\"删除并返回堆顶。返回 (新根, 原堆顶值)；空堆返回 (None, None)\"\"\"\n    if root is None:\n        return None, None\n    return merge(root.l, root.r), root.val\n\n\nif __name__ == '__main__':\n    # 与 heapq 交叉验证（随机操作序列）\n    random.seed(1)\n    h = None\n    ref = []\n    for _ in range(5000):\n        op = random.random()\n        if op < 0.5 or not ref:\n            v = random.randint(0, 100000)\n            h = insert(h, v)\n            heapq.heappush(ref, v)\n        else:\n            h, m = pop_min(h)\n            r = heapq.heappop(ref)\n            assert m == r, (m, r)\n        if h is None:\n            assert not ref\n    # 双堆合并验证\n    h1 = h2 = None\n    r1, r2 = [], []\n    for v in [3, 1, 4, 1, 5, 9, 2, 6]:\n        h1 = insert(h1, v); r1.append(v)\n    for v in [7, 0, 8, 5, 2]:\n        h2 = insert(h2, v); r2.append(v)\n    h = merge(h1, h2)\n    r = sorted(r1 + r2)\n    out = []\n    while h is not None:\n        h, m = pop_min(h)\n        out.append(m)\n    assert out == r, (out, r)\n    print('leftist tree: All tests passed.')",
+    "pypy_notes": "Python 指针式左偏树常数偏大，2e5 规模需 PyPy 并尽量压缩节点（__slots__）、用数组模拟节点（val/l/r/dist 四列表）替代对象可提升 2-3 倍。合并时每次比较 val 前先判空；要支持找堆顶必须配并查集（左偏树深度可达 O(n)，不能暴力跳父）。",
+    "complexity": {
+      "time": "merge O(log n + log m)；insert/pop O(log n)；删除任意节点 O(log n)（均非均摊）",
+      "space": "O(n) 节点存储；递归栈 O(log n)"
+    },
+    "limitations": "左偏树的深度没有保证（可以是一条左链），因此『找某个点所在堆的堆顶』必须用并查集维护，不能跳父节点。不支持 O(1) 的 decrease-key（需删除+插入，O(log n)）。dist 定义不同写法（空节点 -1 vs 0）易混。若需持久化请用 persistent-heap 的 path-copying 版本。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3377",
+      "url": "https://www.luogu.com.cn/problem/P3377",
+      "difficulty": 3,
+      "key_point": "【模板】左偏树（可并堆）：合并/删根/查最小值，需并查集找堆顶，经典模板题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1456",
+      "url": "https://www.luogu.com.cn/problem/P1456",
+      "difficulty": 3,
+      "key_point": "Monkey King：合并+删根+改值再插回，可并堆基础应用"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2713",
+      "url": "https://www.luogu.com.cn/problem/P2713",
+      "difficulty": 3,
+      "key_point": "罗马游戏：多堆合并、删除最小值、找所在堆顶，OI Wiki 例题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1552",
+      "url": "https://www.luogu.com.cn/problem/P1552",
+      "difficulty": 4,
+      "key_point": "【APIO2012】派遣：树上每个节点维护左偏树与子树合并、贪心弹出，树上可并堆应用"
+    },
+    {
+      "oj": "LOJ",
+      "pid": "2107",
+      "url": "https://loj.ac/problem/2107",
+      "difficulty": 5,
+      "key_point": "【JLOI2015】城池攻占：树上堆合并+整体加减标记+lazy，可并堆+标记技巧"
+    }
+  ],
+  "pitfalls": [
+    "找堆顶必须用并查集：左偏树深度可能 O(n)，直接跳父会 TLE/爆栈",
+    "merge 前先判断两堆是否已在同一堆中（若已在则直接返回，否则死循环）",
+    "dist 定义要统一：OI Wiki 用空节点 dist=-1（代码免判空），用 dist=0 的定义则空节点必须特判",
+    "用对象实现时递归深度可能到 O(n)（左链），需 sys.setrecursionlimit；竞赛中建议数组模拟",
+    "删除任意节点需要 parent 指针和自底向上 pushup，只 merge 左右儿子会破坏该节点父节点的左偏性质",
+    "pop_min 返回值顺序写反（先返回新根后返回值）；空堆需特判"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "dist", "label": "定义 dist：外节点=0，空=-1，节点=右儿子 dist+1" },
+      { "id": "merge", "label": "递归合并右儿子与另一堆，小根为根" },
+      { "id": "swap", "label": "合并后若左 dist<右 dist 则交换左右儿子" },
+      { "id": "ops", "label": "insert=合并单点；pop=合并左右儿子" },
+      { "id": "dsu", "label": "找堆顶配并查集" },
+      { "id": "ext", "label": "扩展：删除任意节点/pushup/标记/树上堆合并/持久化" }
+    ],
+    "edges": [
+      { "from": "dist", "to": "merge" },
+      { "from": "merge", "to": "swap" },
+      { "from": "swap", "to": "ops" },
+      { "from": "ops", "to": "dsu" },
+      { "from": "dsu", "to": "ext" },
+      { "from": "merge", "to": "ext" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/ds/leftist-tree/", "verified": true },
+    { "type": "oiwiki", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/leftist-tree.md", "verified": true },
+    { "type": "oiwiki", "url": "https://oi-wiki.org/ds/heap/", "verified": true }
+  ]
+}

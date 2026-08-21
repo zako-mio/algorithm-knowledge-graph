@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>整体二分/并行二分 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-7.html">离线与杂项技巧族</a> / <span>整体二分/并行二分</span></div>
+  <h1>整体二分/并行二分</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="cdq-divide.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">cdq-divide</span></a>
+    <a class="nav-index" href="../03-groups/G-E-7.html"><span class="dir">组内第 2 / 18</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="odt.html"><span class="dir">下一个 / 组内</span><span class="v">odt</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">多询问一起二分：把操作和询问按答案值域分治，O(T·log n)同时处理所有询问</div><p>整体二分(Parallel Binary Search)是一种离线算法，将多个二分答案的询问同时进行：在每一层分治中，将所有询问按答案是否 &lt;= mid 分为两组，同时处理所有 &lt;= mid 的修改操作，递归处理两组。总复杂度 O(T log V)，其中 T 是单次操作+查询的复杂度。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>如果有 Q 个询问每个都需要二分答案(值域 V)，逐个二分是 O(Q * T * log V)。但很多二分过程重叠：同一层所有询问都猜 mid，可以一次性处理所有 &lt;= mid 的修改对全部询问的贡献。把询问按&#x27;答案 &lt;= mid&#x27;还是&#x27;&gt; mid&#x27;分组后递归，每层只处理一次全部操作，共 log V 层 → O(T * (N+Q) * log V)。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>solve(l, r, ops, queries): ①若 l==r，所有 query 的答案为 l ②取 mid=(l+r)/2 ③对当前值域 [l,mid] 的修改操作执行(树状数组等) ④对每个 query 检查答案是否 &lt;= mid(查树状数组)，是则分入 q1(还需处理左半)，否则扣减 k 后分入 q2 ⑤撤销修改 ⑥递归 solve(l,mid,ops1,q1) 和 solve(mid+1,r,ops2,q2)。适用条件：答案可二分、修改贡献独立且可加、允许离线。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>整体二分是离线算法的经典代表，常用于区间第 k 小(静态/动态)、带修区间第 k 小等。OI Wiki 将其与 CDQ 分治、莫队并列为离线三宝。经典题目包括 Luogu P3834(区间 k 小)和 P2617(Dynamic Rankings)。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 区间第 k 小(静态)</span>
+<span class="t-f">solve</span>(l, r, nums, queries):
+  <span class="t-k">if</span> l == r:
+    <span class="t-k">for</span> q <span class="t-k">in</span> queries: ans[q.<span class="t-b">id</span>] = l
+    <span class="t-k">return</span>
+  mid = (l + r) / <span class="t-n">2</span>
+  q1, q2 = [], []
+  <span class="t-c"># 值 &lt;= mid 的数: 在其位置 +1</span>
+  <span class="t-k">for</span> num <span class="t-k">in</span> nums:
+    <span class="t-k">if</span> num.val &lt;= mid:
+      bit.<span class="t-f">add</span>(num.pos, <span class="t-n">1</span>)
+  <span class="t-k">for</span> q <span class="t-k">in</span> queries:
+    t = bit.<span class="t-f">query</span>(q.r) - bit.<span class="t-f">query</span>(q.l-<span class="t-n">1</span>)
+    <span class="t-k">if</span> q.k &lt;= t:
+      q1.<span class="t-f">append</span>(q)
+    <span class="t-k">else</span>:
+      q.k -= t
+      q2.<span class="t-f">append</span>(q)
+  <span class="t-c"># 撤销</span>
+  <span class="t-k">for</span> num <span class="t-k">in</span> nums:
+    <span class="t-k">if</span> num.val &lt;= mid:
+      bit.<span class="t-f">add</span>(num.pos, -<span class="t-n">1</span>)
+  <span class="t-c"># 分值域递归</span>
+  nums1 = [n <span class="t-k">for</span> n <span class="t-k">in</span> nums <span class="t-k">if</span> n.val &lt;= mid]
+  nums2 = [n <span class="t-k">for</span> n <span class="t-k">in</span> nums <span class="t-k">if</span> n.val &gt; mid]
+  <span class="t-f">solve</span>(l, mid, nums1, q1)
+  <span class="t-f">solve</span>(mid+<span class="t-n">1</span>, r, nums2, q2)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> BIT:
+    <span class="t-s">&quot;&quot;&quot;树状数组: 单点修改+前缀查询。&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, n):
+        self.n = n
+        self.tree = [<span class="t-n">0</span>] * (n + <span class="t-n">2</span>)
+
+    <span class="t-k">def</span> <span class="t-f">add</span>(self, i, v):
+        <span class="t-k">while</span> i &lt;= self.n:
+            self.tree[i] += v
+            i += i &amp; (-i)
+
+    <span class="t-k">def</span> <span class="t-f">query</span>(self, i):
+        s = <span class="t-n">0</span>
+        <span class="t-k">while</span> i &gt; <span class="t-n">0</span>:
+            s += self.tree[i]
+            i -= i &amp; (-i)
+        <span class="t-k">return</span> s
+
+
+<span class="t-k">def</span> <span class="t-f">parallel_binsearch_kth</span>(arr, queries):
+    <span class="t-s">&quot;&quot;&quot;区间第 k 小(整体二分)。
+    arr: 原数组(0-indexed值)
+    queries: [(l, r, k), ...] 0-indexed, k从1开始
+    返回每个查询的答案。
+    &quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(arr)
+    <span class="t-c"># 离散化</span>
+    vals = <span class="t-b">sorted</span>(<span class="t-b">set</span>(arr))
+    val_map = {v: i + <span class="t-n">1</span> <span class="t-k">for</span> i, v <span class="t-k">in</span> <span class="t-b">enumerate</span>(vals)}  <span class="t-c"># 1-indexed</span>
+    m = <span class="t-b">len</span>(vals)
+
+    <span class="t-c"># 数: (位置, 离散值), 按值排序</span>
+    nums = <span class="t-b">sorted</span>([(i, val_map[arr[i]]) <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)], key=<span class="t-k">lambda</span> x: x[<span class="t-n">1</span>])
+
+    <span class="t-c"># 查询: (l, r, k, id) 0-indexed -&gt; 1-indexed</span>
+    qs = [(q[<span class="t-n">0</span>] + <span class="t-n">1</span>, q[<span class="t-n">1</span>] + <span class="t-n">1</span>, q[<span class="t-n">2</span>], idx) <span class="t-k">for</span> idx, q <span class="t-k">in</span> <span class="t-b">enumerate</span>(queries)]
+    ans = [<span class="t-n">0</span>] * <span class="t-b">len</span>(queries)
+    bit = <span class="t-f">BIT</span>(n)
+
+    <span class="t-k">def</span> <span class="t-f">solve</span>(l, r, nums, qs):
+        <span class="t-k">if</span> l == r:
+            <span class="t-k">for</span> q <span class="t-k">in</span> qs:
+                ans[q[<span class="t-n">3</span>]] = vals[l - <span class="t-n">1</span>]  <span class="t-c"># 映射回原值</span>
+            <span class="t-k">return</span>
+        mid = (l + r) // <span class="t-n">2</span>
+        <span class="t-c"># 处理值 &lt;= mid 的数</span>
+        nums_l = []
+        nums_r = []
+        ni = <span class="t-n">0</span>
+        <span class="t-k">for</span> num <span class="t-k">in</span> nums:
+            <span class="t-k">if</span> num[<span class="t-n">1</span>] &lt;= mid:
+                bit.<span class="t-f">add</span>(num[<span class="t-n">0</span>] + <span class="t-n">1</span>, <span class="t-n">1</span>)  <span class="t-c"># 位置 1-indexed</span>
+                nums_l.<span class="t-f">append</span>(num)
+            <span class="t-k">else</span>:
+                nums_r.<span class="t-f">append</span>(num)
+        <span class="t-c"># 分配查询</span>
+        q1 = []
+        q2 = []
+        <span class="t-k">for</span> q <span class="t-k">in</span> qs:
+            t = bit.<span class="t-f">query</span>(q[<span class="t-n">1</span>]) - bit.<span class="t-f">query</span>(q[<span class="t-n">0</span>] - <span class="t-n">1</span>)
+            <span class="t-k">if</span> q[<span class="t-n">2</span>] &lt;= t:
+                q1.<span class="t-f">append</span>(q)
+            <span class="t-k">else</span>:
+                q2.<span class="t-f">append</span>((q[<span class="t-n">0</span>], q[<span class="t-n">1</span>], q[<span class="t-n">2</span>] - t, q[<span class="t-n">3</span>]))
+        <span class="t-c"># 撤销</span>
+        <span class="t-k">for</span> num <span class="t-k">in</span> nums_l:
+            bit.<span class="t-f">add</span>(num[<span class="t-n">0</span>] + <span class="t-n">1</span>, -<span class="t-n">1</span>)
+        <span class="t-c"># 递归</span>
+        <span class="t-k">if</span> q1:
+            <span class="t-f">solve</span>(l, mid, nums_l, q1)
+        <span class="t-k">if</span> q2:
+            <span class="t-f">solve</span>(mid + <span class="t-n">1</span>, r, nums_r, q2)
+
+    <span class="t-f">solve</span>(<span class="t-n">1</span>, m, nums, qs)
+    <span class="t-k">return</span> ans
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    arr = [<span class="t-n">1</span>, <span class="t-n">5</span>, <span class="t-n">2</span>, <span class="t-n">6</span>, <span class="t-n">3</span>, <span class="t-n">7</span>, <span class="t-n">4</span>]
+    queries = [(<span class="t-n">0</span>, <span class="t-n">5</span>, <span class="t-n">4</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">2</span>), (<span class="t-n">0</span>, <span class="t-n">6</span>, <span class="t-n">5</span>)]  <span class="t-c"># (l, r, k) 0-indexed</span>
+    result = <span class="t-f">parallel_binsearch_kth</span>(arr, queries)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Kth smallest results: {result}&#x27;</span>)
+    <span class="t-c"># 验证</span>
+    <span class="t-c"># [1,5,2,6,3,7] sorted=[1,2,3,5,6,7], 4th=5</span>
+    <span class="t-c"># [2,6,3] sorted=[2,3,6], 2nd=3</span>
+    <span class="t-c"># [1,5,2,6,3,7,4] sorted=[1,2,3,4,5,6,7], 5th=5</span>
+    <span class="t-k">assert</span> result == [<span class="t-n">5</span>, <span class="t-n">3</span>, <span class="t-n">5</span>], <span class="t-s">f&#x27;Expected [5,3,5], got {result}&#x27;</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;Parallel binary search: test passed!&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 对整体二分中频繁的列表分配和树状数组操作性能尚可；但递归层深 log V，每层 O(N+Q)，N,Q&gt;1e5 时可能 TLE；建议 C++ 实现。Python 用于理解算法。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O((N+Q) * log V * T) — T为单次树状数组操作 O(log N), 共 log V 层</td></tr><tr><th>空间复杂度</th><td>O(N+Q) — 每层临时存储操作和查询</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅适用于离线(已知全部询问)；答案需可二分；修改贡献需独立且可加；动态(带修改)版本需将修改也按时间序融入操作流。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>树状数组用完必须撤销(逆序 add -v), 否则跨层污染</li><li>查询分组时 k 值需扣减(答案&gt;mid 的查询减去 &lt;=mid 的数量后进入右半)</li><li>值域边界: l==r 时记录答案, 注意映射回原值(离散化逆映射)</li><li>操作和查询的顺序: 修改必须按时间排在查询之前(带修版本)</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3834</strong></td><td>4</td><td>可持久化线段树2(区间k小): 整体二分替代可持久化线段树</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3834" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3834</a></td></tr><tr><td>Luogu</td><td><strong>P2617</strong></td><td>5</td><td>Dynamic Rankings(带修区间k小): 整体二分+修改操作融入</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2617" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2617</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-parallel-binsearch" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "init", "label": "初始化: 离散化+排序操作和查询"}}, {"data": {"id": "mid", "label": "取 mid, 执行值\u003c=mid 的修改"}}, {"data": {"id": "check", "label": "对每个查询检查答案与 mid 关系"}}, {"data": {"id": "split", "label": "分组: 答案\u003c=mid 和 >mid"}}, {"data": {"id": "undo", "label": "撤销修改"}}, {"data": {"id": "recurse", "label": "递归左右半值域"}}, {"data": {"id": "einit->mid", "source": "init", "target": "mid"}}, {"data": {"id": "emid->check", "source": "mid", "target": "check"}}, {"data": {"id": "echeck->split", "source": "check", "target": "split"}}, {"data": {"id": "esplit->undo", "source": "split", "target": "undo"}}, {"data": {"id": "eundo->recurse", "source": "undo", "target": "recurse"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-parallel-binsearch'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="offline.html" title="整体二分是离线并行二分">离线算法思想<span class="etype">前置依赖</span></a><a class="chip e-cooccurrence" href="discrete.html" title="整体二分常配合离散化">离散化<span class="etype">共现</span></a><a class="chip e-cooccurrence" href="frac-programming.html" title="分数规划二分答案可用整体二分处理多询问">分数规划/01分数规划<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/parallel-binsearch/" target="_blank" rel="noopener">https://oi-wiki.org/misc/parallel-binsearch/</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Binary_search" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Binary_search</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

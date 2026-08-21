@@ -1,0 +1,114 @@
+{
+  "id": "anti-nim",
+  "name": "反常Nim/Anti-Nim",
+  "group": "G-E-6",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "misère 规则：取最后一枚石子者输；判定需分类讨论——全 1 堆看奇偶，否则仍看 Nim 和（与正常 Nim 相同）",
+  "what": "反常 Nim（Misère Nim）：规则与 Nim 完全相同，但取走最后一枚石子的玩家失败（即无法操作者获胜）。判定结论（反 Nim 定理）：设 Nim 和 s=a_1⊕a_2⊕⋯⊕a_n。若所有堆都 ≤1（每堆至多 1 枚），则先手必败当且仅当石子数为奇数；若存在某堆 ≥2，则先手必败当且仅当 s=0（与正常 Nim 相同）。合并：P 态 ⟺ (存在堆>1 且 s=0) 或 (全堆≤1 且非空堆数为奇数)。",
+  "why": {
+    "intuition": "misère 规则下终点『全空』变成了先手的胜利，诱导规则在末端'反转'。但反转只发生在所有堆都退化到 ≤1 的临界区：只要还有一堆 ≥2，Nim 的异或论证依然有效（可以控制在临界局面把奇偶性做对）。全 ≤1 时每步只能拿走 1 枚，奇偶性直接决定谁拿最后一枚。",
+    "principle": "归纳证明。全 1 堆情形：n 堆各 1 枚，每步拿 1 枚，恰好 n 步结束，拿最后一枚者输 → n 为奇数时先手输，n 为偶数时先手赢（先手把最后一步留给对手）。含 ≥2 的情形分两况：只有一堆 >1 时，先手可把它改成 0 或 1 使剩余全 1 堆的奇偶性满足『对手必败』，故先手必胜（此时 Nim 和必非 0）；有多堆 >1 时，任何一步都会破坏≥2 性（新状态仍含≥2 或退到临界），归纳假设下 Nim 和非 0 可调为 0（正常 Nim 论证），Nim 和 0 无法守住 0（同正常 Nim 性质③），结论与正常 Nim 一致。",
+    "history": "反常（misère）规则下的 Nim 由 Bouton 于 1901 年同一篇论文中解决，他完整给出了含'最后一着者输'的判定。misère 组合博弈的一般理论比正常规则复杂得多（SG 理论不直接适用），但 Nim 是少数可用简单分类处理的特例。OI Wiki 在 impartial-game 页『反常 Nim 游戏』一节收录，CPH 亦提及。"
+  },
+  "how": {
+    "pseudocode": "# 反 Nim 判定（返回 True 表示先手必胜）\ndef anti_nim_win(piles):\n  if all(a <= 1 for a in piles):\n    return (sum(piles) % 2 == 0)   # 全 1：偶数枚则先手赢\n  s = 0\n  for a in piles: s ^= a\n  return s != 0                    # 含 >1：看 Nim 和",
+    "python": "def anti_nim_win(piles):\n    \"\"\"反常 Nim（最后取者输）判定：True=先手必胜，False=先手必败。\"\"\"\n    if not piles:\n        return False  # 无堆即无操作，先手无法行动而获胜（misère 下空局先手胜）\n    if all(a <= 1 for a in piles):\n        return sum(piles) % 2 == 0\n    s = 0\n    for a in piles:\n        s ^= a\n    return s != 0\n\n\ndef anti_nim_pseudo_moves(piles):\n    \"\"\"演示：若先手必胜，给出一种必胜走法。\n    返回 (堆下标, 操作后剩余) 或 None。\n    注意 misère 规则下必胜走法并非一律清零 Nim 和：\n    - 恰有一堆 >1 时，把它调到 0/1 使全 1 堆总数为奇数（给对手 P 态）；\n    - 至少两堆 >1 时，才按正常 Nim 的异或清零走法。\n    \"\"\"\n    if not anti_nim_win(piles):\n        return None\n    big = [i for i, a in enumerate(piles) if a > 1]\n    if len(big) == 1:\n        i = big[0]\n        ones = sum(1 for j, a in enumerate(piles) if j != i and a == 1)\n        target = 1 if ones % 2 == 0 else 0  # 使 1 的个数为奇数（对手 P 态）\n        return (i, target)\n    if len(big) >= 2:\n        s = 0\n        for a in piles:\n            s ^= a\n        for i, a in enumerate(piles):\n            if (a ^ s) < a:\n                return (i, a ^ s)\n    # 全 1 且先手胜（1 的个数为偶数）：拿任意一堆 1 枚即可\n    for i, a in enumerate(piles):\n        if a == 1:\n            return (i, 0)\n    return None\n\n\nif __name__ == \"__main__\":\n    from functools import lru_cache\n\n    # 暴力验证：misère 终局判定（无操作者赢）\n    @lru_cache(maxsize=None)\n    def win(state):\n        state = tuple(sorted(x for x in state if x > 0))\n        if not state:\n            return True  # 无法操作：当前玩家赢（misère）\n        for i, v in enumerate(state):\n            for take in range(1, v + 1):\n                nxt = list(state)\n                nxt[i] -= take\n                if not win(tuple(nxt)):\n                    return True\n        return False\n\n    import itertools\n    for n in range(1, 5):\n        for piles in itertools.product(range(1, 4), repeat=n):\n            if sum(piles) > 10:\n                continue\n            assert anti_nim_win(list(piles)) == win(tuple(piles)), piles\n\n    # 关键样例\n    assert anti_nim_win([1, 1, 1]) is False   # 3 堆 1 枚：先手必败\n    assert anti_nim_win([1, 1]) is True       # 2 堆 1 枚：先手胜\n    assert anti_nim_win([1, 1, 1, 1]) is True\n    assert anti_nim_win([2, 3]) is True       # 2^3=1≠0 → 先手胜\n    assert anti_nim_win([1, 2, 3]) is False   # 含>1 且 1^2^3=0 → 先手败\n    assert anti_nim_win([5]) is True\n\n    # 必胜走法后局面应为必败\n    for piles in [[2, 3], [5], [1, 1], [1, 1, 4]]:\n        m = anti_nim_pseudo_moves(piles)\n        assert m is not None, piles\n        i, rest = m\n        nxt = piles[:]\n        nxt[i] = rest\n        assert not anti_nim_win(nxt), (piles, nxt)\n\n    print(\"All tests passed.\")",
+    "pypy_notes": "O(n) 判定极快。misère 一般游戏（非 Nim）不能简单套 SG，需注意区分；Nim 的 misère 有上面的特判分类，记住两分支即可。若题目是 Anti-Nim 变体（每堆可减任意数量但有上限），需转 SG+找规律。",
+    "complexity": {
+      "time": "O(n)",
+      "space": "O(1)"
+    },
+    "limitations": "仅适用于标准 Nim 规则的 misère 变体。misère 规则的任意公平组合游戏（如 misère 取石子一般化）没有统一 SG 捷径，一般要具体分析。若存在堆>1 但 Nim 和恰为 0，此时先手必败（与正常 Nim 结论相同，这是反直觉点，容易错判为必败/必胜）。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4279",
+      "url": "https://www.luogu.com.cn/problem/P4279",
+      "difficulty": 4,
+      "key_point": "[SHOI2008] 小约翰的游戏：Anti-Nim 判定模板，OI Wiki 习题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4101",
+      "url": "https://www.luogu.com.cn/problem/P4101",
+      "difficulty": 5,
+      "key_point": "[HEOI2014] 人人尽说江南好：misère 思想的组合博弈变体（OI Wiki 习题）"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "ARC 168 B Arbitrary Nim",
+      "url": "https://atcoder.jp/contests/arc168/tasks/arc168_b",
+      "difficulty": 6,
+      "key_point": "Arbitrary Nim：可限制每堆取的上限，Anti-Nim 判定思想延伸（OI Wiki 习题）"
+    }
+  ],
+  "pitfalls": [
+    "misère 判定必须分类：全 ≤1 与存在 >1 两分支，直接用正常 Nim 异或会错（如 [1,1] 正常是 P、misère 是 N）",
+    "全 ≤1 分支看『石子总数奇偶』而非『堆数奇偶』（堆数=石子数时等价，但含 0 堆时别混淆）",
+    "空局（无堆）在 misère 下当前玩家无法操作 → 获胜，务必特判",
+    "必胜走法在含>1 时仍按异或清零，但全 1 分支要拿 1 枚（若误按异或会取不到）",
+    "misère 的 SG 理论不成立，别试图对 misère 游戏套 SG 异或"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "classify",
+        "label": "判断是否全堆 ≤1"
+      },
+      {
+        "id": "all_one",
+        "label": "全 1 分支: 石子数奇偶判定"
+      },
+      {
+        "id": "xor_branch",
+        "label": "含 >1 分支: 看 Nim 和"
+      },
+      {
+        "id": "normal",
+        "label": "对照: 正常 Nim（末取者赢）"
+      },
+      {
+        "id": "misere_sg",
+        "label": "警示: misère 下 SG 不适用"
+      }
+    ],
+    "edges": [
+      {
+        "from": "classify",
+        "to": "all_one"
+      },
+      {
+        "from": "classify",
+        "to": "xor_branch"
+      },
+      {
+        "from": "xor_branch",
+        "to": "normal"
+      },
+      {
+        "from": "all_one",
+        "to": "misere_sg"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/game-theory/impartial-game/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/game-theory/intro/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch25 Game theory（misère 简要提及）",
+      "verified": true
+    }
+  ]
+}

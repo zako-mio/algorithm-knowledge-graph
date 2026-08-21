@@ -1,0 +1,94 @@
+{
+  "id": "dp-knapsack-multiple",
+  "name": "多重背包",
+  "group": "G-A-11",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "每件物品有限数量，二进制拆分或单调队列优化",
+  "what": "多重背包是0-1背包的变式：每种物品有有限数量 k_i 个而非仅一个。朴素做法将每种物品拆成 k_i 个独立物品做0-1背包(O(W*sum k_i))；二进制分组优化将 k_i 拆成 1+2+4+...+余数 的二进制组(O(W*sum log k_i))；单调队列优化可进一步降至O(nW)。",
+  "why": {
+    "intuition": "朴素拆分的问题在于大量重复等效枚举。二进制分组利用「任意整数可用二进制表示」的性质，将 k_i 个相同物品拆成 log(k_i) 个捆绑大物品，每种数量都能被唯一组合表示，大幅减少物品数。",
+    "principle": "二进制分组：将数量 k_i 拆为 1,2,4,...,2^t,余数，每个捆绑物品的价值和重量为原来的对应倍数。拆分后做标准0-1背包。正确性：任意 0<=x<=k_i 都能由这些二进制分量唯一表示。单调队列优化：将转移 f(j)=max{f(j-k*w)+k*v | 0<=k<=min(k_i,j/w)} 按余数分组，用单调队列在O(1)内取滑动窗口最大值。",
+    "history": "多重背包是背包DP的基础变式之一，与0-1背包、完全背包、分组背包合称四大背包模型。二进制分组优化是竞赛中的标准做法，单调队列优化则是进阶技巧。OI Wiki将它们统一收录在背包DP页面中。"
+  },
+  "how": {
+    "pseudocode": "# 二进制分组优化\nitems = []  # (weight, value) 拆分后的0-1背包物品\nfor i in 1..n:\n  c = 1\n  while c < k[i]:\n    items.append((c*w[i], c*v[i]))\n    k[i] -= c; c *= 2\n  items.append((k[i]*w[i], k[i]*v[i]))\n# 标准0-1背包\nfor item in items:\n  for j in W down to item.weight:\n    f[j] = max(f[j], f[j-item.weight] + item.value)",
+    "python": "def multiple_knapsack(W, weights, values, counts):\n    \"\"\"多重背包(二进制分组优化)\n    W: 背包容量\n    weights: [w1, w2, ...] 各物品重量\n    values: [v1, v2, ...] 各物品价值\n    counts: [k1, k2, ...] 各物品数量\n    返回: 最大价值\n    \"\"\"\n    n = len(weights)\n    f = [0] * (W + 1)\n\n    for i in range(n):\n        w, v, k = weights[i], values[i], counts[i]\n        # 二进制分组拆分\n        c = 1\n        while c < k:\n            bw, bv = c * w, c * v\n            for j in range(W, bw - 1, -1):\n                if f[j - bw] + bv > f[j]:\n                    f[j] = f[j - bw] + bv\n            k -= c\n            c <<= 1\n        # 剩余部分\n        if k > 0:\n            bw, bv = k * w, k * v\n            for j in range(W, bw - 1, -1):\n                if f[j - bw] + bv > f[j]:\n                    f[j] = f[j - bw] + bv\n\n    return f[W]\n\n\ndef multiple_knapsack_naive(W, weights, values, counts):\n    \"\"\"多重背包(朴素三重循环, 用于验证)\"\"\"\n    n = len(weights)\n    f = [0] * (W + 1)\n    for i in range(n):\n        w, v, k = weights[i], values[i], counts[i]\n        for j in range(W, w - 1, -1):\n            for c in range(1, k + 1):\n                if c * w <= j and f[j - c * w] + c * v > f[j]:\n                    f[j] = f[j - c * w] + c * v\n    return f[W]\n\n\nif __name__ == \"__main__\":\n    # 测试: 容量10, 物品[(w=2,v=3,k=4),(w=3,v=2,k=2),(w=4,v=5,k=1)]\n    W = 10\n    w = [2, 3, 4]\n    v = [3, 2, 5]\n    k = [4, 2, 1]\n\n    ans = multiple_knapsack(W, w, v, k)\n    ans_naive = multiple_knapsack_naive(W, w, v, k)\n    assert ans == ans_naive, f\"Binary={ans}, Naive={ans_naive}\"\n    # 最优: 取4个物品0(重8值12) + 1个物品2不可(重8+4>10)\n    # 或: 3个物品0(重6值9)+1个物品2(重4值5)=重10值14\n    assert ans == 14, f\"Expected 14, got {ans}\"\n\n    # 边界测试\n    assert multiple_knapsack(0, [1], [1], [1]) == 0\n    assert multiple_knapsack(5, [3], [10], [1]) == 10\n\n    print(\"All tests passed.\")\n",
+    "pypy_notes": "PyPy对内层for循环JIT优化好，二进制分组后物品数减少为sum(log k_i)。n*W=1e7时约0.5s。单调队列优化在PyPy中需注意deque操作常数。",
+    "complexity": {
+      "time": "二进制分组: O(W*sum log k_i)；朴素: O(W*sum k_i)；单调队列优化: O(nW)",
+      "space": "O(W) — 一维滚动数组"
+    },
+    "limitations": "朴素三重循环在sum k_i大时必TLE。二进制分组是竞赛标准做法，单调队列优化更优但实现复杂。Python在W>1e4时可能慢，需PyPy。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1776",
+      "url": "https://www.luogu.com.cn/problem/P1776",
+      "difficulty": 2,
+      "key_point": "宝物筛选：多重背包模板题，需单调队列优化才能过"
+    },
+    {
+      "oj": "AcWing",
+      "pid": "4",
+      "url": "https://www.acwing.com/problem/content/4/",
+      "difficulty": 2,
+      "key_point": "多重背包问题：二进制分组优化基础练习"
+    }
+  ],
+  "pitfalls": [
+    "二进制拆分时余数处理：c < k 时继续拆，最后剩余 k 作为一组，不是 c <= k",
+    "拆分后的捆绑物品做0-1背包时容量必须倒序枚举(避免同一捆绑组内多次取)",
+    "单调队列优化时余数分组，同余数类内维护滑动窗口最大值",
+    "k_i=0的物品应跳过，不要加入拆分"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "state",
+        "label": "状态定义 f(j)=容量j最大价值"
+      },
+      {
+        "id": "split",
+        "label": "二进制分组拆分"
+      },
+      {
+        "id": "transition",
+        "label": "0-1背包转移(倒序)"
+      },
+      {
+        "id": "answer",
+        "label": "答案 f(W)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "state",
+        "to": "split"
+      },
+      {
+        "from": "split",
+        "to": "transition"
+      },
+      {
+        "from": "transition",
+        "to": "answer"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/knapsack/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/dynamic_programming/knapsack.html",
+      "verified": true,
+      "note": "多重背包二进制拆分与单调队列优化"
+    }
+  ]
+}

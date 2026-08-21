@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二叉堆 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-3.html">堆与优先队列族</a> / <span>二叉堆</span></div>
+  <h1>二叉堆</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-A-3</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-A-3.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-A-3.html"><span class="dir">组内第 1 / 6</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="leftist-tree.html"><span class="dir">下一个 / 组内</span><span class="v">leftist-tree</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">完全二叉树维护优先队列，数组实现O(1)查最值/O(log n)插入删除/O(n)建堆，对顶堆动态求中位数</div><p>二叉堆(Binary Heap)是一棵完全二叉树，每个节点的权值不小于(大根堆)或不大于(小根堆)其儿子。堆性质保证根即为最值，O(1)查询。它支持三种操作：插入(末尾+向上调整sift up)、删除最值(根与末尾交换+向下调整sift down)、增减某点权值(相应向上/向下调整)，各O(log n)。用数组h存储时h[i]的两个儿子是h[2i]与h[2i+1]，根为h[1]。建堆有O(n)的向下调整法(从叶子逐个向下调整, 理解成每次合并两个已调整好的堆)与O(n log n)的逐元素向上调整法。堆是堆排序、Dijkstra优先队列、哈夫曼树、对顶堆(动态求中位数/第k大)等的基础。Python内置heapq实现小根堆(取负实现大根堆)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>堆像&#x27;有序的排队&#x27;：不保证全队有序，只保证&#x27;队头永远是最值&#x27;。要得到这个保证，插队时只需把新元素一路&#x27;往上冒泡&#x27;，踢掉队头时把末尾拉来顶班再一路&#x27;往下沉淀&#x27;。完全二叉树保证树高log n，所以冒泡/沉淀都只走log n步。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>两个核心调整：(1)向上调整(sift up): 插入到最下层最右叶子之后(仍是完全二叉树), 若比父节点大则交换, 重复至不满足或到根；(2)向下调整(sift down): 删根时把最后一个节点搬到根, 与其较大的儿子交换, 重复到底。完全二叉树结构+堆性质保证调整后全树仍满足堆性质。建堆的O(n)下界：从h[n//2]到h[1]逐个向下调整, 因每个节点调整代价正比于其高度, 总代价Σ高=O(n)(从叶往上合并两个已调好的堆)。数组索引: 根1, i的儿子2i/2i+1, 父⌊i/2⌋。堆性质很弱、二叉堆不唯一, 这正是一棵堆有多种形态的原因。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>堆结构由J.W.J. Williams于1964年提出，作为堆排序(heapsort)的数据结构；同年Floyd给出O(n)建堆算法。二叉堆是最基础的优先队列实现，之后发展出左偏树、配对堆、二项堆等可合并变体。OI Wiki的binary-heap页、CPH ch4(p47)均有介绍。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 大根堆, h[1..n], 根1</span>
+<span class="t-f">sift_up</span>(x):
+  <span class="t-k">while</span> x&gt;<span class="t-n">1</span> <span class="t-k">and</span> h[x]&gt;h[x//<span class="t-n">2</span>]:
+    <span class="t-f">swap</span>(h[x], h[x//<span class="t-n">2</span>]); x//=<span class="t-n">2</span>
+<span class="t-f">sift_down</span>(x):
+  <span class="t-k">while</span> <span class="t-n">2</span>*x&lt;=n:
+    t=<span class="t-n">2</span>*x
+    <span class="t-k">if</span> t+<span class="t-n">1</span>&lt;=n <span class="t-k">and</span> h[t+<span class="t-n">1</span>]&gt;h[t]: t+=<span class="t-n">1</span>
+    <span class="t-k">if</span> h[x]&gt;=h[t]: <span class="t-k">break</span>
+    <span class="t-f">swap</span>(h[x], h[t]); x=t
+<span class="t-f">insert</span>(v): h[++n]=v; <span class="t-f">sift_up</span>(n)
+<span class="t-f">pop</span>(): res=h[<span class="t-n">1</span>]; h[<span class="t-n">1</span>]=h[n--]; <span class="t-f">sift_down</span>(<span class="t-n">1</span>)
+<span class="t-f">build_linear</span>(): <span class="t-k">for</span> i <span class="t-k">in</span> n//<span class="t-n">2.</span><span class="t-n">.1</span>: <span class="t-f">sift_down</span>(i)   <span class="t-c"># O(n)</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> MaxHeap:
+    <span class="t-s">&quot;&quot;&quot;大根堆(数组实现).
+    h[0]占位, 有效元素1..n; 支持push/pop/top/size.
+    &quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, data=<span class="t-k">None</span>):
+        self.h = [<span class="t-n">0</span>]
+        <span class="t-k">if</span> data:
+            self.h.<span class="t-f">extend</span>(data)
+            self.<span class="t-f">_build</span>()
+        <span class="t-k">else</span>:
+            self.h = [<span class="t-n">0</span>]
+
+    <span class="t-k">def</span> <span class="t-f">_sift_up</span>(self, x):
+        h = self.h
+        <span class="t-k">while</span> x &gt; <span class="t-n">1</span> <span class="t-k">and</span> h[x] &gt; h[x // <span class="t-n">2</span>]:
+            h[x], h[x // <span class="t-n">2</span>] = h[x // <span class="t-n">2</span>], h[x]
+            x //= <span class="t-n">2</span>
+
+    <span class="t-k">def</span> <span class="t-f">_sift_down</span>(self, x):
+        h = self.h
+        n = <span class="t-b">len</span>(h) - <span class="t-n">1</span>
+        <span class="t-k">while</span> <span class="t-n">2</span> * x &lt;= n:
+            t = <span class="t-n">2</span> * x
+            <span class="t-k">if</span> t + <span class="t-n">1</span> &lt;= n <span class="t-k">and</span> h[t + <span class="t-n">1</span>] &gt; h[t]:
+                t += <span class="t-n">1</span>
+            <span class="t-k">if</span> h[x] &gt;= h[t]:
+                <span class="t-k">break</span>
+            h[x], h[t] = h[t], h[x]
+            x = t
+
+    <span class="t-k">def</span> <span class="t-f">_build</span>(self):
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>((<span class="t-b">len</span>(self.h) - <span class="t-n">1</span>) // <span class="t-n">2</span>, <span class="t-n">0</span>, -<span class="t-n">1</span>):
+            self.<span class="t-f">_sift_down</span>(i)
+
+    <span class="t-k">def</span> <span class="t-f">push</span>(self, v):
+        self.h.<span class="t-f">append</span>(v)
+        self.<span class="t-f">_sift_up</span>(<span class="t-b">len</span>(self.h) - <span class="t-n">1</span>)
+
+    <span class="t-k">def</span> <span class="t-f">pop</span>(self):
+        <span class="t-k">if</span> <span class="t-b">len</span>(self.h) == <span class="t-n">1</span>:
+            <span class="t-k">raise</span> <span class="t-b">IndexError</span>(<span class="t-s">&quot;pop from empty heap&quot;</span>)
+        top = self.h[<span class="t-n">1</span>]
+        self.h[<span class="t-n">1</span>] = self.h[-<span class="t-n">1</span>]
+        self.h.<span class="t-f">pop</span>()
+        <span class="t-k">if</span> <span class="t-b">len</span>(self.h) &gt; <span class="t-n">1</span>:
+            self.<span class="t-f">_sift_down</span>(<span class="t-n">1</span>)
+        <span class="t-k">return</span> top
+
+    <span class="t-k">def</span> <span class="t-f">top</span>(self):
+        <span class="t-k">return</span> self.h[<span class="t-n">1</span>]
+
+    <span class="t-k">def</span> <span class="t-f">__len__</span>(self):
+        <span class="t-k">return</span> <span class="t-b">len</span>(self.h) - <span class="t-n">1</span>
+
+
+<span class="t-k">class</span> MinHeap:
+    <span class="t-s">&quot;&quot;&quot;小根堆: 用负值存入MaxHeap.&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, data=<span class="t-k">None</span>):
+        self._h = <span class="t-f">MaxHeap</span>([-v <span class="t-k">for</span> v <span class="t-k">in</span> data] <span class="t-k">if</span> data <span class="t-k">else</span> <span class="t-k">None</span>)
+
+    <span class="t-k">def</span> <span class="t-f">push</span>(self, v):
+        self._h.<span class="t-f">push</span>(-v)
+
+    <span class="t-k">def</span> <span class="t-f">pop</span>(self):
+        <span class="t-k">return</span> -self._h.<span class="t-f">pop</span>()
+
+    <span class="t-k">def</span> <span class="t-f">top</span>(self):
+        <span class="t-k">return</span> -self._h.<span class="t-f">top</span>()
+
+    <span class="t-k">def</span> <span class="t-f">__len__</span>(self):
+        <span class="t-k">return</span> <span class="t-b">len</span>(self._h)
+
+
+<span class="t-k">def</span> <span class="t-f">heap_sort</span>(arr):
+    <span class="t-s">&quot;&quot;&quot;用二叉堆排序.&quot;&quot;&quot;</span>
+    h = <span class="t-f">MaxHeap</span>(arr)
+    res = []
+    <span class="t-k">while</span> <span class="t-b">len</span>(h):
+        res.<span class="t-f">append</span>(h.<span class="t-f">pop</span>())
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">class</span> MedianStream:
+    <span class="t-s">&quot;&quot;&quot;对顶堆: 动态维护流的中位数.
+    小根堆存较大半区, 大根堆存较小半区, 中位数=小根堆顶.
+    &quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self):
+        self.small = <span class="t-f">MaxHeap</span>()   <span class="t-c"># 较小半区(大根堆)</span>
+        self.large = <span class="t-f">MinHeap</span>()   <span class="t-c"># 较大半区(小根堆)</span>
+
+    <span class="t-k">def</span> <span class="t-f">add</span>(self, v):
+        <span class="t-k">if</span> <span class="t-b">len</span>(self.small) == <span class="t-n">0</span> <span class="t-k">or</span> v &lt;= self.small.<span class="t-f">top</span>():
+            self.small.<span class="t-f">push</span>(v)
+        <span class="t-k">else</span>:
+            self.large.<span class="t-f">push</span>(v)
+        self.<span class="t-f">_rebalance</span>()
+
+    <span class="t-k">def</span> <span class="t-f">_rebalance</span>(self):
+        <span class="t-k">while</span> <span class="t-b">len</span>(self.small) &gt; <span class="t-b">len</span>(self.large) + <span class="t-n">1</span>:
+            self.large.<span class="t-f">push</span>(self.small.<span class="t-f">pop</span>())
+        <span class="t-k">while</span> <span class="t-b">len</span>(self.large) &gt; <span class="t-b">len</span>(self.small):
+            self.small.<span class="t-f">push</span>(self.large.<span class="t-f">pop</span>())
+
+    <span class="t-k">def</span> <span class="t-f">median</span>(self):
+        <span class="t-k">if</span> <span class="t-b">len</span>(self.small) == <span class="t-n">0</span>:
+            <span class="t-k">return</span> <span class="t-k">None</span>
+        <span class="t-k">if</span> (<span class="t-b">len</span>(self.small) + <span class="t-b">len</span>(self.large)) % <span class="t-n">2</span> == <span class="t-n">1</span>:
+            <span class="t-k">return</span> self.small.<span class="t-f">top</span>()
+        <span class="t-k">return</span> self.small.<span class="t-f">top</span>()  <span class="t-c"># 偶数时输出较小中位数</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+
+    <span class="t-c"># 堆性质与push/pop</span>
+    h = <span class="t-f">MaxHeap</span>()
+    <span class="t-k">for</span> x <span class="t-k">in</span> [<span class="t-n">3</span>, <span class="t-n">1</span>, <span class="t-n">4</span>, <span class="t-n">1</span>, <span class="t-n">5</span>, <span class="t-n">9</span>, <span class="t-n">2</span>, <span class="t-n">6</span>]:
+        h.<span class="t-f">push</span>(x)
+    <span class="t-k">assert</span> h.<span class="t-f">top</span>() == <span class="t-n">9</span>
+    popped = [h.<span class="t-f">pop</span>() <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(h))]
+    <span class="t-k">assert</span> popped == <span class="t-b">sorted</span>(popped, reverse=<span class="t-k">True</span>), popped
+
+    <span class="t-c"># 线性建堆</span>
+    h2 = <span class="t-f">MaxHeap</span>([<span class="t-n">5</span>, <span class="t-n">3</span>, <span class="t-n">8</span>, <span class="t-n">1</span>, <span class="t-n">9</span>, <span class="t-n">2</span>])
+    <span class="t-k">assert</span> h2.<span class="t-f">top</span>() == <span class="t-n">9</span>
+    <span class="t-k">assert</span> [h2.<span class="t-f">pop</span>() <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(h2))] == <span class="t-b">sorted</span>([<span class="t-n">5</span>, <span class="t-n">3</span>, <span class="t-n">8</span>, <span class="t-n">1</span>, <span class="t-n">9</span>, <span class="t-n">2</span>],
+                                                        reverse=<span class="t-k">True</span>)
+
+    <span class="t-c"># 堆排序</span>
+    arr = [random.<span class="t-f">randint</span>(-<span class="t-n">100</span>, <span class="t-n">100</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">50</span>)]
+    <span class="t-k">assert</span> <span class="t-f">heap_sort</span>(arr) == <span class="t-b">sorted</span>(arr, reverse=<span class="t-k">True</span>)
+
+    <span class="t-c"># 小根堆</span>
+    mh = <span class="t-f">MinHeap</span>()
+    <span class="t-k">for</span> x <span class="t-k">in</span> [<span class="t-n">4</span>, <span class="t-n">2</span>, <span class="t-n">8</span>, <span class="t-n">1</span>, <span class="t-n">7</span>]:
+        mh.<span class="t-f">push</span>(x)
+    <span class="t-k">assert</span> mh.<span class="t-f">top</span>() == <span class="t-n">1</span>
+
+    <span class="t-c"># 对顶堆中位数: 插入 [1,2,3,4,5]</span>
+    ms = <span class="t-f">MedianStream</span>()
+    <span class="t-k">for</span> v <span class="t-k">in</span> [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">5</span>]:
+        ms.<span class="t-f">add</span>(v)
+    <span class="t-k">assert</span> ms.<span class="t-f">median</span>() == <span class="t-n">3</span>
+    ms.<span class="t-f">add</span>(<span class="t-n">6</span>)
+    <span class="t-k">assert</span> ms.<span class="t-f">median</span>() == <span class="t-n">3</span>  <span class="t-c"># 偶数长度输出较小中位数</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;binary-heap: ALL TESTS PASSED&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">竞赛Python直接内置import heapq(小根堆, 大根堆用负值)。自定义堆注意数组用list, 索引从1开始便于2i/2i+1。堆排序在Python中远慢于内置sorted, 仅用于理解。对顶堆用heapq即可实现动态中位数。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>查最值O(1); 插入/删除/改权O(log n); 建堆O(n)(向下调整法)或O(n log n)(逐插入)</td></tr><tr><th>空间复杂度</th><td>O(n) — 数组存储</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">堆不支持任意元素的查找/删除(需额外索引表); 只保证最值在根, 不是有序结构; 合并两个堆需O(n)(不可合并变体); 大根/小根堆语义易混。Python自定义堆性能不及heapq(C实现)。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>索引从0还是1开始要统一: 根为1则儿子2i/2i+1, 根为0则儿子2i+1/2i+2, 混用必出错</li><li>向下调整需比较两个儿子取较大者, 且先判右儿子存在(t+1&lt;=n)</li><li>删除最值时先与末尾交换再pop, 不要直接删根(会破坏完全二叉树结构)</li><li>建堆用向下调整法才O(n), 逐元素插入是O(n log n)</li><li>heapq是最小堆, 取最大堆要push(-x)并在pop时取负</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3378</strong></td><td>1</td><td>【模板】堆：插入/删除最小/查询最小三操作裸题, 可直接用heapq</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3378" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3378</a></td></tr><tr><td>Luogu</td><td><strong>P1801</strong></td><td>3</td><td>黑匣子：对顶堆动态维护第k小, k随查询递增</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1801" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1801</a></td></tr><tr><td>SPOJ</td><td><strong>RMID2</strong></td><td>3</td><td>Running Median Again：对顶堆维护中位数并支持删除</td><td class="u"><a href="https://www.spoj.com/problems/RMID2/" target="_blank" rel="noopener">https://www.spoj.com/problems/RMID2/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-binary-heap" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "structure", "label": "数组存完全二叉树(根1,儿子2i/2i+1)"}}, {"data": {"id": "siftup", "label": "向上调整: 插入/权增加"}}, {"data": {"id": "siftdown", "label": "向下调整: 删最值/权减小"}}, {"data": {"id": "build", "label": "O(n)建堆: 自底向下调整"}}, {"data": {"id": "apply", "label": "应用: 堆排序/对顶堆/优先队列"}}, {"data": {"id": "estructure->siftup", "source": "structure", "target": "siftup"}}, {"data": {"id": "estructure->siftdown", "source": "structure", "target": "siftdown"}}, {"data": {"id": "estructure->build", "source": "structure", "target": "build"}}, {"data": {"id": "esiftup->apply", "source": "siftup", "target": "apply"}}, {"data": {"id": "esiftdown->apply", "source": "siftdown", "target": "apply"}}, {"data": {"id": "ebuild->apply", "source": "build", "target": "apply"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-binary-heap'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="heap-sort.html" title="堆排序基于二叉堆结构">堆排序<span class="etype">前置依赖</span></a><a class="chip e-variant" href="tournament-sort.html" title="锦标赛排序基于树形堆结构">锦标赛排序<span class="etype">变体</span></a><a class="chip e-variant" href="leftist-tree.html" title="左偏树是二叉堆的可合并扩展">左偏树(可并堆)<span class="etype">变体</span></a><a class="chip e-variant" href="pairing-heap.html" title="配对堆是堆的多路合并变体">配对堆<span class="etype">变体</span></a><a class="chip e-prerequisite" href="huffman-tree.html" title="哈夫曼树构建过程使用优先队列(堆)">哈夫曼树<span class="etype">前置依赖</span></a><a class="chip e-variant" href="randomized-heap.html" title="随机化堆是二叉堆的随机合并变体">随机化堆<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/binary-heap/" target="_blank" rel="noopener">https://oi-wiki.org/ds/binary-heap/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch4 p47</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分治优化DP · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-12.html">DP优化族</a> / <span>分治优化DP</span></div>
+  <h1>分治优化DP</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-12</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="dp-opt-quadrangle.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">dp-opt-quadrangle</span></a>
+    <a class="nav-index" href="../03-groups/G-A-12.html"><span class="dir">组内第 5 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dp-opt-slope-trick.html"><span class="dir">下一个 / 组内</span><span class="v">dp-opt-slope-trick</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">决策点单调时利用分治缩小决策空间，O(n log n)</div><p>分治优化 DP（Divide and Conquer DP）适用于形如 dp[i][j] = min_{k≤j} { dp[i-1][k-1] + C(k,j) } 的分层转移。当成本函数 C 满足四边形不等式时，最优切分点 opt(i,j) 关于 j 单调不减（决策单调性）。据此用分治递归计算单行的所有状态：计算中点 mid 的最优决策时只在 [optl,optr] 枚举，之后左半状态决策界 [optl,opt(mid)]、右半 [opt(mid),optr]，每层每个决策至多被扫描常数次。单层分治 O(n log n)，全部 m 行 O(m n log n)（朴素 O(m n²)）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>分治优化像二分搜索找最优切点：先算中间 j 的最优 k，就知道左边 j&#x27; 的最优 k&#x27; ≤ k、右边的最优 ≥ k，两侧候选区间各自缩小一半。递归下去每个状态的枚举范围大幅收窄。之所以敢收窄，是因为决策单调性保证「切点随 j 只增不减」，不会漏掉最优解。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>前提（CP-Algorithms 表述）：dp(i,j) = min_{0≤k≤j} { dp(i-1,k-1) + C(k,j) }，C 满足四边形不等式 ⟹ opt(i,j) ≤ opt(i,j+1)。算法 compute(l,r,optl,optr)：mid=(l+r)/2，在 [optl, min(mid,optr)] 枚举 k 求 dp[i][mid] 的最优 opt；递归 compute(l,mid-1,optl,opt) 与 compute(mid+1,r,opt,optr)。复杂度证明：设第 k 层 opt 区间总长 S_k，每层分裂使 S_{k+1} ≤ S_k + 2^k，由 S_0=n 归纳得 S_k &lt; n+2^k = O(n)，共 O(log n) 层故单行 O(n log n)，全表 O(m n log n)。该优化仅适用于 w 可 O(1) 计算的情形；若 w 需动态计算则用二分队列（Aliens trick）替代。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>分治优化 DP 的思想来自计算几何与组合优化的经典 divide-and-conquer 加速（最早可追溯至 1970s-80s 决策单调性文献，如 1982 年 F. F. Yao 的 quadrangle inequality 论文）。CP-Algorithms 将其整理为 Divide and Conquer DP 专章，OI Wiki 在四边形不等式章节将其列为两种主要实现之一（另一种为二分队列）。广泛用于邮局选址、IOI/省选分层划分类题目。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># dp[i][j] = min_{k&lt;=j} { dp[i-1][k-1] + C(k,j) }，决策单调</span>
+
+<span class="t-f">compute</span>(l, r, optl, optr):      <span class="t-c"># 计算第 i 行的状态 dp[i][l..r]</span>
+  <span class="t-k">if</span> l &gt; r: <span class="t-k">return</span>
+  mid = (l + r) // <span class="t-n">2</span>
+  best_v, best_k = INF, -<span class="t-n">1</span>
+  <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(optl, <span class="t-b">min</span>(mid, optr) + <span class="t-n">1</span>):
+    v = dp_before[k-<span class="t-n">1</span>] + <span class="t-f">C</span>(k, mid)
+    <span class="t-k">if</span> v &lt; best_v: best_v, best_k = v, k
+  dp_cur[mid] = best_v
+  <span class="t-f">compute</span>(l, mid-<span class="t-n">1</span>, optl, best_k)
+  <span class="t-f">compute</span>(mid+<span class="t-n">1</span>, r, best_k, optr)
+
+<span class="t-c"># 主流程：for i in 1..m: compute(0, n-1, 0, n-1)</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">divide_conquer_dp</span>(n, m, cost):
+    <span class="t-s">&quot;&quot;&quot;分层 DP 分治优化（1-indexed 元素数）：
+    dp[i][j] = min_{k&lt;=j} { dp[i-1][k-1] + cost(k, j) }，j 表示前 j 个元素。
+    cost(k, j) 需满足四边形不等式（决策单调）。返回 dp[m][n]。
+    n 个元素划分成 m 段的最小代价。&quot;&quot;&quot;</span>
+    INF = <span class="t-n">10</span> ** <span class="t-n">30</span>
+    dp_before = [INF] * (n + <span class="t-n">1</span>)    <span class="t-c"># 第 0 行：只有 0 段合法</span>
+    dp_before[<span class="t-n">0</span>] = <span class="t-n">0</span>
+    dp_cur = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+
+    <span class="t-k">def</span> <span class="t-f">compute</span>(l, r, optl, optr):
+        <span class="t-k">if</span> l &gt; r:
+            <span class="t-k">return</span>
+        mid = (l + r) // <span class="t-n">2</span>
+        best_v, best_k = INF, optl
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(optl, <span class="t-b">min</span>(mid, optr) + <span class="t-n">1</span>):
+            v = dp_before[k - <span class="t-n">1</span>] + <span class="t-f">cost</span>(k, mid)
+            <span class="t-k">if</span> v &lt; best_v:
+                best_v, best_k = v, k
+        dp_cur[mid] = best_v
+        <span class="t-f">compute</span>(l, mid - <span class="t-n">1</span>, optl, best_k)
+        <span class="t-f">compute</span>(mid + <span class="t-n">1</span>, r, best_k, optr)
+
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(m):
+        <span class="t-f">compute</span>(<span class="t-n">1</span>, n, <span class="t-n">1</span>, n)
+        dp_before, dp_cur = dp_cur, dp_before
+    <span class="t-k">return</span> dp_before[n]
+
+
+<span class="t-k">def</span> <span class="t-f">divide_conquer_naive</span>(n, m, cost):
+    <span class="t-s">&quot;&quot;&quot;朴素 O(m n^2) 对拍（1-indexed）&quot;&quot;&quot;</span>
+    INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    dp = [[INF] * (n + <span class="t-n">1</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(m + <span class="t-n">1</span>)]
+    dp[<span class="t-n">0</span>][<span class="t-n">0</span>] = <span class="t-n">0</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, m + <span class="t-n">1</span>):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+            <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, j + <span class="t-n">1</span>):
+                dp[i][j] = <span class="t-b">min</span>(dp[i][j], dp[i - <span class="t-n">1</span>][k - <span class="t-n">1</span>] + <span class="t-f">cost</span>(k, j))
+    <span class="t-k">return</span> dp[m][n]
+
+
+<span class="t-k">def</span> <span class="t-f">monge_cost</span>(n):
+    <span class="t-s">&quot;&quot;&quot;构造满足四边形不等式的成本：cost(k,j) = (j-k)^2（平方函数满足 Monge）&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">cost</span>(k, j):
+        <span class="t-k">return</span> (j - k) ** <span class="t-n">2</span>
+    <span class="t-k">return</span> cost
+
+
+<span class="t-k">def</span> <span class="t-f">monge_cost_abs</span>(n):
+    <span class="t-s">&quot;&quot;&quot;绝对距离型：cost(k,j)=sum_{t=k..j} |a[t]|，前缀和可 O(1)，Monge&quot;&quot;&quot;</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">2</span>)
+    a = [random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">100</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    pref = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        pref[i + <span class="t-n">1</span>] = pref[i] + a[i]
+    <span class="t-k">def</span> <span class="t-f">cost</span>(k, j):
+        <span class="t-k">return</span> pref[j] - pref[k - <span class="t-n">1</span>]
+    <span class="t-k">return</span> cost
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">51</span>)
+    <span class="t-k">for</span> n <span class="t-k">in</span> [<span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">8</span>, <span class="t-n">12</span>, <span class="t-n">20</span>]:
+        <span class="t-k">for</span> m <span class="t-k">in</span> [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>]:
+            <span class="t-k">if</span> m &gt; n:
+                <span class="t-k">continue</span>
+            cost = <span class="t-f">monge_cost</span>(n)
+            got = <span class="t-f">divide_conquer_dp</span>(n, m, cost)
+            exp = <span class="t-f">divide_conquer_naive</span>(n, m, cost)
+            <span class="t-k">assert</span> got == exp, (n, m, got, exp)
+            cost2 = <span class="t-f">monge_cost_abs</span>(n)
+            got2 = <span class="t-f">divide_conquer_dp</span>(n, m, cost2)
+            exp2 = <span class="t-f">divide_conquer_naive</span>(n, m, cost2)
+            <span class="t-k">assert</span> got2 == exp2, (n, m, got2, exp2)
+    <span class="t-c"># 决策单调性验证（单行内 opt 单调，1-indexed）</span>
+    cost = <span class="t-f">monge_cost</span>(<span class="t-n">30</span>)
+    INF = <span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)
+    n = <span class="t-n">30</span>
+    dpb = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    dpc = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">def</span> <span class="t-f">comp</span>(l, r, ol, opr):
+        <span class="t-k">if</span> l &gt; r:
+            <span class="t-k">return</span>
+        mid = (l + r) // <span class="t-n">2</span>
+        best_v, best_k = INF, ol
+        <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(ol, <span class="t-b">min</span>(mid, opr) + <span class="t-n">1</span>):
+            v = dpb[k - <span class="t-n">1</span>] + <span class="t-f">cost</span>(k, mid)
+            <span class="t-k">if</span> v &lt; best_v:
+                best_v, best_k = v, k
+        dpc[mid] = best_v
+        <span class="t-f">comp</span>(l, mid - <span class="t-n">1</span>, ol, best_k)
+        <span class="t-f">comp</span>(mid + <span class="t-n">1</span>, r, best_k, opr)
+    <span class="t-f">comp</span>(<span class="t-n">1</span>, n, <span class="t-n">1</span>, n)
+    opt = []
+    <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        best_k = <span class="t-b">min</span>(<span class="t-b">range</span>(<span class="t-n">1</span>, j + <span class="t-n">1</span>), key=<span class="t-k">lambda</span> k: dpb[k - <span class="t-n">1</span>] + <span class="t-f">cost</span>(k, j))
+        opt.<span class="t-f">append</span>(best_k)
+    <span class="t-k">assert</span> <span class="t-b">all</span>(opt[i] &lt;= opt[i + <span class="t-n">1</span>] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n - <span class="t-n">1</span>)), opt
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">分治优化实现要点：compute 内枚举上界 min(mid, optr) 而非 optr（避免越界）；dp 行滚动两数组即可（dp_before/dp_cur 交换）。cost 必须 O(1)（预计算前缀和/闭式）。递归深度 O(log n) 安全。m 行复杂度 O(m n log n)，n=1e5 时单行 O(1e5 log 1e5) PyPy 可行。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>单行 O(n log n)，全部 m 行 O(m n log n)（朴素 O(m n²)）</td></tr><tr><th>空间复杂度</th><td>O(n)（滚动两行）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">前提是 C 满足四边形不等式（决策单调）；不满足时不可用。若 C 需依赖已算出的 dp 值（动态计算）则分治失效，需二分队列。cost 须 O(1) 可算（否则需游标维护）。仅适用「分层划分」型 DP（状态有层 i 与位置 j 两维）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>枚举上界写 min(mid, optr) 漏掉导致访问越界或答案错误</li><li>未验证 C 满足四边形不等式就套用，决策单调不成立</li><li>滚动两行时交换顺序写反导致使用未更新行</li><li>C 不是 O(1) 时误用（应预计算或游标）</li><li>单行 compute 的 optl/optr 初始化错误（应为 0..n-1）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Codeforces</td><td><strong>321E</strong></td><td>6</td><td>Ciel and Gondolas：分治优化 DP 经典模板（CP-Algorithms 例题）</td><td class="u"><a href="https://codeforces.com/contest/321/problem/E" target="_blank" rel="noopener">https://codeforces.com/contest/321/problem/E</a></td></tr><tr><td>Codeforces</td><td><strong>673E</strong></td><td>6</td><td>Levels And Regions：决策单调分治优化</td><td class="u"><a href="https://codeforces.com/problemset/problem/673/E" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/673/E</a></td></tr><tr><td>Luogu</td><td><strong>P4767</strong></td><td>6</td><td>IOI2000 邮局：分治优化经典题（划分型）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4767" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4767</a></td></tr><tr><td>SPOJ</td><td><strong>NKLEAVES</strong></td><td>5</td><td>Leaf Partition 变体：分治优化练习</td><td class="u"><a href="https://www.spoj.com/problems/NKLEAVES/" target="_blank" rel="noopener">https://www.spoj.com/problems/NKLEAVES/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dp-opt-divide-conquer" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "precond", "label": "确认 C 满足四边形不等式(决策单调)"}}, {"data": {"id": "recur", "label": "写出分层转移 dp[i][j]=min dp[i-1][k-1]+C(k,j)"}}, {"data": {"id": "compute", "label": "compute(l,r,optl,optr) 中点枚举"}}, {"data": {"id": "recurse", "label": "左右递归缩决策界"}}, {"data": {"id": "rows", "label": "滚动两行逐 i 计算"}}, {"data": {"id": "eprecond->recur", "source": "precond", "target": "recur"}}, {"data": {"id": "erecur->compute", "source": "recur", "target": "compute"}}, {"data": {"id": "ecompute->recurse", "source": "compute", "target": "recurse"}}, {"data": {"id": "erecurse->rows", "source": "recurse", "target": "rows"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dp-opt-divide-conquer'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="dp-opt-overview.html" title="分治优化是DP优化的具体技术之一">DP优化概述<span class="etype">变体</span></a><a class="chip e-cooccurrence" href="dp-opt-quadrangle.html" title="决策单调性既可用四边形不等式也可用分治实现">四边形不等式/决策单调性优化<span class="etype">共现</span></a><a class="chip e-combination" href="divide-conquer.html" title="分治优化DP是分治思想在DP转移上的应用">分治与递归<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html" target="_blank" rel="noopener">https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/opt/quadrangle/" target="_blank" rel="noopener">https://oi-wiki.org/dp/opt/quadrangle/</a></li><li><span class="srctype">论文</span><span class="v-ok">&#10003;</span> <span class="ref">F. F. Yao, Efficiency of dynamic programming, JACM 1982</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

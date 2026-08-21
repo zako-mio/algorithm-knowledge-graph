@@ -1,0 +1,151 @@
+---
+id: dp-linear
+name: 线性DP(LIS/LCS)
+group: G-A-11
+stage: basic
+priority: P0
+depth_tier: deep
+---
+
+# 线性DP(LIS/LCS)
+
+> 一维序列上的DP，最长递增子序列/最长公共子序列
+
+<!-- 元信息: id=dp-linear · group=G-A-11 · stage=basic · priority=P0 · depth_tier=deep -->
+
+## What · 是什么
+
+线性DP是指状态定义在一维（或两维）线性序列上的动态规划：以序列下标为阶段，每个状态由前面已求状态转移而来。典型问题包括最长公共子序列(LCS)和最长递增子序列(LIS)，是理解所有DP问题的基础范式。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+一条最优路径的每一步子路径也是最优的——将问题分解为「处理到第 i 个元素时」的子问题，只需记录该子问题的最优解，后续决策不再回头修改，这就是最优子结构。重叠子问题用记忆化（表格）避免重复计算。
+
+### 原理 · Principle
+
+LCS: 设 f(i,j) 为只考虑 A 的前 i 个元素与 B 的前 j 个元素时的最长公共子序列长度。若 A[i]=B[j] 则 f(i,j)=f(i-1,j-1)+1；否则 f(i,j)=max(f(i-1,j),f(i,j-1))。时间 O(nm)，空间可压缩为 O(min(n,m))。LIS: 设 f(i) 为以 a[i] 结尾的 LIS 长度，f(i)=max{f(j)+1 | j<i, a[j]<=a[i]}，O(n²)。优化：维护数组 d[x]=长度为 x 的 LIS 末尾最小值，对 a[i] 二分找第一个 >=a[i] 的位置替换，O(n log n)。
+
+### 历史 · History
+
+线性DP是最早被系统研究的DP类型，LCS问题可追溯到1950年代的生物序列比对。LIS的O(n log n)解法由经典的patience sorting思想启发，核心是维护各长度末尾最小值使后续贪心选择更优。这两个问题是理解阶段化决策、状态转移、空间滚动压缩三大DP核心概念的入门钥匙。
+
+## How · 实现
+
+### 伪代码
+
+```python
+LCS:
+  for i in 1..n:
+    for j in 1..m:
+      if A[i]==B[j]: f[i][j]=f[i-1][j-1]+1
+      else: f[i][j]=max(f[i-1][j], f[i][j-1])
+  answer = f[n][m]
+
+LIS (O(n log n)):
+  d = empty list
+  for x in a:
+    pos = lower_bound(d, x)  # 第一个 >= x 的位置
+    if pos == len(d): d.append(x)
+    else: d[pos] = x
+  answer = len(d)
+```
+
+### Python 实现
+
+```python
+import bisect
+
+
+def lcs_length(a, b):
+    """最长公共子序列长度 O(nm)"""
+    n, m = len(a), len(b)
+    f = [[0] * (m + 1) for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            if a[i - 1] == b[j - 1]:
+                f[i][j] = f[i - 1][j - 1] + 1
+            else:
+                f[i][j] = max(f[i - 1][j], f[i][j - 1])
+    return f[n][m]
+
+
+def lis_length(a):
+    """最长不下降子序列长度 O(n log n)
+    d[x] = 长度为 x+1 的不下降子序列末尾最小值
+    """
+    d = []
+    for x in a:
+        pos = bisect.bisect_right(d, x)  # 不下降: 找第一个 > x 的位置
+        if pos == len(d):
+            d.append(x)
+        else:
+            d[pos] = x
+    return len(d)
+
+
+def lis_length_strict(a):
+    """最长严格上升子序列长度 O(n log n)
+    d[x] = 长度为 x+1 的严格上升子序列末尾最小值
+    """
+    d = []
+    for x in a:
+        pos = bisect.bisect_left(d, x)  # 严格上升: 找第一个 >= x 的位置
+        if pos == len(d):
+            d.append(x)
+        else:
+            d[pos] = x
+    return len(d)
+
+
+if __name__ == "__main__":
+    # LCS test
+    assert lcs_length("abcde", "acde") == 4
+    assert lcs_length([1, 3, 4, 2, 5], [1, 4, 2, 5]) == 4  # LCS = [1,4,2,5]
+
+    # LIS test (不下降)
+    assert lis_length([1, 2, 2, 3, 1]) == 4  # 1,2,2,3
+    assert lis_length([3, 1, 4, 1, 5, 9, 2, 6, 5]) == 4  # 1,1,5,9 or 1,4,5,6
+
+    # LIS test (严格上升)
+    assert lis_length_strict([10, 9, 2, 5, 3, 7, 101, 18]) == 4  # 2,3,7,18 or 2,5,7,101
+    assert lis_length_strict([7, 7, 7, 7]) == 1
+
+    print("All tests passed.")
+
+```
+
+**PyPy 提示**: PyPy 对列表操作和整数运算 JIT 优化好，LCS 的双重循环比 CPython 快 3-5x；但 n,m>5000 时 O(nm) 仍可能 TLE，考虑用 bitset 优化到 O(nm/w)。LIS O(n log n) 在 PyPy 下 n=1e6 约 0.3s。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | LCS: O(nm)；LIS O(n²) 或 O(n log n) |
+| 空间 | LCS: O(nm)→滚动压缩 O(min(n,m))；LIS: O(n) |
+
+### 局限
+
+LCS 的 O(nm) 在 n,m>5000 时易 TLE，需 bitset 优化(O(nm/w))。LIS O(n log n) 通常足够，但输出方案需额外维护前驱数组。Python 对 n>1e5 的双重循环仍慢，优先选 O(n log n) 方案。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| Luogu | P1020 | 2 | 导弹拦截：求最长不上升子序列+最少分组数(Dilworth定理)，LIS模板 | [https://www.luogu.com.cn/problem/P1020](https://www.luogu.com.cn/problem/P1020) |
+| LeetCode | 300 | 2 | 最长严格上升子序列，O(n log n)二分模板 | [https://leetcode.cn/problems/longest-increasing-subsequence/](https://leetcode.cn/problems/longest-increasing-subsequence/) |
+| Luogu | P1216 | 1 | IOI1994 数字三角形：最简单的线性DP入门题，自底向上或自顶向下 | [https://www.luogu.com.cn/problem/P1216](https://www.luogu.com.cn/problem/P1216) |
+
+## Pitfalls · 易错点
+
+- LIS 不下降用 bisect_right（找第一个 > x），严格上升用 bisect_left（找第一个 >= x），混淆导致 WA
+- LCS 滚动数组时只保留前一行，注意 f[i-1][j-1] 需在覆盖前保存，或用两个一维数组交替
+- 0-indexed 与 1-indexed 混用导致边界 off-by-one，建议在代码中统一
+- LIS 二分替换后 d 数组并非真正的 LIS，只是长度正确；要输出方案需额外记录
+
+## Sources · 信源
+
+- OI Wiki ✓ [https://oi-wiki.org/dp/basic/](https://oi-wiki.org/dp/basic/)
+- CP-Algorithms ✓ [https://cp-algorithms.com/sequences/longest_increasing_subsequence.html](https://cp-algorithms.com/sequences/longest_increasing_subsequence.html)
+- 书籍 ✓ `CPH ch7 p83`

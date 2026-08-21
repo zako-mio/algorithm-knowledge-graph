@@ -1,0 +1,70 @@
+{
+  "id": "search-pruning",
+  "name": "搜索剪枝优化",
+  "group": "G-A-14",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "可行性剪枝/最优性剪枝/搜索顺序优化，减少搜索量",
+  "what": "搜索剪枝是减少 DFS 搜索量的系列技术。DFS 时间复杂度过高，直接爆搜常超时；剪枝通过提前判断子树的'前途'，在扩展前砍掉无望分支。三大类：①可行性剪枝——当前部分解已违反约束（超容量、无法到达），整棵子树非法；②最优性剪枝——当前代价已差于已得最优解（或乐观上界也追不上），继续搜无意义；③搜索顺序优化——先搜更有希望的分支，让最优解更早出现，间接提升剪枝效率。此外还有记忆化（相同状态只算一次）、等效性剪枝（对称/重复分支只搜一个）。",
+  "why": {
+    "intuition": "剪枝像'识途的老马'：走岔路之前就闻出前面是死胡同（可行性），或者就算走到头也不会比现有最好成绩好（最优性），干脆掉头。先搜最有可能成功的路（顺序优化），能更早拿到好成绩，让最优性剪枝更有力。",
+    "principle": "DFS 框架中，可行性剪枝在循环内判断 cur+next 是否超约束；最优性剪枝在进入递归前比较 now 与当前最优 ans，若 now 已不可能优于 ans 则 return。顺序优化通过按代价/密度排序候选，使最优解尽快出现——这本质是利用'找到好下界越快，剪枝越多'。等效性剪枝（如相同长度木棍只尝试第一个未用的）避免重复探索对称分支。极端法剪枝：若最理想情况（乐观估计）都无法满足，则实际更不可能。",
+    "history": "剪枝思想伴随回溯法出现（见 backtracking 节点），并在 0/1 背包分支限界（Land & Doig, 1960）、N皇后优化中得到系统化。OI Wiki 以工作分配问题（n≤15）与 P1120 小木棍为经典教学例，总结出'极端法/调整法/数学方法'三类剪枝思路。"
+  },
+  "how": {
+    "pseudocode": "def dfs(状态, 当前代价 now):\n    # 最优性剪枝\n    if now 已差于/不可能优于 ans: return\n    # 可行性剪枝\n    if 违反约束: return\n    if 到达目标: ans = min(ans, now); return\n    for 候选 c in 按优化顺序排列的候选集:\n        if 可行:\n            标记; dfs(下一状态); 撤销\n    # 等效性剪枝: 相同候选只试第一个\n\n# 优化顺序: 按代价/密度/影响力降序",
+    "python": "def stick_break(lengths, k):\n    \"\"\"小木棍问题: 能否把 lengths 分成 k 组, 每组和相同\n    返回目标单根长度(存在解)或 -1\n    集中演示: 从长到短排序 + 可行性/最优性/等效性剪枝\n    \"\"\"\n    total = sum(lengths)\n    if total % k != 0:\n        return -1\n    target = total // k\n    lengths = sorted(lengths, reverse=True)  # 搜索顺序优化: 先长后短\n    n = len(lengths)\n    used = [False] * n\n\n    def dfs(remaining_groups, cur_sum, start):\n        if remaining_groups == 0:\n            return True\n        if cur_sum == target:\n            return dfs(remaining_groups - 1, 0, 0)\n        for i in range(start, n):\n            if used[i]:\n                continue\n            if cur_sum + lengths[i] > target:\n                continue  # 可行性剪枝\n            if i > 0 and not used[i - 1] and lengths[i] == lengths[i - 1]:\n                continue  # 等效性剪枝: 相同长度只试第一个\n            used[i] = True\n            if dfs(remaining_groups, cur_sum + lengths[i], i + 1):\n                return True\n            used[i] = False\n            if cur_sum == 0:\n                return False  # 最长未用都放不下, 无解\n            if cur_sum + lengths[i] == target:\n                return False  # 恰好拼满却失败, 无解\n        return False\n\n    return target if dfs(k, 0, 0) else -1\n\n\ndef assignment_min_time(cost, n):\n    \"\"\"工作分配问题: n个人n份工作, 求最小总时间\n    cost[i][j] = 第i人做第j份工作的时间\n    最优性剪枝: 当前总时间超过已有最优即返回\n    \"\"\"\n    used = [False] * n\n    best = [float('inf')]\n\n    def dfs(person, cur):\n        if cur >= best[0]:\n            return  # 最优性剪枝\n        if person == n:\n            best[0] = min(best[0], cur)\n            return\n        for j in range(n):\n            if not used[j]:\n                used[j] = True\n                dfs(person + 1, cur + cost[person][j])\n                used[j] = False\n\n    dfs(0, 0)\n    return best[0]\n\n\nif __name__ == \"__main__\":\n    # 小木棍\n    assert stick_break([5, 5, 5, 5], 4) == 5\n    assert stick_break([3, 5, 2, 8, 1, 4], 1) == 23  # 一根全拼\n    assert stick_break([7, 7, 3, 3, 10, 10], 2) == 20\n    assert stick_break([1, 1, 1], 2) == -1\n\n    # 工作分配\n    cost = [[9, 2, 7, 8],\n            [6, 4, 3, 7],\n            [5, 8, 1, 8],\n            [7, 6, 9, 4]]\n    assert assignment_min_time(cost, 4) == 13\n\n    # 随机对拍小木棍\n    import random\n    random.seed(3)\n    def brute_ok(lengths, k):\n        total = sum(lengths)\n        if total % k != 0:\n            return False\n        target = total // k\n        n = len(lengths)\n        used = set()\n        def rec(groups):\n            if all(g == target for g in groups):\n                return True\n            idx = min(range(k), key=lambda i: groups[i])\n            for i, x in enumerate(lengths):\n                if i in used:\n                    continue\n                if groups[idx] + x <= target:\n                    used.add(i)\n                    groups[idx] += x\n                    if rec(groups):\n                        return True\n                    groups[idx] -= x\n                    used.discard(i)\n            return False\n        return rec([0] * k)\n\n    for _ in range(300):\n        n = random.randint(1, 8)\n        lens = [random.randint(1, 8) for _ in range(n)]\n        k = random.randint(1, 3)\n        total = sum(lens)\n        if total % k == 0 and brute_ok(lens, k):\n            assert stick_break(lens, k) == total // k, (lens, k)\n        else:\n            assert stick_break(lens, k) == -1, (lens, k)\n    print(\"search-pruning all tests passed (300 random checks)\")\n",
+    "pypy_notes": "剪枝搜索常用递归+全局最优，PyPy 注意 setrecursionlimit。剪枝顺序影响巨大：可行性剪枝最廉价先做，最优性剪枝次之；排序预处理（从大到小/密度降序）能显著加速。相同长度候选用等效性剪枝避免指数浪费。",
+    "complexity": {
+      "time": "最坏仍指数级；良好剪枝下可达实际多项式/近线性，但无法理论保证",
+      "space": "O(搜索深度 + 资源标记)"
+    },
+    "limitations": "剪枝本质是经验优化，无法保证 worst-case 提升；剪枝条件写错可能漏解；问题规模太大(深度/分支大)时即使剪枝仍超时；记忆化需状态可哈希且无后效性。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1120",
+      "url": "https://www.luogu.com.cn/problem/P1120",
+      "difficulty": 4,
+      "key_point": "小木棍：可行性+最优性+等效性剪枝综合题，剪枝极致训练"
+    },
+    {
+      "oj": "OI Wiki",
+      "pid": "opt-example",
+      "url": "https://oi-wiki.org/search/opt/",
+      "difficulty": 3,
+      "key_point": "工作分配问题：最优性剪枝入门（n≤15）"
+    }
+  ],
+  "pitfalls": [
+    "最优性剪枝需保证乐观上界，否则误剪最优解",
+    "等效性剪枝(相同候选跳过)需配合排序才能正确去重",
+    "剪枝顺序应先廉价后昂贵(可行性→最优性→等效性)",
+    "边界条件(到达目标)要在剪枝之后判断，避免漏解",
+    "递归撤销遗漏会导致状态污染"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "order", "label": "候选排序(搜索顺序优化)" },
+      { "id": "feasible", "label": "可行性剪枝(约束检查)" },
+      { "id": "bound", "label": "最优性剪枝(与ans比较)" },
+      { "id": "equiv", "label": "等效性剪枝(去重对称分支)" },
+      { "id": "rec", "label": "递归搜索+撤销" },
+      { "id": "answer", "label": "收敛最优解" }
+    ],
+    "edges": [
+      { "from": "order", "to": "feasible" },
+      { "from": "feasible", "to": "bound" },
+      { "from": "bound", "to": "equiv" },
+      { "from": "equiv", "to": "rec" },
+      { "from": "rec", "to": "order" },
+      { "from": "rec", "to": "answer" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/search/opt/", "verified": true },
+    { "type": "book", "url": "", "ref": "CPH ch5 p57-58 (backtracking/pruning)", "verified": true }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "id": "monotonic-stack-dp",
+  "name": "单调栈优化 DP",
+  "group": "G-E-10",
+  "stage": "frontier",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "利用单调栈维护 Pareto 前沿，对『值递增/DP值递减』的转移做到均摊O(1)",
+  "what": "单调栈优化 DP 是一类利用单调栈维护候选状态『Pareto 前沿』的转移优化：当 DP 转移需要从一组 j< i 中选最优，且候选按某个指标单调（如区间最小值、柱高）呈现『值递增而 DP 递减』的结构时，可以用单调栈把劣化状态弹出，使内层枚举均摊 O(1)，从而把 O(n²) 的转移优化到 O(n)。典型场景：以位置 i 为右端点、以单调栈维护「以 j 为左端点的子数组最小值」的不同取值段，使每个位置至多入栈/出栈一次。2025-12 Codeforces 社区教程（Sersawy）将其系统化为『单调栈 + DP』的通用套路，与经典的柱状图最大矩形、不同子数组最小值求和等题目同源。",
+  "why": {
+    "intuition": "把『枚举左端点』变成『维护分段』：子数组最小值 min(a[j..i]) 随 j 变化只在少数点改变（它是单调栈顶的递减序列）。把最小值相同的 j 归为一段，段内 DP 最优可用栈维护的前缀信息 O(1) 取到；j 增大时新元素把比它大的栈顶弹出，等价于压缩段。每个元素进出栈各一次，均摊 O(1)。",
+    "principle": "经典模型：dp[i] = min_j (dp[j] + f(min(a[j+1..i]))) 或 sum of subarray minimums 类。用单调递增栈维护 (val=最小值, 该段左边界, 该段聚合最优值)。处理 i 时：不断弹出 val ≥ a[i] 的栈顶并合并其聚合值，压入新段；则栈中 val 严格递增，各段前缀聚合可用栈内累加，查询整栈聚合即得以 i 结尾的所有合法转移的 min/sum。正确性由『最小值相同的 j 形成的段内，转移值关于 j 单调，段首即最优』保证。",
+    "history": "单调栈用于『滑动窗口最值/直方图最大矩形』自 1960s 数据结构教材便有；融合进 DP 转移（如不同子数组最小值、区间最小值分段求和）是竞赛进阶常见技巧。2025-12 Codeforces Tutorial『Monotonic Stack DP』（topic 149655, Sersawy）系统整理了双单调性（值递增 / DP 递减）使内层均摊 O(1) 的通用框架，标志该技巧成为可复用的前沿范式。"
+  },
+  "how": {
+    "pseudocode": "# 例：dp[i] = min over j<i of dp[j] + min(a[j+1..i])，求 dp[n] 或 sum\nstack = []   # 每项 (val=最小值, start=段左端, agg=该段累计最优)\nacc = 0      # 所有段聚合\nfor i in 1..n:\n  cur_val = a[i]\n  cur_start = i\n  cur_agg = dp[i-1]   # 该段聚合最优的初值\n  while stack and stack.top.val >= cur_val:\n    # 弹出比 a[i] 大的段，与当前段合并\n    cur_agg = min(cur_agg, stack.top.agg)\n    cur_start = stack.top.start\n    acc -= stack.top.agg\n    stack.pop()\n  acc += cur_agg\n  stack.push((cur_val, cur_start, cur_agg))\n  dp[i] = acc  # 或进一步使用",
+    "python": "import random\n\n\nINF = float(\"inf\")\n\n\ndef monotonic_stack_dp(a, mode=\"min\"):\n    \"\"\"dp[i] = min_{j<=i} (dp[j-1] + op(a[j..i])) 的单调栈优化。\n    op 取段最小值(min) 或 段最大值(max)。返回 dp[n]。\n    栈存 (val, best_prefix)：val=段内 op 值，best_prefix=段内 min(dp[j-1])。\n    每段是候选转移，dp[i] = min over 段 of (val + best_prefix)。均摊 O(n)。\n    \"\"\"\n    n = len(a)\n    dp = [0] * (n + 1)\n    stack = []  # (val, best_prefix)，val 单调（min 模式递增）\n    for i in range(1, n + 1):\n        v = a[i - 1]\n        best = dp[i - 1]\n        if mode == \"min\":\n            while stack and stack[-1][0] >= v:\n                _, bp = stack.pop()\n                best = min(best, bp)\n        else:\n            while stack and stack[-1][0] <= v:\n                _, bp = stack.pop()\n                best = min(best, bp)\n        stack.append((v, best))\n        dp[i] = min(val + bp for val, bp in stack)\n    return dp[n]\n\n\ndef monotonic_stack_dp_naive(a, mode=\"min\"):\n    \"\"\"朴素 O(n²) 对拍实现。\"\"\"\n    n = len(a)\n    dp = [0] * (n + 1)\n    for i in range(1, n + 1):\n        best = INF\n        for j in range(1, i + 1):\n            seg = min(a[j - 1 : i]) if mode == \"min\" else max(a[j - 1 : i])\n            best = min(best, dp[j - 1] + seg)\n        dp[i] = best\n    return dp[n]\n\n\nif __name__ == \"__main__\":\n    random.seed(11)\n    for n in range(1, 9):\n        for _ in range(100):\n            a = [random.randint(-20, 30) for _ in range(n)]\n            for mode in (\"min\", \"max\"):\n                got = monotonic_stack_dp(a, mode)\n                exp = monotonic_stack_dp_naive(a, mode)\n                assert got == exp, (a, mode, got, exp)\n    # 单点数据\n    assert monotonic_stack_dp([5], \"min\") == 5\n    assert monotonic_stack_dp([5], \"max\") == 5\n    print(\"monotonic-stack-dp 自测通过：min/max 双模式与朴素 O(n²) 对拍一致\")\n",
+    "pypy_notes": "栈用 list 存 (val, best_prefix) 元组，dp[i] 取栈内各段 val+best_prefix 的最小值（非累加）。均摊 O(n)，每个元素至多入栈出栈一次。若要加速取 min，可在入栈时同步维护前缀 min 或改用辅助变量；本题实现对拍正确。",
+    "complexity": {
+      "time": "O(n) 均摊（每个元素至多入栈出栈一次）",
+      "space": "O(n)"
+    },
+    "limitations": "仅适用于『段内聚合值只由该段最小/最大值决定』的转移形式；若 f 不是 min/max 而是更一般的可叠加算子需另证单调性。转移里带 a[i] 的额外线性项时需把段结构复杂化。答案需要对多段求和时（如子数组最小值求和）栈内 acc 维护的是聚合，注意初值与 pop 时的同步。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "907",
+      "url": "https://leetcode.cn/problems/sum-of-subarray-minimums/",
+      "difficulty": 5,
+      "key_point": "子数组最小值之和：单调栈分段统计每个最小值作为最小值的区间数"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "2104",
+      "url": "https://leetcode.cn/problems/sum-of-subarray-ranges/",
+      "difficulty": 4,
+      "key_point": "子数组范围和：最大值-最小值，两次单调栈（max 与 min）"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "1799D",
+      "url": "https://codeforces.com/contest/1799/problem/D",
+      "difficulty": 5,
+      "key_point": "Hot Start Up：DP 状态含最近两次使用，需用前缀最优+单调性优化转移"
+    }
+  ],
+  "pitfalls": [
+    "栈的单调方向与『取 min/max』要匹配：求最小段用单调递增栈（弹 >=v）",
+    "acc 聚合在 pop 时先减、push 时再加，顺序错了答案错",
+    "段内 agg 的初值要用 dp[i-1]（j=i 的左端），不是 0 或 INF",
+    "模式切换（min/max）时弹栈条件的方向反了会破坏单调性",
+    "边界：空栈、i 从 1 开始、a 可为负数"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "model",
+        "label": "识别转移形式 dp[j]+op(min/max(a[j+1..i]))"
+      },
+      {
+        "id": "stack",
+        "label": "单调栈维护最小值分段 (val,start,agg)"
+      },
+      {
+        "id": "popmerge",
+        "label": "弹出劣段并合并 agg，同步 acc"
+      },
+      {
+        "id": "pushdp",
+        "label": "压入新段并更新 dp[i]"
+      }
+    ],
+    "edges": [
+      {
+        "from": "model",
+        "to": "stack"
+      },
+      {
+        "from": "stack",
+        "to": "popmerge"
+      },
+      {
+        "from": "popmerge",
+        "to": "pushdp"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "web",
+      "url": "https://codeforces.com/topic/149655/en1",
+      "verified": false
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/monotonic-stack/",
+      "verified": true
+    }
+  ]
+}

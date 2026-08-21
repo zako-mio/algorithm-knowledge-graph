@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>可持久化 Trie · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-5.html">可持久化数据结构</a> / <span>可持久化 Trie</span></div>
+  <h1>可持久化 Trie</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-5</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="persistent-seg.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">persistent-seg</span></a>
+    <a class="nav-index" href="../03-groups/G-D-5.html"><span class="dir">组内第 2 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="persistent-balanced.html"><span class="dir">下一个 / 组内</span><span class="v">persistent-balanced</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">保存历史版本的Trie，支持区间异或最值等查询</div><p>可持久化 Trie（Persistent Trie）是可持久化思想在 Trie 上的应用：每次插入一个数/串时，沿插入路径复制新节点、复用未改动的子树，保存每个版本的根，从而支持『任意历史版本』的查询。竞赛中最常见的是可持久化 01-Trie：维护每个前缀插入数的二进制位统计，支持『在区间 [l,r] 中选一个数 x 与给定值异或的最大值』——用两版根差分出区间内的计数，贪心走与 x 相反位（有则走）。经典例题：Luogu P4735 最大异或和（维护可持久化前缀异或和）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>普通 01-Trie 能求『整个集合里与 x 异或最大』的数；加上区间限制 [l,r] 后，用可持久化：每个前缀 i 建一棵插入了前 i 个数的 01-Trie 版本。查询时第 r 版与第 l-1 版的计数差分，就像主席树的『值域计数相减』，得到 [l,r] 内的位统计，再贪心逐位取相反位。因为位数固定（如 30 位），每次插入只动 O(B) 个节点。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 01-Trie 节点存 ch[2]（0/1 儿子）与 cnt（子树中数的个数）；② 可持久化插入：新根先拷贝旧根，沿二进制位逐位：该位旧儿子做新儿子并 cnt+1，未走的位直接复用旧指针；③ 每插入一个数保存新根 root[i]；④ 查询 max xor in [l,r]：同时走 u=root[l-1] 与 v=root[r]，对位 b，优先走与 x 相反的位（看 cnt[ch[v][want]]-cnt[ch[u][want]]&gt;0），否则走同向位，累加贡献 2^b；⑤ 复杂度：插入/查询 O(B)（B 为位数，通常 30），空间 O(nB)。前缀异或和技巧：求 a_p..a_n 异或和 = s[p-1]^s[n]，配合可持久化 Trie 可转化为区间异或最值（P4735 正是如此）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>可持久化 Trie 与可持久化线段树同源于函数式数据结构与 path copying 思想（1980s 可持久化数据结构研究）。在 OI 中因 P4735『最大异或和』等题普及。与主席树（可持久化权值线段树）是『区间查询 + 版本差分』思想的一体两面，常被放在同一章节学习。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">ch[cur][<span class="t-n">2</span>], cnt[cur]; roots=[<span class="t-n">0</span>]
+<span class="t-f">insert</span>(prev_root, x):
+  new_root = 拷贝 prev_root 的根并 cnt+<span class="t-n">1</span>
+  node = prev_root; cur = new_root
+  <span class="t-k">for</span> b <span class="t-k">in</span> <span class="t-n">30.</span><span class="t-n">.0</span>:
+    bit = (x&gt;&gt;b)&amp;<span class="t-n">1</span>
+    old_child = ch[node][bit]
+    新建节点拷贝 old_child 的 ch 与 cnt，cnt+<span class="t-n">1</span>
+    ch[cur][bit] = 新节点
+    node = old_child; cur = 新节点
+  roots.<span class="t-f">append</span>(new_root)
+<span class="t-f">query</span>(l, r, x):   <span class="t-c"># [l,r] 内与 x 异或最大</span>
+  u = roots[l-<span class="t-n">1</span>]; v = roots[r]; ans = <span class="t-n">0</span>
+  <span class="t-k">for</span> b <span class="t-k">in</span> <span class="t-n">30.</span><span class="t-n">.0</span>:
+    bit = (x&gt;&gt;b)&amp;<span class="t-n">1</span>; want = bit^<span class="t-n">1</span>
+    <span class="t-k">if</span> cnt[ch[v][want]] - cnt[ch[u][want]] &gt; <span class="t-n">0</span>:
+      ans |= <span class="t-n">1</span>&lt;&lt;b; u = ch[u][want]; v = ch[v][want]
+    <span class="t-k">else</span>:
+      u = ch[u][bit]; v = ch[v][bit]
+  <span class="t-k">return</span> ans</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">class</span> PersistentTrie:
+    <span class="t-s">&quot;&quot;&quot;可持久化 01-Trie：支持前缀版本与区间异或最大值查询。
+    用法: pt = PersistentTrie(B); 对每个 x 调 pt.add(x);
+    pt.max_xor_in(l, r, x) 返回 max_{i in [l,r]}(arr[i] ^ x)。&quot;&quot;&quot;</span>
+
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, B=<span class="t-n">30</span>):
+        self.B = B
+        self.ch = [[<span class="t-n">0</span>, <span class="t-n">0</span>]]
+        self.cnt = [<span class="t-n">0</span>]
+        self.roots = [<span class="t-n">0</span>]
+
+    <span class="t-k">def</span> <span class="t-f">add</span>(self, x):
+        old = self.roots[-<span class="t-n">1</span>]
+        new_root = <span class="t-b">len</span>(self.ch)
+        self.ch.<span class="t-f">append</span>([self.ch[old][<span class="t-n">0</span>], self.ch[old][<span class="t-n">1</span>]])
+        self.cnt.<span class="t-f">append</span>(self.cnt[old] + <span class="t-n">1</span>)
+        cur, node = new_root, old
+        <span class="t-k">for</span> b <span class="t-k">in</span> <span class="t-b">range</span>(self.B, -<span class="t-n">1</span>, -<span class="t-n">1</span>):
+            bit = (x &gt;&gt; b) &amp; <span class="t-n">1</span>
+            old_child = self.ch[node][bit]
+            nxt = <span class="t-b">len</span>(self.ch)
+            self.ch.<span class="t-f">append</span>([self.ch[old_child][<span class="t-n">0</span>], self.ch[old_child][<span class="t-n">1</span>]])
+            self.cnt.<span class="t-f">append</span>(self.cnt[old_child] + <span class="t-n">1</span>)
+            self.ch[cur][bit] = nxt
+            cur, node = nxt, old_child
+        self.roots.<span class="t-f">append</span>(new_root)
+        <span class="t-k">return</span> new_root
+
+    <span class="t-k">def</span> <span class="t-f">max_xor_in</span>(self, l, r, x):
+        <span class="t-s">&quot;&quot;&quot;区间 [l,r]（1 索引含端点，按插入顺序）内与 x 异或的最大值&quot;&quot;&quot;</span>
+        u, v = self.roots[l - <span class="t-n">1</span>], self.roots[r]
+        ans = <span class="t-n">0</span>
+        <span class="t-k">for</span> b <span class="t-k">in</span> <span class="t-b">range</span>(self.B, -<span class="t-n">1</span>, -<span class="t-n">1</span>):
+            bit = (x &gt;&gt; b) &amp; <span class="t-n">1</span>
+            want = bit ^ <span class="t-n">1</span>
+            c = self.cnt[self.ch[v][want]] - self.cnt[self.ch[u][want]]
+            <span class="t-k">if</span> c &gt; <span class="t-n">0</span>:
+                ans |= <span class="t-n">1</span> &lt;&lt; b
+                u = self.ch[u][want]
+                v = self.ch[v][want]
+            <span class="t-k">else</span>:
+                u = self.ch[u][bit]
+                v = self.ch[v][bit]
+        <span class="t-k">return</span> ans
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-k">import</span> random
+
+    <span class="t-k">def</span> <span class="t-f">brute</span>(arr, l, r, x):
+        <span class="t-k">return</span> <span class="t-b">max</span>(x ^ v <span class="t-k">for</span> v <span class="t-k">in</span> arr[l - <span class="t-n">1</span>:r])
+
+    arr = [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">5</span>]
+    pt = <span class="t-f">PersistentTrie</span>(<span class="t-n">4</span>)
+    <span class="t-k">for</span> x <span class="t-k">in</span> arr:
+        pt.<span class="t-f">add</span>(x)
+    <span class="t-k">assert</span> pt.<span class="t-f">max_xor_in</span>(<span class="t-n">1</span>, <span class="t-n">5</span>, <span class="t-n">0</span>) == <span class="t-n">5</span> ^ <span class="t-n">0</span>  <span class="t-c"># 5</span>
+    <span class="t-k">assert</span> pt.<span class="t-f">max_xor_in</span>(<span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">3</span>) == <span class="t-f">brute</span>(arr, <span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">3</span>)
+
+    random.<span class="t-f">seed</span>(<span class="t-n">22</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>):
+        B = <span class="t-n">4</span>
+        pt = <span class="t-f">PersistentTrie</span>(B)
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">12</span>)
+        arr = [random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">31</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">for</span> x <span class="t-k">in</span> arr:
+            pt.<span class="t-f">add</span>(x)
+        <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">20</span>):
+            l = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, n)
+            r = random.<span class="t-f">randint</span>(l, n)
+            x = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">31</span>)
+            <span class="t-k">assert</span> pt.<span class="t-f">max_xor_in</span>(l, r, x) == <span class="t-f">brute</span>(arr, l, r, x), (l, r, x, arr)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;persistent-trie: All tests passed.&#x27;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">ch 用两列 list 存储（ch0/ch1 分开）或 [[0,0]] 列表均可，PyPy 下后者可接受。B 取 30（值域 2^31）或题目要求位数。构建/查询都是纯循环无递归，性能好；n=1e5 时节点约 n*(B+2) 个，内存注意预分配或动态 list。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>插入/查询均 O(B)（B=位数，通常 30）；构建 n 个数 O(nB)</td></tr><tr><th>空间复杂度</th><td>O(nB) 节点（每个插入新建 B+1 个节点）+ O(n) 根数组</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">主要用于『区间异或最值 / 区间与某数异或极值』类问题，若查询是普通字符串/字典序类则适用性不同。位数 B 固定时有效；若值域巨大（如 64 位）空间翻倍。只能静态前缀版本（在线前缀）；若要支持区间任意可持久化需平衡树/其他结构。与主席树一样大常数，n 巨大时注意内存。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>插入时新节点必须完整拷贝旧儿子路径（ch 与 cnt），漏拷贝 cnt 会让计数错误</li><li>查询差分 u=roots[l-1]、v=roots[r] 写错索引导致区间错</li><li>贪心选择相反位时若 cnt 差为 0 必须退回同向位，不能跳过该位</li><li>前缀异或和的区间转换（P4735 中 [l,r] 下标要对应到 s[l-1..r-1]）容易差一</li><li>B 位选择不足（如值域 2^31 却用 B=30 少一位）导致高位丢失</li><li>ch 数组初始化 [0,0] 指向节点 0（空节点），cnt[0]=0 必须保证 0 号节点计数为 0</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4735</strong></td><td>5</td><td>最大异或和：可持久化 01-Trie 维护前缀异或和，区间异或最值，OI Wiki 例题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4735" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4735</a></td></tr><tr><td>Luogu</td><td><strong>P5283</strong></td><td>6</td><td>【十二省联考2019】异或粽子：可持久化 Trie + 堆取前 k 大异或和，综合难题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5283" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5283</a></td></tr><tr><td>SPOJ</td><td><strong>XORX</strong></td><td>4</td><td>区间异或极值经典题，可持久化 Trie 模板练习</td><td class="u"><a href="https://www.spoj.com/problems/XORX/" target="_blank" rel="noopener">https://www.spoj.com/problems/XORX/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-persistent-trie" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "trie", "label": "01-Trie：每节点 ch[2] + 计数 cnt"}}, {"data": {"id": "pcopy", "label": "path copying 插入：复制路径节点、复用旧子树"}}, {"data": {"id": "versions", "label": "每前缀存根，形成版本数组"}}, {"data": {"id": "diff", "label": "区间计数差分 [l,r] = v版 - (l-1)版"}}, {"data": {"id": "greedy", "label": "逐位贪心选相反位求最大异或"}}, {"data": {"id": "pref", "label": "前缀异或和技巧：区间异或 → 前缀异或"}}, {"data": {"id": "etrie->pcopy", "source": "trie", "target": "pcopy"}}, {"data": {"id": "epcopy->versions", "source": "pcopy", "target": "versions"}}, {"data": {"id": "eversions->diff", "source": "versions", "target": "diff"}}, {"data": {"id": "ediff->greedy", "source": "diff", "target": "greedy"}}, {"data": {"id": "epref->greedy", "source": "pref", "target": "greedy"}}, {"data": {"id": "epref->diff", "source": "pref", "target": "diff"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-persistent-trie'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="persistent-concept.html" title="可持久化Trie是可持久化概念在Trie上的应用">可持久化数据结构概念<span class="etype">前置依赖</span></a><a class="chip e-variant" href="persistent-seg.html" title="可持久化思想从线段树推广到 Trie">可持久化线段树(主席树)<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/persistent-trie/" target="_blank" rel="noopener">https://oi-wiki.org/ds/persistent-trie/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-trie.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-trie.md</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

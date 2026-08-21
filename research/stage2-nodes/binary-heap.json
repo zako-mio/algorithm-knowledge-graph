@@ -1,0 +1,76 @@
+{
+  "id": "binary-heap",
+  "name": "二叉堆",
+  "group": "G-A-3",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "完全二叉树维护优先队列，数组实现O(1)查最值/O(log n)插入删除/O(n)建堆，对顶堆动态求中位数",
+  "what": "二叉堆(Binary Heap)是一棵完全二叉树，每个节点的权值不小于(大根堆)或不大于(小根堆)其儿子。堆性质保证根即为最值，O(1)查询。它支持三种操作：插入(末尾+向上调整sift up)、删除最值(根与末尾交换+向下调整sift down)、增减某点权值(相应向上/向下调整)，各O(log n)。用数组h存储时h[i]的两个儿子是h[2i]与h[2i+1]，根为h[1]。建堆有O(n)的向下调整法(从叶子逐个向下调整, 理解成每次合并两个已调整好的堆)与O(n log n)的逐元素向上调整法。堆是堆排序、Dijkstra优先队列、哈夫曼树、对顶堆(动态求中位数/第k大)等的基础。Python内置heapq实现小根堆(取负实现大根堆)。",
+  "why": {
+    "intuition": "堆像'有序的排队'：不保证全队有序，只保证'队头永远是最值'。要得到这个保证，插队时只需把新元素一路'往上冒泡'，踢掉队头时把末尾拉来顶班再一路'往下沉淀'。完全二叉树保证树高log n，所以冒泡/沉淀都只走log n步。",
+    "principle": "两个核心调整：(1)向上调整(sift up): 插入到最下层最右叶子之后(仍是完全二叉树), 若比父节点大则交换, 重复至不满足或到根；(2)向下调整(sift down): 删根时把最后一个节点搬到根, 与其较大的儿子交换, 重复到底。完全二叉树结构+堆性质保证调整后全树仍满足堆性质。建堆的O(n)下界：从h[n//2]到h[1]逐个向下调整, 因每个节点调整代价正比于其高度, 总代价Σ高=O(n)(从叶往上合并两个已调好的堆)。数组索引: 根1, i的儿子2i/2i+1, 父⌊i/2⌋。堆性质很弱、二叉堆不唯一, 这正是一棵堆有多种形态的原因。",
+    "history": "堆结构由J.W.J. Williams于1964年提出，作为堆排序(heapsort)的数据结构；同年Floyd给出O(n)建堆算法。二叉堆是最基础的优先队列实现，之后发展出左偏树、配对堆、二项堆等可合并变体。OI Wiki的binary-heap页、CPH ch4(p47)均有介绍。"
+  },
+  "how": {
+    "pseudocode": "# 大根堆, h[1..n], 根1\nsift_up(x):\n  while x>1 and h[x]>h[x//2]:\n    swap(h[x], h[x//2]); x//=2\nsift_down(x):\n  while 2*x<=n:\n    t=2*x\n    if t+1<=n and h[t+1]>h[t]: t+=1\n    if h[x]>=h[t]: break\n    swap(h[x], h[t]); x=t\ninsert(v): h[++n]=v; sift_up(n)\npop(): res=h[1]; h[1]=h[n--]; sift_down(1)\nbuild_linear(): for i in n//2..1: sift_down(i)   # O(n)",
+    "python": "class MaxHeap:\n    \"\"\"大根堆(数组实现).\n    h[0]占位, 有效元素1..n; 支持push/pop/top/size.\n    \"\"\"\n    def __init__(self, data=None):\n        self.h = [0]\n        if data:\n            self.h.extend(data)\n            self._build()\n        else:\n            self.h = [0]\n\n    def _sift_up(self, x):\n        h = self.h\n        while x > 1 and h[x] > h[x // 2]:\n            h[x], h[x // 2] = h[x // 2], h[x]\n            x //= 2\n\n    def _sift_down(self, x):\n        h = self.h\n        n = len(h) - 1\n        while 2 * x <= n:\n            t = 2 * x\n            if t + 1 <= n and h[t + 1] > h[t]:\n                t += 1\n            if h[x] >= h[t]:\n                break\n            h[x], h[t] = h[t], h[x]\n            x = t\n\n    def _build(self):\n        for i in range((len(self.h) - 1) // 2, 0, -1):\n            self._sift_down(i)\n\n    def push(self, v):\n        self.h.append(v)\n        self._sift_up(len(self.h) - 1)\n\n    def pop(self):\n        if len(self.h) == 1:\n            raise IndexError(\"pop from empty heap\")\n        top = self.h[1]\n        self.h[1] = self.h[-1]\n        self.h.pop()\n        if len(self.h) > 1:\n            self._sift_down(1)\n        return top\n\n    def top(self):\n        return self.h[1]\n\n    def __len__(self):\n        return len(self.h) - 1\n\n\nclass MinHeap:\n    \"\"\"小根堆: 用负值存入MaxHeap.\"\"\"\n    def __init__(self, data=None):\n        self._h = MaxHeap([-v for v in data] if data else None)\n\n    def push(self, v):\n        self._h.push(-v)\n\n    def pop(self):\n        return -self._h.pop()\n\n    def top(self):\n        return -self._h.top()\n\n    def __len__(self):\n        return len(self._h)\n\n\ndef heap_sort(arr):\n    \"\"\"用二叉堆排序.\"\"\"\n    h = MaxHeap(arr)\n    res = []\n    while len(h):\n        res.append(h.pop())\n    return res\n\n\nclass MedianStream:\n    \"\"\"对顶堆: 动态维护流的中位数.\n    小根堆存较大半区, 大根堆存较小半区, 中位数=小根堆顶.\n    \"\"\"\n    def __init__(self):\n        self.small = MaxHeap()   # 较小半区(大根堆)\n        self.large = MinHeap()   # 较大半区(小根堆)\n\n    def add(self, v):\n        if len(self.small) == 0 or v <= self.small.top():\n            self.small.push(v)\n        else:\n            self.large.push(v)\n        self._rebalance()\n\n    def _rebalance(self):\n        while len(self.small) > len(self.large) + 1:\n            self.large.push(self.small.pop())\n        while len(self.large) > len(self.small):\n            self.small.push(self.large.pop())\n\n    def median(self):\n        if len(self.small) == 0:\n            return None\n        if (len(self.small) + len(self.large)) % 2 == 1:\n            return self.small.top()\n        return self.small.top()  # 偶数时输出较小中位数\n\n\nif __name__ == \"__main__\":\n    import random\n\n    # 堆性质与push/pop\n    h = MaxHeap()\n    for x in [3, 1, 4, 1, 5, 9, 2, 6]:\n        h.push(x)\n    assert h.top() == 9\n    popped = [h.pop() for _ in range(len(h))]\n    assert popped == sorted(popped, reverse=True), popped\n\n    # 线性建堆\n    h2 = MaxHeap([5, 3, 8, 1, 9, 2])\n    assert h2.top() == 9\n    assert [h2.pop() for _ in range(len(h2))] == sorted([5, 3, 8, 1, 9, 2],\n                                                        reverse=True)\n\n    # 堆排序\n    arr = [random.randint(-100, 100) for _ in range(50)]\n    assert heap_sort(arr) == sorted(arr, reverse=True)\n\n    # 小根堆\n    mh = MinHeap()\n    for x in [4, 2, 8, 1, 7]:\n        mh.push(x)\n    assert mh.top() == 1\n\n    # 对顶堆中位数: 插入 [1,2,3,4,5]\n    ms = MedianStream()\n    for v in [1, 2, 3, 4, 5]:\n        ms.add(v)\n    assert ms.median() == 3\n    ms.add(6)\n    assert ms.median() == 3  # 偶数长度输出较小中位数\n\n    print(\"binary-heap: ALL TESTS PASSED\")\n",
+    "pypy_notes": "竞赛Python直接内置import heapq(小根堆, 大根堆用负值)。自定义堆注意数组用list, 索引从1开始便于2i/2i+1。堆排序在Python中远慢于内置sorted, 仅用于理解。对顶堆用heapq即可实现动态中位数。",
+    "complexity": {
+      "time": "查最值O(1); 插入/删除/改权O(log n); 建堆O(n)(向下调整法)或O(n log n)(逐插入)",
+      "space": "O(n) — 数组存储"
+    },
+    "limitations": "堆不支持任意元素的查找/删除(需额外索引表); 只保证最值在根, 不是有序结构; 合并两个堆需O(n)(不可合并变体); 大根/小根堆语义易混。Python自定义堆性能不及heapq(C实现)。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3378",
+      "url": "https://www.luogu.com.cn/problem/P3378",
+      "difficulty": 1,
+      "key_point": "【模板】堆：插入/删除最小/查询最小三操作裸题, 可直接用heapq"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1801",
+      "url": "https://www.luogu.com.cn/problem/P1801",
+      "difficulty": 3,
+      "key_point": "黑匣子：对顶堆动态维护第k小, k随查询递增"
+    },
+    {
+      "oj": "SPOJ",
+      "pid": "RMID2",
+      "url": "https://www.spoj.com/problems/RMID2/",
+      "difficulty": 3,
+      "key_point": "Running Median Again：对顶堆维护中位数并支持删除"
+    }
+  ],
+  "pitfalls": [
+    "索引从0还是1开始要统一: 根为1则儿子2i/2i+1, 根为0则儿子2i+1/2i+2, 混用必出错",
+    "向下调整需比较两个儿子取较大者, 且先判右儿子存在(t+1<=n)",
+    "删除最值时先与末尾交换再pop, 不要直接删根(会破坏完全二叉树结构)",
+    "建堆用向下调整法才O(n), 逐元素插入是O(n log n)",
+    "heapq是最小堆, 取最大堆要push(-x)并在pop时取负"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "structure", "label": "数组存完全二叉树(根1,儿子2i/2i+1)" },
+      { "id": "siftup", "label": "向上调整: 插入/权增加" },
+      { "id": "siftdown", "label": "向下调整: 删最值/权减小" },
+      { "id": "build", "label": "O(n)建堆: 自底向下调整" },
+      { "id": "apply", "label": "应用: 堆排序/对顶堆/优先队列" }
+    ],
+    "edges": [
+      { "from": "structure", "to": "siftup" },
+      { "from": "structure", "to": "siftdown" },
+      { "from": "structure", "to": "build" },
+      { "from": "siftup", "to": "apply" },
+      { "from": "siftdown", "to": "apply" },
+      { "from": "build", "to": "apply" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/ds/binary-heap/", "verified": true },
+    { "type": "book", "ref": "CPH ch4 p47", "verified": true }
+  ]
+}

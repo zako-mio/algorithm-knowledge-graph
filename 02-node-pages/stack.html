@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>栈 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-2.html">栈队列与单调结构族</a> / <span>栈</span></div>
+  <h1>栈</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-A-2</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-A-2.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-A-2.html"><span class="dir">组内第 1 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="queue.html"><span class="dir">下一个 / 组内</span><span class="v">queue</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">LIFO后进先出结构，支持括号匹配/表达式求值等</div><p>栈(Stack)是后进先出(LIFO, Last In First Out)的线性数据结构：只能在栈顶插入(push)和删除(pop)。Python 中用 list 的 append/pop 实现，或用 collections.deque。支持 O(1) 的栈顶访问。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>栈模拟了&#x27;叠盘子&#x27;——最后放上去的最先拿走。这种&#x27;最近相关&#x27;的属性天然适合需要回溯到上一个状态的问题：括号匹配(最近的左括号配最近的右括号)、函数调用栈(最近调用的最先返回)、表达式求值(最近的操作数先参与运算)。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>栈维护一个线性序列，只允许在称为&#x27;栈顶&#x27;的一端操作。push(x): 将 x 放在栈顶；pop(): 移除并返回栈顶；top()/peek(): 查看栈顶不删除。用数组(list)实现时，push=append O(1)，pop()=O(1)，均摊。Python list 的 pop() 从尾部删除是 O(1)。关键应用：①括号匹配(遇左括号入栈，遇右括号弹栈匹配) ②表达式求值(双栈: 操作数栈+运算符栈，Shunting-yard 算法) ③DFS 的非递归实现 ④单调栈(进阶)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>栈是计算机科学中最基础的数据结构之一，与队列(FIFO)互为对偶。1960年代 ALGOL 的递归调用机制即依赖运行时栈。C++ STL 提供 std::stack(适配器，默认基于 deque)。Python 无专门的 Stack 类，用 list 或 deque 代替。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">push</span>(x): st.<span class="t-f">append</span>(x)
+<span class="t-f">pop</span>(): <span class="t-k">return</span> st.<span class="t-f">pop</span>()
+<span class="t-f">top</span>(): <span class="t-k">return</span> st[-<span class="t-n">1</span>]
+<span class="t-f">empty</span>(): <span class="t-k">return</span> <span class="t-b">len</span>(st) == <span class="t-n">0</span>
+<span class="t-f">size</span>(): <span class="t-k">return</span> <span class="t-b">len</span>(st)
+
+<span class="t-c"># 括号匹配</span>
+<span class="t-k">for</span> ch <span class="t-k">in</span> s:
+  <span class="t-k">if</span> ch <span class="t-k">in</span> <span class="t-s">&#x27;([{&#x27;</span>: st.<span class="t-f">push</span>(ch)
+  <span class="t-k">elif</span> ch <span class="t-k">in</span> <span class="t-s">&#x27;)]}&#x27;</span>:
+    <span class="t-k">if</span> st.<span class="t-f">empty</span>() <span class="t-k">or</span> <span class="t-k">not</span> <span class="t-k">match</span>(st.<span class="t-f">pop</span>(), ch): <span class="t-k">return</span> <span class="t-k">False</span>
+<span class="t-k">return</span> st.<span class="t-f">empty</span>()</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+<span class="t-k">class</span> Stack:
+    <span class="t-s">&quot;&quot;&quot;基于 deque 的栈实现(比 list 在头部插入更优, 这里仅尾部操作两者等效)。&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self):
+        self._data = <span class="t-f">deque</span>()
+
+    <span class="t-k">def</span> <span class="t-f">push</span>(self, x):
+        self._data.<span class="t-f">append</span>(x)
+
+    <span class="t-k">def</span> <span class="t-f">pop</span>(self):
+        <span class="t-k">return</span> self._data.<span class="t-f">pop</span>()
+
+    <span class="t-k">def</span> <span class="t-f">top</span>(self):
+        <span class="t-k">return</span> self._data[-<span class="t-n">1</span>]
+
+    <span class="t-k">def</span> <span class="t-f">empty</span>(self):
+        <span class="t-k">return</span> <span class="t-b">len</span>(self._data) == <span class="t-n">0</span>
+
+    <span class="t-k">def</span> <span class="t-f">size</span>(self):
+        <span class="t-k">return</span> <span class="t-b">len</span>(self._data)
+
+
+<span class="t-k">def</span> <span class="t-f">bracket_match</span>(s):
+    <span class="t-s">&quot;&quot;&quot;括号匹配: 检查字符串中的括号是否正确配对。
+    支持: () [] {}
+    &quot;&quot;&quot;</span>
+    pairs = {<span class="t-s">&#x27;)&#x27;</span>: <span class="t-s">&#x27;(&#x27;</span>, <span class="t-s">&#x27;]&#x27;</span>: <span class="t-s">&#x27;[&#x27;</span>, <span class="t-s">&#x27;}&#x27;</span>: <span class="t-s">&#x27;{&#x27;</span>}
+    st = <span class="t-f">Stack</span>()
+    <span class="t-k">for</span> ch <span class="t-k">in</span> s:
+        <span class="t-k">if</span> ch <span class="t-k">in</span> <span class="t-s">&#x27;([{&#x27;</span>:
+            st.<span class="t-f">push</span>(ch)
+        <span class="t-k">elif</span> ch <span class="t-k">in</span> <span class="t-s">&#x27;)]}&#x27;</span>:
+            <span class="t-k">if</span> st.<span class="t-f">empty</span>() <span class="t-k">or</span> st.<span class="t-f">pop</span>() != pairs[ch]:
+                <span class="t-k">return</span> <span class="t-k">False</span>
+    <span class="t-k">return</span> st.<span class="t-f">empty</span>()
+
+
+<span class="t-k">def</span> <span class="t-f">evaluate_rpn</span>(tokens):
+    <span class="t-s">&quot;&quot;&quot;逆波兰表达式求值(后缀表达式)。
+    示例: [&#x27;2&#x27;,&#x27;1&#x27;,&#x27;+&#x27;,&#x27;3&#x27;,&#x27;*&#x27;] =&gt; (2+1)*3 = 9
+    &quot;&quot;&quot;</span>
+    st = <span class="t-f">Stack</span>()
+    <span class="t-k">for</span> tok <span class="t-k">in</span> tokens:
+        <span class="t-k">if</span> tok <span class="t-k">in</span> <span class="t-s">&#x27;+-*/&#x27;</span>:
+            b = st.<span class="t-f">pop</span>()
+            a = st.<span class="t-f">pop</span>()
+            <span class="t-k">if</span> tok == <span class="t-s">&#x27;+&#x27;</span>:
+                st.<span class="t-f">push</span>(a + b)
+            <span class="t-k">elif</span> tok == <span class="t-s">&#x27;-&#x27;</span>:
+                st.<span class="t-f">push</span>(a - b)
+            <span class="t-k">elif</span> tok == <span class="t-s">&#x27;*&#x27;</span>:
+                st.<span class="t-f">push</span>(a * b)
+            <span class="t-k">elif</span> tok == <span class="t-s">&#x27;/&#x27;</span>:
+                st.<span class="t-f">push</span>(<span class="t-b">int</span>(a / b))  <span class="t-c"># 向零取整(竞赛惯例)</span>
+        <span class="t-k">else</span>:
+            st.<span class="t-f">push</span>(<span class="t-b">int</span>(tok))
+    <span class="t-k">return</span> st.<span class="t-f">pop</span>()
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 测试栈基本操作</span>
+    st = <span class="t-f">Stack</span>()
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">5</span>):
+        st.<span class="t-f">push</span>(i)
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Stack size: {st.size()}&#x27;</span>)  <span class="t-c"># 5</span>
+    <span class="t-b">print</span>(<span class="t-s">f&#x27;Top: {st.top()}&#x27;</span>)  <span class="t-c"># 4</span>
+    <span class="t-k">while</span> <span class="t-k">not</span> st.<span class="t-f">empty</span>():
+        <span class="t-b">print</span>(st.<span class="t-f">pop</span>(), end=<span class="t-s">&#x27; &#x27;</span>)  <span class="t-c"># 4 3 2 1 0</span>
+    <span class="t-b">print</span>()
+
+    <span class="t-c"># 测试括号匹配</span>
+    <span class="t-k">assert</span> <span class="t-f">bracket_match</span>(<span class="t-s">&#x27;(a[b]{c})&#x27;</span>) == <span class="t-k">True</span>
+    <span class="t-k">assert</span> <span class="t-f">bracket_match</span>(<span class="t-s">&#x27;([)]&#x27;</span>) == <span class="t-k">False</span>
+    <span class="t-k">assert</span> <span class="t-f">bracket_match</span>(<span class="t-s">&#x27;(((&#x27;</span>) == <span class="t-k">False</span>
+    <span class="t-k">assert</span> <span class="t-f">bracket_match</span>(<span class="t-s">&#x27;&#x27;</span>) == <span class="t-k">True</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;Bracket match: all tests passed&#x27;</span>)
+
+    <span class="t-c"># 测试逆波兰表达式</span>
+    <span class="t-k">assert</span> <span class="t-f">evaluate_rpn</span>([<span class="t-s">&#x27;2&#x27;</span>, <span class="t-s">&#x27;1&#x27;</span>, <span class="t-s">&#x27;+&#x27;</span>, <span class="t-s">&#x27;3&#x27;</span>, <span class="t-s">&#x27;*&#x27;</span>]) == <span class="t-n">9</span>
+    <span class="t-k">assert</span> <span class="t-f">evaluate_rpn</span>([<span class="t-s">&#x27;4&#x27;</span>, <span class="t-s">&#x27;13&#x27;</span>, <span class="t-s">&#x27;5&#x27;</span>, <span class="t-s">&#x27;/&#x27;</span>, <span class="t-s">&#x27;+&#x27;</span>]) == <span class="t-n">6</span>  <span class="t-c"># 4 + (13/5=2) = 6</span>
+    <span class="t-k">assert</span> <span class="t-f">evaluate_rpn</span>([<span class="t-s">&#x27;18&#x27;</span>]) == <span class="t-n">18</span>  <span class="t-c"># 单个操作数</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;RPN evaluate: all tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 对 list.append/pop 的 JIT 优化极好，性能接近 C；deque 在 PyPy 上也快；深递归用栈替代时注意 list 容量。N&gt;1e6 的栈操作无性能瓶颈。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>push/pop/top/empty/size 均 O(1)；括号匹配 O(N)；RPN 求值 O(N)</td></tr><tr><th>空间复杂度</th><td>O(N) 最坏情况(全部入栈未弹出)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Python list 作为栈用时 pop() 从尾部 O(1)，但 pop(0) 从头部 O(N) → 需要队列语义时改用 deque；栈空间受递归深度限制(Python 默认 1000，需 sys.setrecursionlimit 提升)。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>Python list.pop() 在空栈上抛 IndexError，需先判 empty()</li><li>括号匹配忘记处理&#x27;栈非空但已遍历完&#x27;(如 &#x27;(((&#x27; 不匹配)</li><li>RPN 求值除法要注意取整方向(竞赛通常向零取整: int(a/b) 而非 a//b)</li><li>用 list 做栈时不要误用 pop(0)(O(N))，应 pop()(从尾部 O(1))</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>LeetCode</td><td><strong>20</strong></td><td>1</td><td>有效的括号: 栈经典模板题，括号匹配</td><td class="u"><a href="https://leetcode.cn/problems/valid-parentheses/" target="_blank" rel="noopener">https://leetcode.cn/problems/valid-parentheses/</a></td></tr><tr><td>LeetCode</td><td><strong>150</strong></td><td>2</td><td>逆波兰表达式求值: 栈模拟运算</td><td class="u"><a href="https://leetcode.cn/problems/evaluate-reverse-polish-notation/" target="_blank" rel="noopener">https://leetcode.cn/problems/evaluate-reverse-polish-notation/</a></td></tr><tr><td>LeetCode</td><td><strong>155</strong></td><td>2</td><td>最小栈: 辅助栈同步维护最小值</td><td class="u"><a href="https://leetcode.cn/problems/min-stack/" target="_blank" rel="noopener">https://leetcode.cn/problems/min-stack/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-stack" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "push", "label": "入栈(append到尾部)"}}, {"data": {"id": "pop", "label": "出栈(从尾部弹出)"}}, {"data": {"id": "top", "label": "查看栈顶([-1])"}}, {"data": {"id": "apply", "label": "应用(括号匹配/表达式求值/DFS非递归)"}}, {"data": {"id": "epush->pop", "source": "push", "target": "pop"}}, {"data": {"id": "epop->top", "source": "pop", "target": "top"}}, {"data": {"id": "etop->apply", "source": "top", "target": "apply"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-stack'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-variant" href="monotonic-stack.html" title="单调栈是栈结构的单调性约束变体">单调栈<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/stack/" target="_blank" rel="noopener">https://oi-wiki.org/ds/stack/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/data_structures/stack.html" target="_blank" rel="noopener">https://cp-algorithms.com/data_structures/stack.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch4 p45</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交互题策略 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-8.html">竞赛策略族</a> / <span>交互题策略</span></div>
+  <h1>交互题策略</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="io-optimization.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">io-optimization</span></a>
+    <a class="nav-index" href="../03-groups/G-E-8.html"><span class="dir">组内第 4 / 6</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="problem-types.html"><span class="dir">下一个 / 组内</span><span class="v">problem-types</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">交互次数优化、二分交互、随机撒点、flush 时机、STDIO vs Grader 模式</div><p>交互题中程序与评测程序（interactor）一问一答完成任务，得分优劣常取决于查询/交互次数。关键要素：①输出后必须 flush（C++ fflush(stdout) / endl，Python sys.stdout.flush()），否则交互器收不到请求导致 Idleness Limit Exceeded（ILE）；②STDIO 交互（CF/AtCoder/ICPC，问写标准输出、读标准输入）与 Grader 交互（IOI/APIO 的 CMS 平台，实现指定函数调用辅助函数）；③次数优化：二分查找（判定一个单调属性）、随机撒点（链表/分布未知时）、三分/倍增；④读入所有数据再回答（多组数据时即使已知答案也要读完，否则 ILE）；⑤静态查错能力要求高（无法方便对拍）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>交互器像真人裁判：你不发话它不回答。每问一次都有代价（题目给的询问上限），所以策略就是「用最少的确定性/概率性询问逼近答案」。标准套路：把交互建模成「对单调谓词的查询」→ 二分 O(log n) 次；无法直接二分 → 先用随机采样缩小范围再精确定位。flush 是「把话说出去」，不 flush 就像话憋在嗓子眼，交互器只能干等。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>STDIO 交互基于管道：stdout 默认行缓冲/全缓冲，必须 flush 才能立即送达。Grader 交互通过函数返回值传输，无 flush 问题但语言受限（通常仅 C++/Pascal）。次数上限：CF 上超过询问限制判 Wrong Answer（错误说明里带原因），UVa 判 Protocol Limit Exceeded。经典策略：①确定型——二分查找（单调集合），O(log n)；②概率型——先随机撒 k 个点收集分布信息，再沿贪心/边界前进（如 CF843B 随机撒 1000 点逼近链表目标值）；③验证质数——一次问 19 个数（含平方）即可判定。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>交互题自上世纪 IOI 已有，2019 年 NOI 系列连续出现（WC2019 I 君的商店、NOI2019 I 君的探险）标志其回归。OI Wiki 的 contest/interaction 页以 CF679A、CF843B、APIO2016 Gap、CF750F 等为例讲解 flush 时机、随机撒点、次数限制与特殊错误（ILE/PLE/PV），contest/problems 页区分 STDIO 与 Grader 两种交互方式并比较优劣。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">STDIO 二分示例（猜 <span class="t-n">1.</span>.n 中的数）:
+  lo,hi = <span class="t-n">1</span>,n
+  <span class="t-k">while</span> lo&lt;hi:
+    mid=(lo+hi)//<span class="t-n">2</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;?&#x27;</span>, mid); sys.stdout.<span class="t-f">flush</span>()
+    ans = <span class="t-b">int</span>(<span class="t-b">input</span>())
+    <span class="t-k">if</span> ans == <span class="t-s">&#x27;&gt;=&#x27;</span>: lo = mid+<span class="t-n">1</span>  <span class="t-k">else</span>: hi = mid
+  <span class="t-b">print</span>(<span class="t-s">&#x27;!&#x27;</span>, lo); sys.stdout.<span class="t-f">flush</span>()
+随机撒点(CF843B式):
+  若 n 小则全询问；否则随机问 <span class="t-n">1000</span> 个点取最优起点，再沿 <span class="t-b">next</span> 指针走</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+
+<span class="t-k">def</span> <span class="t-f">guess_number</span>(n):
+    <span class="t-c"># 经典二分交互：交互器答案是 ans，我们问 &#x27;? x&#x27; 得到 x&gt;=ans 与否</span>
+    <span class="t-c"># 这里用闭包模拟交互器便于自测</span>
+    secret = <span class="t-n">42</span>
+    <span class="t-k">assert</span> <span class="t-n">1</span> &lt;= secret &lt;= n
+
+    <span class="t-k">def</span> <span class="t-f">ask</span>(x):
+        <span class="t-b">print</span>(<span class="t-s">f&quot;? {x}&quot;</span>, flush=<span class="t-k">True</span>)
+        <span class="t-k">return</span> x &gt;= secret
+
+    lo, hi = <span class="t-n">1</span>, n
+    cnt = <span class="t-n">0</span>
+    <span class="t-k">while</span> lo &lt; hi:
+        mid = (lo + hi) // <span class="t-n">2</span>
+        cnt += <span class="t-n">1</span>
+        <span class="t-k">if</span> <span class="t-f">ask</span>(mid):
+            hi = mid
+        <span class="t-k">else</span>:
+            lo = mid + <span class="t-n">1</span>
+    <span class="t-b">print</span>(<span class="t-s">f&quot;! {lo}&quot;</span>, flush=<span class="t-k">True</span>)
+    <span class="t-k">assert</span> lo == secret, lo
+    <span class="t-k">return</span> cnt
+
+
+<span class="t-k">def</span> <span class="t-f">guess_prime_style</span>():
+    <span class="t-c"># CF679A 风格：一次问 19 个数（质数 + 质数平方）判定 n 是否为质数</span>
+    <span class="t-k">import</span> random
+    n = random.<span class="t-f">choice</span>([<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">97</span>, <span class="t-n">100</span>, <span class="t-n">143</span>])
+    candidates = [<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">5</span>, <span class="t-n">7</span>, <span class="t-n">9</span>, <span class="t-n">11</span>, <span class="t-n">13</span>, <span class="t-n">17</span>, <span class="t-n">19</span>, <span class="t-n">23</span>, <span class="t-n">25</span>, <span class="t-n">29</span>, <span class="t-n">31</span>, <span class="t-n">37</span>, <span class="t-n">41</span>, <span class="t-n">43</span>, <span class="t-n">47</span>, <span class="t-n">49</span>]
+    yes = <span class="t-n">0</span>
+    <span class="t-k">for</span> x <span class="t-k">in</span> candidates:
+        <span class="t-k">if</span> n % x == <span class="t-n">0</span>:
+            yes += <span class="t-n">1</span>
+    is_prime = yes &lt;= <span class="t-n">1</span> <span class="t-k">and</span> n &gt;= <span class="t-n">2</span>
+    <span class="t-c"># 自测：100=2^2*5^2 应判合数；143=11*13 合数；97 质数</span>
+    expected = n <span class="t-k">in</span> (<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">97</span>)
+    <span class="t-k">assert</span> is_prime == expected, (n, is_prime)
+    <span class="t-k">return</span> n, is_prime
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    cnt = <span class="t-f">guess_number</span>(<span class="t-n">1000</span>)
+    <span class="t-b">print</span>(<span class="t-s">f&quot;binary search used {cnt} queries, result correct&quot;</span>)
+    <span class="t-k">assert</span> cnt &lt;= <span class="t-n">11</span>  <span class="t-c"># log2(1000) ~ 10</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        <span class="t-f">guess_prime_style</span>()
+    <span class="t-b">print</span>(<span class="t-s">&quot;prime-style random tests OK&quot;</span>)
+    <span class="t-b">print</span>(<span class="t-s">&quot;OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">交互题 Python 需注意：print(..., flush=True) 每次询问都会系统调用，次数上限内可接受；不要用 sys.stdin.buffer.read() 批量读入（会阻塞等待全部数据，交互器不回发造成死锁）。Grader 交互通常不提供 Python 版 grader 或头文件，需按题目给定接口实现，Python 在 CMS/IOI 环境支持有限，优先 C++。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>查询次数：二分 O(log n)，随机撒点 O(k + 期望长度)，其他策略按题</td></tr><tr><th>空间复杂度</th><td>O(n) 或 O(k)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Grader 交互语言受限（CMS 通常只支持 C++/Pascal），Python 参赛者尽量选 STDIO 交互题；随机化策略有概率失败需按题目容错设计；交互题无法像普通题那样用对拍验证，正确性依赖静态推演与本地模拟交互器；交互次数耗尽后果严重（WA/ILE），实现要一遍对。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>每次输出后忘 flush()——ILE 或死等</li><li>多组数据下提前 break 不读完剩余输入，下一轮读入错位</li><li>查询次数超过限制被判 WA，需预计算上限并留余量</li><li>STDIO 交互里用批量读入 sys.stdin.buffer.read() 导致阻塞死锁</li><li>随机化未设种子被 hack（CF 上用 random_shuffle 需 srand）</li><li>交互格式错误（多换行/少空格）被判 PE/PV；输出猜测前没有终止标志（!）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Codeforces</td><td><strong>679A</strong></td><td>1400</td><td>Bear and Prime 100：一次问 19 个质数及质数平方判定质合数，入门交互题</td><td class="u"><a href="https://codeforces.com/problemset/problem/679/A" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/679/A</a></td></tr><tr><td>Codeforces</td><td><strong>843B</strong></td><td>1800</td><td>Interactive LowerBound：随机撒 1000 点逼近链表目标值，随机化交互</td><td class="u"><a href="https://codeforces.com/problemset/problem/843/B" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/843/B</a></td></tr><tr><td>UOJ</td><td><strong>206</strong></td><td>5</td><td>【APIO2016】Gap：Grader 交互，分段/交互次数优化求最大间隔</td><td class="u"><a href="https://uoj.ac/problem/206" target="_blank" rel="noopener">https://uoj.ac/problem/206</a></td></tr><tr><td>Codeforces</td><td><strong>750F</strong></td><td>2400</td><td>New Year and Finding Roots：7 层完全二叉树上定位根，次数紧张需精妙策略</td><td class="u"><a href="https://codeforces.com/problemset/problem/750/F" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/750/F</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-interaction-strategy" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "identify", "label": "识别交互模式(STDIO/Grader)与次数限制"}}, {"data": {"id": "simulate", "label": "本地模拟交互器验证逻辑"}}, {"data": {"id": "strategy", "label": "选策略: 二分/随机撒点/构造式"}}, {"data": {"id": "ask", "label": "发询问并 flush"}}, {"data": {"id": "read", "label": "读反馈(完整读完)"}}, {"data": {"id": "answer", "label": "得出答案输出 ! 并 flush"}}, {"data": {"id": "eidentify->simulate", "source": "identify", "target": "simulate"}}, {"data": {"id": "eidentify->strategy", "source": "identify", "target": "strategy"}}, {"data": {"id": "estrategy->ask", "source": "strategy", "target": "ask"}}, {"data": {"id": "eask->read", "source": "ask", "target": "read"}}, {"data": {"id": "eread->strategy", "source": "read", "target": "strategy"}}, {"data": {"id": "estrategy->answer", "source": "strategy", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-interaction-strategy'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-cooccurrence" href="problem-types.html" title="识别交互题型后需对应策略">题型识别<span class="etype">共现</span></a><a class="chip e-cooccurrence" href="interactive-problem-trend.html" title="交互题兴起趋势使得交互策略愈发重要">交互题兴起趋势<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/contest/interaction/" target="_blank" rel="noopener">https://oi-wiki.org/contest/interaction/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/contest/problems/" target="_blank" rel="noopener">https://oi-wiki.org/contest/problems/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

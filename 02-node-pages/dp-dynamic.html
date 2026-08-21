@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动态DP（DDP） · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-13.html">高级DP族</a> / <span>动态DP（DDP）</span></div>
+  <h1>动态DP（DDP）</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-13</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="dp-plug.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">dp-plug</span></a>
+    <a class="nav-index" href="../03-groups/G-A-13.html"><span class="dir">组内第 2 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dp-dpofdp.html"><span class="dir">下一个 / 组内</span><span class="v">dp-dpofdp</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">带点权/边权修改的树上DP，用广义矩阵乘法（max,+）把转移写成矩阵，树链剖分+线段树/LCT维护单点修改后 O(log²n) 或 O(log n) 更新答案</div><p>动态DP（Dynamic DP, DDP）解决&#x27;支持单点权值修改、每次修改后求树上 DP 答案&#x27;的问题，经典模板是树的最大权独立集（MIS）带点权修改（洛谷 P4719）。核心思想：把 DP 转移方程写成 2×2 广义矩阵乘法形式 C[i][j]=max_k(A[i][k]+B[k][j])（max,+ 半环上矩阵乘法，满足结合律），然后用树链剖分把每一条重链的转移矩阵放进线段树，重链内路径上的矩阵乘积用线段树区间乘维护；单点修改只影响该点到根路径上 O(log n) 条重链的链头矩阵，每次用线段树单点修改 + 链头向上跳，总 O(log²n)。LCT 版本可做到 O(log n)。著名的树上带修问题：保卫王国（NOIP2018 加强版矩阵做法）、SDOI2017 切树游戏。关键：广义矩阵乘法满足结合律即可用线段树/矩阵快速幂维护区间积。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>直接暴力：每次修改后重跑 O(n) DP 太慢。观察树上 DP：一个点权改变，影响沿父链传播，但重链上的转移是&#x27;线性的&#x27;（max,+ 矩阵），可以把链上的传播打包成矩阵乘积，一次算完。树链剖分保证任意点到根的路径被切成 O(log n) 段重链，每段用线段树快速求乘积，于是单点修改的传播被压缩成 O(log n) 次矩阵区间乘。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>以最大权独立集为例。设 f_{i,0}=不选 i 的最大答案，f_{i,1}=选 i 的最大答案，DP 方程 f_{i,0}=Σ max(f_son,0,f_son,1)，f_{i,1}=w_i+Σ f_son,0。重剖后对每个点定义 g_{i,0}、g_{i,1}：分别表示只考虑轻儿子子树时 f_{i,0}、f_{i,1} 的&#x27;轻儿子贡献&#x27;（含自身权值），则 f_i = 矩阵×f_重儿子。具体：\[\begin{bmatrix}g_{i,0}&amp;g_{i,0}\\g_{i,1}&amp;-\infty\end{bmatrix}\times\begin{bmatrix}f_{son,0}\\f_{son,1}\end{bmatrix}=\begin{bmatrix}f_{i,0}\\f_{i,1}\end{bmatrix}\]，乘法用 max,+。整条重链从链头到链尾的矩阵乘积（线段树区间乘，注意顺序）给出链头状态关于链尾端 f 的线性关系，答案=max(f_{root,0},f_{root,1})。修改点 i 的权值：更新 g_{i,1} 与线段树中 i 的矩阵；沿链头向上跳，用链头旧/新矩阵的差量更新父节点的 g 矩阵，O(log n) 次线段树单点修改，每次 O(log n)，总 O(log²n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>动态DP（DDP）技术由猫锟在 WC2018 的课件中系统介绍并在中国 OI 圈广泛传播。广义矩阵乘法思想更早用于最大子段和（线段树区间维护矩阵，如 SPOJ GSS3）与 NOIP2018 保卫王国。树剖+线段树 O(log²n) 与 LCT O(log n) 两种实现并存；DDP 也被推广到仙人掌、基环树及动态规划套动态规划等场景。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 预处理</span>
+<span class="t-n">1.</span> DFS 求出 f[i][<span class="t-n">0</span>/<span class="t-n">1</span>], g[i][<span class="t-n">0</span>/<span class="t-n">1</span>]（g 只含轻儿子贡献）
+<span class="t-n">2.</span> 树链剖分，每条重链建线段树维护 <span class="t-n">2</span>x2 矩阵（<span class="t-b">max</span>,+ 乘）
+   记录 End[i] = i 所在重链的链尾
+<span class="t-n">3.</span> 初始化：每点矩阵 [[g0,g0],[g1,-inf]]
+
+<span class="t-c"># 修改点 x 权值为 w</span>
+<span class="t-n">1.</span> 更新 g[x][<span class="t-n">1</span>], 线段树单点更新 x 的矩阵
+<span class="t-n">2.</span> <span class="t-k">while</span> x != <span class="t-n">0</span>:
+    top = 链头[x]
+    old = 线段树查询 [dfn[top], dfn[End[top]]] 乘积
+    线段树单点更新 x 矩阵（链内传播）
+    new = 线段树查询同区间乘积
+    用 new-old 的差量更新 fa[top] 的 g 矩阵与线段树
+    x = fa[top]
+
+<span class="t-c"># 查询答案</span>
+ans = <span class="t-b">max</span>(线段树查询 [dfn[root链头], dfn[End[root链头]]] 乘积的 f0, f1)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+<span class="t-c"># 动态DP：树的最大权独立集 + 单点改权，树剖 + 线段树（max,+ 矩阵）</span>
+<span class="t-c"># 仅为教学/验证实现，n 较小。大 n 请用 C++ 或 PyPy + 优化。</span>
+<span class="t-k">import</span> sys
+sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">10</span>**<span class="t-n">6</span>)
+
+NEG = -<span class="t-n">10</span>**<span class="t-n">15</span>
+
+
+<span class="t-k">def</span> <span class="t-f">mat_mul</span>(A, B):
+    <span class="t-s">&quot;&quot;&quot;广义矩阵乘: C[i][j] = max_k A[i][k]+B[k][j]&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> [[<span class="t-b">max</span>(A[i][<span class="t-n">0</span>] + B[<span class="t-n">0</span>][j], A[i][<span class="t-n">1</span>] + B[<span class="t-n">1</span>][j]) <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>)]
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>)]
+
+
+<span class="t-k">def</span> <span class="t-f">build_ddp</span>(n, w, edges):
+    <span class="t-s">&quot;&quot;&quot;edges: list of (u,v) 1-indexed。返回 (初始答案, 修改函数 update(i, neww))&quot;&quot;&quot;</span>
+    adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> edges:
+        adj[u].<span class="t-f">append</span>(v)
+        adj[v].<span class="t-f">append</span>(u)
+    par = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    order = []
+    stack = [(<span class="t-n">1</span>, <span class="t-n">0</span>)]
+    <span class="t-k">while</span> stack:
+        u, p = stack.<span class="t-f">pop</span>()
+        order.<span class="t-f">append</span>(u)
+        par[u] = p
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> v != p:
+                stack.<span class="t-f">append</span>((v, u))
+    size = [<span class="t-n">1</span>] * (n + <span class="t-n">1</span>)
+    son = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">reversed</span>(order):
+        mx = <span class="t-n">0</span>
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> v != par[u]:
+                size[u] += size[v]
+                <span class="t-k">if</span> size[v] &gt; mx:
+                    mx, son[u] = size[v], v
+    <span class="t-c"># f[0]=不选, f[1]=选（不含点权累加时用于验证）</span>
+    f0 = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    f1 = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">reversed</span>(order):
+        f1[u] = w[u]
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> v != par[u]:
+                f1[u] += f0[v]
+                f0[u] += <span class="t-b">max</span>(f0[v], f1[v])
+    ans0 = <span class="t-b">max</span>(f0[<span class="t-n">1</span>], f1[<span class="t-n">1</span>])
+
+    <span class="t-c"># 重链剖分 dfn</span>
+    dfn = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    top = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    end = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)
+    cnt = <span class="t-n">0</span>
+    cur_w = [<span class="t-n">0</span>] * (n + <span class="t-n">1</span>)      <span class="t-c"># dfn -&gt; 节点</span>
+    <span class="t-c"># 迭代法避免递归深</span>
+    <span class="t-k">def</span> <span class="t-f">decompose</span>():
+        <span class="t-k">nonlocal</span> cnt
+        st = [(<span class="t-n">1</span>, <span class="t-n">1</span>)]
+        <span class="t-k">while</span> st:
+            u, tp = st.<span class="t-f">pop</span>()
+            <span class="t-k">while</span> u:
+                top[u] = tp
+                cnt += <span class="t-n">1</span>
+                dfn[u] = cnt
+                cur_w[cnt] = u
+                <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+                    <span class="t-k">if</span> v != par[u] <span class="t-k">and</span> v != son[u]:
+                        st.<span class="t-f">append</span>((v, v))
+                u = son[u]
+    <span class="t-f">decompose</span>()
+    <span class="t-c"># 每条重链链尾 = 该链 dfs 序最后</span>
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        <span class="t-c"># 找链尾：沿重儿子走到底</span>
+        t = u
+        <span class="t-k">while</span> son[t]:
+            t = son[t]
+        end[dfn[u]] = dfn[t] <span class="t-k">if</span> top[t] == top[u] <span class="t-k">else</span> dfn[u]
+        <span class="t-c"># 简化：记录每条重链的尾节点编号</span>
+    chain_tail = {}
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        t = u
+        <span class="t-k">while</span> son[t]:
+            t = son[t]
+        chain_tail[top[u]] = t
+
+    <span class="t-c"># g 矩阵：只含轻儿子贡献</span>
+    gmat = [[[NEG, NEG], [NEG, NEG]] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+    <span class="t-k">for</span> u <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        g0 = <span class="t-n">0</span>
+        g1 = w[u]
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> v != par[u] <span class="t-k">and</span> v != son[u]:
+                g0 += <span class="t-b">max</span>(f0[v], f1[v])
+                g1 += f0[v]
+        gmat[u] = [[g0, g0], [g1, NEG]]
+
+    <span class="t-c"># 线段树：按 dfn 存矩阵</span>
+    size_t = <span class="t-n">1</span>
+    <span class="t-k">while</span> size_t &lt; n:
+        size_t &lt;&lt;= <span class="t-n">1</span>
+    tree = [[[NEG, NEG], [NEG, NEG]] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span> * size_t)]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        tree[size_t + i - <span class="t-n">1</span>] = gmat[cur_w[i]]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(size_t - <span class="t-n">1</span>, <span class="t-n">0</span>, -<span class="t-n">1</span>):
+        tree[i] = <span class="t-f">mat_mul</span>(tree[i * <span class="t-n">2</span>], tree[i * <span class="t-n">2</span> + <span class="t-n">1</span>])   <span class="t-c"># 左×右（链方向）</span>
+
+    <span class="t-k">def</span> <span class="t-f">seg_update</span>(pos, mat):
+        p = size_t + pos - <span class="t-n">1</span>
+        tree[p] = mat
+        p &gt;&gt;= <span class="t-n">1</span>
+        <span class="t-k">while</span> p:
+            tree[p] = <span class="t-f">mat_mul</span>(tree[p * <span class="t-n">2</span>], tree[p * <span class="t-n">2</span> + <span class="t-n">1</span>])
+            p &gt;&gt;= <span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">seg_query</span>(l, r):
+        <span class="t-c"># 保持链方向：左段 × 右段（链头方向为左）</span>
+        L = <span class="t-k">None</span>
+        R = <span class="t-k">None</span>
+        l += size_t - <span class="t-n">1</span>
+        r += size_t - <span class="t-n">1</span>
+        <span class="t-k">while</span> l &lt;= r:
+            <span class="t-k">if</span> l &amp; <span class="t-n">1</span>:
+                L = tree[l] <span class="t-k">if</span> L <span class="t-k">is</span> <span class="t-k">None</span> <span class="t-k">else</span> <span class="t-f">mat_mul</span>(L, tree[l])
+                l += <span class="t-n">1</span>
+            <span class="t-k">if</span> <span class="t-k">not</span> (r &amp; <span class="t-n">1</span>):
+                R = tree[r] <span class="t-k">if</span> R <span class="t-k">is</span> <span class="t-k">None</span> <span class="t-k">else</span> <span class="t-f">mat_mul</span>(tree[r], R)
+                r -= <span class="t-n">1</span>
+            l &gt;&gt;= <span class="t-n">1</span>
+            r &gt;&gt;= <span class="t-n">1</span>
+        <span class="t-k">if</span> L <span class="t-k">is</span> <span class="t-k">None</span>:
+            <span class="t-k">return</span> R <span class="t-k">if</span> R <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span> <span class="t-k">else</span> [[<span class="t-n">0</span>, NEG], [NEG, <span class="t-n">0</span>]]
+        <span class="t-k">if</span> R <span class="t-k">is</span> <span class="t-k">None</span>:
+            <span class="t-k">return</span> L
+        <span class="t-k">return</span> <span class="t-f">mat_mul</span>(L, R)
+
+    <span class="t-k">def</span> <span class="t-f">answer</span>():
+        t = chain_tail[top[<span class="t-n">1</span>]]
+        m = <span class="t-f">seg_query</span>(dfn[<span class="t-n">1</span>], dfn[t])
+        <span class="t-k">return</span> <span class="t-b">max</span>(m[<span class="t-n">0</span>][<span class="t-n">0</span>], m[<span class="t-n">1</span>][<span class="t-n">0</span>])
+
+    <span class="t-k">def</span> <span class="t-f">update</span>(x, neww):
+        <span class="t-k">nonlocal</span> w
+        w[x] = neww
+        u = x
+        <span class="t-k">while</span> u:
+            tp = top[u]
+            tail = chain_tail[tp]
+            old = <span class="t-f">seg_query</span>(dfn[tp], dfn[tail])
+            <span class="t-c"># 重算 u 的 g1</span>
+            g0 = <span class="t-n">0</span>
+            g1 = w[u]
+            <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+                <span class="t-k">if</span> v != par[u] <span class="t-k">and</span> v != son[u]:
+                    g0 += <span class="t-b">max</span>(f0[v], f1[v])
+                    g1 += f0[v]
+            gmat[u] = [[g0, g0], [g1, NEG]]
+            <span class="t-f">seg_update</span>(dfn[u], gmat[u])
+            new = <span class="t-f">seg_query</span>(dfn[tp], dfn[tail])
+            <span class="t-c"># 更新链头对父节点的贡献（f0/f1 为链尾端状态，这里用链头状态推导）</span>
+            <span class="t-c"># 链头节点 tp 的父节点 ftp：其轻儿子 tp 贡献变化 = new-old（f0/f1 变化）</span>
+            ftp = par[tp]
+            <span class="t-k">if</span> ftp == <span class="t-n">0</span>:
+                <span class="t-k">return</span>
+            d0 = (new[<span class="t-n">0</span>][<span class="t-n">0</span>] + (NEG <span class="t-k">if</span> <span class="t-k">False</span> <span class="t-k">else</span> <span class="t-n">0</span>)) - (old[<span class="t-n">0</span>][<span class="t-n">0</span>])
+            d1 = (new[<span class="t-n">1</span>][<span class="t-n">0</span>] + <span class="t-n">0</span>) - (old[<span class="t-n">1</span>][<span class="t-n">0</span>])
+            f0_old_tp = old[<span class="t-n">0</span>][<span class="t-n">0</span>]
+            f1_old_tp = old[<span class="t-n">1</span>][<span class="t-n">0</span>]
+            f0_new_tp = new[<span class="t-n">0</span>][<span class="t-n">0</span>]
+            f1_new_tp = new[<span class="t-n">1</span>][<span class="t-n">0</span>]
+            <span class="t-c"># 更新 ftp 的轻儿子贡献与 f0/f1 参考值（用于后续 g 重算）</span>
+            <span class="t-k">for</span> v <span class="t-k">in</span> adj[ftp]:
+                <span class="t-k">if</span> v == tp:
+                    <span class="t-c"># f0[v], f1[v] 缓存更新</span>
+                    <span class="t-k">pass</span>
+            f0[tp] = f0_new_tp
+            f1[tp] = f1_new_tp
+            u = ftp
+        <span class="t-k">return</span>
+
+    <span class="t-k">return</span> ans0, update, answer
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 小树暴力验证</span>
+    n, w = <span class="t-n">5</span>, [<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">5</span>]
+    edges = [(<span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">1</span>, <span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>), (<span class="t-n">2</span>, <span class="t-n">5</span>)]
+    ans0, update, answer = <span class="t-f">build_ddp</span>(n, w, edges)
+
+    <span class="t-k">def</span> <span class="t-f">brute</span>(w, edges):
+        adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n + <span class="t-n">1</span>)]
+        <span class="t-k">for</span> u, v <span class="t-k">in</span> edges:
+            adj[u].<span class="t-f">append</span>(v); adj[v].<span class="t-f">append</span>(u)
+        best = <span class="t-n">0</span>
+        <span class="t-k">for</span> mask <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span> &lt;&lt; n):
+            ok = <span class="t-k">True</span>
+            <span class="t-k">for</span> u, v <span class="t-k">in</span> edges:
+                <span class="t-k">if</span> (mask &gt;&gt; (u - <span class="t-n">1</span>)) &amp; <span class="t-n">1</span> <span class="t-k">and</span> (mask &gt;&gt; (v - <span class="t-n">1</span>)) &amp; <span class="t-n">1</span>:
+                    ok = <span class="t-k">False</span>
+                    <span class="t-k">break</span>
+            <span class="t-k">if</span> ok:
+                val = <span class="t-b">sum</span>(w[i + <span class="t-n">1</span>] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n) <span class="t-k">if</span> (mask &gt;&gt; i) &amp; <span class="t-n">1</span>)
+                best = <span class="t-b">max</span>(best, val)
+        <span class="t-k">return</span> best
+
+    <span class="t-k">assert</span> ans0 == <span class="t-f">brute</span>(w, edges), (ans0, <span class="t-f">brute</span>(w, edges))
+    <span class="t-c"># 随机修改验证</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">0</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">20</span>):
+        x = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, n)
+        nw = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">10</span>)
+        <span class="t-f">update</span>(x, nw)
+        <span class="t-k">assert</span> <span class="t-f">answer</span>() == <span class="t-f">brute</span>(w, edges), (x, nw, <span class="t-f">answer</span>(), <span class="t-f">brute</span>(w, edges))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;dp-dynamic tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 实现 DDP 常数很大，树剖+线段树各操作叠加，n=1e5 会超时；教学演示可用，正式比赛请 C++。若坚持 Python，需把矩阵写成 4 个标量避免嵌套列表，并用迭代式 DFS 避免递归栈溢出。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>预处理 O(n log n)（剖分 + 建线段树）；单点修改 O(log²n)（LCT 版 O(log n)）；查询 O(log n)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">依赖树剖分/LCT，实现复杂、易错（矩阵乘顺序、链尾记录、差量更新）。仅适用于&#x27;转移可写成矩阵&#x27;的 DP（线性结构），非线性 DP 无法 DDP。Python 常数过大。广义矩阵乘法只在 max,+ 等可结合结构上成立。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>矩阵乘法顺序：链上按深度方向是&#x27;祖先矩阵 × 子孙矩阵&#x27;，线段树合并必须保持顺序（区间左端为链头方向）</li><li>g 矩阵只统计轻儿子贡献，重儿子贡献由矩阵乘法自动传播，两者混淆会错</li><li>修改时沿链头向上传播差量，若忘记更新父节点对链头轻儿子的贡献缓存会失步</li><li>End[i]（链尾）记录错误导致区间乘积范围错；链尾要沿重儿子走到底</li><li>广义矩阵乘法中的 -∞ 元素必须足够小且不参与 max 污染</li><li>树剖的 dfn 按重儿子优先编号，线段树建树用 dfn 映射回节点</li><li>实现后必须与小规模暴力对拍（特别是修改多次后的答案）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4719</strong></td><td>4</td><td>【模板】动态DP：树最大权独立集 + 单点改权，DDP 模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4719" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4719</a></td></tr><tr><td>LibreOJ</td><td><strong>2955</strong></td><td>5</td><td>NOIP2018 保卫王国：强制选/不选某些点的最小支配，矩阵转移 DDP</td><td class="u"><a href="https://loj.ac/p/2955" target="_blank" rel="noopener">https://loj.ac/p/2955</a></td></tr><tr><td>LibreOJ</td><td><strong>2269</strong></td><td>6</td><td>SDOI2017 切树游戏：带修改的树 DP（xor 卷积 + FWT），DDP 进阶题</td><td class="u"><a href="https://loj.ac/p/2269" target="_blank" rel="noopener">https://loj.ac/p/2269</a></td></tr><tr><td>SPOJ</td><td><strong>GSS3</strong></td><td>3</td><td>Can you answer these queries III：单点改 + 最大子段和，线段树维护 max,+,+ 矩阵（非树上但同思想）</td><td class="u"><a href="https://www.spoj.com/problems/GSS3/" target="_blank" rel="noopener">https://www.spoj.com/problems/GSS3/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dp-dynamic" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "dp0", "label": "静态树 DP（f0/f1 方程）"}}, {"data": {"id": "matrix", "label": "广义矩阵乘法 (max,+) 与结合律"}}, {"data": {"id": "split", "label": "重链剖分 + g 矩阵（轻儿子贡献）"}}, {"data": {"id": "seg", "label": "每条重链线段树维护区间矩阵积"}}, {"data": {"id": "update", "label": "单点修改 + 链头差量向上传播 O(log²n)"}}, {"data": {"id": "apply", "label": "应用于 MIS/支配集/最大权等树上问题"}}, {"data": {"id": "edp0->matrix", "source": "dp0", "target": "matrix"}}, {"data": {"id": "ematrix->split", "source": "matrix", "target": "split"}}, {"data": {"id": "esplit->seg", "source": "split", "target": "seg"}}, {"data": {"id": "eseg->update", "source": "seg", "target": "update"}}, {"data": {"id": "eupdate->apply", "source": "update", "target": "apply"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dp-dynamic'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="dp-tree.html" title="动态DP是树形DP加入修改操作的变体">树形DP<span class="etype">变体</span></a><a class="chip e-combination" href="splay.html" title="动态DP用LCT(基于Splay)维护转移矩阵">Splay(伸展树)<span class="etype">组合</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-combination" href="lct.html" title="动态DP用LCT维护转移矩阵链乘">Link-Cut Tree<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/dynamic/" target="_blank" rel="noopener">https://oi-wiki.org/dp/dynamic/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">猫锟 WC2018 课件；NOIP2018 保卫王国 矩阵做法</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

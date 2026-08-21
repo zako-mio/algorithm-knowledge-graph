@@ -1,0 +1,154 @@
+{
+  "id": "topo-sort",
+  "name": "拓扑排序",
+  "group": "G-B-1",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "DAG节点线性排序，Kahn算法(入度BFS)或DFS逆序O(V+E)",
+  "what": "拓扑排序将DAG（有向无环图）的所有节点排成线性序列，使得对任意有向边(u,v)，u在序列中位于v之前。常用Kahn算法（基于入度的BFS）或DFS后序逆序实现。拓扑排序不唯一。若图有环则不存在拓扑序。AOV网（顶点活动网）的拓扑排序可用于课程安排、任务调度等。AOE网可在此基础上求关键路径。",
+  "why": {
+    "intuition": "排课表：学数据结构前必须学离散数学，学编译技术前必须学算法语言。将所有课程按依赖关系排序，这就是拓扑排序。",
+    "principle": "Kahn算法：维护入度为0的节点集合，每次取出一个放入结果序列，删除其所有出边，将新入度为0的节点加入集合。DFS算法：对所有未访问节点DFS，完成时逆序记录（后序逆序=拓扑序）。",
+    "history": "Kahn算法由Arthur Kahn于1962年提出。DFS方法利用了'完成时间逆序即拓扑序'的性质。两者时间复杂度均为O(V+E)。"
+  },
+  "how": {
+    "pseudocode": "Kahn:\n  S ← {nodes with indeg=0}\n  L ← []\n  while S not empty:\n    remove u from S, append to L\n    for each edge (u,v):\n      indeg[v] -= 1\n      if indeg[v]==0: add v to S\n  if len(L)<n: has cycle\n  return L",
+    "python": "from collections import deque\nimport sys\n\ndef topo_sort_kahn(n, edges):\n    \"\"\"Kahn's algorithm (BFS-based). Returns topological order or None if cycle.\"\"\"\n    adj = [[] for _ in range(n)]\n    indeg = [0] * n\n    for u, v in edges:\n        adj[u].append(v)\n        indeg[v] += 1\n    q = deque(i for i in range(n) if indeg[i] == 0)\n    order = []\n    while q:\n        u = q.popleft()\n        order.append(u)\n        for v in adj[u]:\n            indeg[v] -= 1\n            if indeg[v] == 0:\n                q.append(v)\n    return order if len(order) == n else None\n\ndef topo_sort_dfs(n, edges):\n    \"\"\"DFS-based topological sort. Returns order or None if cycle.\"\"\"\n    adj = [[] for _ in range(n)]\n    for u, v in edges:\n        adj[u].append(v)\n    UNVISITED, VISITING, DONE = 0, 1, 2\n    state = [UNVISITED] * n\n    order = []\n    has_cycle = [False]\n    def dfs(u):\n        state[u] = VISITING\n        for v in adj[u]:\n            if state[v] == VISITING:\n                has_cycle[0] = True\n                return\n            if state[v] == UNVISITED:\n                dfs(v)\n                if has_cycle[0]:\n                    return\n        state[u] = DONE\n        order.append(u)\n    for i in range(n):\n        if state[i] == UNVISITED:\n            dfs(i)\n            if has_cycle[0]:\n                return None\n    order.reverse()\n    return order\n\nif __name__ == \"__main__\":\n    edges = [(0, 1), (0, 2), (1, 3), (2, 3)]\n    order = topo_sort_kahn(4, edges)\n    assert order is not None\n    assert order.index(0) < order.index(1)\n    assert order.index(0) < order.index(2)\n    assert order.index(1) < order.index(3)\n    assert order.index(2) < order.index(3)\n    order2 = topo_sort_dfs(4, edges)\n    assert order2 is not None\n    assert order2.index(0) < order2.index(1)\n    # Cycle detection\n    cycle_edges = [(0, 1), (1, 0)]\n    assert topo_sort_kahn(2, cycle_edges) is None\n    assert topo_sort_dfs(2, cycle_edges) is None\n    print(\"topo-sort: ALL TESTS PASSED\")\n",
+    "pypy_notes": "Kahn用deque.popleft()在PyPy上高效。DFS递归注意栈深度。大图用邻接表比邻接矩阵快。",
+    "complexity": {
+      "time": "O(V+E)",
+      "space": "O(V+E)"
+    },
+    "limitations": "仅适用于DAG。有环图无法拓扑排序。拓扑序不唯一（取决于入度为0的节点取出顺序）。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "207",
+      "url": "https://leetcode.cn/problems/course-schedule/",
+      "difficulty": 3,
+      "key_point": "DAG 是否有环判定"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "210",
+      "url": "https://leetcode.cn/problems/course-schedule-ii/",
+      "difficulty": 4,
+      "key_point": "求拓扑排序序列"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4017",
+      "url": "https://www.luogu.com.cn/problem/P4017",
+      "difficulty": 4,
+      "key_point": "拓扑排序+DP 统计最大食物链数量"
+    }
+  ],
+  "pitfalls": [
+    "忘记检测环：Kahn算法中若len(order)<n则有环",
+    "DFS方法中VISITING状态用于检测回边（环），DONE状态避免重复访问",
+    "多组数据需重置indeg数组",
+    "拓扑序不唯一，不同实现可能给出不同合法序列"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "t1",
+        "label": "计算所有节点入度"
+      },
+      {
+        "id": "t2",
+        "label": "入度=0的节点入队"
+      },
+      {
+        "id": "t3",
+        "label": "队列非空？"
+      },
+      {
+        "id": "t4",
+        "label": "出队u，加入结果序列"
+      },
+      {
+        "id": "t5",
+        "label": "遍历u的出边(u,v)"
+      },
+      {
+        "id": "t6",
+        "label": "indeg[v]-=1"
+      },
+      {
+        "id": "t7",
+        "label": "indeg[v]==0?入队"
+      },
+      {
+        "id": "t8",
+        "label": "结果长度==n?返回/有环"
+      }
+    ],
+    "edges": [
+      {
+        "from": "t1",
+        "to": "t2",
+        "type": "next"
+      },
+      {
+        "from": "t2",
+        "to": "t3",
+        "type": "next"
+      },
+      {
+        "from": "t3",
+        "to": "t4",
+        "type": "yes"
+      },
+      {
+        "from": "t4",
+        "to": "t5",
+        "type": "next"
+      },
+      {
+        "from": "t5",
+        "to": "t6",
+        "type": "next"
+      },
+      {
+        "from": "t6",
+        "to": "t7",
+        "type": "next"
+      },
+      {
+        "from": "t7",
+        "to": "t5",
+        "type": "loop"
+      },
+      {
+        "from": "t5",
+        "to": "t3",
+        "type": "done"
+      },
+      {
+        "from": "t3",
+        "to": "t8",
+        "type": "no"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/topo/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/graph/topological-sort.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "verified": true,
+      "ref": "CPH ch16 pp159-166"
+    }
+  ]
+}

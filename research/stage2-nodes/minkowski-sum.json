@@ -1,0 +1,79 @@
+{
+  "id": "minkowski-sum",
+  "name": "闵可夫斯基和",
+  "group": "G-D-1",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "两凸多边形 Minkowski 和仍为凸多边形，用于碰撞检测/半平面并",
+  "what": "点集 P 与 Q 的闵可夫斯基和定义为 P+Q = {a+b | a∈P, b∈Q}。若 P、Q 都是凸多边形，则 P+Q 也是凸多边形，且顶点数 ≤ |P|+|Q|。算法：将两凸多边形按'最低点（y 最小、x 次小）'重排使得边按极角有序，然后用双指针按极角归并两族的边向量，每次取极角较小的边拼接到当前顶点，得到 P+Q 的顶点序列。复杂度 O(|P|+|Q|)。主要应用：凸多边形碰撞检测（两凸多边形的距离/相交判定——P 与 Q 相交当且仅当原点在 P+(-Q) 内）、滑动/运动规划、半平面并等。",
+  "why": {
+    "intuition": "把 P 沿着 Q 的每个点平移得到的叠加区域，边界就是 P 的边与 Q 的边'接龙'的结果。凸多边形的边按极角天然有序，两族的边按极角归并拼接，正好一圈走完边界——像把两串珠子（边向量）按角度合并成一条项链。",
+    "principle": "凸性保真：P、Q 凸 → P+Q 凸（对任意 a,c∈P、b,d∈Q 及 t∈[0,1]，t(a+b)+(1-t)(c+d) = [ta+(1-t)c]+[tb+(1-t)d] ∈ P+Q）。边集性质：P+Q 的边序列是 P 的边与 Q 的边按极角排序后的归并，共线同向的边向量可合并。实现：先找到两多边形最低点重排（之后各边按极角从 0 递增到 2π），双指针 i,j 比较当前边 dP = P[i+1]-P[i] 与 dQ = Q[j+1]-Q[j] 的极角（用叉积符号判定），极角小的先接上；把各边向量依次加到累加点上即得顶点。碰撞检测：构造 P+(-Q)（-Q 是 Q 关于原点对称），原点在 P+(-Q) 内 ⇔ P 与 Q 相交。",
+    "history": "闵可夫斯基和以德国数学家 Hermann Minkowski（1864-1909）命名，源于凸几何（Minkowski 加法的概念）。在计算几何中用于凸体 Minkowski 和、机器人运动规划（configuration space obstacle）与碰撞检测；CP 圈内经 e-maxx / cp-algorithms 整理为标准模板，OI-wiki 的凸包章节也收录了凸包 Minkowski 和，典型例题为 JSOI2018 战争。"
+  },
+  "how": {
+    "pseudocode": "# P, Q 为逆时针凸多边形（不重复首尾）\n# 1) 重排到最低点开头（y 最小、x 次小）\nk = argmin (poly[i].y, poly[i].x); poly = poly[k:] + poly[:k]\n# 2) 双指针归并边向量\ni = j = 0; R = [P[0] + Q[0]]\nwhile i < |P| or j < |Q|:\n    dP = P[i+1] - P[i]; dQ = Q[j+1] - Q[j]\n    cp = cross(dP, dQ)\n    if j == |Q| or (i < |P| and cp > 0): i += 1\n    elif i == |P| or cp < 0: j += 1\n    else: i += 1; j += 1\n    R.append(P[i % |P|] + Q[j % |Q|])\nR 去掉相邻重复点，末尾去重 → P+Q",
+    "python": "# -*- coding: utf-8 -*-\n\n\ndef bottom_left(poly):\n    return min(range(len(poly)), key=lambda i: (poly[i][1], poly[i][0]))\n\n\ndef reorder(poly):\n    k = bottom_left(poly)\n    return poly[k:] + poly[:k]\n\n\ndef minkowski_sum(P, Q):\n    \"\"\"两凸多边形（逆时针、首尾不重复）的闵可夫斯基和。整数坐标。\"\"\"\n    P = reorder(P)\n    Q = reorder(Q)\n    n, m = len(P), len(Q)\n    i = j = 0\n    R = [(P[0][0] + Q[0][0], P[0][1] + Q[0][1])]\n    while i < n or j < m:\n        dP = (P[(i+1) % n][0] - P[i][0], P[(i+1) % n][1] - P[i][1])\n        dQ = (Q[(j+1) % m][0] - Q[j][0], Q[(j+1) % m][1] - Q[j][1])\n        cp = dP[0]*dQ[1] - dP[1]*dQ[0]\n        if j == m or (i < n and cp > 0):\n            i += 1\n        elif i == n or cp < 0:\n            j += 1\n        else:\n            i += 1\n            j += 1\n        R.append((P[i % n][0] + Q[j % m][0], P[i % n][1] + Q[j % m][1]))\n    final = []\n    for p in R:\n        if not final or p != final[-1]:\n            final.append(p)\n    return final[:-1] if len(final) > 1 else final\n\n\ndef cross(o, a, b):\n    return (a[0]-o[0])*(b[1]-o[1]) - (a[1]-o[1])*(b[0]-o[0])\n\n\ndef convex_hull(points):\n    pts = sorted(set(points))\n    if len(pts) <= 1:\n        return pts\n    lower = []\n    for p in pts:\n        while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:\n            lower.pop()\n        lower.append(p)\n    upper = []\n    for p in reversed(pts):\n        while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:\n            upper.pop()\n        upper.append(p)\n    res = []\n    for p in lower[:-1] + upper[:-1]:\n        if not res or res[-1] != p:\n            res.append(p)\n    return res\n\n\ndef polygon_area(poly):\n    s = 0.0\n    n = len(poly)\n    for i in range(n):\n        x1, y1 = poly[i]\n        x2, y2 = poly[(i+1) % n]\n        s += x1*y2 - x2*y1\n    return abs(s) / 2.0\n\n\nif __name__ == '__main__':\n    # 两个矩形\n    P = [(0, 0), (4, 0), (4, 2), (0, 2)]\n    Q = [(1, 1), (3, 1), (3, 3), (1, 3)]\n    R = minkowski_sum(P, Q)\n    # 暴力点集凸包对照\n    brute = [(a[0]+b[0], a[1]+b[1]) for a in P for b in Q]\n    H = convex_hull(brute)\n    assert abs(polygon_area(R) - polygon_area(H)) < 1e-9, (polygon_area(R), polygon_area(H))\n    # 凸性：所有点都在 R 内或边界\n    for p in brute:\n        ok = False\n        for i in range(len(R)):\n            a, b = R[i], R[(i+1) % len(R)]\n            if cross(a, b, p) == 0 and min(a[0],b[0])-1e-9 <= p[0] <= max(a[0],b[0])+1e-9 and min(a[1],b[1])-1e-9 <= p[1] <= max(a[1],b[1])+1e-9:\n                ok = True\n        # 非边界点应严格在每条边左侧\n        if not ok:\n            assert all(cross(R[i], R[(i+1) % len(R)], p) >= -1e-9 for i in range(len(R)))\n    # 平移后相交检测思路自检：P + (-Q) 含原点 ⇔ P、Q 相交\n    negQ = [(-x, -y) for x, y in Q]\n    S = minkowski_sum(P, negQ)\n    def pip_origin(poly):\n        # 射线法判原点\n        inside = False\n        n = len(poly)\n        for i in range(n):\n            x1, y1 = poly[i]\n            x2, y2 = poly[(i+1) % n]\n            if (y1 > 0) != (y2 > 0):\n                xi = x1 + (x2-x1)*(0-y1)/(y2-y1)\n                if 0 < xi:\n                    inside = not inside\n        return inside\n    assert pip_origin(S) is True   # P 与 Q 确实相交\n    print('minkowski-sum all tests passed')\n",
+    "pypy_notes": "整数坐标全程整数运算（叉积判极角大小），无浮点误差。双指针合并 O(|P|+|Q|)，Python 完全胜任 1e5 级。若坐标是浮点，极角比较仍可用叉积符号避免 atan2 的误差与开销。",
+    "complexity": {
+      "time": "O(|P|+|Q|)，重排找最低点为线性",
+      "space": "O(|P|+|Q|)"
+    },
+    "limitations": "要求输入是凸多边形（逆时针、首尾不重复）；共线相邻边会在归并时产生重复点需清理；浮点坐标下边向量叉积判极角受精度影响，建议整数坐标使用；仅讨论凸包的 Minkowski 和，一般点集的 Minkowski 和需先凸包化。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P4557",
+      "url": "https://www.luogu.com.cn/problem/P4557",
+      "difficulty": 5,
+      "key_point": "[JSOI2018] 战争：两凸包平移相交判定 → 平移向量 ∈ P+(-Q)，Minkowski 和模板题"
+    },
+    {
+      "oj": "CP-Algorithms",
+      "pid": "minkowski",
+      "url": "https://cp-algorithms.com/geometry/minkowski.html",
+      "difficulty": 4,
+      "key_point": "Minkowski 和原理 + 两凸多边形距离/相交判定 O(n+m)"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P5459",
+      "url": "https://www.luogu.com.cn/problem/P5459",
+      "difficulty": 5,
+      "key_point": "凸包 Minkowski 和相关综合（双凸包相撞判定类题）"
+    }
+  ],
+  "pitfalls": [
+    "输入多边形必须逆时针且首尾不重复，否则边极角序错误",
+    "最低点重排的键要 (y, x) 而非 (x, y)",
+    "边向量归并时共线同向要同时推进双指针并合并",
+    "最后顶点列表可能有相邻重复点（共线合并），需要去重",
+    "碰撞检测记得取 -Q（关于原点对称）而非直接 P+Q",
+    "浮点坐标的极角比较不要用 atan2 直接比，用叉积符号"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "norm", "label": "凸多边形重排到最低点（边按极角有序）"},
+      {"id": "init", "label": "起点 P[0]+Q[0]"},
+      {"id": "merge", "label": "双指针按极角归并边向量"},
+      {"id": "append", "label": "累加边向量生成顶点"},
+      {"id": "dedup", "label": "去重共线重复点"},
+      {"id": "use", "label": "应用：P+(-Q) 判定相交/距离"}
+    ],
+    "edges": [
+      {"from": "norm", "to": "init"},
+      {"from": "init", "to": "merge"},
+      {"from": "merge", "to": "append"},
+      {"from": "append", "to": "merge"},
+      {"from": "append", "to": "dedup"},
+      {"from": "dedup", "to": "use"}
+    ]
+  },
+  "sources": [
+    {"type": "cpalg", "url": "https://cp-algorithms.com/geometry/minkowski.html", "verified": true},
+    {"type": "oiwiki", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/convex-hull.md", "verified": true},
+    {"type": "book", "url": "", "ref": "CPH ch29", "verified": true}
+  ]
+}

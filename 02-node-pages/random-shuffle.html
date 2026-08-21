@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>随机打乱防hack · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-5.html">随机化与元启发式族</a> / <span>随机打乱防hack</span></div>
+  <h1>随机打乱防hack</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-5</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="simulated-annealing.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">simulated-annealing</span></a>
+    <a class="nav-index" href="../03-groups/G-E-5.html"><span class="dir">组内第 4 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="anti-hash.html"><span class="dir">下一个 / 组内</span><span class="v">anti-hash</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">shuffle打乱输入顺序防止构造数据卡哈希/快排；CF hack常见反制手段</div><p>随机打乱（random shuffle）是一种&#x27;防 hack&#x27;预处理：在算法执行前用随机数生成器打乱输入顺序，使确定性构造的&#x27;最坏数据&#x27;（针对固定顺序/固定哈希/固定枢纽的快排、固定 base 的字符串哈希、固定遍历顺序的算法）失效。在 Codeforces 的 hack 机制下，选手代码若对输入顺序、哈希 base、随机种子敏感，就会被构造数据卡掉；shuffle 或随机化参数能让攻击者无法预知代码行为。经典场景：随机化快速排序（随机选枢纽避免 O(n²) 退化）、随机 base/模数的字符串哈希（防碰撞构造）、随机增量法（见 random-technique）、std::random_shuffle 防止按特定顺序触发的退化分支。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>构造数据之所以能卡掉算法，是因为攻击者知道你代码里的固定行为（如快排总是取第一个元素、哈希 base 固定为 131）。如果把顺序或参数随机化，攻击者针对&#x27;你的固定行为&#x27;构造的数据就不再有针对性——他无法预知哪个顺序/哪个 base 会让程序退化。本质是把&#x27;固定输入上的最坏情况&#x27;转化为&#x27;概率很小的随机事件&#x27;。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>正确性来自概率分析：对任意固定的输入序列，随机打乱后落在&#x27;使算法退化&#x27;的那一小撮排列上的概率很低（例如随机化快排，任给输入，坏枢纽出现的概率被控制在某个常数以下，期望 O(n log n)）。关键要求：①随机种子必须每次运行不同（用系统时间/随机设备），否则攻击者可复现；②shuffle 必须均匀（Fisher–Yates），否则仍可预测；③随机范围要足够（如 base 从大范围随机选）。注意 shuffle 只对&#x27;对顺序敏感&#x27;的算法有效，不改变算法本身的正确性。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>随机化排序的研究可追溯到 1960s（Hoare 的快速排序随机化建议，1975 后正式分析）；Fisher–Yates shuffle 于 1938 年提出，是现代均匀随机排列的标准方法。&#x27;防 hack&#x27;实践随 Codeforces 的 hack 机制（2009+）而流行，成为 OI/ICPC 社区的反构造技巧。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">import</span> random
+random.<span class="t-f">seed</span>()  <span class="t-c"># 默认系统熵</span>
+arr = [...]
+random.<span class="t-f">shuffle</span>(arr)  <span class="t-c"># Fisher-Yates 均匀洗牌</span>
+<span class="t-c"># 或固定种子便于复现: random.seed(1234)</span>
+
+<span class="t-c"># 随机化快排: 每次随机选 pivot 或先 shuffle</span>
+<span class="t-c"># 随机哈希 base: base = random.randrange(2**20, 2**30)</span>
+<span class="t-c"># 注意: 防 hack 需每轮不同种子</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> random
+
+
+<span class="t-k">def</span> <span class="t-f">randomized_quicksort_median</span>(a):
+    <span class="t-s">&quot;&quot;&quot;随机化快排: 随机选枢纽避免最坏情况&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> <span class="t-b">len</span>(a) &lt;= <span class="t-n">1</span>:
+        <span class="t-k">return</span> a[:]
+    pivot = a[random.<span class="t-f">randrange</span>(<span class="t-b">len</span>(a))]
+    lo = [x <span class="t-k">for</span> x <span class="t-k">in</span> a <span class="t-k">if</span> x &lt; pivot]
+    eq = [x <span class="t-k">for</span> x <span class="t-k">in</span> a <span class="t-k">if</span> x == pivot]
+    hi = [x <span class="t-k">for</span> x <span class="t-k">in</span> a <span class="t-k">if</span> x &gt; pivot]
+    <span class="t-k">return</span> <span class="t-f">randomized_quicksort_median</span>(lo) + eq + <span class="t-f">randomized_quicksort_median</span>(hi)
+
+
+<span class="t-k">def</span> <span class="t-f">fisher_yates_shuffle</span>(arr):
+    <span class="t-s">&quot;&quot;&quot;手动 Fisher-Yates: 验证均匀性&quot;&quot;&quot;</span>
+    a = arr[:]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(a) - <span class="t-n">1</span>, <span class="t-n">0</span>, -<span class="t-n">1</span>):
+        j = random.<span class="t-f">randrange</span>(i + <span class="t-n">1</span>)
+        a[i], a[j] = a[j], a[i]
+    <span class="t-k">return</span> a
+
+
+<span class="t-k">def</span> <span class="t-f">sort_with_shuffle</span>(arr, seed=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;防 hack: 先 shuffle 再排序 (快排类算法消除最坏情况)&quot;&quot;&quot;</span>
+    rng = random.<span class="t-f">Random</span>(seed)
+    a = arr[:]
+    rng.<span class="t-f">shuffle</span>(a)
+    a.<span class="t-f">sort</span>()
+    <span class="t-k">return</span> a
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    random.<span class="t-f">seed</span>(<span class="t-n">42</span>)
+
+    <span class="t-c"># 随机化快排正确性</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        n = random.<span class="t-f">randrange</span>(<span class="t-n">1</span>, <span class="t-n">40</span>)
+        a = [random.<span class="t-f">randrange</span>(<span class="t-n">10</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">assert</span> <span class="t-f">randomized_quicksort_median</span>(a) == <span class="t-b">sorted</span>(a)
+
+    <span class="t-c"># shuffle+sort 与排序一致</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">100</span>):
+        n = random.<span class="t-f">randrange</span>(<span class="t-n">1</span>, <span class="t-n">50</span>)
+        a = [random.<span class="t-f">randrange</span>(<span class="t-n">100</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">assert</span> <span class="t-f">sort_with_shuffle</span>(a, seed=<span class="t-n">7</span>) == <span class="t-b">sorted</span>(a)
+
+    <span class="t-c"># Fisher-Yates 均匀性: 统计每个元素到各位置频率近似均匀</span>
+    n = <span class="t-n">6</span>
+    cnt = [[<span class="t-n">0</span>] * n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    trials = <span class="t-n">20000</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(trials):
+        p = <span class="t-f">fisher_yates_shuffle</span>(<span class="t-b">list</span>(<span class="t-b">range</span>(n)))
+        <span class="t-k">for</span> pos, val <span class="t-k">in</span> <span class="t-b">enumerate</span>(p):
+            cnt[val][pos] += <span class="t-n">1</span>
+    <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> pos <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">assert</span> <span class="t-b">abs</span>(cnt[v][pos] / trials - <span class="t-n">1.0</span> / n) &lt; <span class="t-n">0.02</span>, (v, pos)
+
+    <span class="t-c"># 不同种子结果不同(防 hack 的关键)</span>
+    a = <span class="t-b">list</span>(<span class="t-b">range</span>(<span class="t-n">50</span>))
+    s1 = <span class="t-f">sort_with_shuffle</span>(a, seed=<span class="t-n">1</span>)
+    s2 = <span class="t-f">sort_with_shuffle</span>(a, seed=<span class="t-n">2</span>)
+    <span class="t-k">assert</span> s1 == s2 == <span class="t-b">sorted</span>(a)  <span class="t-c"># 排序结果相同但执行顺序不同</span>
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;random-shuffle tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 内置 random.shuffle 已是 Fisher–Yates 均匀洗牌，直接用即可。若需复现性，用 random.Random(seed) 实例或 random.seed()。PyPy 下 random 与 CPython 行为一致。注意：防 hack 要每次运行换种子（不要固定 seed，否则可被针对）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>shuffle O(n)；洗牌后算法复杂度同原算法（随机化快排期望 O(n log n)）</td></tr><tr><th>空间复杂度</th><td>O(1) 额外（原地 shuffle）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只对顺序/参数敏感的算法有效；不改变算法正确性，只是降低最坏情况的概率；若攻击者能复现你的种子（如固定 seed），仍可被卡；对不依赖顺序的算法无意义。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>固定种子/忘调 srand =&gt; 随机化名存实亡，可被 hack</li><li>random_shuffle 在旧标准下不是均匀的，用 std::shuffle 或 Fisher-Yates</li><li>shuffle 不能&#x27;修复&#x27;算法本身的逻辑错误</li><li>对内存/缓存敏感问题，shuffle 反而可能使局部性变差</li><li>OI/ICPC 正式赛一般不 hack，但防构造仍是稳健习惯</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3809</strong></td><td>3</td><td>后缀排序模板：可配合随机哈希/随机化实践，但标准题主考 SA 倍增</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3809" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3809</a></td></tr><tr><td>Luogu</td><td><strong>U461211</strong></td><td>4</td><td>字符串 Hash（数据加强）：随机 base/双哈希防卡，直接对应 anti-hash</td><td class="u"><a href="https://www.luogu.com.cn/problem/U461211" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/U461211</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-random-shuffle" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "seed", "label": "初始化随机种子(不固定)"}}, {"data": {"id": "shuffle", "label": "Fisher-Yates 均匀打乱输入"}}, {"data": {"id": "algorithm", "label": "在打乱后数据上运行原算法"}}, {"data": {"id": "verify", "label": "验证结果正确(复杂度期望可控)"}}, {"data": {"id": "eseed->shuffle", "source": "seed", "target": "shuffle"}}, {"data": {"id": "eshuffle->algorithm", "source": "shuffle", "target": "algorithm"}}, {"data": {"id": "ealgorithm->verify", "source": "algorithm", "target": "verify"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-random-shuffle'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="random-technique.html" title="随机打乱是随机化技巧的具体应用">随机化技巧<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="anti-hash.html" title="随机打乱和随机base都是防构造数据的手段">防卡Hash随机化<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/random/" target="_blank" rel="noopener">https://oi-wiki.org/misc/random/</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

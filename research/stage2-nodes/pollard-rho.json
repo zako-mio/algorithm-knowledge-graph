@@ -1,0 +1,115 @@
+{
+ "id": "pollard-rho",
+ "name": "Pollard–Rho 大整数分解",
+ "group": "G-C-9",
+ "stage": "advanced",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "期望 O(n^{1/4}) 找合数非平凡因子，生日悖论+伪随机序列环检测，配 Miller-Rabin 递归分解",
+ "what": "Pollard–Rho 是随机化的大整数分解算法，用于快速找到一个合数 N 的非平凡因子（不一定是质因子）。核心：用伪随机序列 x_{i+1}=f(x_i)=(x_i²+c) mod N，观察序列模 N 的最小质因子 p 上会出现环（生日悖论：模 p 的重复期望 O(√p) 次迭代）；一旦 x_i≡x_j (mod p)，则 gcd(|x_i-x_j|,N) 是 N 的非平凡因子。用 Floyd 或 Brent 判环检测重复，配合倍增累积减少 gcd 次数。期望 O(N^{1/4})。实际使用中常与 Miller-Rabin 配合：先判素（是素直接返回），否则 Pollard-Rho 找一个因子 d 再递归分解 d 与 N/d。完整大整数分解（如 RSA 模数 2^128 内的数）是 OI/密码学/CTF 的基础工具。",
+ "why": {
+  "intuition": "在 [2,√N] 中随机猜因子概率太小。但生日悖论告诉我们：随机往 p 个桶里丢球，约 √p 次就会出现重复。我们对最小质因子 p 做‘伪随机模 p 轨道’，轨道一旦闭合就抓到 p 的‘指纹’（x_i-x_j 被 p 整除），再通过 gcd 把 p 从 N 里抠出来。序列长得像希腊字母 ρ（先绕圈再入环），因此叫 rho。",
+  "principle": "对合数 N，取最小质因子 p。迭代 f 模 N 的序列在模 p 下是自映射（若 x≡y mod p 则 f(x)≡f(y) mod p），模 p 轨道期望 O(√p) 步重复。Floyd 判环：双指针 a,b 分别每次走 1/2 步，直到同点。Brent 判环：倍增步长，平均调用 f 更少（比 Floyd 快 ~24%）。倍增优化：把若干个 |x_i-x_j| 乘起来一次性 gcd，减少 gcd 次数（gcd 是瓶颈），k 取 128 左右。若 gcd=N 表示整体模 N 成环，换 c 重试。边界：N 是素数会死循环（先用 Miller-Rabin 排除）；N=4 等需特判。期望复杂度 O(√p)=O(N^{1/4})。",
+  "history": "John Pollard 1975 年提出（论文 “A Monte Carlo method for factorization”），1978 年 Brent 改进为 Brent 判环。生日悖论思想的应用典范。与 Miller-Rabin 组合是 RSA 分解、离散对数等数论问题在 OI/密码学中的标配。OI Wiki《Pollard-Rho 算法》页与 CP-Algorithms factorization 页均给出完整实现。"
+ },
+ "how": {
+  "pseudocode": "def pollard_rho(n):\n  if n%2==0: return 2\n  while True:\n    c = randint(1, n-1)\n    y = randint(0, n-1); r = 1; q = 1; g = 1; m = 128\n    while g == 1:\n      x = y\n      for _ in range(r): y = f(y,c,n)\n      k = 0\n      while k < r and g == 1:\n        ys = y\n        for _ in range(min(m, r-k)):\n          y = f(y,c,n); q = q*abs(x-y) % n\n        g = gcd(q, n); k += m\n      r <<= 1\n    if g == n:   # 回退逐个检查\n      g = 1\n      while g == 1:\n        ys = f(ys,c,n); g = gcd(abs(x-ys), n)\n      if g == n: continue\n    return g\n\ndef factor(n):\n  if is_prime(n): return [n]\n  d = pollard_rho(n)\n  return factor(d) + factor(n//d)",
+  "python": "import random\nfrom math import gcd\nimport random\n\n\ndef is_prime_mr(n, bases=None):\n    \"\"\"Miller-Rabin 素性测试.\n    - bases=None 时使用确定性基底: [2,325,9375,28178,450775,9780504,1795265022],\n      对 < 2^64 的所有整数确定性正确.\n    - bases 可传入自定义基底列表 (如随机基底做概率测试).\n    小整数直接试除/特判.\"\"\"\n    if n < 2: return False\n    small = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]\n    for p in small:\n        if n % p == 0:\n            return n == p\n    d, s = n - 1, 0\n    while d % 2 == 0:\n        d //= 2\n        s += 1\n    if bases is None:\n        bases = [2, 325, 9375, 28178, 450775, 9780504, 1795265022]\n    for a in bases:\n        a %= n\n        if a == 0:\n            continue\n        x = pow(a, d, n)\n        if x == 1 or x == n - 1:\n            continue\n        ok = False\n        for _ in range(s - 1):\n            x = x * x % n\n            if x == n - 1:\n                ok = True\n                break\n        if not ok:\n            return False\n    return True\n\n\n\n\ndef _f(x, c, n):\n    return (x * x + c) % n\n\n\ndef pollard_rho(n, seed=None):\n    \"\"\"Pollard-Rho: 返回 n 的一个非平凡因子 (n 为合数). 期望 O(n^{1/4}).\n    使用 Brent 判环 + 倍增 gcd 累积优化. 可能失败返回 n (需换 c 重试).\"\"\"\n    if n % 2 == 0: return 2\n    if n % 3 == 0: return 3\n    if seed is not None:\n        random.seed(seed)\n    while True:\n        c = random.randint(1, n - 1)\n        y, r, q = random.randint(0, n - 1), 1, 1\n        g = 1\n        m = 128\n        while g == 1:\n            x = y\n            for _ in range(r):\n                y = _f(y, c, n)\n            k = 0\n            while k < r and g == 1:\n                ys = y\n                for _ in range(min(m, r - k)):\n                    y = _f(y, c, n)\n                    q = q * abs(x - y) % n\n                g = gcd(q, n)\n                k += m\n            r <<= 1\n        if g == n:\n            # 回退逐个检查 (Brent 经典做法)\n            g = 1\n            while g == 1:\n                ys = _f(ys, c, n)\n                g = gcd(abs(x - ys), n)\n            if g == n:\n                continue   # 换 c 重试\n        return g\n\n\ndef factor(n, trials=8):\n    \"\"\"完整分解 n, 返回 (质因子列表, 含重复). 递归 Miller-Rabin + Pollard-Rho.\"\"\"\n    factors = []\n    def rec(m):\n        if m == 1: return\n        if is_prime_mr(m):\n            factors.append(m)\n            return\n        for _ in range(trials):\n            d = pollard_rho(m)\n            if 1 < d < m:\n                rec(d)\n                rec(m // d)\n                return\n        # 极端情况: 换随机种子再试\n        d = pollard_rho(m, seed=random.randint(1, 10**9))\n        rec(d)\n        rec(m // d)\n    rec(n)\n    factors.sort()\n    return factors\n\n\ndef factor_counter(n):\n    \"\"\"返回 {质因子: 次数}.\"\"\"\n    from collections import Counter\n    return dict(Counter(factor(n)))\n\n\nif __name__ == \"__main__\":\n    import time\n    # 小因子快速检验\n    assert factor(48) == [2, 2, 2, 2, 3]\n    assert factor(100) == [2, 2, 5, 5]\n    assert factor(9973) == [9973]\n    assert factor(2**20) == [2] * 20\n\n    # 确定性随机验证 (与试除法对比)\n    def trial_factor(x):\n        res = []\n        d = 2\n        while d * d <= x:\n            while x % d == 0:\n                res.append(d)\n                x //= d\n            d += 1\n        if x > 1: res.append(x)\n        return res\n\n    import random\n    random.seed(888)\n    for _ in range(400):\n        n = random.randint(2, 10**9)\n        got = factor(n)\n        assert got == trial_factor(n), (n, got, trial_factor(n))\n\n    # 大整数: 两个 10^9 量级素数之积 (~10^18, 超出 2^64)\n    p = 1000000007\n    q = 1000000009\n    n = p * q\n    t0 = time.time()\n    fs = factor(n)\n    dt = time.time() - t0\n    assert sorted(fs) == sorted([p, q]), fs\n    print(f\"factor({p}*{q}) -> {fs} in {dt:.3f}s\")\n\n    # 三次方与大质因子混合\n    n2 = 2**31 - 1   # 2147483647 是梅森素数\n    assert factor(n2) == [n2]\n    n3 = (2**31 - 1) * 3 * 3\n    assert factor(n3) == [3, 3, 2147483647]\n    print(\"pollard-rho: all tests passed\")\n",
+  "pypy_notes": "乘法和取模用内建，|x-y| 用 abs 避免大数符号问题。gcd 用 math.gcd（C 实现）。随机 c 失败时换 c 重试，不要无限循环。递归 factor 深度 ≤ 因子数。对 2^64 内整数 Python 大整数无溢出问题；更大数建议用 gmpy2（is_prime/pow/gcd 加速 5-50x）。Brent+倍增实现中 m=128 是常见调优值。",
+  "complexity": {
+   "time": "期望 O(N^{1/4})（单因子）；完整分解需递归 × 因子个数",
+   "space": "O(1)（递归栈 O(因子数)）"
+  },
+  "limitations": "① 对素数无效（需 Miller-Rabin 前置）；② 极端坏数据（多重小因子/全同因子如 2^64）可能多次失败换 c，但仍快；③ 概率算法无严格最坏上界；④ 大整数（>2^128）Python 原生慢，需 gmpy2；⑤ 找出的因子是非平凡因子而非质因子，需递归分解。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P4718",
+   "url": "https://www.luogu.com.cn/problem/P4718",
+   "difficulty": 4,
+   "key_point": "【模板】Pollard-Rho 算法：Miller-Rabin + Pollard-Rho 求最大质因子，OI Wiki 模板"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P1075",
+   "url": "https://www.luogu.com.cn/problem/P1075",
+   "difficulty": 2,
+   "key_point": "质因数分解：小数据试除即可，验证分解正确性"
+  },
+  {
+   "oj": "CP-Algorithms",
+   "pid": "Integer factorization",
+   "url": "https://cp-algorithms.com/algebra/factorization.html",
+   "difficulty": 3,
+   "key_point": "factorization 页：试除/轮式/Floyd/Brent 全套实现"
+  }
+ ],
+ "pitfalls": [
+  "忘记对素数/小整数做前置 Miller-Rabin 与特判，导致死循环",
+  "N=4 时 Floyd 两步特判（先跳两步再判环）",
+  "gcd==N 时未换 c 重试而是当成因子返回",
+  "Brent 实现中 q 未重置/未在正确时机检查 gcd",
+  "用整除代替 gcd 判断（N 太大不可行）",
+  "递归 factor 对 1 未处理导致无限递归"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "pre",
+    "label": "Miller-Rabin 判素 + 小质数特判"
+   },
+   {
+    "id": "rho",
+    "label": "伪随机序列 f(x)=x²+c 迭代 + 判环(Floyd/Brent)"
+   },
+   {
+    "id": "gcd",
+    "label": "倍增累积 gcd 提取因子, 失败换 c"
+   },
+   {
+    "id": "recurse",
+    "label": "递归分解 d 与 N/d"
+   },
+   {
+    "id": "ext",
+    "label": "扩展: 求最大质因子/因子计数/质因数分解模板"
+   }
+  ],
+  "edges": [
+   {
+    "from": "pre",
+    "to": "rho"
+   },
+   {
+    "from": "rho",
+    "to": "gcd"
+   },
+   {
+    "from": "gcd",
+    "to": "recurse"
+   },
+   {
+    "from": "recurse",
+    "to": "ext"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/math/number-theory/pollard-rho/",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/algebra/factorization.html",
+   "verified": true
+  },
+  {
+   "type": "paper",
+   "url": "https://doi.org/10.1007/BF01933190",
+   "verified": true
+  }
+ ]
+}

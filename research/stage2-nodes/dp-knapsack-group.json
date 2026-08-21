@@ -1,0 +1,102 @@
+{
+  "id": "dp-knapsack-group",
+  "name": "分组背包",
+  "group": "G-A-11",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "物品分组，每组最多选一件",
+  "what": "分组背包是0-1背包的变式：物品被分为若干组，每组最多只能选一件物品。状态转移从「在所有物品中选一件」变为「从当前组中选一件」——对每一组做一次0-1背包即可。核心是三层循环的顺序：组别→容量→组内物品。",
+  "why": {
+    "intuition": "每组最多选一件意味着组内物品互斥。枚举组时，对每个容量j，从该组所有物品中选最优的一件放入（或不选），等价于一个组内的小型0-1背包。",
+    "principle": "状态转移：f(j)=max{f(j), f(j-w[g][i])+v[g][i]}，其中g为组号，i为组内物品编号。循环顺序：外层枚举组k，中层倒序枚举容量j（保证每组只选一件），内层枚举组内物品i。正确性：倒序枚举容量使得同一组内至多有一个物品被选中（因为f(j-w)仍来自上一组的状态）。",
+    "history": "分组背包是四大背包模型之一（0-1、完全、多重、分组），常出现在有互斥选择的场景中（如主件-附件问题可转化为分组背包）。OI Wiki以P1757(通天之分组背包)为教学题。"
+  },
+  "how": {
+    "pseudocode": "# groups[k] = [(w, v), ...] 第k组的物品列表\nfor k in 1..num_groups:\n  for j in W down to 0:\n    for (w, v) in groups[k]:\n      if j >= w:\n        f[j] = max(f[j], f[j-w] + v)",
+    "python": "def group_knapsack(W, groups):\n    \"\"\"分组背包\n    W: 背包容量\n    groups: [[(w1,v1),(w2,v2),...], ...] 每组物品列表\n    返回: 最大价值\n    \"\"\"\n    f = [0] * (W + 1)\n    for group in groups:\n        for j in range(W, -1, -1):  # 倒序枚举容量\n            for w, v in group:\n                if j >= w and f[j - w] + v > f[j]:\n                    f[j] = f[j - w] + v\n    return f[W]\n\n\ndef group_knapsack_with_count(W, groups):\n    \"\"\"分组背包(带选择计数版本, 用于验证)\"\"\"\n    f = [0] * (W + 1)\n    chosen = [[] for _ in range(W + 1)]\n    for gi, group in enumerate(groups):\n        new_f = f[:]  # 复制, 确保每组只选一件\n        new_chosen = [c[:] for c in chosen]\n        for j in range(W, -1, -1):\n            for idx, (w, v) in enumerate(group):\n                if j >= w and f[j - w] + v > new_f[j]:\n                    new_f[j] = f[j - w] + v\n                    new_chosen[j] = chosen[j - w] + [(gi, idx)]\n        f = new_f\n        chosen = new_chosen\n    return f[W], chosen[W]\n\n\nif __name__ == \"__main__\":\n    # 测试: 容量10, 3组物品\n    # 组1: (w=3,v=4),(w=4,v=5) -> 选w=3,v=4 或 w=4,v=5\n    # 组2: (w=2,v=3),(w=5,v=6) -> 选w=5,v=6\n    # 组3: (w=1,v=1) -> 选w=1,v=1\n    W = 10\n    groups = [\n        [(3, 4), (4, 5)],\n        [(2, 3), (5, 6)],\n        [(1, 1)]\n    ]\n    ans = group_knapsack(W, groups)\n    # 最优: 组1选(4,5)=5, 组2选(5,6)=6, 组3不选(容量=9不够10) 或组3选(1,1)\n    # 4+5+1=10, 价值5+6+1=12\n    assert ans == 12, f\"Expected 12, got {ans}\"\n\n    # 验证每组只选一件\n    _, chosen = group_knapsack_with_count(W, groups)\n    group_ids = [g for g, _ in chosen]\n    assert len(group_ids) == len(set(group_ids)), \"每组应最多选一件\"\n\n    # 边界\n    assert group_knapsack(0, [[(1, 1)]]) == 0\n    assert group_knapsack(1, [[(1, 5)]]) == 5\n\n    print(\"All tests passed.\")\n",
+    "pypy_notes": "PyPy对三层循环优化好，组数*W*平均组大小=1e7时约0.5s。注意内层物品循环不要倒序(容量倒序即可)。",
+    "complexity": {
+      "time": "O(W * sum of group sizes) = O(W * n) 其中n为总物品数",
+      "space": "O(W) — 一维滚动数组"
+    },
+    "limitations": "三层循环在W大(>1e5)且组数多时Python可能TLE。主件-附件问题可转化为分组背包但需先分析依赖结构。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1757",
+      "url": "https://www.luogu.com.cn/problem/P1757",
+      "difficulty": 2,
+      "key_point": "通天之分组背包：分组背包模板题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1064",
+      "url": "https://www.luogu.com.cn/problem/P1064",
+      "difficulty": 3,
+      "key_point": "金明的预算方案：主件-附件问题转化为分组背包"
+    }
+  ],
+  "pitfalls": [
+    "循环顺序错误：必须 组→容量(倒序)→组内物品，容量倒序保证每组只选一件",
+    "组内物品循环不需倒序（因为容量已倒序，同一物品不会被重复取）",
+    "空组或组内物品重量全超W时应跳过",
+    "主件-附件问题中不买主件也是一种选择，需加入虚拟选项"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "state",
+        "label": "状态定义 f(j)=容量j最大价值"
+      },
+      {
+        "id": "group_loop",
+        "label": "外层枚举组"
+      },
+      {
+        "id": "capacity_loop",
+        "label": "中层倒序枚举容量"
+      },
+      {
+        "id": "item_loop",
+        "label": "内层枚举组内物品"
+      },
+      {
+        "id": "answer",
+        "label": "答案 f(W)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "state",
+        "to": "group_loop"
+      },
+      {
+        "from": "group_loop",
+        "to": "capacity_loop"
+      },
+      {
+        "from": "capacity_loop",
+        "to": "item_loop"
+      },
+      {
+        "from": "item_loop",
+        "to": "answer"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/dp/knapsack/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/dynamic_programming/knapsack.html",
+      "verified": true,
+      "note": "分组背包与 0-1 背包分组转移"
+    }
+  ]
+}

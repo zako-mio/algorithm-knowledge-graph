@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>插头DP（连通性状态压缩DP） · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-13.html">高级DP族</a> / <span>插头DP（连通性状态压缩DP）</span></div>
+  <h1>插头DP（连通性状态压缩DP）</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-13</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-A-13.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-A-13.html"><span class="dir">组内第 1 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="dp-dynamic.html"><span class="dir">下一个 / 组内</span><span class="v">dp-dynamic</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">轮廓线DP + 连通性编码，逐格转移，解决网格图的哈密顿回路/路径计数、生成树计数等问题</div><p>插头DP（连通性状态压缩DP）是轮廓线DP的推广：在处理格子 (i,j) 时，轮廓线是已决策与未决策格子之间的分界线，状态记录轮廓线上每个位置&#x27;是否有插头（与相邻格的连接）&#x27;以及插头之间的连通性。一条回路问题时插头总是成对出现，合法状态构成括号序列。常用两种编码：括号表示（&#x27;(&#x27; &#x27;)&#x27; 配对）与最小表示（连通分量用最小可用数字标记）。多数回路问题只需要记录插头是否存在（如 Eat the Trees 多回路覆盖），而单回路问题（Formula 1、Ural 1519）必须区分连通性以禁止提前形成小环。状态可用哈希表/字典存储（合法状态稀疏），行末滚动 roll() 把最后一列左插头移到行首。转移分四类：左、上均有插头（合并或闭合）、恰有一个插头（延伸或转向）、均无插头（新建一对插头）、以及障碍格处理。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>逐行状压 DP 一行一行推进时，只能表达&#x27;该格是否被覆盖&#x27;，无法表达连线从哪里来、到哪里去。改为逐格推进并记录&#x27;轮廓线&#x27;上的连接状态：每个格子的下方与右侧是&#x27;出线&#x27;，左侧与上方是&#x27;入线&#x27;，一个格子决定了它 4 个方向中哪些存在连接。插头成对出现是因为每条线有两个端点，若某条线两端都落在已处理区域（提前成环），在单回路问题中就必须禁止。状态越小越好，用最小表示压缩掉编号顺序。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>轮廓线宽度为 m+1：m 个上插头 + 1 个左插头。最小表示编码：把轮廓线上非零插头按出现顺序重新标号为 1,2,3…，保证同一连通块编号相同，是字典序最小的规范形。转移枚举：①lt,up 均存在：若 lt==up，说明左右两个插头本就同连通块，闭合会成环，仅当是最后一个格子且其余插头全 0 时接受（单回路）；否则合并两个连通块（把 b[i]==lt 全部改成 up）。②仅一个存在：该插头可向右或向下延伸（需对应格子开放）。③均不存在：若右、下格子均开放，新建一对插头。每次转移后对状态重新最小表示编码；行末 roll：要求轮廓线最后一格（左插头位）为 0，去掉后整体左移一位。多回路问题（Eat the Trees）不需要连通性编码，只需 0/1 位，直接位运算即可。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>连通性状态压缩 DP 的经典发展来自对&#x27;一条回路覆盖棋盘&#x27;问题（如 Ural 1519 Formula 1、HDU 1693 Eat the Trees）的研究。中国竞赛圈由毛啸等选手在 2007 年前后系统总结推广（&#x27;插头DP&#x27;命名流行于国内 OI），OI Wiki 收录完整的三类问题模板（多回路、单回路、单路径）。单路径问题需额外记录独立插头（路径端点）的生成/消失次数（≤2），并将该信息编码进状态或外加一维。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 单回路覆盖 n*m 棋盘（最小表示 + 哈希表/字典）</span>
+cur = {<span class="t-f">encode</span>(<span class="t-b">all</span>-<span class="t-n">0</span>轮廓): <span class="t-n">1</span>}
+<span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-n">0.</span>.n-<span class="t-n">1</span>:
+  <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-n">0.</span>.m-<span class="t-n">1</span>:
+    nxt = {}
+    <span class="t-k">for</span> state <span class="t-k">in</span> cur:
+      <span class="t-f">decode</span>(state) -&gt; b[]
+      lt, up = b[j], b[j+<span class="t-n">1</span>]
+      <span class="t-k">if</span> 障碍格: 若 lt==<span class="t-n">0</span> 且 up==<span class="t-n">0</span> 则直接保留; <span class="t-k">continue</span>
+      <span class="t-k">if</span> lt <span class="t-k">and</span> up:
+        <span class="t-k">if</span> lt==up:
+          <span class="t-k">if</span> 最后一格且其余全<span class="t-n">0</span>: nxt[<span class="t-b">all</span>-<span class="t-n">0</span>] += val
+        <span class="t-k">else</span>: 合并连通块(把 lt 全部改成 up), 置 b[j]=b[j+<span class="t-n">1</span>]=<span class="t-n">0</span>
+      <span class="t-k">elif</span> lt <span class="t-k">or</span> up:
+        t = lt|up
+        <span class="t-k">if</span> 右格开放: 延伸 b[j+<span class="t-n">1</span>]=t, b[j]=<span class="t-n">0</span>
+        <span class="t-k">if</span> 下格开放: 延伸 b[j]=t, b[j+<span class="t-n">1</span>]=<span class="t-n">0</span>
+      <span class="t-k">else</span>:
+        <span class="t-k">if</span> 右与下均开放: b[j]=b[j+<span class="t-n">1</span>]=新编号(成对新插头)
+    cur = 最小表示去重合并后的 nxt
+  行末 <span class="t-f">roll</span>(): 要求 b[m]==<span class="t-n">0</span>, 去掉 b[m] 并在头部补 <span class="t-n">0</span>
+答案 = cur 中全 <span class="t-n">0</span> 状态的计数</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+<span class="t-c"># 插头DP 单回路覆盖 n*m 棋盘（含障碍），最小表示编码，返回方案数</span>
+<span class="t-k">from</span> collections <span class="t-k">import</span> defaultdict
+
+
+<span class="t-k">def</span> <span class="t-f">encode</span>(b):
+    <span class="t-s">&quot;&quot;&quot;轮廓线数组 -&gt; 最小表示整数编码（tuple）&quot;&quot;&quot;</span>
+    mp, out, nxt = {}, [], <span class="t-n">1</span>
+    <span class="t-k">for</span> x <span class="t-k">in</span> b:
+        <span class="t-k">if</span> x == <span class="t-n">0</span>:
+            out.<span class="t-f">append</span>(<span class="t-n">0</span>)
+        <span class="t-k">else</span>:
+            <span class="t-k">if</span> x <span class="t-k">not</span> <span class="t-k">in</span> mp:
+                mp[x] = nxt
+                nxt += <span class="t-n">1</span>
+            out.<span class="t-f">append</span>(mp[x])
+    <span class="t-k">return</span> <span class="t-b">tuple</span>(out)
+
+
+<span class="t-k">def</span> <span class="t-f">plug_dp</span>(n, m, open_cells):
+    <span class="t-s">&quot;&quot;&quot;open_cells: {(r,c)} 0-indexed 可走的格子。返回用一条回路覆盖所有开放格子的方案数。&quot;&quot;&quot;</span>
+    cur = {<span class="t-f">encode</span>([<span class="t-n">0</span>] * (m + <span class="t-n">1</span>)): <span class="t-n">1</span>}
+    last_open = <span class="t-b">max</span>(r * m + c <span class="t-k">for</span> (r, c) <span class="t-k">in</span> open_cells)
+    <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(m):
+            idx = r * m + c
+            is_cell = (r, c) <span class="t-k">in</span> open_cells
+            is_last = idx == last_open
+            nxt = <span class="t-f">defaultdict</span>(<span class="t-b">int</span>)
+            <span class="t-k">for</span> state, val <span class="t-k">in</span> cur.<span class="t-f">items</span>():
+                b = <span class="t-b">list</span>(state)
+                left, up = b[c], b[c + <span class="t-n">1</span>]
+                <span class="t-k">if</span> <span class="t-k">not</span> is_cell:                     <span class="t-c"># 障碍格</span>
+                    <span class="t-k">if</span> left == <span class="t-n">0</span> <span class="t-k">and</span> up == <span class="t-n">0</span>:
+                        nxt[<span class="t-f">encode</span>(b)] += val
+                    <span class="t-k">continue</span>
+                <span class="t-k">if</span> left <span class="t-k">and</span> up:
+                    <span class="t-k">if</span> left == up:                  <span class="t-c"># 闭合：必须最后一格且其余全 0</span>
+                        <span class="t-k">if</span> is_last:
+                            bb = <span class="t-b">list</span>(b); bb[c] = bb[c + <span class="t-n">1</span>] = <span class="t-n">0</span>
+                            <span class="t-k">if</span> <span class="t-b">all</span>(x == <span class="t-n">0</span> <span class="t-k">for</span> x <span class="t-k">in</span> bb):
+                                nxt[<span class="t-f">encode</span>(bb)] += val
+                    <span class="t-k">else</span>:                            <span class="t-c"># 合并两个连通块</span>
+                        bb = <span class="t-b">list</span>(b); bb[c] = bb[c + <span class="t-n">1</span>] = <span class="t-n">0</span>
+                        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(m + <span class="t-n">1</span>):
+                            <span class="t-k">if</span> bb[i] == left:
+                                bb[i] = up
+                        nxt[<span class="t-f">encode</span>(bb)] += val
+                <span class="t-k">elif</span> left <span class="t-k">or</span> up:
+                    t = left | up
+                    <span class="t-k">if</span> c + <span class="t-n">1</span> &lt; m <span class="t-k">and</span> (r, c + <span class="t-n">1</span>) <span class="t-k">in</span> open_cells:   <span class="t-c"># 向右延伸</span>
+                        bb = <span class="t-b">list</span>(b); bb[c] = <span class="t-n">0</span>; bb[c + <span class="t-n">1</span>] = t
+                        nxt[<span class="t-f">encode</span>(bb)] += val
+                    <span class="t-k">if</span> r + <span class="t-n">1</span> &lt; n <span class="t-k">and</span> (r + <span class="t-n">1</span>, c) <span class="t-k">in</span> open_cells:   <span class="t-c"># 向下延伸</span>
+                        bb = <span class="t-b">list</span>(b); bb[c] = t; bb[c + <span class="t-n">1</span>] = <span class="t-n">0</span>
+                        nxt[<span class="t-f">encode</span>(bb)] += val
+                <span class="t-k">else</span>:                               <span class="t-c"># 新建一对插头（成对生成）</span>
+                    <span class="t-k">if</span> (c + <span class="t-n">1</span> &lt; m <span class="t-k">and</span> (r, c + <span class="t-n">1</span>) <span class="t-k">in</span> open_cells
+                            <span class="t-k">and</span> r + <span class="t-n">1</span> &lt; n <span class="t-k">and</span> (r + <span class="t-n">1</span>, c) <span class="t-k">in</span> open_cells):
+                        bb = <span class="t-b">list</span>(b); bb[c] = m + <span class="t-n">1</span>; bb[c + <span class="t-n">1</span>] = m + <span class="t-n">1</span>
+                        nxt[<span class="t-f">encode</span>(bb)] += val
+            cur = nxt
+        <span class="t-c"># 行末滚动：最后一列左插头必须为 0，去掉后整体左移一位</span>
+        roll = <span class="t-f">defaultdict</span>(<span class="t-b">int</span>)
+        <span class="t-k">for</span> state, val <span class="t-k">in</span> cur.<span class="t-f">items</span>():
+            bb = <span class="t-b">list</span>(state)
+            <span class="t-k">if</span> bb[m] != <span class="t-n">0</span>:
+                <span class="t-k">continue</span>
+            <span class="t-k">del</span> bb[m]
+            bb.<span class="t-f">insert</span>(<span class="t-n">0</span>, <span class="t-n">0</span>)
+            roll[<span class="t-f">encode</span>(bb)] += val
+        cur = roll
+    <span class="t-k">return</span> cur.<span class="t-f">get</span>(<span class="t-f">encode</span>([<span class="t-n">0</span>] * (m + <span class="t-n">1</span>)), <span class="t-n">0</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-k">def</span> <span class="t-f">all_open</span>(n, m):
+        <span class="t-k">return</span> {(r, c) <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(n) <span class="t-k">for</span> c <span class="t-k">in</span> <span class="t-b">range</span>(m)}
+    <span class="t-c"># 与暴力枚举对拍的小规模值</span>
+    <span class="t-k">assert</span> <span class="t-f">plug_dp</span>(<span class="t-n">2</span>, <span class="t-n">2</span>, <span class="t-f">all_open</span>(<span class="t-n">2</span>, <span class="t-n">2</span>)) == <span class="t-n">1</span>
+    <span class="t-k">assert</span> <span class="t-f">plug_dp</span>(<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-f">all_open</span>(<span class="t-n">2</span>, <span class="t-n">3</span>)) == <span class="t-n">1</span>
+    <span class="t-k">assert</span> <span class="t-f">plug_dp</span>(<span class="t-n">3</span>, <span class="t-n">3</span>, <span class="t-f">all_open</span>(<span class="t-n">3</span>, <span class="t-n">3</span>)) == <span class="t-n">0</span>   <span class="t-c"># 3x3 无单回路</span>
+    <span class="t-k">assert</span> <span class="t-f">plug_dp</span>(<span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-f">all_open</span>(<span class="t-n">3</span>, <span class="t-n">4</span>)) == <span class="t-n">2</span>
+    <span class="t-k">assert</span> <span class="t-f">plug_dp</span>(<span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-f">all_open</span>(<span class="t-n">2</span>, <span class="t-n">4</span>)) == <span class="t-n">1</span>
+    <span class="t-c"># 中心有障碍的 3x3：绕开中心仍有一条回路</span>
+    oc = <span class="t-f">all_open</span>(<span class="t-n">3</span>, <span class="t-n">3</span>) - {(<span class="t-n">1</span>, <span class="t-n">1</span>)}
+    <span class="t-k">assert</span> <span class="t-f">plug_dp</span>(<span class="t-n">3</span>, <span class="t-n">3</span>, oc) == <span class="t-n">1</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;plug-dp tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">状态用字典/tuple 在 PyPy 下可用但常数较大；n,m≤12 全开格可跑，更大需手写哈希（链式前向星 + 状态数组），并用整数位编码替代 tuple。最小表示每次转移都要重新编码，注意用位运算加速。Python 只适合小棋盘或教学演示，正式题建议 C++。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n·m·S)（S 为合法状态数；单回路问题合法状态为括号序列数，远小于全状态；字典/哈希均摊 O(1)）</td></tr><tr><th>空间复杂度</th><td>O(S)（每层两张哈希表）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">状态爆炸：m 增大状态数呈指数（连通性合法状态为卡特兰相关），一般 m≤10~12 才实用；Python 常数大，仅适合小棋盘。多条回路问题不需要连通性编码（比单回路简单）。含权值的最优回路/路径问题（如最大权回路）把计数改为取 max 即可，但要处理障碍与单格答案。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>单回路问题必须区分插头连通性（最小表示/括号），否则会算入多个小环</li><li>左、上均有插头且同连通块时闭合会成环，只能允许在最后一个空格闭合</li><li>行末 roll 时若最后一列左插头非 0 则该状态非法，必须丢弃</li><li>障碍格必须延续状态（left==0 且 up==0 才合法），且不做插头生成</li><li>最小表示编码的重新标号必须从 1 开始且 0 保留（0 表示无插头）</li><li>新建一对插头时两者要用同一新编号（保证连通），否则合并判定出错</li><li>m 较大时 Python 字典 + tuple 编码会超时/爆内存，需手写哈希与位编码</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Ural</td><td><strong>1519</strong></td><td>4</td><td>Formula 1：单回路覆盖带障碍棋盘计数，插头DP经典模板题</td><td class="u"><a href="https://acm.timus.ru/problem.aspx?space=1&amp;num=1519" target="_blank" rel="noopener">https://acm.timus.ru/problem.aspx?space=1&amp;num=1519</a></td></tr><tr><td>HDU</td><td><strong>1693</strong></td><td>3</td><td>Eat the Trees：多回路覆盖，只需 0/1 插头位，不需要连通性编码</td><td class="u"><a href="https://acm.hdu.edu.cn/showproblem.php?pid=1693" target="_blank" rel="noopener">https://acm.hdu.edu.cn/showproblem.php?pid=1693</a></td></tr><tr><td>Luogu</td><td><strong>P5056</strong></td><td>5</td><td>【模板】插头DP：单回路计数，与 Ural 1519 同型</td><td class="u"><a href="https://www.luogu.com.cn/problem/P5056" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P5056</a></td></tr><tr><td>Luogu</td><td><strong>P3190</strong></td><td>4</td><td>HNOI2007 神奇游乐园：最大权单回路，状态计数改取 max</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3190" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3190</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-dp-plug" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "contour", "label": "轮廓线DP与插头概念（m+1 宽轮廓）"}}, {"data": {"id": "encoding", "label": "括号表示 / 最小表示编码与解码"}}, {"data": {"id": "transfer", "label": "四类插头转移 + 哈希表滚动"}}, {"data": {"id": "multi", "label": "多回路问题（只需 0/1 状态）"}}, {"data": {"id": "single", "label": "单回路/单路径问题（连通性 + 独立插头）"}}, {"data": {"id": "apply", "label": "应用于计数 / 最大权回路等问题"}}, {"data": {"id": "econtour->encoding", "source": "contour", "target": "encoding"}}, {"data": {"id": "eencoding->transfer", "source": "encoding", "target": "transfer"}}, {"data": {"id": "etransfer->multi", "source": "transfer", "target": "multi"}}, {"data": {"id": "emulti->single", "source": "multi", "target": "single"}}, {"data": {"id": "esingle->apply", "source": "single", "target": "apply"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-dp-plug'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="dp-state.html" title="插头DP是状压DP的连通性编码高级扩展">状压DP<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/dp/plug/" target="_blank" rel="noopener">https://oi-wiki.org/dp/plug/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">OI Wiki 插头DP 三类模板（Eat the Trees / Formula 1 / 单路径）</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>字节序 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-7.html">离线与杂项技巧族</a> / <span>字节序</span></div>
+  <h1>字节序</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-7</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="fsm.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">fsm</span></a>
+    <a class="nav-index" href="../03-groups/G-E-7.html"><span class="dir">组内第 15 / 18</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="tortoise-hare.html"><span class="dir">下一个 / 组内</span><span class="v">tortoise-hare</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">大端序/小端序差异，网络字节序转换，二进制文件读写时需注意</div><p>字节序(Byte Order / Endianness)描述多字节对象在内存中的字节排列方式：小端序(Little Endian)从最低有效字节到最高有效字节存放，大端序(Big Endian)相反。例如 0x01234567 小端存 67 45 23 01，大端存 01 23 45 67。网络协议规定统一使用网络字节序(大端)；跨平台二进制文件/协议/内存映射(如 mmap 解析)若不转换字节序会产生错误数据。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>CPU 设计选择把低字节放低地址(小端, x86/ARM)或高字节放低地址(大端, Sun/PPC 传统, 网络)只是约定。跨端传输时，同一字节序列在两台机器上解读出的整数不同，因此必须有约定与转换工具(htonl/ntohl 等)。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>小端序：地址递增方向先存低位字节(0x100:67, 0x101:45, 0x102:23, 0x103:01)。大端序反之。术语出自《格列佛游记》中关于&#x27;从小端还是大端剥鸡蛋&#x27;的政治讽刺。判断本机字节序可通过 memcpy 到字符数组观察首字节，或用 struct.pack(&#x27;&lt;I&#x27;, 1)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>字节序术语&#x27;endian&#x27;源于 Swift《格列佛游记》的小人国纷争。OI Wiki 在 misc 页面介绍该概念，说明其在网络编程与二进制数据处理中的重要性。现代 x86/ARM 小端主导，但网络字节序仍固定大端，竞赛中解析二进制数据/位掩码题(如逆向题)会考到。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 判断本机字节序(小端返回 &#x27;little&#x27;)</span>
+<span class="t-k">import</span> sys
+<span class="t-b">print</span>(sys.byteorder)   <span class="t-c"># &#x27;little&#x27; 或 &#x27;big&#x27;</span>
+
+<span class="t-c"># 整数 &lt;-&gt; 字节转换</span>
+<span class="t-k">import</span> struct
+<span class="t-c"># 小端编码</span>
+packed_le = struct.<span class="t-f">pack</span>(<span class="t-s">&#x27;&lt;I&#x27;</span>, <span class="t-n">0x01234567</span>)
+<span class="t-c"># 大端编码(网络字节序)</span>
+packed_be = struct.<span class="t-f">pack</span>(<span class="t-s">&#x27;&gt;I&#x27;</span>, <span class="t-n">0x01234567</span>)
+
+<span class="t-c"># 手工验证: 小端 67 45 23 01, 大端 01 23 45 67</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> struct
+<span class="t-k">import</span> sys
+
+
+<span class="t-k">def</span> <span class="t-f">machine_endianness</span>():
+    <span class="t-s">&quot;&quot;&quot;返回本机字节序: &#x27;little&#x27; 或 &#x27;big&#x27;。&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> sys.byteorder
+
+
+<span class="t-k">def</span> <span class="t-f">little_endian_bytes</span>(value):
+    <span class="t-s">&quot;&quot;&quot;将 int 编码为小端字节序列(演示)。&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> struct.<span class="t-f">pack</span>(<span class="t-s">&#x27;&lt;I&#x27;</span>, value)
+
+
+<span class="t-k">def</span> <span class="t-f">big_endian_bytes</span>(value):
+    <span class="t-s">&quot;&quot;&quot;将 int 编码为大端字节序列(网络字节序)。&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> struct.<span class="t-f">pack</span>(<span class="t-s">&#x27;&gt;I&#x27;</span>, value)
+
+
+<span class="t-k">def</span> <span class="t-f">parse_binary_file</span>(path, endian=<span class="t-s">&#x27;&lt;&#x27;</span>):
+    <span class="t-s">&quot;&quot;&quot;按指定字节序读取二进制文件中的整数序列(演示)。
+    endian: &#x27;&lt;&#x27; 小端, &#x27;&gt;&#x27; 大端。
+    &quot;&quot;&quot;</span>
+    <span class="t-k">with</span> <span class="t-b">open</span>(path, <span class="t-s">&#x27;rb&#x27;</span>) <span class="t-k">as</span> f:
+        data = f.<span class="t-f">read</span>()
+    nums = []
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">0</span>, <span class="t-b">len</span>(data) - <span class="t-n">3</span>, <span class="t-n">4</span>):
+        nums.<span class="t-f">append</span>(struct.<span class="t-f">unpack</span>(endian + <span class="t-s">&#x27;I&#x27;</span>, data[i:i + <span class="t-n">4</span>])[<span class="t-n">0</span>])
+    <span class="t-k">return</span> nums
+
+
+<span class="t-k">def</span> <span class="t-f">swap_endian32</span>(x):
+    <span class="t-s">&quot;&quot;&quot;手工反转 32 位整数字节序(小端&lt;-&gt;大端)。&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> ((x &amp; <span class="t-n">0x000000FF</span>) &lt;&lt; <span class="t-n">24</span>) | ((x &amp; <span class="t-n">0x0000FF00</span>) &lt;&lt; <span class="t-n">8</span>) | \
+           ((x &amp; <span class="t-n">0x00FF0000</span>) &gt;&gt; <span class="t-n">8</span>) | ((x &amp; <span class="t-n">0xFF000000</span>) &gt;&gt; <span class="t-n">24</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    val = <span class="t-n">0x01234567</span>
+    le = <span class="t-f">little_endian_bytes</span>(val)
+    be = <span class="t-f">big_endian_bytes</span>(val)
+
+    <span class="t-k">assert</span> <span class="t-f">machine_endianness</span>() <span class="t-k">in</span> (<span class="t-s">&#x27;little&#x27;</span>, <span class="t-s">&#x27;big&#x27;</span>)
+    <span class="t-c"># 标准验证: 小端序列首字节=低位 0x67, 大端首字节=高位 0x01</span>
+    <span class="t-k">assert</span> le == <span class="t-s">b&#x27;\x67\x45\x23\x01&#x27;</span>, le
+    <span class="t-k">assert</span> be == <span class="t-s">b&#x27;\x01\x23\x45\x67&#x27;</span>, be
+
+    <span class="t-c"># 双端互相转换一致</span>
+    <span class="t-k">assert</span> struct.<span class="t-f">unpack</span>(<span class="t-s">&#x27;&lt;I&#x27;</span>, le)[<span class="t-n">0</span>] == val
+    <span class="t-k">assert</span> struct.<span class="t-f">unpack</span>(<span class="t-s">&#x27;&gt;I&#x27;</span>, be)[<span class="t-n">0</span>] == val
+    <span class="t-k">assert</span> <span class="t-f">swap_endian32</span>(val) == <span class="t-n">0x67452301</span>
+    <span class="t-k">assert</span> <span class="t-f">swap_endian32</span>(<span class="t-n">0x67452301</span>) == val
+    <span class="t-k">assert</span> <span class="t-f">swap_endian32</span>(<span class="t-f">swap_endian32</span>(val)) == val
+
+    <span class="t-c"># 字节序说明</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;machine endian:&#x27;</span>, <span class="t-f">machine_endianness</span>())
+    <span class="t-b">print</span>(<span class="t-s">&#x27;0x%08X little-endian bytes: %s&#x27;</span> % (val, le.<span class="t-b">hex</span>()))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;0x%08X big-endian bytes   : %s&#x27;</span> % (val, be.<span class="t-b">hex</span>()))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;swap_endian32(0x%08X) = 0x%08X&#x27;</span> % (val, <span class="t-f">swap_endian32</span>(val)))
+
+    <span class="t-c"># 写二进制文件再按不同字节序解析(模拟跨平台)</span>
+    <span class="t-k">import</span> tempfile, os
+    path = os.path.<span class="t-f">join</span>(tempfile.<span class="t-f">gettempdir</span>(), <span class="t-s">&#x27;endian_demo.bin&#x27;</span>)
+    <span class="t-k">with</span> <span class="t-b">open</span>(path, <span class="t-s">&#x27;wb&#x27;</span>) <span class="t-k">as</span> f:
+        f.<span class="t-f">write</span>(struct.<span class="t-f">pack</span>(<span class="t-s">&#x27;&lt;I&#x27;</span>, <span class="t-n">1</span>))
+        f.<span class="t-f">write</span>(struct.<span class="t-f">pack</span>(<span class="t-s">&#x27;&lt;I&#x27;</span>, <span class="t-n">0x00FF00FF</span>))
+        f.<span class="t-f">write</span>(struct.<span class="t-f">pack</span>(<span class="t-s">&#x27;&lt;I&#x27;</span>, <span class="t-n">0x80000000</span>))
+    le_nums = <span class="t-f">parse_binary_file</span>(path, <span class="t-s">&#x27;&lt;&#x27;</span>)
+    be_nums = <span class="t-f">parse_binary_file</span>(path, <span class="t-s">&#x27;&gt;&#x27;</span>)
+    <span class="t-k">assert</span> le_nums == [<span class="t-n">1</span>, <span class="t-n">0x00FF00FF</span>, <span class="t-n">0x80000000</span>], le_nums
+    <span class="t-k">assert</span> be_nums != le_nums  <span class="t-c"># 用错字节序会得到不同整数</span>
+    <span class="t-b">print</span>(<span class="t-s">&#x27;binary parse little-endian:&#x27;</span>, [<span class="t-b">hex</span>(x) <span class="t-k">for</span> x <span class="t-k">in</span> le_nums])
+    <span class="t-b">print</span>(<span class="t-s">&#x27;binary parse big-endian   :&#x27;</span>, [<span class="t-b">hex</span>(x) <span class="t-k">for</span> x <span class="t-k">in</span> be_nums])
+    os.<span class="t-f">remove</span>(path)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;All endian tests passed!&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">struct.pack/unpack 走 C 层, 性能良好; 解析大规模二进制用 mmap + memoryview 更快; 位运算交换字节序在 Python 大整数上也可用 int.to_bytes/from_bytes。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(K) — 转换/解析与数据规模线性</td></tr><tr><th>空间复杂度</th><td>O(1) — 逐字节处理或 O(K) 缓冲</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">跨平台代码需显式指定字节序(不要依赖 sys.byteorder 的默认行为); Python 的 struct 默认用本机字节序+对齐, 跨端需显式 &lt; 或 &gt;; 网络字节序固定大端, 与常见 x86 小端不同, 必须转换; 手写 swap 时注意掩码位宽(32/64)。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>网络字节序是固定的大端, 与 x86 小端不同, 网络协议解析必先 ntohl/ntohl 转换</li><li>struct 默认按本机字节序与对齐填充, 跨平台必须显式 &#x27;&lt;&#x27; &#x27;&gt;&#x27; &#x27;!&#x27; (network=!)</li><li>手写 swap_endian 的掩码要按位宽写对(0xFF000000 等), 32 位与 64 位不同</li><li>二进制文件用错字节序解析出的整数&#x27;合理但错误&#x27;, 无异常抛出, 需对照协议文档验证</li><li>Python int 无符号化: 解析无符号整数用 struct 的 I/L, 别把高位当符号</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>LeetCode</td><td><strong>190</strong></td><td>2</td><td>颠倒二进制位: 位运算逐位翻转, 字节序/位序理解基础</td><td class="u"><a href="https://leetcode.cn/problems/reverse-bits/" target="_blank" rel="noopener">https://leetcode.cn/problems/reverse-bits/</a></td></tr><tr><td>LeetCode</td><td><strong>191</strong></td><td>1</td><td>位1的个数: 无符号整数位操作, 与字节序无关的位计数</td><td class="u"><a href="https://leetcode.cn/problems/number-of-1-bits/" target="_blank" rel="noopener">https://leetcode.cn/problems/number-of-1-bits/</a></td></tr><tr><td>AtCoder</td><td><strong>abc333_a</strong></td><td>1</td><td>小模拟题: 演示位数与整数的直观关系</td><td class="u"><a href="https://atcoder.jp/contests/abc333/tasks/abc333_a" target="_blank" rel="noopener">https://atcoder.jp/contests/abc333/tasks/abc333_a</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-endian" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "understand", "label": "明确目标字节序(本机/网络/文件协议)"}}, {"data": {"id": "pack", "label": "编码: struct.pack('\u003cI'/'\u003cI') 生成字节序列"}}, {"data": {"id": "transfer", "label": "传输/落盘(注意跨端转换)"}}, {"data": {"id": "unpack", "label": "解码: 按约定字节序 unpack 还原整数"}}, {"data": {"id": "verify", "label": "验证解析结果符合协议"}}, {"data": {"id": "eunderstand->pack", "source": "understand", "target": "pack"}}, {"data": {"id": "epack->transfer", "source": "pack", "target": "transfer"}}, {"data": {"id": "etransfer->unpack", "source": "transfer", "target": "unpack"}}, {"data": {"id": "eunpack->verify", "source": "unpack", "target": "verify"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-endian'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/misc/endianness/" target="_blank" rel="noopener">https://oi-wiki.org/misc/endianness/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/endianness.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/misc/endianness.md</a></li><li><span class="srctype">web</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Endianness" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Endianness</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

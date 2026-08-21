@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-D Tree · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-6.html">分块与根号算法</a> / <span>K-D Tree</span></div>
+  <h1>K-D Tree</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-D-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="cat-tree.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">cat-tree</span></a>
+    <a class="nav-index" href="../03-groups/G-D-6.html"><span class="dir">组内第 6 / 6</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-D-6.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">k维空间分块树，轮流按维度切分+中位数建树，处理最近邻与矩形查询</div><p>K-D Tree（k-Dimension Tree）是一种高维空间数据结构，把 k 维点集组织成二叉搜索树：每个节点代表一个点，其子树中所有点都在该点所分割出的一个 k 维超长方体（bounding box）内。建树时轮流选择维度、用该维中位数切分（配合 nth_element 均摊 O(n)），保证树高 O(log n)。可高效处理两类查询：矩形范围聚合（查询复杂度 O(n^{1-1/k})，二维时 O(√n)）与最近邻/第 k 远邻域查询（用子树包围盒与已得答案做剪枝的启发式搜索）。竞赛中一般 k=2。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把平面『一块块切』：每次按 x 或 y 中位数把当前点集切成两半，让每棵子树的空间范围被矩形框住。查矩形时若子树矩形与询问矩形无交就整棵剪掉，完全包含就返回整棵聚合值，部分相交才递归——大多数子树被 O(√n) 个『边界矩形』限住，所以远快于 O(n)。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>建树复杂度：轮流维度 + nth_element 取中位数，T(n)=2T(n/2)+O(n)=O(n log n)。矩形查询递归式 T(n)=2^{k-1}T(n/2^k)+O(1)，主定理得 O(n^{1-1/k})（二维 T(n)=2T(n/4)+O(1)=O(√n)）。最近邻用估价函数剪枝：若查询点到子树矩形的最远/最近距离无法优于当前答案则剪枝；最坏仍 O(n)（OI Wiki 明确警告），但实践远快。插入删除可用根号重构（每 B 次插入重建）或二进制分组，均摊 O(√(n log n)) 修改 + O(√(n log n)+n^{1-1/k}) 查询。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>K-D Tree 由 Jon Louis Bentley 于 1975 年提出（Multidimensional binary search trees used for associative searching），是经典的多维检索结构。OI Wiki 详细介绍了建树、矩形查询、邻域查询（P1429 最近点对、CQOI2016 K 远点对、P4148 简单题）、根号重构与二进制分组维护动态点集。常用于 KD 树解决平面最近点对/矩形和等问题。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 建树</span>
+<span class="t-k">def</span> <span class="t-f">build</span>(l, r, depth):
+  <span class="t-k">if</span> l &gt; r: <span class="t-k">return</span> <span class="t-k">None</span>
+  axis = depth % k
+  按 axis 维取中位数 -&gt; <span class="t-f">mid</span> (用 nth_element)
+  node = points[mid]
+  node.l = <span class="t-f">build</span>(l, mid-<span class="t-n">1</span>, depth+<span class="t-n">1</span>)
+  node.r = <span class="t-f">build</span>(mid+<span class="t-n">1</span>, r, depth+<span class="t-n">1</span>)
+  维护子树包围盒 <span class="t-b">min</span>[axis], <span class="t-b">max</span>[axis]
+  <span class="t-k">return</span> node
+
+<span class="t-c"># 最近邻查询 (启发式剪枝)</span>
+<span class="t-k">def</span> <span class="t-f">nearest</span>(q, node):
+  best = INF
+  <span class="t-k">def</span> <span class="t-f">dfs</span>(u):
+    <span class="t-k">nonlocal</span> best
+    <span class="t-k">if</span> <span class="t-k">not</span> u: <span class="t-k">return</span>
+    d = <span class="t-f">dist</span>(q, u.point)
+    <span class="t-k">if</span> d &lt; best: best = d
+    <span class="t-c"># 到两个子树的包围盒距离，先搜近的</span>
+    dl = <span class="t-f">box_dist</span>(q, u.l.box); dr = <span class="t-f">box_dist</span>(q, u.r.box)
+    <span class="t-k">if</span> dl &lt; dr:
+      若 dl &lt; best: <span class="t-f">dfs</span>(u.l)
+      若 dr &lt; best: <span class="t-f">dfs</span>(u.r)
+    <span class="t-k">else</span>:
+      若 dr &lt; best: <span class="t-f">dfs</span>(u.r)
+      若 dl &lt; best: <span class="t-f">dfs</span>(u.l)
+  <span class="t-f">dfs</span>(root)
+  <span class="t-k">return</span> best</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> math
+<span class="t-k">import</span> random
+
+
+<span class="t-k">class</span> Node:
+    __slots__ = (<span class="t-s">&quot;pt&quot;</span>, <span class="t-s">&quot;left&quot;</span>, <span class="t-s">&quot;right&quot;</span>, <span class="t-s">&quot;box&quot;</span>)
+
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, pt):
+        self.pt = pt
+        self.left = <span class="t-k">None</span>
+        self.right = <span class="t-k">None</span>
+        self.box = <span class="t-k">None</span>  <span class="t-c"># (minx, miny, maxx, maxy)</span>
+
+
+<span class="t-k">def</span> <span class="t-f">build_kdt</span>(points, depth=<span class="t-n">0</span>):
+    <span class="t-s">&quot;&quot;&quot;构建 2-D Tree。points: [(x, y), ...]&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> <span class="t-k">not</span> points:
+        <span class="t-k">return</span> <span class="t-k">None</span>
+    axis = depth % <span class="t-n">2</span>
+    points = <span class="t-b">sorted</span>(points, key=<span class="t-k">lambda</span> p: p[axis])
+    mid = <span class="t-b">len</span>(points) // <span class="t-n">2</span>
+    node = <span class="t-f">Node</span>(points[mid])
+    node.left = <span class="t-f">build_kdt</span>(points[:mid], depth + <span class="t-n">1</span>)
+    node.right = <span class="t-f">build_kdt</span>(points[mid + <span class="t-n">1</span>:], depth + <span class="t-n">1</span>)
+    xs = [p[<span class="t-n">0</span>] <span class="t-k">for</span> p <span class="t-k">in</span> points]
+    ys = [p[<span class="t-n">1</span>] <span class="t-k">for</span> p <span class="t-k">in</span> points]
+    node.box = (<span class="t-b">min</span>(xs), <span class="t-b">min</span>(ys), <span class="t-b">max</span>(xs), <span class="t-b">max</span>(ys))
+    <span class="t-k">return</span> node
+
+
+<span class="t-k">def</span> <span class="t-f">box_dist</span>(q, box):
+    <span class="t-s">&quot;&quot;&quot;查询点到包围盒的最近距离平方。&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> box <span class="t-k">is</span> <span class="t-k">None</span>:
+        <span class="t-k">return</span> <span class="t-b">float</span>(<span class="t-s">&quot;inf&quot;</span>)
+    x, y = q
+    minx, miny, maxx, maxy = box
+    dx = <span class="t-n">0</span> <span class="t-k">if</span> minx &lt;= x &lt;= maxx <span class="t-k">else</span> <span class="t-b">min</span>(<span class="t-b">abs</span>(x - minx), <span class="t-b">abs</span>(x - maxx))
+    dy = <span class="t-n">0</span> <span class="t-k">if</span> miny &lt;= y &lt;= maxy <span class="t-k">else</span> <span class="t-b">min</span>(<span class="t-b">abs</span>(y - miny), <span class="t-b">abs</span>(y - maxy))
+    <span class="t-k">return</span> dx * dx + dy * dy
+
+
+<span class="t-k">class</span> KDT:
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, points):
+        self.root = <span class="t-f">build_kdt</span>(points)
+
+    <span class="t-k">def</span> <span class="t-f">nearest</span>(self, q):
+        <span class="t-s">&quot;&quot;&quot;返回到 q 最近点的欧氏距离（非自身时需调用方排除）&quot;&quot;&quot;</span>
+        best = [<span class="t-b">float</span>(<span class="t-s">&quot;inf&quot;</span>)]
+
+        <span class="t-k">def</span> <span class="t-f">dfs</span>(u):
+            <span class="t-k">if</span> u <span class="t-k">is</span> <span class="t-k">None</span>:
+                <span class="t-k">return</span>
+            d = (q[<span class="t-n">0</span>] - u.pt[<span class="t-n">0</span>]) ** <span class="t-n">2</span> + (q[<span class="t-n">1</span>] - u.pt[<span class="t-n">1</span>]) ** <span class="t-n">2</span>
+            <span class="t-k">if</span> d &lt; best[<span class="t-n">0</span>]:
+                best[<span class="t-n">0</span>] = d
+            dl = <span class="t-f">box_dist</span>(q, u.left.box <span class="t-k">if</span> u.left <span class="t-k">else</span> <span class="t-k">None</span>)
+            dr = <span class="t-f">box_dist</span>(q, u.right.box <span class="t-k">if</span> u.right <span class="t-k">else</span> <span class="t-k">None</span>)
+            <span class="t-k">if</span> dl &lt; dr:
+                <span class="t-k">if</span> dl &lt; best[<span class="t-n">0</span>]:
+                    <span class="t-f">dfs</span>(u.left)
+                <span class="t-k">if</span> dr &lt; best[<span class="t-n">0</span>]:
+                    <span class="t-f">dfs</span>(u.right)
+            <span class="t-k">else</span>:
+                <span class="t-k">if</span> dr &lt; best[<span class="t-n">0</span>]:
+                    <span class="t-f">dfs</span>(u.right)
+                <span class="t-k">if</span> dl &lt; best[<span class="t-n">0</span>]:
+                    <span class="t-f">dfs</span>(u.left)
+
+        <span class="t-f">dfs</span>(self.root)
+        <span class="t-k">return</span> math.<span class="t-f">sqrt</span>(best[<span class="t-n">0</span>])
+
+
+<span class="t-k">def</span> <span class="t-f">brute_nearest</span>(points, q):
+    <span class="t-k">return</span> <span class="t-b">min</span>(math.<span class="t-f">hypot</span>(q[<span class="t-n">0</span>] - x, q[<span class="t-n">1</span>] - y) <span class="t-k">for</span> x, y <span class="t-k">in</span> points)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    random.<span class="t-f">seed</span>(<span class="t-n">9</span>)
+    <span class="t-k">for</span> trial <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">50</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">40</span>)
+        pts = [(random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100</span>), random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100</span>)) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        kd = <span class="t-f">KDT</span>(pts)
+        <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">20</span>):
+            q = (random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100</span>), random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">100</span>))
+            got = kd.<span class="t-f">nearest</span>(q)
+            exp = <span class="t-f">brute_nearest</span>(pts, q)
+            <span class="t-k">assert</span> <span class="t-b">abs</span>(got - exp) &lt; <span class="t-n">1e-9</span>, (pts, q, got, exp)
+    <span class="t-b">print</span>(<span class="t-s">&quot;kdt 自测通过：50 组随机点集最近邻查询与暴力一致&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">构建时每次排序是 O(n log n) 建树（简单实现）；要严格 O(n log n) 需 nth_element，Python 可用 statistics.median + partition 手写或直接排序（竞赛 n≤2e5 仍可）。递归深度 O(log n) 安全。最近邻剪枝对随机数据快，但最坏 O(n)，注意用 box_dist 剪枝。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>建树 O(n log n)；矩形查询 O(n^{1-1/k})（二维 O(√n)）；最近邻平均快、最坏 O(n)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">最近邻最坏复杂度 O(n)（OI Wiki 警告，属于『优秀骗分』）；维度高时 k 指数恶化（n 需远大于 2^k）。Python 递归建树+剪枝常数较大，n=2e5 可能偏慢。动态插入删除需根号重构/二进制分组维护。对矩形和若要求严格复杂度，2D 可考虑离线 CDQ。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>最近邻查询时同一结点自身距离为 0，求最近点对需排除自身</li><li>box_dist 需在 [minx,maxx] 内为 0，跨界才取最近边距离；写错会漏剪枝或剪错</li><li>建树选择维度需轮流（depth%k），否则退化</li><li>nth_element 位置在 mid，左右区间要排除 mid 本身</li><li>矩形查询需同时维护包围盒与子树聚合值，先判完全包含/无交再递归</li><li>最坏复杂度 O(n)，别在严格卡常题里当唯一解法</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4148</strong></td><td>6</td><td>简单题：20M 内存卡树套树+强制在线，只能 K-D Tree 二进制分组动态维护（OI Wiki 例题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4148" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4148</a></td></tr><tr><td>Luogu</td><td><strong>P1429</strong></td><td>5</td><td>平面最近点对（加强版）：K-D Tree 最近邻剪枝求最近点对（OI Wiki 例题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1429" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1429</a></td></tr><tr><td>LOJ</td><td><strong>2043</strong></td><td>6</td><td>CQOI2016 K 远点对：小根堆维护前 K 远距离+最远距离估价函数剪枝（OI Wiki 例题）</td><td class="u"><a href="https://loj.ac/problem/2043" target="_blank" rel="noopener">https://loj.ac/problem/2043</a></td></tr><tr><td>Luogu</td><td><strong>P4169</strong></td><td>6</td><td>天使玩偶/SJY摆棋子：动态 K-D Tree 最近邻（OI Wiki 习题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4169" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4169</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-kdt" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "split", "label": "轮流维度 + 中位数切分建树"}}, {"data": {"id": "box", "label": "维护每节点子树包围盒"}}, {"data": {"id": "rectq", "label": "矩形查询：无交剪/包含取整/相交递归"}}, {"data": {"id": "nearq", "label": "最近邻：box_dist 估价函数剪枝"}}, {"data": {"id": "esplit->box", "source": "split", "target": "box"}}, {"data": {"id": "ebox->rectq", "source": "box", "target": "rectq"}}, {"data": {"id": "ebox->nearq", "source": "box", "target": "nearq"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-kdt'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/kdt/" target="_blank" rel="noopener">https://oi-wiki.org/ds/kdt/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/kdt.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/kdt.md</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

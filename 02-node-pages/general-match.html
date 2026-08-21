@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一般图匹配 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-6.html">二分图与匹配族</a> / <span>一般图匹配</span></div>
+  <h1>一般图匹配</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-B-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="hopcroft-karp.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">hopcroft-karp</span></a>
+    <a class="nav-index" href="../03-groups/G-B-6.html"><span class="dir">组内第 5 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-B-6.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">带花树算法(Blossom)，一般图最大匹配O(V³)</div><p>一般图匹配（maximum matching in general graphs）问题是求任意无向图（含奇环）的最大匹配。二分图匹配的增广路法在奇环上失效（沿环翻转会让某点被两条边同时匹配），因此 Edmonds 1961 年提出带花树算法（Blossom Algorithm）：在 BFS 找增广路的过程中，遇到标记『o』的两点形成奇环时，将整个奇环收缩为一个『花根』（虚点），缩花后的图上继续找增广路，找到后在原图展开。最简实现 O(VE²)（OI Wiki），随机化/优化版 O(V³)；还有基于 Tutte 矩阵高斯消元的 O(V³) 随机化算法。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>二分图匹配时偶环可绕开，但一般图的奇环是拦路虎：沿着奇环做交替翻转会让某点同时匹配两条边。带花树的核心洞察：奇环本质上像一个『大点』，环内点最终只会有一个对外匹配边。所以把奇环收缩成一个花根继续跑增广路，找到后展开即可。这是『把一般图问题降维成类似二分图』的经典手法。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 从每个未匹配点出发做 BFS，交错标记 o（外点）/i（内点），i→o 边是匹配边；② 遇到已访问的外点 u 且 orig[v]≠orig[u]（v 也是外点，或 v 的配偶可延伸），则找到奇环，用 LCA 找花根 h，把环上点收缩（用并查集式 orig 数组记录属于哪朵花），环上 i 标记点变为外点入队继续；③ 找到未匹配点则沿 parent 链展开增广；④ 每次 BFS 尝试所有边并维护花，最坏 O(E²)，枚举所有未匹配点作根总 O(VE²)。正确性：缩花保持『G 有增广路 ⇔ G&#x27; 有增广路』。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Jack Edmonds 1961 年提出带花树（Blossom）算法并给出最大匹配问题的多项式算法——这是计算复杂性理论史上第一个『非平凡、可在多项式时间求解的组合优化问题』证明，Edmonds 因此获得 1985 图灵奖。后续由优化/线性代数（Tutte 矩阵，Mucha-Sankowski）延伸。加权一般图匹配则有 Blossom 的加权版（Edmonds 1965）。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">match</span>[v] = 配偶 (全局)
+<span class="t-f">bfs</span>(root):
+  label[root]=o; q=[root]; 初始化 orig[i]=i
+  <span class="t-k">while</span> q:
+    v = <span class="t-f">pop</span>(q)
+    <span class="t-k">for</span> u <span class="t-k">in</span> adj[v]:
+      <span class="t-k">if</span> label[u] == 未标记:
+        label[u]=i; parent[u]=v
+        <span class="t-k">if</span> <span class="t-k">match</span>[u] == -<span class="t-n">1</span>: <span class="t-f">augment</span>(u); <span class="t-k">return</span> <span class="t-k">True</span>
+        label[<span class="t-k">match</span>[u]]=o; <span class="t-f">push</span>(q, <span class="t-k">match</span>[u])
+      <span class="t-k">elif</span> label[u]==o <span class="t-k">and</span> orig[v]!=orig[u]:
+        a = <span class="t-f">lca</span>(orig[v], orig[u])   <span class="t-c"># 用时间戳交替跳匹配边父链求花根</span>
+        <span class="t-f">blossom</span>(u, v, a); <span class="t-f">blossom</span>(v, u, a)  <span class="t-c"># 缩花</span>
+  <span class="t-k">return</span> <span class="t-k">False</span>
+主循环: 贪心初匹配后, 对每个未匹配点跑 bfs, 有则增广</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> collections <span class="t-k">import</span> deque
+
+
+<span class="t-k">def</span> <span class="t-f">general_match_max</span>(n, adj):
+    <span class="t-s">&quot;&quot;&quot;一般图最大匹配（带花树，最简实现 O(VE²)）。
+    adj[u]: 邻居列表（无向）。返回 match: match[u] = u 的配偶（-1 未匹配）。&quot;&quot;&quot;</span>
+    <span class="t-k">match</span> = [-<span class="t-n">1</span>] * n
+    p = [-<span class="t-n">1</span>] * n
+    base = <span class="t-b">list</span>(<span class="t-b">range</span>(n))
+    used = [<span class="t-k">False</span>] * n
+    blossom = [<span class="t-k">False</span>] * n
+    q = <span class="t-f">deque</span>()
+
+    <span class="t-k">def</span> <span class="t-f">lca</span>(a, b):
+        used_lca = [<span class="t-k">False</span>] * n
+        <span class="t-k">while</span> <span class="t-k">True</span>:
+            a = base[a]
+            used_lca[a] = <span class="t-k">True</span>
+            <span class="t-k">if</span> <span class="t-k">match</span>[a] == -<span class="t-n">1</span>:
+                <span class="t-k">break</span>
+            a = p[<span class="t-k">match</span>[a]]
+        <span class="t-k">while</span> <span class="t-k">True</span>:
+            b = base[b]
+            <span class="t-k">if</span> used_lca[b]:
+                <span class="t-k">return</span> b
+            b = p[<span class="t-k">match</span>[b]]
+
+    <span class="t-k">def</span> <span class="t-f">mark_path</span>(v, b, children):
+        <span class="t-k">while</span> base[v] != b:
+            blossom[base[v]] = blossom[base[<span class="t-k">match</span>[v]]] = <span class="t-k">True</span>
+            p[v] = children
+            children = <span class="t-k">match</span>[v]
+            v = p[<span class="t-k">match</span>[v]]
+
+    <span class="t-k">def</span> <span class="t-f">find_path</span>(root):
+        used[:] = [<span class="t-k">False</span>] * n
+        p[:] = [-<span class="t-n">1</span>] * n
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            base[i] = i
+        q = <span class="t-f">deque</span>([root])
+        used[root] = <span class="t-k">True</span>
+        <span class="t-k">while</span> q:
+            v = q.<span class="t-f">popleft</span>()
+            <span class="t-k">for</span> u <span class="t-k">in</span> adj[v]:
+                <span class="t-k">if</span> base[v] == base[u] <span class="t-k">or</span> <span class="t-k">match</span>[v] == u:
+                    <span class="t-k">continue</span>
+                <span class="t-k">if</span> u == root <span class="t-k">or</span> (<span class="t-k">match</span>[u] != -<span class="t-n">1</span> <span class="t-k">and</span> p[<span class="t-k">match</span>[u]] != -<span class="t-n">1</span>):
+                    curbase = <span class="t-f">lca</span>(v, u)
+                    blossom[:] = [<span class="t-k">False</span>] * n
+                    <span class="t-f">mark_path</span>(v, curbase, u)
+                    <span class="t-f">mark_path</span>(u, curbase, v)
+                    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                        <span class="t-k">if</span> blossom[base[i]]:
+                            base[i] = curbase
+                            <span class="t-k">if</span> <span class="t-k">not</span> used[i]:
+                                used[i] = <span class="t-k">True</span>
+                                q.<span class="t-f">append</span>(i)
+                <span class="t-k">elif</span> p[u] == -<span class="t-n">1</span>:
+                    p[u] = v
+                    <span class="t-k">if</span> <span class="t-k">match</span>[u] == -<span class="t-n">1</span>:
+                        <span class="t-k">return</span> u
+                    u = <span class="t-k">match</span>[u]
+                    used[u] = <span class="t-k">True</span>
+                    q.<span class="t-f">append</span>(u)
+        <span class="t-k">return</span> -<span class="t-n">1</span>
+
+    <span class="t-k">def</span> <span class="t-f">enlarge</span>(u):
+        <span class="t-k">while</span> u != -<span class="t-n">1</span>:
+            v = p[u]
+            nv = <span class="t-k">match</span>[v]
+            <span class="t-k">match</span>[u], <span class="t-k">match</span>[v] = v, u
+            u = nv
+
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">if</span> <span class="t-k">match</span>[i] == -<span class="t-n">1</span>:
+            v = <span class="t-f">find_path</span>(i)
+            <span class="t-k">if</span> v != -<span class="t-n">1</span>:
+                <span class="t-f">enlarge</span>(v)
+    <span class="t-k">return</span> <span class="t-k">match</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-k">import</span> random
+
+    <span class="t-k">def</span> <span class="t-f">brute_max</span>(n, adj):
+        <span class="t-s">&quot;&quot;&quot;一般图最大匹配的暴力枚举（每个点至多被匹配一次）&quot;&quot;&quot;</span>
+        best = <span class="t-n">0</span>
+
+        <span class="t-k">def</span> <span class="t-f">rec</span>(used_v, cnt):
+            <span class="t-k">nonlocal</span> best
+            best = <span class="t-b">max</span>(best, cnt)
+            u = -<span class="t-n">1</span>
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">if</span> <span class="t-k">not</span> (used_v &gt;&gt; i) &amp; <span class="t-n">1</span>:
+                    u = i
+                    <span class="t-k">break</span>
+            <span class="t-k">if</span> u == -<span class="t-n">1</span>:
+                <span class="t-k">return</span>
+            <span class="t-f">rec</span>(used_v | (<span class="t-n">1</span> &lt;&lt; u), cnt)
+            <span class="t-k">for</span> w <span class="t-k">in</span> adj[u]:
+                <span class="t-k">if</span> <span class="t-k">not</span> (used_v &gt;&gt; w) &amp; <span class="t-n">1</span>:
+                    <span class="t-f">rec</span>(used_v | (<span class="t-n">1</span> &lt;&lt; u) | (<span class="t-n">1</span> &lt;&lt; w), cnt + <span class="t-n">1</span>)
+        <span class="t-f">rec</span>(<span class="t-n">0</span>, <span class="t-n">0</span>)
+        <span class="t-k">return</span> best
+
+    random.<span class="t-f">seed</span>(<span class="t-n">7</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">150</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">10</span>)
+        adj = [<span class="t-b">set</span>() <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>, n):
+                <span class="t-k">if</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.35</span>:
+                    adj[i].<span class="t-f">add</span>(j)
+                    adj[j].<span class="t-f">add</span>(i)
+        adj = [<span class="t-b">list</span>(s) <span class="t-k">for</span> s <span class="t-k">in</span> adj]
+        mt = <span class="t-f">general_match_max</span>(n, adj)
+        size = <span class="t-b">sum</span>(<span class="t-n">1</span> <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n) <span class="t-k">if</span> mt[i] != -<span class="t-n">1</span> <span class="t-k">and</span> mt[i] &gt; i)
+        <span class="t-k">assert</span> size == <span class="t-f">brute_max</span>(n, adj), (n, adj, mt, size, <span class="t-f">brute_max</span>(n, adj))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;general-match: All tests passed.&#x27;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">该实现 O(VE²)，适合 n≤500。优化：BFS 用时间戳 lca、base 用并查集带路径压缩；展开增广时注意循环链。大规模（n 1e4）需随机化/线性代数 O(V³) 版或直接调库。Python 中 blossom 数组复用避免每次 new。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>朴素带花树 O(VE²)；随机化/优化 O(V³)；高斯消元 Tutte 矩阵 O(V³)</td></tr><tr><th>空间复杂度</th><td>O(V+E) 图 + O(V) match/p/base/blossom 数组</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">实现复杂、易错，OI/ICPC 出现频率低（多为模板题或算法学习）。最简版 O(VE²) 在 n 大时超时。加权一般图最大匹配需带花树的加权版或费用流变体，更复杂。必须确认图含奇环才需要（二分图请用 HK/Kuhn 更快更简单）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>忘了奇环：直接对一般图跑 Kuhn/HK 会得到错误答案</li><li>缩花后 base 数组未对所有子树更新，导致后续 lca/parent 错乱</li><li>lca 用时间戳实现时两个方向跳匹配边父链必须交替且正确记录</li><li>find_path 中条件『u==root 或 p[match[u]]!=-1』判断花的形成，漏判会漏缩花</li><li>增广展开 enlarge 时 p 链的顺序要按 parent 逆序回退，写反死循环</li><li>贪心初匹配可显著加速，但随机顺序下正确性不依赖它（可略）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>UOJ</td><td><strong>79</strong></td><td>5</td><td>一般图最大匹配模板题：带花树标准模板（OI Wiki 参考实现题）</td><td class="u"><a href="https://uoj.ac/problem/79" target="_blank" rel="noopener">https://uoj.ac/problem/79</a></td></tr><tr><td>UOJ</td><td><strong>171</strong></td><td>6</td><td>【WC2016】挑战 NPC：一般图匹配建模（求最大匹配+特殊结构计数），OI Wiki 习题</td><td class="u"><a href="https://uoj.ac/problem/171" target="_blank" rel="noopener">https://uoj.ac/problem/171</a></td></tr><tr><td>Codeforces</td><td><strong>1427B</strong></td><td>4</td><td>奇环图匹配的思维训练：判断结构是否可匹配的建模练习</td><td class="u"><a href="https://codeforces.com/problemset/problem/1427/B" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/1427/B</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-general-match" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "oddcycle", "label": "奇环使朴素增广失效"}}, {"data": {"id": "blossom", "label": "BFS 标记 o/i + 找到奇环缩花（orig/base）"}}, {"data": {"id": "lca", "label": "LCA 求花根 + mark_path 缩环"}}, {"data": {"id": "aug", "label": "找到未匹配点沿 parent 链展开增广"}}, {"data": {"id": "tutte", "label": "替代：Tutte 矩阵高斯消元 O(V³) 随机化"}}, {"data": {"id": "eoddcycle->blossom", "source": "oddcycle", "target": "blossom"}}, {"data": {"id": "eblossom->lca", "source": "blossom", "target": "lca"}}, {"data": {"id": "elca->aug", "source": "lca", "target": "aug"}}, {"data": {"id": "eaug->blossom", "source": "aug", "target": "blossom"}}, {"data": {"id": "eoddcycle->tutte", "source": "oddcycle", "target": "tutte"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-general-match'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/graph-matching/general-match/" target="_blank" rel="noopener">https://oi-wiki.org/graph/graph-matching/general-match/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/graph-matching/general-match.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/graph-matching/general-match.md</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">Edmonds 1965, Paths, trees, and flowers (Can. J. Math.); CPH ch20 (bipartite only, general via blossom)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

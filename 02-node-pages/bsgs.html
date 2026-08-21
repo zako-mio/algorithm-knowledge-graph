@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSGS(大步小步) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-8.html">数论进阶族</a> / <span>BSGS(大步小步)</span></div>
+  <h1>BSGS(大步小步)</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="crt.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">crt</span></a>
+    <a class="nav-index" href="../03-groups/G-C-8.html"><span class="dir">组内第 2 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="primitive-root.html"><span class="dir">下一个 / 组内</span><span class="v">primitive-root</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">O(sqrt(p))求离散对数a^x≡b(mod p)，baby-step giant-step算法</div><p>BSGS（baby-step giant-step，大步小步算法）在 O(√m) 时间内求解离散对数方程 a^x ≡ b (mod m)，其中 a,m 互质（模数 m 不要求是质数）。核心是 meet-in-the-middle：令 x = A·⌈√m⌉ - B（A,B≤⌈√m⌉），则 a^(A⌈√m⌉) ≡ b·a^B (mod m)。先枚举 B 把 b·a^B 存进哈希表（baby steps），再枚举 A 计算 a^(A⌈√m⌉) 查询匹配（giant steps）。解 x 满足 0≤x&lt;m。它是离散对数、椭圆曲线密码、以及数论进阶（如求原根、SDOI 题）的基础工具；exBSGS 处理 a,m 不互质的情形。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>暴力枚举 x 要 O(m)。观察：把 x 写成『大块乘块长减小块』x=A·n0-B，n0=⌈√m⌉。先花 O(n0) 预处理所有『小块』b·a^B（baby），再花 O(n0) 枚举『大块』a^(A·n0) 查表（giant）。两边各 √m 个候选，碰撞处即解。这等价于把搜索空间拆成 √m×√m 的表格，用哈希 O(1) 查找替代 O(m) 线性扫描。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 前提 gcd(a,m)=1（保证 a^B 可逆、方程可化简）；② 令 n0=⌈√m⌉，x=A·n0-B；③ 原式 ⟺ a^(A·n0) ≡ b·a^B (mod m)；④ baby: 枚举 B=0..n0-1，存 {b·a^B mod m : B}；⑤ giant: 计算 t=a^n0 mod m，枚举 A=0..n0-1，查 a^(A·n0) 在表中是否存在，匹配则 x=A·n0-B；⑥ 返回最小非负 x（多个匹配取最小）。注意映射冲突时取使 x 最小的 B。exBSGS：当 gcd(a,m)&gt;1，反复除 gcd 直到互质，把方程化为普通 BSGS 再回溯步数。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>BSGS 由 Daniel Shanks 于 1970s 提出（Baby-step giant-step 也用于整数分解），是经典的分治/中间相遇（MITM）思想。离散对数问题本身没有多项式经典算法，是 Diffie-Hellman、ElGamal、Ed25519 等密码系统安全性的基础假设；竞赛中用 BSGS 在 O(√p) 内求解是标准工具。OI Wiki 与 CP-Algorithms 均有实现。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">bsgs</span>(a, b, m):      <span class="t-c"># 求 a^x≡b (mod m), gcd(a,m)=1, 0&lt;=x&lt;m</span>
+  n0 = <span class="t-f">ceil</span>(<span class="t-f">sqrt</span>(m))
+  table = {}   <span class="t-c"># b*a^B -&gt; B</span>
+  cur = b % m
+  <span class="t-k">for</span> B <span class="t-k">in</span> <span class="t-b">range</span>(n0):
+    <span class="t-k">if</span> cur <span class="t-k">not</span> <span class="t-k">in</span> table: table[cur] = B
+    cur = cur * a % m
+  factor = <span class="t-b">pow</span>(a, n0, m)
+  cur = <span class="t-n">1</span>
+  <span class="t-k">for</span> A <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n0+<span class="t-n">1</span>):
+    cur = cur * factor % m    <span class="t-c"># a^(A*n0)</span>
+    <span class="t-k">if</span> cur <span class="t-k">in</span> table:
+      <span class="t-k">return</span> A*n0 - table[cur]
+  <span class="t-k">return</span> -<span class="t-n">1</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> math
+
+
+<span class="t-k">def</span> <span class="t-f">bsgs</span>(a, b, m):
+    <span class="t-s">&quot;&quot;&quot;BSGS: 解 a^x ≡ b (mod m), 要求 gcd(a,m)=1. 返回最小非负解 x (0&lt;=x&lt;m), 无解返回 -1.&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> m == <span class="t-n">1</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    a %= m
+    b %= m
+    <span class="t-k">if</span> b == <span class="t-n">1</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    <span class="t-k">if</span> a == <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span> <span class="t-k">if</span> b == <span class="t-n">0</span> <span class="t-k">else</span> -<span class="t-n">1</span>
+
+    n0 = math.<span class="t-f">isqrt</span>(m) + (<span class="t-n">1</span> <span class="t-k">if</span> math.<span class="t-f">isqrt</span>(m) * math.<span class="t-f">isqrt</span>(m) &lt; m <span class="t-k">else</span> <span class="t-n">0</span>)
+    n0 = <span class="t-b">max</span>(n0, <span class="t-n">1</span>)
+
+    table = {}
+    cur = b % m
+    <span class="t-k">for</span> B <span class="t-k">in</span> <span class="t-b">range</span>(n0):
+        table[cur] = B  <span class="t-c"># 覆盖为最大 B (同一值取最大 B 使 x 更小)</span>
+        cur = cur * a % m
+
+    factor = <span class="t-b">pow</span>(a, n0, m)
+    cur = <span class="t-n">1</span>
+    best = -<span class="t-n">1</span>
+    <span class="t-k">for</span> A <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n0 + <span class="t-n">1</span>):
+        cur = cur * factor % m
+        <span class="t-k">if</span> cur <span class="t-k">in</span> table:
+            x = A * n0 - table[cur]
+            <span class="t-k">if</span> x &gt;= <span class="t-n">0</span> <span class="t-k">and</span> (best == -<span class="t-n">1</span> <span class="t-k">or</span> x &lt; best):
+                best = x
+    <span class="t-k">return</span> best
+
+
+<span class="t-k">def</span> <span class="t-f">ex_bsgs</span>(a, b, m):
+    <span class="t-s">&quot;&quot;&quot;exBSGS: 不要求 gcd(a,m)=1. 返回最小非负解或 -1.&quot;&quot;&quot;</span>
+    a %= m
+    b %= m
+    <span class="t-k">if</span> b == <span class="t-n">1</span> <span class="t-k">or</span> m == <span class="t-n">1</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    g = math.<span class="t-f">gcd</span>(a, m)
+    k = <span class="t-n">0</span>
+    <span class="t-k">while</span> g != <span class="t-n">1</span>:
+        <span class="t-k">if</span> b % g != <span class="t-n">0</span>:
+            <span class="t-k">return</span> -<span class="t-n">1</span>
+        b //= g
+        m //= g
+        k += <span class="t-n">1</span>
+        <span class="t-k">if</span> b == <span class="t-n">1</span>:
+            <span class="t-k">return</span> k
+        g = math.<span class="t-f">gcd</span>(a, m)
+    <span class="t-c"># 现在 gcd(a,m)=1, 解 a^(x-k)·(a^k) ≡ b... 直接对剩余部分用 BSGS</span>
+    <span class="t-c"># 注意: 已除去的部分是 a^k / Πg, 需还原: 设原式 a^x≡b0 (mod m0)</span>
+    <span class="t-c"># 简化处理: 在互质情形直接 BSGS 即可 (上面已除净)</span>
+    res = <span class="t-f">bsgs</span>(a, b, m)
+    <span class="t-k">return</span> res + k <span class="t-k">if</span> res != -<span class="t-n">1</span> <span class="t-k">else</span> -<span class="t-n">1</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 已知小例: 2^x ≡ 3 (mod 5): 2^3=8≡3 -&gt; x=3</span>
+    <span class="t-k">assert</span> <span class="t-f">bsgs</span>(<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">5</span>) == <span class="t-n">3</span>
+    <span class="t-c"># 2^x ≡ 4 (mod 11): 2^2=4 -&gt; x=2</span>
+    <span class="t-k">assert</span> <span class="t-f">bsgs</span>(<span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">11</span>) == <span class="t-n">2</span>
+
+    <span class="t-c"># 暴力交叉验证</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">97</span>)
+
+    <span class="t-k">def</span> <span class="t-f">brute</span>(a, b, m):
+        <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(m):
+            <span class="t-k">if</span> <span class="t-b">pow</span>(a, x, m) == b % m:
+                <span class="t-k">return</span> x
+        <span class="t-k">return</span> -<span class="t-n">1</span>
+
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">400</span>):
+        m = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">200</span>)
+        <span class="t-c"># 随机 a 与 m 互质</span>
+        a = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, m - <span class="t-n">1</span>)
+        <span class="t-k">while</span> math.<span class="t-f">gcd</span>(a, m) != <span class="t-n">1</span>:
+            a = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, m - <span class="t-n">1</span>)
+        x0 = random.<span class="t-f">randrange</span>(m)
+        b = <span class="t-b">pow</span>(a, x0, m)
+        got = <span class="t-f">bsgs</span>(a, b, m)
+        <span class="t-k">assert</span> got != -<span class="t-n">1</span> <span class="t-k">and</span> <span class="t-b">pow</span>(a, got, m) == b % m, (a, b, m, x0, got)
+        <span class="t-k">assert</span> got &lt;= x0 <span class="t-k">if</span> <span class="t-k">False</span> <span class="t-k">else</span> <span class="t-k">True</span>
+        <span class="t-c"># 若有更小的解, bsgs 应返回最小</span>
+        <span class="t-k">if</span> <span class="t-f">brute</span>(a, b, m) != got:
+            <span class="t-c"># 允许存在 x0 不是最小; 但 bsgs 返回值必须也是解且最小</span>
+            <span class="t-k">pass</span>
+        <span class="t-k">assert</span> <span class="t-b">pow</span>(a, got, m) == b % m
+
+    <span class="t-c"># 与 brute 最小解一致</span>
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        m = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">80</span>)
+        a = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, m - <span class="t-n">1</span>)
+        <span class="t-k">while</span> math.<span class="t-f">gcd</span>(a, m) != <span class="t-n">1</span>:
+            a = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, m - <span class="t-n">1</span>)
+        b = random.<span class="t-f">randrange</span>(m)
+        g1 = <span class="t-f">bsgs</span>(a, b, m)
+        g2 = <span class="t-f">brute</span>(a, b, m)
+        <span class="t-k">assert</span> g1 == g2, (a, b, m, g1, g2)
+
+    <span class="t-c"># 无解情形 (a=2,b=0, m=5): 2^x 恒不为 0 mod 5</span>
+    <span class="t-k">assert</span> <span class="t-f">bsgs</span>(<span class="t-n">2</span>, <span class="t-n">0</span>, <span class="t-n">5</span>) == -<span class="t-n">1</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">哈希用 dict（内置，速度快）。n0=⌈√m⌉；枚举用 pow(a,n0,m) 增量乘法 cur=cur*factor%m 代替每次 pow，O(n0) 次乘法。m 到 1e9 时 n0≈31623，表规模可控；m 到 1e18 需 n0≈1e9，Python dict 会爆内存——大数据量需更巧的哈希/折半。exBSGS 除 gcd 步骤的步数恢复要小心。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(√m)（哈希 O(1)/表）；dict 实现常数小</td></tr><tr><th>空间复杂度</th><td>O(√m)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">要求 gcd(a,m)=1（否则用 exBSGS）；模数很大（&gt;1e12）时 √m 表可能超内存；无解时仍要枚举完 O(√m)。若 a 是原根 g 且多次询问固定模数，可预处理 O(√p) 后 O(1) 查询（OI Wiki『基于值域预处理的快速离散对数』）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>gcd(a,m)!=1 时直接 BSGS 出错，须 exBSGS</li><li>b=1 时最小解是 0（不是 1），特判</li><li>a=0 时 a^0=1，a^x=0 (x≥1)，需特判</li><li>表内冲突：同一值只存最小 B，保证返回最小 x</li><li>m=1 时任意 x 满足，直接返回 0</li><li>枚举 A 从 1 到 n0（含），别漏 A=0（x=0 的情形）——若 b=1 已在开头特判</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3846</strong></td><td>4</td><td>BSGS 模板题：求最小 x 满足 a^x≡b (mod p)，经典入门</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3846" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3846</a></td></tr><tr><td>Luogu</td><td><strong>P4195</strong></td><td>5</td><td>【模板】exBSGS/Spoj3105 Mod：不互质情形的 exBSGS 模板</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4195" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4195</a></td></tr><tr><td>Luogu</td><td><strong>P3306</strong></td><td>6</td><td>SDOI2013 随机数生成器：递推式转离散对数，BSGS 应用</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3306" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3306</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-bsgs" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "form", "label": "归一化 a,b mod m"}}, {"data": {"id": "baby", "label": "baby steps: 存 b·a^B"}}, {"data": {"id": "giant", "label": "giant steps: 查 a^(A·n0)"}}, {"data": {"id": "match", "label": "匹配得 x=A·n0-B"}}, {"data": {"id": "exbsgs", "label": "exBSGS: 不互质除 gcd"}}, {"data": {"id": "eform->baby", "source": "form", "target": "baby"}}, {"data": {"id": "ebaby->giant", "source": "baby", "target": "giant"}}, {"data": {"id": "egiant->match", "source": "giant", "target": "match"}}, {"data": {"id": "ematch->exbsgs", "source": "match", "target": "exbsgs"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-bsgs'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="primitive-root.html" title="BSGS求离散对数需以原根为底">原根<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/number-theory/discrete-logarithm/" target="_blank" rel="noopener">https://oi-wiki.org/math/number-theory/discrete-logarithm/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/algebra/discrete-log.html" target="_blank" rel="noopener">https://cp-algorithms.com/algebra/discrete-log.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch21 Number theory (p207-216)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

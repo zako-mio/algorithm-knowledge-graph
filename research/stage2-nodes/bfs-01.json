@@ -1,0 +1,118 @@
+{
+  "id": "bfs-01",
+  "name": "0-1 BFS",
+  "group": "G-B-2",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "双端队列处理0/1权边最短路O(V+E)",
+  "what": "0-1 BFS 是处理『边权只有 0 或 1』（可推广为 0 或任意常数 k）图的最短路算法，O(V+E) 时间 O(V) 空间，比 Dijkstra 少一个 log。用双端队列（deque）维护：0 权边扩展的节点插入队首，1 权边扩展的节点插入队尾，从而保证队内距离单调不降（类 BFS 的分层性质），每个节点至多入队少数几次。是边权二进制图中最高效的算法，也常作为分层图、图论建模优化。",
+  "why": {
+    "intuition": "普通 BFS 只适合权全为 1。若边权是 0/1，则用双端队列：走 0 权边距离不变，应优先处理 → 插队首；走 1 权边距离 +1，稍后处理 → 插队尾。这样队列从头到尾距离单调，等价于『分层 BFS』：0 权边在层内移动，1 权边跨层。当从队首取出的节点距离已经是全队最小，其最短路即确定（与 Dijkstra 的贪心同理，但靠权值只有两档省掉了堆）。",
+    "principle": "① 初始化 dis[s]=0，deque=[s]；② 弹出队首 u（保证是当前最小距离，需配合 vis 标记防重复扩展）；③ 对 0 权边 (u,v)：若 dis[v] > dis[u] 则更新并 appendleft(v)；对 1 权边：更新并 append(v)；④ 终止条件与 BFS 相同。正确性：队列单调性保证队首距离最小，由归纳法每个节点第一次出队即确定最短路。可推广到边权∈{0, k}（k 常数）或 {a, b}（把 b 拆成 b/a 个 a？不，{a,b} 需按比例，一般仅 {0,1} 或 {0,k}）。",
+    "history": "0-1 BFS 是现代算法竞赛的标准技巧，其思想可视为 Dijkstra 在只有两种边权下的退化（用双端队列替代优先队列）。CP-Algorithms 有专章（01_bfs），OI Wiki 在 BFS 页『双端队列 BFS』一节介绍，广泛用于迷宫『花金币 vs 免费步数』、网格图、状态图建模题。"
+  },
+  "how": {
+    "pseudocode": "from collections import deque\ndef bfs01(adj, s):\n  dis=[INF]*n; dis[s]=0; dq=deque([s])\n  while dq:\n    u=dq.popleft()\n    for v, w in adj[u]:       # w in {0,1}\n      if dis[u]+w < dis[v]:\n        dis[v]=dis[u]+w\n        if w==0: dq.appendleft(v)\n        else: dq.append(v)\n  return dis",
+    "python": "from collections import deque\n\n\ndef bfs01(n, adj, s):\n    \"\"\"0-1 BFS: 边权仅 0/1 的单源最短路, O(V+E).\n    adj: 邻接表 adj[u]=[(v,w),...], w in {0,1}.\"\"\"\n    INF = float('inf')\n    dis = [INF] * n\n    dis[s] = 0\n    dq = deque([s])\n    while dq:\n        u = dq.popleft()\n        du = dis[u]\n        for v, w in adj[u]:\n            nd = du + w\n            if nd < dis[v]:\n                dis[v] = nd\n                if w == 0:\n                    dq.appendleft(v)\n                else:\n                    dq.append(v)\n    return dis\n\n\ndef bfs01_path(n, adj, s, t):\n    \"\"\"带路径重建: 返回 (dist, path)\"\"\"\n    INF = float('inf')\n    dis = [INF] * n\n    pre = [-1] * n\n    dis[s] = 0\n    dq = deque([s])\n    while dq:\n        u = dq.popleft()\n        du = dis[u]\n        for v, w in adj[u]:\n            nd = du + w\n            if nd < dis[v]:\n                dis[v] = nd\n                pre[v] = u\n                if w == 0:\n                    dq.appendleft(v)\n                else:\n                    dq.append(v)\n    if dis[t] == INF:\n        return INF, []\n    path = []\n    cur = t\n    while cur != -1:\n        path.append(cur)\n        cur = pre[cur]\n    path.reverse()\n    return dis[t], path\n\n\nif __name__ == \"__main__\":\n    # 图: 0-1(1),0-2(0),1-3(0),2-3(1),2-4(1),3-4(0)\n    adj = [[] for _ in range(5)]\n    for u, v, w in [(0, 1, 1), (0, 2, 0), (1, 3, 0), (2, 3, 1), (2, 4, 1), (3, 4, 0)]:\n        adj[u].append((v, w))\n    dis = bfs01(5, adj, 0)\n    assert dis == [0, 1, 0, 1, 1], dis\n    d, p = bfs01_path(5, adj, 0, 4)\n    assert d == 1 and p == [0, 2, 4], (d, p)  # 0->2(0)->4(1)=1 为最短路\n\n    # 与 Dijkstra 交叉验证\n    import heapq, random\n    random.seed(53)\n\n    def dijkstra(n, adj, s):\n        INF = float('inf')\n        dis = [INF] * n\n        dis[s] = 0\n        pq = [(0, s)]\n        while pq:\n            d, u = heapq.heappop(pq)\n            if d > dis[u]:\n                continue\n            for v, w in adj[u]:\n                nd = d + w\n                if nd < dis[v]:\n                    dis[v] = nd\n                    heapq.heappush(pq, (nd, v))\n        return dis\n\n    for _ in range(300):\n        n = random.randint(1, 8)\n        a = [[] for _ in range(n)]\n        for i in range(n):\n            for j in range(n):\n                if i != j and random.random() < 0.3:\n                    a[i].append((j, random.randint(0, 1)))\n        s = random.randrange(n)\n        d1 = bfs01(n, a, s)\n        d2 = dijkstra(n, a, s)\n        for i in range(n):\n            assert d1[i] == d2[i], (i, d1[i], d2[i])\n    print(\"All tests passed.\")",
+    "pypy_notes": "deque 的 appendleft/append 均 O(1)，PyPy 性能优秀。0 权边优先处理保证单调性，不要用普通队列。若边权是 {0,k}，把 k 视作 1 档即可（相当于 w=1 的推广，只要两种权值成比例）。INF 用大整数避免 float 比较开销。",
+    "complexity": {
+      "time": "O(V+E)",
+      "space": "O(V+E)"
+    },
+    "limitations": "仅适用于边权只有两档（0/1 或 0/k）。边权多样时必须用 Dijkstra/Bellman-Ford。0-1 BFS 要求权值可比较的『0 或 1』语义；若边权为 {1,2} 之类，可通过拆点/换权换算，但一般不划算。"
+  },
+  "examples": [
+    {
+      "oj": "Codeforces",
+      "pid": "173B",
+      "url": "https://codeforces.com/problemset/problem/173/B",
+      "difficulty": 5,
+      "key_point": "Chamber of Secrets：OI Wiki 例题，激光网格建模为 0-1 BFS"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4554",
+      "url": "https://www.luogu.com.cn/problem/P4554",
+      "difficulty": 4,
+      "key_point": "小明的游戏：棋盘 0/1 权最短路经典题"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "1341E",
+      "url": "https://codeforces.com/problemset/problem/1341/E",
+      "difficulty": 5,
+      "key_point": "Nastya and Unexpected Guest：模时间建图 0-1 BFS（0/1 权状态图）"
+    }
+  ],
+  "pitfalls": [
+    "用普通队列代替 deque 会破坏单调性，结果错误",
+    "0 权边插队首、1 权边插队尾，顺序写反会 TLE/错误",
+    "dis 初始 INF 且更新后必须判断 nd<dis[v] 才能入队，否则死循环（0 权环）",
+    "边权不止 0/1 时硬套 0-1 BFS 会错，须换 Dijkstra",
+    "0 权环可能让节点多次入队，dis 检查可避免无限循环"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "deque",
+        "label": "双端队列维护分层"
+      },
+      {
+        "id": "pop0",
+        "label": "队首处理最小距离节点"
+      },
+      {
+        "id": "zero",
+        "label": "0 权边 appendleft"
+      },
+      {
+        "id": "one",
+        "label": "1 权边 append"
+      },
+      {
+        "id": "ext",
+        "label": "扩展: 路径重建/状态图建模"
+      }
+    ],
+    "edges": [
+      {
+        "from": "deque",
+        "to": "pop0"
+      },
+      {
+        "from": "pop0",
+        "to": "zero"
+      },
+      {
+        "from": "pop0",
+        "to": "one"
+      },
+      {
+        "from": "one",
+        "to": "ext"
+      },
+      {
+        "from": "zero",
+        "to": "ext"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/graph/bfs/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/graph/01_bfs.html",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch13 pp133-142",
+      "verified": true
+    }
+  ]
+}

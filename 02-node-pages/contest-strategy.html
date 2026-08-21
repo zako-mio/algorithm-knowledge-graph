@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>比赛时间分配与策略 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-8.html">竞赛策略族</a> / <span>比赛时间分配与策略</span></div>
+  <h1>比赛时间分配与策略</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-E-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-E-8.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-E-8.html"><span class="dir">组内第 1 / 6</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="partial-score.html"><span class="dir">下一个 / 组内</span><span class="v">partial-score</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">ICPC/CCPC/OI 全局策略：读题顺序、时间分配、队友分工、罚时控制、封板策略</div><p>竞赛策略是决定「在限时内把会做的题都做出来」的一整套决策方法，区别于具体算法。核心要素：①读题顺序与题面优先级（先读简短的/分值大的/样例可推的，三人并行读题）；②难度分布与「先易后难」的 AC 顺序；③ICPC 赛制下罚时控制（错一次 +20 分钟，宁肯多想少盲交）；④时间分配（如 5 小时比赛按阶段规划，每半小时汇报进度）；⑤队友分工与角色（码力担当/思维担当/数学担当，一人键盘、两人看题）；⑥封板（ICPC 最后一小时 rank 隐藏，靠前期名次与剩余题量判断投入）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>比赛的得分是「会做的题数」而不是「写出的代码量」。策略的价值在于把有限时间投到边际收益最高的题目上：一道想了 20 分钟的题若还无头绪，继续死磕 40 分钟很可能颗粒无收，不如先拿下两道签到题稳住罚时。ICPC 按题数优先、罚时次之排名——多对一题远胜于快对一题。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>ICPC/CCPC 赛制：三人一队一台机器，实时评测，每错一次罚 20 分钟，排名先比题数再比总用时（每题 = 从开局到 AC 的分钟数 + 20×错误次数）。封板：最后 1 小时榜单冻结，只能靠本地自估。OI 赛制：一次提交、赛后判分，追求的是每题的「部分分累加」而非全对。共同原则：①先扫全场题面（3-5 分钟）建立难易地图；②按「确认能 AC 的」→「有思路需实现的」→「可骗分的」三级投入；③每 30-60 分钟做一次进度校准，避免在一道题上超时。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>OI Wiki 的 contest/icpc 与 contest/oi 页详述两种赛制规则与赛季安排（ICPC 区域赛 9 月底-11 月底、EC/CCPC Final 12 月、WF 次年 4-6 月；NOI 系列 9 月 CSP 起），contest/roadmap 给出完整学习路线。策略本身是从多年区域赛与 NOI 实战中沉淀的经验性方法论。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">开局(<span class="t-n">0</span>-<span class="t-n">15</span><span class="t-b">min</span>): 三人各分区域扫题 → 报出 每题类型/难度/是否模板
+核心期: 先<span class="t-f">AC签到题</span>(稳) → 开有思路的题 → 每<span class="t-n">30</span>min同步进度
+罚时控制: 提交前重读一遍边界；不确认不交；样例过≠AC
+封板后: 靠前期rank与题面剩余难度定投入，新题只接有把握的
+收尾(最后<span class="t-n">20</span><span class="t-b">min</span>): 只交已验证的，不做新的大工程</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    <span class="t-c"># 策略决策框架：把「题」建模成可排序的任务队列</span>
+    <span class="t-c"># 每题: (预期AC分钟, 预期罚时代价, 把握度0-1, 是否签到)</span>
+    tasks = [
+        (<span class="t-s">&quot;A&quot;</span>, <span class="t-n">20</span>, <span class="t-n">0.95</span>, <span class="t-k">True</span>),
+        (<span class="t-s">&quot;B&quot;</span>, <span class="t-n">45</span>, <span class="t-n">0.70</span>, <span class="t-k">False</span>),
+        (<span class="t-s">&quot;C&quot;</span>, <span class="t-n">120</span>, <span class="t-n">0.30</span>, <span class="t-k">False</span>),
+        (<span class="t-s">&quot;D&quot;</span>, <span class="t-n">90</span>, <span class="t-n">0.60</span>, <span class="t-k">False</span>),
+        (<span class="t-s">&quot;E&quot;</span>, <span class="t-n">30</span>, <span class="t-n">0.90</span>, <span class="t-k">True</span>),
+    ]
+    <span class="t-c"># 投入顺序：先签到(把握度&gt;=0.9)再按 预期得分/耗时 贪心</span>
+    order = <span class="t-b">sorted</span>(tasks, key=<span class="t-k">lambda</span> t: (-t[<span class="t-n">3</span>], -t[<span class="t-n">2</span>] / t[<span class="t-n">1</span>]))
+    <span class="t-b">print</span>(<span class="t-s">&quot;建议投入顺序:&quot;</span>)
+    elapsed = <span class="t-n">0</span>
+    total = <span class="t-n">0</span>
+    <span class="t-k">for</span> name, cost, conf, sign <span class="t-k">in</span> order:
+        elapsed += cost
+        expected = conf * <span class="t-n">1.0</span>
+        total += expected
+        <span class="t-b">print</span>(<span class="t-s">f&quot;  {name}: 耗时{cost}min 把握{conf:.0%} 预计得分{expected:.1f}&quot;</span>)
+    <span class="t-b">print</span>(<span class="t-s">f&quot;总预计得分 {total:.1f}&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">本节点为方法论，无性能敏感代码。真正比赛时 Python 选手应额外评估每题时限是否宽容，同一策略要叠加「语言常数因子」（见 io-optimization / py-pypy 节点）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>策略本身 O(1)；用于评估题量的工具 O(m log m)</td></tr><tr><th>空间复杂度</th><td>O(m) — m 为题目数</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">策略是启发式的，不保证最优；不同赛制（ICPC 罚时 vs OI 部分分 vs CF 单题全判）的最优策略不同，不能照搬。队友间沟通成本、机器独占冲突会降低实际并行度；封板后的 rank 猜测也可能误判形势。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>在 AC 题目之前就反复提交未验证代码，罚时爆炸（+20 每次）</li><li>全程只盯一道难题，错过所有可拿的签到分</li><li>三人同时读同一题浪费并行度；应分区域读题再汇总</li><li>封板后继续死磕新题而不是投入已 AC 题目的改进/边界检查</li><li>忽视样例之外的边界（n=1、0、大数溢出、空串）导致交后 WA</li><li>OI 赛制里过早交唯一一次机会（浪费在未充分验证的部分分上）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>ICPC/CCPC</td><td><strong>区域赛通用</strong></td><td>1</td><td>典型场景：5 小时 10-13 题，目标 6-7 题铜牌、8+ 银牌，前期扫题+抢签到</td><td class="u"><a href="https://icpc.global" target="_blank" rel="noopener">https://icpc.global</a></td></tr><tr><td>NOI/CSP</td><td><strong>OI赛制</strong></td><td>1</td><td>一次提交：按数据范围分档写部分分，不求全 AC 只求分数最大化</td><td class="u"><a href="https://oi-wiki.org/contest/oi/" target="_blank" rel="noopener">https://oi-wiki.org/contest/oi/</a></td></tr><tr><td>Codeforces</td><td><strong>Div2 周赛</strong></td><td>1</td><td>CF 赛制多提交无罚时损失（有 50 分钟 hacks），策略重心在快速过 A-C</td><td class="u"><a href="https://codeforces.com/contests" target="_blank" rel="noopener">https://codeforces.com/contests</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-contest-strategy" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "scan", "label": "全队扫题建立难度地图"}}, {"data": {"id": "sign", "label": "先AC签到/模板题稳住"}}, {"data": {"id": "mid", "label": "中期按把握度排序投入"}}, {"data": {"id": "sync", "label": "定时同步进度与罚时体检"}}, {"data": {"id": "freeze", "label": "封板期聚焦有把握题"}}, {"data": {"id": "end", "label": "收尾只交已验证代码"}}, {"data": {"id": "escan->sign", "source": "scan", "target": "sign"}}, {"data": {"id": "esign->mid", "source": "sign", "target": "mid"}}, {"data": {"id": "emid->sync", "source": "mid", "target": "sync"}}, {"data": {"id": "esync->mid", "source": "sync", "target": "mid"}}, {"data": {"id": "emid->freeze", "source": "mid", "target": "freeze"}}, {"data": {"id": "efreeze->end", "source": "freeze", "target": "end"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-contest-strategy'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-cooccurrence" href="io-optimization.html" title="I/O优化是比赛策略的重要组成">I/O优化策略<span class="etype">共现</span></a><a class="chip e-prerequisite" href="contest-resources.html" title="学习路线是制定比赛策略的基础">学习资源与刷题路线<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="partial-score.html" title="比赛策略中骗分是核心环节">骗分/部分分<span class="etype">共现</span></a><a class="chip e-cooccurrence" href="problem-types.html" title="比赛策略需先识别题型再决策">题型识别<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/contest/icpc/" target="_blank" rel="noopener">https://oi-wiki.org/contest/icpc/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/contest/oi/" target="_blank" rel="noopener">https://oi-wiki.org/contest/oi/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/contest/roadmap/" target="_blank" rel="noopener">https://oi-wiki.org/contest/roadmap/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

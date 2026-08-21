@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>反常Nim/Anti-Nim · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-6.html">博弈论族</a> / <span>反常Nim/Anti-Nim</span></div>
+  <h1>反常Nim/Anti-Nim</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-E-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="game-graph.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">game-graph</span></a>
+    <a class="nav-index" href="../03-groups/G-E-6.html"><span class="dir">组内第 4 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="game-on-graph.html"><span class="dir">下一个 / 组内</span><span class="v">game-on-graph</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">misère 规则：取最后一枚石子者输；判定需分类讨论——全 1 堆看奇偶，否则仍看 Nim 和（与正常 Nim 相同）</div><p>反常 Nim（Misère Nim）：规则与 Nim 完全相同，但取走最后一枚石子的玩家失败（即无法操作者获胜）。判定结论（反 Nim 定理）：设 Nim 和 s=a_1⊕a_2⊕⋯⊕a_n。若所有堆都 ≤1（每堆至多 1 枚），则先手必败当且仅当石子数为奇数；若存在某堆 ≥2，则先手必败当且仅当 s=0（与正常 Nim 相同）。合并：P 态 ⟺ (存在堆&gt;1 且 s=0) 或 (全堆≤1 且非空堆数为奇数)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>misère 规则下终点『全空』变成了先手的胜利，诱导规则在末端&#x27;反转&#x27;。但反转只发生在所有堆都退化到 ≤1 的临界区：只要还有一堆 ≥2，Nim 的异或论证依然有效（可以控制在临界局面把奇偶性做对）。全 ≤1 时每步只能拿走 1 枚，奇偶性直接决定谁拿最后一枚。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>归纳证明。全 1 堆情形：n 堆各 1 枚，每步拿 1 枚，恰好 n 步结束，拿最后一枚者输 → n 为奇数时先手输，n 为偶数时先手赢（先手把最后一步留给对手）。含 ≥2 的情形分两况：只有一堆 &gt;1 时，先手可把它改成 0 或 1 使剩余全 1 堆的奇偶性满足『对手必败』，故先手必胜（此时 Nim 和必非 0）；有多堆 &gt;1 时，任何一步都会破坏≥2 性（新状态仍含≥2 或退到临界），归纳假设下 Nim 和非 0 可调为 0（正常 Nim 论证），Nim 和 0 无法守住 0（同正常 Nim 性质③），结论与正常 Nim 一致。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>反常（misère）规则下的 Nim 由 Bouton 于 1901 年同一篇论文中解决，他完整给出了含&#x27;最后一着者输&#x27;的判定。misère 组合博弈的一般理论比正常规则复杂得多（SG 理论不直接适用），但 Nim 是少数可用简单分类处理的特例。OI Wiki 在 impartial-game 页『反常 Nim 游戏』一节收录，CPH 亦提及。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 反 Nim 判定（返回 True 表示先手必胜）</span>
+<span class="t-k">def</span> <span class="t-f">anti_nim_win</span>(piles):
+  <span class="t-k">if</span> <span class="t-b">all</span>(a &lt;= <span class="t-n">1</span> <span class="t-k">for</span> a <span class="t-k">in</span> piles):
+    <span class="t-k">return</span> (<span class="t-b">sum</span>(piles) % <span class="t-n">2</span> == <span class="t-n">0</span>)   <span class="t-c"># 全 1：偶数枚则先手赢</span>
+  s = <span class="t-n">0</span>
+  <span class="t-k">for</span> a <span class="t-k">in</span> piles: s ^= a
+  <span class="t-k">return</span> s != <span class="t-n">0</span>                    <span class="t-c"># 含 &gt;1：看 Nim 和</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">anti_nim_win</span>(piles):
+    <span class="t-s">&quot;&quot;&quot;反常 Nim（最后取者输）判定：True=先手必胜，False=先手必败。&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> <span class="t-k">not</span> piles:
+        <span class="t-k">return</span> <span class="t-k">False</span>  <span class="t-c"># 无堆即无操作，先手无法行动而获胜（misère 下空局先手胜）</span>
+    <span class="t-k">if</span> <span class="t-b">all</span>(a &lt;= <span class="t-n">1</span> <span class="t-k">for</span> a <span class="t-k">in</span> piles):
+        <span class="t-k">return</span> <span class="t-b">sum</span>(piles) % <span class="t-n">2</span> == <span class="t-n">0</span>
+    s = <span class="t-n">0</span>
+    <span class="t-k">for</span> a <span class="t-k">in</span> piles:
+        s ^= a
+    <span class="t-k">return</span> s != <span class="t-n">0</span>
+
+
+<span class="t-k">def</span> <span class="t-f">anti_nim_pseudo_moves</span>(piles):
+    <span class="t-s">&quot;&quot;&quot;演示：若先手必胜，给出一种必胜走法。
+    返回 (堆下标, 操作后剩余) 或 None。
+    注意 misère 规则下必胜走法并非一律清零 Nim 和：
+    - 恰有一堆 &gt;1 时，把它调到 0/1 使全 1 堆总数为奇数（给对手 P 态）；
+    - 至少两堆 &gt;1 时，才按正常 Nim 的异或清零走法。
+    &quot;&quot;&quot;</span>
+    <span class="t-k">if</span> <span class="t-k">not</span> <span class="t-f">anti_nim_win</span>(piles):
+        <span class="t-k">return</span> <span class="t-k">None</span>
+    big = [i <span class="t-k">for</span> i, a <span class="t-k">in</span> <span class="t-b">enumerate</span>(piles) <span class="t-k">if</span> a &gt; <span class="t-n">1</span>]
+    <span class="t-k">if</span> <span class="t-b">len</span>(big) == <span class="t-n">1</span>:
+        i = big[<span class="t-n">0</span>]
+        ones = <span class="t-b">sum</span>(<span class="t-n">1</span> <span class="t-k">for</span> j, a <span class="t-k">in</span> <span class="t-b">enumerate</span>(piles) <span class="t-k">if</span> j != i <span class="t-k">and</span> a == <span class="t-n">1</span>)
+        target = <span class="t-n">1</span> <span class="t-k">if</span> ones % <span class="t-n">2</span> == <span class="t-n">0</span> <span class="t-k">else</span> <span class="t-n">0</span>  <span class="t-c"># 使 1 的个数为奇数（对手 P 态）</span>
+        <span class="t-k">return</span> (i, target)
+    <span class="t-k">if</span> <span class="t-b">len</span>(big) &gt;= <span class="t-n">2</span>:
+        s = <span class="t-n">0</span>
+        <span class="t-k">for</span> a <span class="t-k">in</span> piles:
+            s ^= a
+        <span class="t-k">for</span> i, a <span class="t-k">in</span> <span class="t-b">enumerate</span>(piles):
+            <span class="t-k">if</span> (a ^ s) &lt; a:
+                <span class="t-k">return</span> (i, a ^ s)
+    <span class="t-c"># 全 1 且先手胜（1 的个数为偶数）：拿任意一堆 1 枚即可</span>
+    <span class="t-k">for</span> i, a <span class="t-k">in</span> <span class="t-b">enumerate</span>(piles):
+        <span class="t-k">if</span> a == <span class="t-n">1</span>:
+            <span class="t-k">return</span> (i, <span class="t-n">0</span>)
+    <span class="t-k">return</span> <span class="t-k">None</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">from</span> functools <span class="t-k">import</span> lru_cache
+
+    <span class="t-c"># 暴力验证：misère 终局判定（无操作者赢）</span>
+    @<span class="t-f">lru_cache</span>(maxsize=<span class="t-k">None</span>)
+    <span class="t-k">def</span> <span class="t-f">win</span>(state):
+        state = <span class="t-b">tuple</span>(<span class="t-b">sorted</span>(x <span class="t-k">for</span> x <span class="t-k">in</span> state <span class="t-k">if</span> x &gt; <span class="t-n">0</span>))
+        <span class="t-k">if</span> <span class="t-k">not</span> state:
+            <span class="t-k">return</span> <span class="t-k">True</span>  <span class="t-c"># 无法操作：当前玩家赢（misère）</span>
+        <span class="t-k">for</span> i, v <span class="t-k">in</span> <span class="t-b">enumerate</span>(state):
+            <span class="t-k">for</span> take <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, v + <span class="t-n">1</span>):
+                nxt = <span class="t-b">list</span>(state)
+                nxt[i] -= take
+                <span class="t-k">if</span> <span class="t-k">not</span> <span class="t-f">win</span>(<span class="t-b">tuple</span>(nxt)):
+                    <span class="t-k">return</span> <span class="t-k">True</span>
+        <span class="t-k">return</span> <span class="t-k">False</span>
+
+    <span class="t-k">import</span> itertools
+    <span class="t-k">for</span> n <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-n">5</span>):
+        <span class="t-k">for</span> piles <span class="t-k">in</span> itertools.<span class="t-f">product</span>(<span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-n">4</span>), repeat=n):
+            <span class="t-k">if</span> <span class="t-b">sum</span>(piles) &gt; <span class="t-n">10</span>:
+                <span class="t-k">continue</span>
+            <span class="t-k">assert</span> <span class="t-f">anti_nim_win</span>(<span class="t-b">list</span>(piles)) == <span class="t-f">win</span>(<span class="t-b">tuple</span>(piles)), piles
+
+    <span class="t-c"># 关键样例</span>
+    <span class="t-k">assert</span> <span class="t-f">anti_nim_win</span>([<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>]) <span class="t-k">is</span> <span class="t-k">False</span>   <span class="t-c"># 3 堆 1 枚：先手必败</span>
+    <span class="t-k">assert</span> <span class="t-f">anti_nim_win</span>([<span class="t-n">1</span>, <span class="t-n">1</span>]) <span class="t-k">is</span> <span class="t-k">True</span>       <span class="t-c"># 2 堆 1 枚：先手胜</span>
+    <span class="t-k">assert</span> <span class="t-f">anti_nim_win</span>([<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>]) <span class="t-k">is</span> <span class="t-k">True</span>
+    <span class="t-k">assert</span> <span class="t-f">anti_nim_win</span>([<span class="t-n">2</span>, <span class="t-n">3</span>]) <span class="t-k">is</span> <span class="t-k">True</span>       <span class="t-c"># 2^3=1≠0 → 先手胜</span>
+    <span class="t-k">assert</span> <span class="t-f">anti_nim_win</span>([<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>]) <span class="t-k">is</span> <span class="t-k">False</span>   <span class="t-c"># 含&gt;1 且 1^2^3=0 → 先手败</span>
+    <span class="t-k">assert</span> <span class="t-f">anti_nim_win</span>([<span class="t-n">5</span>]) <span class="t-k">is</span> <span class="t-k">True</span>
+
+    <span class="t-c"># 必胜走法后局面应为必败</span>
+    <span class="t-k">for</span> piles <span class="t-k">in</span> [[<span class="t-n">2</span>, <span class="t-n">3</span>], [<span class="t-n">5</span>], [<span class="t-n">1</span>, <span class="t-n">1</span>], [<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">4</span>]]:
+        m = <span class="t-f">anti_nim_pseudo_moves</span>(piles)
+        <span class="t-k">assert</span> m <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>, piles
+        i, rest = m
+        nxt = piles[:]
+        nxt[i] = rest
+        <span class="t-k">assert</span> <span class="t-k">not</span> <span class="t-f">anti_nim_win</span>(nxt), (piles, nxt)
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">O(n) 判定极快。misère 一般游戏（非 Nim）不能简单套 SG，需注意区分；Nim 的 misère 有上面的特判分类，记住两分支即可。若题目是 Anti-Nim 变体（每堆可减任意数量但有上限），需转 SG+找规律。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n)</td></tr><tr><th>空间复杂度</th><td>O(1)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅适用于标准 Nim 规则的 misère 变体。misère 规则的任意公平组合游戏（如 misère 取石子一般化）没有统一 SG 捷径，一般要具体分析。若存在堆&gt;1 但 Nim 和恰为 0，此时先手必败（与正常 Nim 结论相同，这是反直觉点，容易错判为必败/必胜）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>misère 判定必须分类：全 ≤1 与存在 &gt;1 两分支，直接用正常 Nim 异或会错（如 [1,1] 正常是 P、misère 是 N）</li><li>全 ≤1 分支看『石子总数奇偶』而非『堆数奇偶』（堆数=石子数时等价，但含 0 堆时别混淆）</li><li>空局（无堆）在 misère 下当前玩家无法操作 → 获胜，务必特判</li><li>必胜走法在含&gt;1 时仍按异或清零，但全 1 分支要拿 1 枚（若误按异或会取不到）</li><li>misère 的 SG 理论不成立，别试图对 misère 游戏套 SG 异或</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P4279</strong></td><td>4</td><td>[SHOI2008] 小约翰的游戏：Anti-Nim 判定模板，OI Wiki 习题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4279" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4279</a></td></tr><tr><td>Luogu</td><td><strong>P4101</strong></td><td>5</td><td>[HEOI2014] 人人尽说江南好：misère 思想的组合博弈变体（OI Wiki 习题）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4101" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4101</a></td></tr><tr><td>AtCoder</td><td><strong>ARC 168 B Arbitrary Nim</strong></td><td>6</td><td>Arbitrary Nim：可限制每堆取的上限，Anti-Nim 判定思想延伸（OI Wiki 习题）</td><td class="u"><a href="https://atcoder.jp/contests/arc168/tasks/arc168_b" target="_blank" rel="noopener">https://atcoder.jp/contests/arc168/tasks/arc168_b</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-anti-nim" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "classify", "label": "判断是否全堆 ≤1"}}, {"data": {"id": "all_one", "label": "全 1 分支: 石子数奇偶判定"}}, {"data": {"id": "xor_branch", "label": "含 >1 分支: 看 Nim 和"}}, {"data": {"id": "normal", "label": "对照: 正常 Nim（末取者赢）"}}, {"data": {"id": "misere_sg", "label": "警示: misère 下 SG 不适用"}}, {"data": {"id": "eclassify->all_one", "source": "classify", "target": "all_one"}}, {"data": {"id": "eclassify->xor_branch", "source": "classify", "target": "xor_branch"}}, {"data": {"id": "exor_branch->normal", "source": "xor_branch", "target": "normal"}}, {"data": {"id": "eall_one->misere_sg", "source": "all_one", "target": "misere_sg"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-anti-nim'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="sg-function.html" title="反常Nim是正常Nim的misère变体">SG函数/Sprague-Grundy定理<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/game-theory/impartial-game/" target="_blank" rel="noopener">https://oi-wiki.org/math/game-theory/impartial-game/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/game-theory/intro/" target="_blank" rel="noopener">https://oi-wiki.org/math/game-theory/intro/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch25 Game theory（misère 简要提及）</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

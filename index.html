@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>算法知识图谱 — 总览入口</title>
+<style>
+  :root { --bg:#0f1117; --panel:#161a22; --border:#2a2f3a; --text:#e6e8ee; --dim:#9aa3b2; --accent:#4f8cff; --ext:#b48a3c; --ok:#2fb98a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; line-height:1.7; }
+  header { background:var(--panel); border-bottom:1px solid var(--border); padding:28px 32px; }
+  header h1 { font-size:24px; margin-bottom:6px; }
+  header p { color:var(--dim); font-size:14px; max-width:900px; }
+  main { padding:28px 32px; max-width:1100px; margin:0 auto; }
+  h2 { font-size:18px; margin:28px 0 14px; color:#cfd6e4; border-bottom:1px solid var(--border); padding-bottom:8px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin:12px 0; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px 18px; }
+  .card h3 { font-size:15px; color:var(--accent); margin-bottom:6px; }
+  .card a { color:var(--accent); text-decoration:none; }
+  .card a:hover { text-decoration:underline; }
+  .card p { font-size:13px; color:var(--dim); }
+  .stat { display:inline-block; background:#1d2a3f; border:1px solid #2b3d5f; border-radius:8px; padding:10px 16px; margin:4px; text-align:center; }
+  .stat b { display:block; font-size:22px; color:#fff; }
+  .stat span { font-size:12px; color:var(--dim); }
+  .links a { display:inline-block; margin:4px 8px 4px 0; padding:6px 14px; background:var(--panel); border:1px solid var(--border); border-radius:8px; color:var(--accent); text-decoration:none; font-size:13px; }
+  .links a:hover { border-color:var(--accent); }
+  ol.steps { padding-left:22px; margin:10px 0; }
+  ol.steps li { margin:6px 0; font-size:14px; color:#cfd6e4; }
+  ol.steps b { color:#fff; }
+</style>
+</head>
+<body>
+<header>
+  <h1>算法知识图谱</h1>
+  <p>372 个算法知识点 × 60 知识组 × 318 关系边，按 basic → intermediate → advanced → frontier 四阶段分层。每知识点含 what / why / how / 例题 / 易错点五区块，配 1037 道真实例题。基于多源权威信源（OI Wiki / CP-Algorithms / 算法竞赛进阶指南 等）构建，关系边分 prerequisite / variant / combination / cooccurrence 四类，DAG 无环。</p>
+</header>
+<main>
+  <h2>核心统计</h2>
+  <div>
+    <div class="stat"><b>372</b><span>知识点</span></div>
+    <div class="stat"><b>60</b><span>知识组</span></div>
+    <div class="stat"><b>318</b><span>关系边</span></div>
+    <div class="stat"><b>4</b><span>学习阶段</span></div>
+    <div class="stat"><b>1037</b><span>真实例题</span></div>
+  </div>
+
+  <h2>入口导航</h2>
+  <div class="links">
+    <a href="04-interactive/index.html">交互 DAG 总览（组级视图+点击下钻）</a>
+    <a href="03-groups/index.html">分组目录（60 组卡片）</a>
+    <a href="06-md/02-priority.md">优先级视图（P0-P3）</a>
+    <a href="06-md/03-learning-path.md">学习路径</a>
+  </div>
+
+  <h2>快速开始</h2>
+  <ol class="steps">
+    <li><b>先总览</b>：打开交互 DAG 总览，看 60 组在四阶段中的分布，理解拓扑推进方向。</li>
+    <li><b>点组下钻</b>：点击组节点展开组内知识点 DAG，或从分组目录选一组进入组页。</li>
+    <li><b>点知识点</b>：读 what（是什么）→ why（为什么）→ how（怎么做）→ 例题 → 易错点。</li>
+    <li><b>做例题</b>：每页例题直接可做可验，按优先级（P0→P3）安排学习顺序。</li>
+  </ol>
+
+  <h2>方法说明</h2>
+  <div class="cards">
+    <div class="card"><h3>三级下钻</h3><p>根入口 → 组页（G-*.html）→ 知识点页（02-node-pages/*.html），逐层深入。交互图支持从组节点直接下钻组内 DAG。</p></div>
+    <div class="card"><h3>冲刺视图</h3><p>同知识点可属于多个优先级视图（P0-P3）与四阶段，按竞赛冲刺/系统学习两种节奏浏览。</p></div>
+    <div class="card"><h3>多类型边</h3><p>prerequisite（前置依赖）/ variant（变体）/ combination（组合）/ cooccurrence（共现）四类边，环检测仅以 prerequisite 边为准。</p></div>
+    <div class="card"><h3>信源纪律</h3><p>每知识点标注来源（OI Wiki / CP-Algorithms / 算法竞赛进阶指南 / 洛谷 / Codeforces 等）与置信度，例题均为真实可验证题目。</p></div>
+  </div>
+</main>
+</body>
+</html>

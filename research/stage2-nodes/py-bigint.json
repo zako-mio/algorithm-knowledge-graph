@@ -1,0 +1,104 @@
+{
+  "id": "py-bigint",
+  "name": "Python大整数原生支持",
+  "group": "G-E-3",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "Python int无限精度，无需手写大数类；pow(a,b,mod)内置快速幂；2**512直接算",
+  "what": "Python 的 int 类型是任意精度整数（arbitrary-precision integer），无 32/64 位溢出限制，2**512 直接算出 155 位十进制数。内置 pow(a, b, mod) 实现模幂快速幂（O(log b)），是 C++ 需要 30 行手写的高频功能。这让 Python 在高精度运算题（麦森数、大数阶乘、组合数取模）中有天然优势，无需 BigInteger 库。",
+  "why": {
+    "intuition": "C++ 的 int/long long 固定 64 位，超 2^63 溢出。Python 的 int 底层是动态扩展的数字数组（每 30 位存一段），自动按需扩展。所以 2**1000 不会溢出，只是变慢（位数越多乘法越贵）。pow(a,b,mod) 更聪明——它用快速幂+每步取模，中间值不爆炸，速度与手写一致。",
+    "principle": "CPython 的 int 用 PyLongObject 存储，30 位为一个 digit，数组长度随数值增长。小整数（-5~256）有单例缓存。运算在 C 层用 GMP 风格多精度算法。pow(a,b,mod) 在 C 层用二进制快速幂实现，每步 mod 保证中间值不超过 mod²（O(log b) 次乘法，每次 O(log mod)）。2**n 在 Python 中比逐次乘更高效（用移位优化）。",
+    "history": "Python 2 有 int（C long）和 long（任意精度）两类型，3.0 起统一为 int（均任意精度）。pow(a,b,mod) 从 Python 2 起就内置。OI Wiki 明确指出 pow(a,b,mod) 是快速幂的高效实现，2**512 直接可算。"
+  },
+  "how": {
+    "pseudocode": "# 任意精度运算\nx = 2 ** 512          # 155 位，不溢出\n# 模幂（快速幂内置）\nres = pow(a, b, mod)   # == a**b % mod 但更快不爆内存\n# 大阶乘\nimport math\nfac = math.factorial(1000)  # 2568 位\n# 大组合数取模\nfrom math import comb\nprint(comb(100, 50))         # C(100,50) 精确值",
+    "python": "# Python 大整数原生支持（含自测）\nimport math\n\ndef fast_pow_mod(a, b, mod):\n    \"\"\"手写快速幂，与 pow(a,b,mod) 对比验证\"\"\"\n    result = 1\n    a %= mod\n    while b > 0:\n        if b & 1:\n            result = result * a % mod\n        a = a * a % mod\n        b >>= 1\n    return result\n\nif __name__ == \"__main__\":\n    # 1) 大整数无溢出\n    assert 2 ** 512 == 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084096\n    # 2) pow 内置快速幂与手写一致\n    assert pow(12345, 67890, 1000000007) == fast_pow_mod(12345, 67890, 1000000007)\n    # 3) 大阶乘\n    assert math.factorial(10) == 3628800\n    assert len(str(math.factorial(1000))) == 2568  # 1000! 有 2568 位\n    # 4) 组合数\n    assert math.comb(100, 50) == 100891344545564193334812497256\n    # 5) pow(a,b,mod) 比 a**b % mod 快（不爆中间值）\n    assert pow(7, 1000000, 10**9 + 7) == fast_pow_mod(7, 1000000, 10**9 + 7)\n    print(\"py-bigint OK\")\n",
+    "pypy_notes": "PyPy 大整数运算常数比 CPython 略大（内部实现不同），但对 pow(a,b,mod) 这种走底层 C 的仍快。2**n 在 PyPy 用移位优化同样高效。注意 PyPy 小整数有 list-strategy 优化（list 全是 int 时用紧凑数组），大整数列表无此优化。竞赛中优先用 math.factorial/comb/pow 内置函数。",
+    "complexity": {
+      "time": "n 位大数加法 O(n)；乘法 O(n log n)~O(n²)；pow(a,b,mod) O(log b × 乘法)",
+      "space": "O(位数)"
+    },
+    "limitations": "1) 大数运算比固定精度慢得多（10^6 位乘法秒级），需取模的务必用 pow(a,b,mod) 不用 a**b%mod（后者先算 a**b 爆内存）；2) 浮点仍 IEEE754 双精度，大数需用 int 不能用 float；3) 竞赛中输出超大整数（如 10^6 位）IO 也慢。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1045",
+      "url": "https://www.luogu.com.cn/problem/P1045",
+      "difficulty": 4,
+      "key_point": "2^P-1 的位数与后 500 位，Python int 直接算"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1604",
+      "url": "https://www.luogu.com.cn/problem/P1604",
+      "difficulty": 3,
+      "key_point": "大整数加法与进制转换"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "2",
+      "url": "https://leetcode.cn/problems/add-two-numbers/",
+      "difficulty": 3,
+      "key_point": "链表大数加法；面试应手写链表模拟"
+    }
+  ],
+  "pitfalls": [
+    "用 a**b % mod 而非 pow(a,b,mod) → a**b 先算出天文数字爆内存",
+    "误以为 int 有 64 位上限 → Python int 无限精度，放心用",
+    "浮点大数运算丢失精度 → 必须用 int 不用 float",
+    "math.comb 不取模直接算组合数 → 大组合数位数爆炸，需取模时手写 Lucas 或快速幂",
+    "输出极大整数时 print 也很慢，考虑格式化字符串批量输出"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "s1",
+        "label": "判断是否需取模"
+      },
+      {
+        "id": "s2",
+        "label": "需取模→pow(a,b,mod) 内置快速幂"
+      },
+      {
+        "id": "s3",
+        "label": "不需取模→直接 int 运算（2**n / factorial / comb）"
+      },
+      {
+        "id": "s4",
+        "label": "大数输出→str() 转字符串后输出"
+      }
+    ],
+    "edges": [
+      {
+        "from": "s1",
+        "to": "s2",
+        "cond": "需要 mod"
+      },
+      {
+        "from": "s1",
+        "to": "s3",
+        "cond": "不需要 mod"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/lang/python/",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://docs.python.org/3/library/functions.html#pow",
+      "verified": true
+    },
+    {
+      "type": "web",
+      "url": "https://docs.python.org/3/library/stdtypes.html#int",
+      "verified": true
+    }
+  ]
+}

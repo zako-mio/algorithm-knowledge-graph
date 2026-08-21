@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行列式 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-14.html">线性代数族</a> / <span>行列式</span></div>
+  <h1>行列式</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-C-14</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="matrix-basics.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">matrix-basics</span></a>
+    <a class="nav-index" href="../03-groups/G-C-14.html"><span class="dir">组内第 2 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="gaussian-elimination.html"><span class="dir">下一个 / 组内</span><span class="v">gaussian-elimination</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">O(n^3)高斯消元法求行列式，矩阵树定理与计数应用基础</div><p>行列式是方阵的一种标量运算，记det(A)或|A|。三种等价定义：全排列定义（n!项代数和）、归纳定义（按行/列展开递归）、公理化定义（满足倍乘、对换、倍加性质+单位阵行列式为1）。高斯消元法将矩阵化为上三角矩阵，行列式=对角线元素乘积（考虑行交换的符号变化）。竞赛中常需模质数求行列式（如矩阵树定理求生成树计数）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>行列式的几何意义是矩阵变换对空间的缩放因子（体积/面积的有向变化比）。行列式为0表示矩阵不可逆（空间被压缩降维）。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>高斯消元法：用倍加操作消去下三角部分（行列式不变），行交换改变符号。最终行列式=上三角对角线乘积×符号。模意义下用费马小定理求逆元替代除法。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>行列式概念由日本数学家关孝和（17世纪）和莱布尼茨（1693年）独立提出。高斯消元法由Gauss命名。矩阵树定理（Kirchhoff定理）将行列式与图论生成树计数关联。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">det = <span class="t-n">1</span>
+<span class="t-k">for</span> col <span class="t-k">in</span> <span class="t-n">0.</span>.n-<span class="t-n">1</span>:
+  find pivot row <span class="t-k">with</span> A[row][col]!=<span class="t-n">0</span>
+  <span class="t-k">if</span> none: <span class="t-k">return</span> <span class="t-n">0</span>
+  swap rows <span class="t-k">if</span> needed, flip det sign
+  <span class="t-k">for</span> row <span class="t-k">in</span> col+<span class="t-n">1.</span>.n-<span class="t-n">1</span>:
+    eliminate A[row][col] using row operations
+<span class="t-k">for</span> i: det *= A[i][i]
+<span class="t-k">return</span> det</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">determinant</span>(mat, mod=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;Compute determinant via Gaussian elimination. O(n^3).&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(mat)
+    A = [row[:] <span class="t-k">for</span> row <span class="t-k">in</span> mat]
+    det = <span class="t-n">1</span>
+    <span class="t-k">for</span> col <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        pivot = -<span class="t-n">1</span>
+        <span class="t-k">for</span> row <span class="t-k">in</span> <span class="t-b">range</span>(col, n):
+            <span class="t-k">if</span> A[row][col] != <span class="t-n">0</span>:
+                pivot = row
+                <span class="t-k">break</span>
+        <span class="t-k">if</span> pivot == -<span class="t-n">1</span>:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        <span class="t-k">if</span> pivot != col:
+            A[col], A[pivot] = A[pivot], A[col]
+            det = -det
+        <span class="t-k">for</span> row <span class="t-k">in</span> <span class="t-b">range</span>(col + <span class="t-n">1</span>, n):
+            <span class="t-k">if</span> A[row][col] != <span class="t-n">0</span>:
+                <span class="t-k">if</span> mod:
+                    ratio = A[row][col] * <span class="t-b">pow</span>(A[col][col], mod - <span class="t-n">2</span>, mod) % mod
+                    <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(col, n):
+                        A[row][j] = (A[row][j] - ratio * A[col][j]) % mod
+                <span class="t-k">else</span>:
+                    factor = A[row][col] / A[col][col]
+                    <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(col, n):
+                        A[row][j] -= factor * A[col][j]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">if</span> mod:
+            det = det * A[i][i] % mod
+        <span class="t-k">else</span>:
+            det *= A[i][i]
+    <span class="t-k">if</span> mod:
+        det = (det % mod + mod) % mod
+    <span class="t-k">return</span> det
+
+<span class="t-k">def</span> <span class="t-f">determinant_naive</span>(mat):
+    <span class="t-s">&quot;&quot;&quot;Naive recursive determinant via cofactor expansion. O(n!).&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(mat)
+    <span class="t-k">if</span> n == <span class="t-n">1</span>:
+        <span class="t-k">return</span> mat[<span class="t-n">0</span>][<span class="t-n">0</span>]
+    <span class="t-k">if</span> n == <span class="t-n">2</span>:
+        <span class="t-k">return</span> mat[<span class="t-n">0</span>][<span class="t-n">0</span>] * mat[<span class="t-n">1</span>][<span class="t-n">1</span>] - mat[<span class="t-n">0</span>][<span class="t-n">1</span>] * mat[<span class="t-n">1</span>][<span class="t-n">0</span>]
+    det = <span class="t-n">0</span>
+    <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        minor = [row[:j] + row[j+<span class="t-n">1</span>:] <span class="t-k">for</span> row <span class="t-k">in</span> mat[<span class="t-n">1</span>:]]
+        det += ((-<span class="t-n">1</span>) ** j) * mat[<span class="t-n">0</span>][j] * <span class="t-f">determinant_naive</span>(minor)
+    <span class="t-k">return</span> det
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(<span class="t-f">determinant</span>([[<span class="t-n">1</span>, <span class="t-n">2</span>], [<span class="t-n">3</span>, <span class="t-n">4</span>]]) - (-<span class="t-n">2</span>)) &lt; <span class="t-n">1e-6</span>
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(<span class="t-f">determinant</span>([[<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>], [<span class="t-n">4</span>, <span class="t-n">5</span>, <span class="t-n">6</span>], [<span class="t-n">7</span>, <span class="t-n">8</span>, <span class="t-n">10</span>]]) - (-<span class="t-n">3</span>)) &lt; <span class="t-n">1e-6</span>
+    <span class="t-k">assert</span> <span class="t-f">determinant</span>([[<span class="t-n">1</span>, <span class="t-n">0</span>], [<span class="t-n">0</span>, <span class="t-n">1</span>]]) == <span class="t-n">1</span>
+    <span class="t-k">assert</span> <span class="t-f">determinant</span>([[<span class="t-n">0</span>, <span class="t-n">0</span>], [<span class="t-n">0</span>, <span class="t-n">0</span>]]) == <span class="t-n">0</span>
+    <span class="t-c"># Mod arithmetic</span>
+    <span class="t-k">assert</span> <span class="t-f">determinant</span>([[<span class="t-n">1</span>, <span class="t-n">2</span>], [<span class="t-n">3</span>, <span class="t-n">4</span>]], mod=<span class="t-n">10</span>**<span class="t-n">9</span> + <span class="t-n">7</span>) == (<span class="t-n">10</span>**<span class="t-n">9</span> + <span class="t-n">7</span> - <span class="t-n">2</span>)
+    <span class="t-c"># Naive comparison</span>
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(<span class="t-f">determinant</span>([[<span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">0</span>], [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">1</span>], [<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">2</span>]]) - <span class="t-n">4</span>) &lt; <span class="t-n">1e-6</span>
+    <span class="t-k">assert</span> <span class="t-f">determinant_naive</span>([[<span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">0</span>], [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">1</span>], [<span class="t-n">0</span>, <span class="t-n">1</span>, <span class="t-n">2</span>]]) == <span class="t-n">4</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;determinant: ALL TESTS PASSED&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">模质数时用pow(x,mod-2,mod)求逆元。非质数模需用辗转相减或扩展GCD。纯Python三层循环n&gt;200可能慢。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n^3)</td></tr><tr><th>空间复杂度</th><td>O(n^2)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">模非质数时需特殊处理（辗转相消法）。浮点数有精度问题。朴素展开O(n!)不可行。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>行交换时需翻转det符号</li><li>模非质数时不能直接用费马小定理求逆元</li><li>浮点消元有精度问题，建议用分数或模运算</li><li>对角线出现0不一定行列式为0（需先消元）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3313</strong></td><td>6</td><td>树链剖分+线段树综合（行列式相关应用）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3313" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3313</a></td></tr><tr><td>Luogu</td><td><strong>P4111</strong></td><td>5</td><td>矩阵树定理求生成树计数（行列式）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4111" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4111</a></td></tr><tr><td>Luogu</td><td><strong>P4455</strong></td><td>6</td><td>行列式在计数中的应用</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4455" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4455</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-determinant" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "d1", "label": "对每列col找非零主元"}}, {"data": {"id": "d2", "label": "无主元→返回0"}}, {"data": {"id": "d3", "label": "行交换→翻转det符号"}}, {"data": {"id": "d4", "label": "消去下方行的col列元素"}}, {"data": {"id": "d5", "label": "所有列处理完"}}, {"data": {"id": "d6", "label": "det=对角线乘积×符号"}}, {"data": {"id": "ed1->d2", "source": "d1", "target": "d2"}}, {"data": {"id": "ed1->d3", "source": "d1", "target": "d3"}}, {"data": {"id": "ed2->d6", "source": "d2", "target": "d6"}}, {"data": {"id": "ed3->d4", "source": "d3", "target": "d4"}}, {"data": {"id": "ed4->d1", "source": "d4", "target": "d1"}}, {"data": {"id": "ed1->d5", "source": "d1", "target": "d5"}}, {"data": {"id": "ed5->d6", "source": "d5", "target": "d6"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-determinant'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="gaussian-elimination.html" title="行列式通过高斯消元上三角化后对角元乘积">高斯消元<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="matrix-basics.html" title="行列式是方阵的标量函数，需矩阵基础">矩阵基础<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/linear-algebra/determinant/" target="_blank" rel="noopener">https://oi-wiki.org/math/linear-algebra/determinant/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/linear_algebra/determinant-gauss.html" target="_blank" rel="noopener">https://cp-algorithms.com/linear_algebra/determinant-gauss.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch23 Matrices (p227-234)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

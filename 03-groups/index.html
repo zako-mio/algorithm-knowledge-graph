@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分组目录 — 算法知识图谱</title>
+<style>
+  :root { --bg:#0f1117; --panel:#161a22; --border:#2a2f3a; --text:#e6e8ee; --dim:#9aa3b2; --accent:#4f8cff; --ok:#2fb98a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; line-height:1.7; }
+  header { background:var(--panel); border-bottom:1px solid var(--border); padding:28px 32px; }
+  header h1 { font-size:24px; margin-bottom:6px; }
+  header p { color:var(--dim); font-size:14px; max-width:900px; }
+  main { padding:28px 32px; max-width:1200px; margin:0 auto; }
+  h2 { font-size:18px; margin:28px 0 14px; color:#cfd6e4; border-bottom:1px solid var(--border); padding-bottom:8px; }
+  .back a { color:var(--accent); text-decoration:none; font-size:14px; }
+  .back a:hover { text-decoration:underline; }
+  .section-title { display:flex; align-items:baseline; gap:10px; margin:24px 0 10px; }
+  .section-title h2 { margin:0; border:none; padding:0; }
+  .section-title span { color:var(--dim); font-size:13px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; margin:12px 0; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px 18px; transition:border-color .15s; }
+  .card:hover { border-color:var(--accent); }
+  .card a { text-decoration:none; }
+  .card h3 { font-size:15px; color:var(--accent); margin-bottom:6px; }
+  .card a:hover h3 { text-decoration:underline; }
+  .card .meta { font-size:12px; color:var(--dim); margin-bottom:8px; }
+  .card .meta b { color:#cfd6e4; }
+  .stat { display:inline-block; background:#1d2a3f; border:1px solid #2b3d5f; border-radius:8px; padding:10px 16px; margin:4px; text-align:center; }
+  .stat b { display:block; font-size:22px; color:#fff; }
+  .stat span { font-size:12px; color:var(--dim); }
+  .tag { display:inline-block; background:#1d2a3f; border:1px solid #2b3d5f; border-radius:5px; padding:2px 8px; font-size:12px; color:var(--ok); margin-right:6px; }
+  .badge { display:inline-block; border-radius:5px; padding:2px 8px; font-size:11px; color:#fff; margin-right:6px; }
+  .b-basic { background:#2fb98a; } .b-intermediate { background:#4f8cff; } .b-advanced { background:#b48a3c; } .b-frontier { background:#b45a3c; }
+</style>
+</head>
+<body>
+<header>
+  <h1>分组目录 — 算法知识图谱</h1>
+  <p>60 个知识组按领域与学习阶段组织。点击组卡片下钻查看组内知识点详情页；从根入口总览进入交互 DAG，按拓扑层逐层推进。</p>
+</header>
+<main>
+  <div class="back"><a href="../index.html">← 返回根入口</a></div>
+  <h2>核心统计</h2>
+  <div>
+    <div class="stat"><b>372</b><span>知识点</span></div>
+    <div class="stat"><b>60</b><span>知识组</span></div>
+    <div class="stat"><b>318</b><span>关系边</span></div>
+    <div class="stat"><b>4</b><span>学习阶段</span></div>
+    <div class="stat"><b>1037</b><span>真实例题</span></div>
+  </div>
+  <div class="section-title">
+    <h2>全部知识组</h2>
+    <span>按 组ID 分组（A=基础算法/数据结构 B=图论/树 C=字符串/数学 D=计算几何/高级 E=技巧/专题/工具）</span>
+  </div>
+  <div class="cards">
+    <div class="card"><a href="G-A-1.html">
+      <h3>G-A-1 · 排序与基础算法族</h3>
+      <div class="meta">基础算法｜20 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-2.html">
+      <h3>G-A-2 · 栈队列与单调结构族</h3>
+      <div class="meta">数据结构｜4 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-3.html">
+      <h3>G-A-3 · 堆与优先队列族</h3>
+      <div class="meta">数据结构｜6 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-4.html">
+      <h3>G-A-4 · 并查集族</h3>
+      <div class="meta">数据结构｜3 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-5.html">
+      <h3>G-A-5 · 区间查询与分块族</h3>
+      <div class="meta">数据结构｜4 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-6.html">
+      <h3>G-A-6 · 线段树族</h3>
+      <div class="meta">数据结构｜4 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-7.html">
+      <h3>G-A-7 · 可持久化数据结构族</h3>
+      <div class="meta">数据结构｜1 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-8.html">
+      <h3>G-A-8 · 平衡二叉搜索树族</h3>
+      <div class="meta">数据结构｜9 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-9.html">
+      <h3>G-A-9 · 高级树结构族</h3>
+      <div class="meta">数据结构｜2 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-10.html">
+      <h3>G-A-10 · 哈希与链表族</h3>
+      <div class="meta">数据结构｜3 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-11.html">
+      <h3>G-A-11 · 动态规划基础族</h3>
+      <div class="meta">动态规划｜15 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-12.html">
+      <h3>G-A-12 · DP优化族</h3>
+      <div class="meta">动态规划｜9 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-13.html">
+      <h3>G-A-13 · 高级DP族</h3>
+      <div class="meta">动态规划｜3 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-A-14.html">
+      <h3>G-A-14 · 搜索算法族</h3>
+      <div class="meta">搜索算法｜9 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-B-1.html">
+      <h3>G-B-1 · 图基础与遍历</h3>
+      <div class="meta">图论｜6 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-basic">基础</span></div>
+    </a></div>
+    <div class="card"><a href="G-B-2.html">
+      <h3>G-B-2 · 最短路族</h3>
+      <div class="meta">图论｜8 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-B-3.html">
+      <h3>G-B-3 · 生成树族</h3>
+      <div class="meta">图论｜6 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-B-4.html">
+      <h3>G-B-4 · 连通性族</h3>
+      <div class="meta">图论｜7 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-B-5.html">
+      <h3>G-B-5 · 网络流族</h3>
+      <div class="meta">图论｜6 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-B-6.html">
+      <h3>G-B-6 · 二分图与匹配族</h3>
+      <div class="meta">图论｜5 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-B-7.html">
+      <h3>G-B-7 · 树算法族</h3>
+      <div class="meta">图论｜10 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-B-8.html">
+      <h3>G-B-8 · 欧拉与哈密顿族</h3>
+      <div class="meta">图论｜3 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-B-9.html">
+      <h3>G-B-9 · 图论高级专题</h3>
+      <div class="meta">图论｜5 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-1.html">
+      <h3>G-C-1 · 字符串匹配族</h3>
+      <div class="meta">字符串｜5 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-2.html">
+      <h3>G-C-2 · 字典树与AC自动机族</h3>
+      <div class="meta">字符串｜2 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-3.html">
+      <h3>G-C-3 · 后缀结构族</h3>
+      <div class="meta">字符串｜4 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-4.html">
+      <h3>G-C-4 · 后缀自动机族</h3>
+      <div class="meta">字符串｜3 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-5.html">
+      <h3>G-C-5 · 回文族</h3>
+      <div class="meta">字符串｜2 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-6.html">
+      <h3>G-C-6 · Lyndon与周期族</h3>
+      <div class="meta">字符串｜3 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-7.html">
+      <h3>G-C-7 · 数论基础族</h3>
+      <div class="meta">数学｜10 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-8.html">
+      <h3>G-C-8 · 数论进阶族</h3>
+      <div class="meta">数学｜8 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-9.html">
+      <h3>G-C-9 · 数论高级族</h3>
+      <div class="meta">数学｜11 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-10.html">
+      <h3>G-C-10 · 组合计数基础族</h3>
+      <div class="meta">数学｜5 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-11.html">
+      <h3>G-C-11 · 组合进阶族</h3>
+      <div class="meta">数学｜8 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-12.html">
+      <h3>G-C-12 · 多项式与FFT族</h3>
+      <div class="meta">数学｜9 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-13.html">
+      <h3>G-C-13 · 生成函数族</h3>
+      <div class="meta">数学｜7 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-14.html">
+      <h3>G-C-14 · 线性代数族</h3>
+      <div class="meta">数学｜9 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-15.html">
+      <h3>G-C-15 · 概率族</h3>
+      <div class="meta">数学｜4 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-16.html">
+      <h3>G-C-16 · 数值方法族</h3>
+      <div class="meta">数学｜3 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-C-18.html">
+      <h3>G-C-18 · 大整数与数制族</h3>
+      <div class="meta">数学｜4 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-1.html">
+      <h3>G-D-1 · 凸包族</h3>
+      <div class="meta">计算几何｜7 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-2.html">
+      <h3>G-D-2 · 平面扫描与几何求交</h3>
+      <div class="meta">计算几何｜10 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-3.html">
+      <h3>G-D-3 · 计算几何基础与度量</h3>
+      <div class="meta">计算几何｜7 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-4.html">
+      <h3>G-D-4 · 树链剖分与动态树</h3>
+      <div class="meta">高级数据结构｜3 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-5.html">
+      <h3>G-D-5 · 可持久化数据结构</h3>
+      <div class="meta">高级数据结构｜5 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-6.html">
+      <h3>G-D-6 · 分块与根号算法</h3>
+      <div class="meta">高级数据结构｜6 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-7.html">
+      <h3>G-D-7 · 莫队算法族</h3>
+      <div class="meta">高级数据结构｜7 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-8.html">
+      <h3>G-D-8 · 高级线段树与离线</h3>
+      <div class="meta">高级数据结构｜5 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-9.html">
+      <h3>G-D-9 · 专题(topic 域)</h3>
+      <div class="meta">高级专题｜3 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-D-10.html">
+      <h3>G-D-10 · 调度与其他专题</h3>
+      <div class="meta">高级专题｜4 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-1.html">
+      <h3>G-E-1 · IO与常数优化族</h3>
+      <div class="meta">技巧｜4 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-2.html">
+      <h3>G-E-2 · 位运算族</h3>
+      <div class="meta">技巧｜4 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-3.html">
+      <h3>G-E-3 · Python竞赛特性族</h3>
+      <div class="meta">语言特性｜8 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-4.html">
+      <h3>G-E-4 · 调试与对拍族</h3>
+      <div class="meta">竞赛策略｜5 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-5.html">
+      <h3>G-E-5 · 随机化与元启发式族</h3>
+      <div class="meta">技巧｜5 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-6.html">
+      <h3>G-E-6 · 博弈论族</h3>
+      <div class="meta">数学/博弈｜7 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-7.html">
+      <h3>G-E-7 · 离线与杂项技巧族</h3>
+      <div class="meta">杂项技巧｜18 个知识点</div>
+      <div class="meta"><span class="b-intermediate">进阶</span> → <span class="b-advanced">高级</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-8.html">
+      <h3>G-E-8 · 竞赛策略族</h3>
+      <div class="meta">竞赛策略｜6 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-9.html">
+      <h3>G-E-9 · 工具链族</h3>
+      <div class="meta">工具｜7 个知识点</div>
+      <div class="meta"><span class="b-basic">基础</span> → <span class="b-intermediate">进阶</span></div>
+    </a></div>
+    <div class="card"><a href="G-E-10.html">
+      <h3>G-E-10 · 前沿趋势组</h3>
+      <div class="meta">前沿｜6 个知识点</div>
+      <div class="meta"><span class="b-advanced">高级</span> → <span class="b-frontier">前沿</span></div>
+    </a></div>
+  </div>
+</main>
+</body>
+</html>

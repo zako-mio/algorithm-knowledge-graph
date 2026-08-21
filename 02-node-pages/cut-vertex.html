@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>割点(关节点) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-4.html">连通性族</a> / <span>割点(关节点)</span></div>
+  <h1>割点(关节点)</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-B-4</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="tarjan-scc.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">tarjan-scc</span></a>
+    <a class="nav-index" href="../03-groups/G-B-4.html"><span class="dir">组内第 2 / 7</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="bridge.html"><span class="dir">下一个 / 组内</span><span class="v">bridge</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">删除后使图极大连通分量数增加的点，Tarjan(dfn/low)判定O(V+E)，根节点需特判子节点数</div><p>割点(articulation point / cut vertex)是删除后使无向图极大连通分量数增加的点。朴素做法是枚举每个点删除后跑一遍DFS判连通性，复杂度O(V(V+E))。Tarjan算法在DFS过程中维护dfn(DFS序)和low(不经过父边能到达的最小dfn)，在O(V+E)内一次DFS求出所有割点。判定条件：对于非根节点u，若存在子节点v使得low[v]&gt;=dfn[u]，则u是割点；对于根节点，若在DFS生成树中有两个及以上子节点，则根是割点。该算法是割点/桥/双连通分量/圆方树等系列结构的基础。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>如果从u的子节点v的子树出发，只能回到v本身或其祖先之下，即low[v]&gt;=dfn[u]，说明v所在的子树无法通过其他路径绕回u的祖先，那么一旦删掉u，v的整个子树就与u之上的部分分离，连通分量数必然增加，所以u是割点。low就像是&#x27;每个子树能找到的最高的逃生天桥&#x27;，找不到通往祖先的路，就说明u是关键枢纽。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>Tarjan算法过程：(1)DFS遍历，dfn[u]记录访问时间戳；(2)low[u]初始化为dfn[u]，对树边v：low[u]=min(low[u],low[v])，对非树边(返祖边)v(且v≠父节点)：low[u]=min(low[u],dfn[v])；(3)非根节点u是割点当且仅当存在子节点v满足low[v]&gt;=dfn[u]；(4)根节点是割点当且仅当DFS树中它有两个及以上子节点（若从根只搜出一个子树，删根不增加分量数，如一个环）。注意需使用递归DFS而非迭代，且在无向图上需用边的编号或父节点标记区分返祖边与父边。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>割点概念与DFS生成树理论源于图论中图连通性的研究，Tarjan在1972年提出的DFS深度优先搜索框架以及基于dfn/low的算法至今仍是求割点/桥/强连通分量的标准方法。OI Wiki的cut.md与CP-Algorithms的cutpoints页均给出标准Tarjan实现，CPH第17章(pp167-172)也介绍了该思路。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">tarjan</span>(u, parent):
+  dfn[u] = low[u] = ++timer
+  child_count = <span class="t-n">0</span>
+  <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+    <span class="t-k">if</span> <span class="t-k">not</span> visited[v]:
+      child_count += <span class="t-n">1</span>
+      <span class="t-f">tarjan</span>(v, u)
+      low[u] = <span class="t-b">min</span>(low[u], low[v])
+      <span class="t-k">if</span> parent != root <span class="t-k">and</span> low[v] &gt;= dfn[u]:
+        is_cut[u] = <span class="t-k">True</span>
+      <span class="t-c"># 根节点判断在循环外: if parent==root and child_count&gt;=2: is_cut[u]=True</span>
+    <span class="t-k">elif</span> v != parent:
+      low[u] = <span class="t-b">min</span>(low[u], dfn[v])</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+sys.<span class="t-f">setrecursionlimit</span>(<span class="t-n">1</span> &lt;&lt; <span class="t-n">25</span>)
+
+
+<span class="t-k">def</span> <span class="t-f">find_cut_vertices</span>(n, adj):
+    <span class="t-s">&quot;&quot;&quot;求无向图所有割点。
+    adj[u] = [v, ...], 顶点编号 0..n-1
+    return: 割点集合(升序list)
+    &quot;&quot;&quot;</span>
+    dfn = [<span class="t-n">0</span>] * n
+    low = [<span class="t-n">0</span>] * n
+    is_cut = [<span class="t-k">False</span>] * n
+    timer = [<span class="t-n">0</span>]
+
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(u, parent):
+        dfn[u] = low[u] = timer[<span class="t-n">0</span>] = timer[<span class="t-n">0</span>] + <span class="t-n">1</span>
+        child = <span class="t-n">0</span>
+        <span class="t-k">for</span> v <span class="t-k">in</span> adj[u]:
+            <span class="t-k">if</span> <span class="t-k">not</span> dfn[v]:
+                child += <span class="t-n">1</span>
+                <span class="t-f">dfs</span>(v, u)
+                low[u] = <span class="t-b">min</span>(low[u], low[v])
+                <span class="t-k">if</span> parent != -<span class="t-n">1</span> <span class="t-k">and</span> low[v] &gt;= dfn[u]:
+                    is_cut[u] = <span class="t-k">True</span>
+            <span class="t-k">elif</span> v != parent:
+                low[u] = <span class="t-b">min</span>(low[u], dfn[v])
+        <span class="t-k">if</span> parent == -<span class="t-n">1</span> <span class="t-k">and</span> child &gt;= <span class="t-n">2</span>:
+            is_cut[u] = <span class="t-k">True</span>
+
+    <span class="t-k">for</span> s <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        <span class="t-k">if</span> <span class="t-k">not</span> dfn[s]:
+            <span class="t-f">dfs</span>(s, -<span class="t-n">1</span>)
+    <span class="t-k">return</span> [i <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n) <span class="t-k">if</span> is_cut[i]]
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 测试1: OI Wiki示例, 割点为2</span>
+    <span class="t-c"># 0-1-2-3, 2-4, 2-5, 4-6(环), 5-6  =&gt; 割点应为 {1, 2}</span>
+    adj = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">7</span>)]
+    edges = [(<span class="t-n">0</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">2</span>, <span class="t-n">3</span>), (<span class="t-n">2</span>, <span class="t-n">4</span>), (<span class="t-n">2</span>, <span class="t-n">5</span>), (<span class="t-n">4</span>, <span class="t-n">6</span>), (<span class="t-n">5</span>, <span class="t-n">6</span>)]
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> edges:
+        adj[u].<span class="t-f">append</span>(v)
+        adj[v].<span class="t-f">append</span>(u)
+    <span class="t-k">assert</span> <span class="t-f">find_cut_vertices</span>(<span class="t-n">7</span>, adj) == [<span class="t-n">1</span>, <span class="t-n">2</span>], <span class="t-f">find_cut_vertices</span>(<span class="t-n">7</span>, adj)
+
+    <span class="t-c"># 测试2: 单个环, 无割点</span>
+    adj2 = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">4</span>)]
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> [(<span class="t-n">0</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>), (<span class="t-n">2</span>, <span class="t-n">3</span>), (<span class="t-n">3</span>, <span class="t-n">0</span>)]:
+        adj2[u].<span class="t-f">append</span>(v)
+        adj2[v].<span class="t-f">append</span>(u)
+    <span class="t-k">assert</span> <span class="t-f">find_cut_vertices</span>(<span class="t-n">4</span>, adj2) == [], <span class="t-f">find_cut_vertices</span>(<span class="t-n">4</span>, adj2)
+
+    <span class="t-c"># 测试3: 简单链 0-1-2, 1为割点</span>
+    adj3 = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">3</span>)]
+    <span class="t-k">for</span> u, v <span class="t-k">in</span> [(<span class="t-n">0</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>)]:
+        adj3[u].<span class="t-f">append</span>(v)
+        adj3[v].<span class="t-f">append</span>(u)
+    <span class="t-k">assert</span> <span class="t-f">find_cut_vertices</span>(<span class="t-n">3</span>, adj3) == [<span class="t-n">1</span>], <span class="t-f">find_cut_vertices</span>(<span class="t-n">3</span>, adj3)
+
+    <span class="t-c"># 测试4: 根节点为割点: 星形 0-1,0-2,0-3, 0为根且多子树</span>
+    adj4 = [[] <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">4</span>)]
+    <span class="t-k">for</span> v <span class="t-k">in</span> (<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>):
+        adj4[<span class="t-n">0</span>].<span class="t-f">append</span>(v)
+        adj4[v].<span class="t-f">append</span>(<span class="t-n">0</span>)
+    <span class="t-k">assert</span> <span class="t-f">find_cut_vertices</span>(<span class="t-n">4</span>, adj4) == [<span class="t-n">0</span>], <span class="t-f">find_cut_vertices</span>(<span class="t-n">4</span>, adj4)
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;cut-vertex: ALL TESTS PASSED&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy递归较慢且默认栈有限，n在1e5~2e5时建议显式sys.setrecursionlimit(1&lt;&lt;25)；若仍栈溢出，可手动维护栈模拟DFS(记录进入/回溯事件)。Python默认递归深度限制约1000，务必先提高。邻接表用list of list即可。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(V+E) — 每个点/边各访问一次</td></tr><tr><th>空间复杂度</th><td>O(V+E) — 邻接表 + dfn/low数组 + 递归栈</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">Tarjan割点判定基于DFS树，适用于任意无向图(含重边不影响割点判定，但割边/桥判定需区分重边)。Python递归版本可能栈溢出，大规模图需迭代实现。多连通分量的图需对每个起点独立跑DFS。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>根节点割点判定条件不同：必须有&gt;=2个DFS子树才算割点，单子树根删除不增加分量</li><li>返祖边更新low时用dfn[v]而非low[v]，且必须跳过父节点(无重边时)以免误判</li><li>Python递归默认栈深~1000，需setrecursionlimit，大图考虑迭代栈</li><li>无向图建边要双向add，漏了会导致图不完整误判</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3388</strong></td><td>3</td><td>【模板】割点(割顶)：直接套Tarjan，需特判根节点</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3388" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3388</a></td></tr><tr><td>POJ</td><td><strong>2117</strong></td><td>3</td><td>Electricity：求删除一点后最大连通分量数，需统计各连通块的子节点数</td><td class="u"><a href="http://poj.org/problem?id=2117" target="_blank" rel="noopener">http://poj.org/problem?id=2117</a></td></tr><tr><td>POJ</td><td><strong>1523</strong></td><td>3</td><td>SPF：经典割点题，输出每个割点删除后增加的分量数</td><td class="u"><a href="http://poj.org/problem?id=1523" target="_blank" rel="noopener">http://poj.org/problem?id=1523</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-cut-vertex" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "init", "label": "初始化dfn/low/时间戳"}}, {"data": {"id": "dfs", "label": "DFS遍历记录dfn与low"}}, {"data": {"id": "tree_edge", "label": "树边: low[u]=min(low[u],low[v])"}}, {"data": {"id": "back_edge", "label": "返祖边: low[u]=min(low[u],dfn[v])"}}, {"data": {"id": "judge", "label": "非根: low[v]>=dfn[u] 判割点"}}, {"data": {"id": "root_judge", "label": "根: DFS子树数>=2 判割点"}}, {"data": {"id": "einit->dfs", "source": "init", "target": "dfs"}}, {"data": {"id": "edfs->tree_edge", "source": "dfs", "target": "tree_edge"}}, {"data": {"id": "edfs->back_edge", "source": "dfs", "target": "back_edge"}}, {"data": {"id": "etree_edge->judge", "source": "tree_edge", "target": "judge"}}, {"data": {"id": "ejudge->root_judge", "source": "judge", "target": "root_judge"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-cut-vertex'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="dfs.html" title="割点判定基于DFS生成树">DFS深度优先搜索<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="bcc.html" title="点双连通分量建立在割点概念上">双连通分量(BCC)<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/cut/" target="_blank" rel="noopener">https://oi-wiki.org/graph/cut/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/cutpoints.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/cutpoints.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch17 pp167-172</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

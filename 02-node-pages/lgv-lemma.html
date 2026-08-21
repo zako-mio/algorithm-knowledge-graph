@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LGV行列式引理 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-9.html">图论高级专题</a> / <span>LGV行列式引理</span></div>
+  <h1>LGV行列式引理</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-B-9</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="max-clique.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">max-clique</span></a>
+    <a class="nav-index" href="../03-groups/G-B-9.html"><span class="dir">组内第 5 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-B-9.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">Lindström-Gessel-Viennot引理，不相交路径计数</div><p>LGV 引理（Lindström–Gessel–Viennot lemma）用于在**有向无环图**上计算若干对起终点之间的不相交路径计数。设起点集合 A={a1..an}、终点集合 B={b1..bn}，e(ai,bj) 表示从 ai 到 bj 的所有路径的边权之积之和（路径计数时边权取 1，边权可为生成函数）。则由矩阵 M[i][j]=e(ai,bj) 的行列式等于：所有从 A 到 B 的不相交路径组 S（每个 ai 恰好连到某个 bσ(i)，且各路径无公共顶点）的权值之和再乘以符号 (-1)^t(σ)。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>行列式展开是 &#x27;所有排列 σ 的带符号路径组&#x27; 的求和。含交叉的路径组（两条路径在某点 u 相交）可以成对抵消：若路径 i 与路径 j 在 u 相交，则交换它们在 u 之后的部分，得到另一条路径组，二者权值相同而排列奇偶性相反（交换了两个终点，逆序对奇偶性改变），符号相反，恰好抵消。于是剩余的就只有不相交路径组，从而 det(M) = 带符号的不相交路径组求和。若起终点满足 ai→bi 是自然对应（如单调递增的配对），则 σ 为恒等排列，符号全为正。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>关键前提是图必须是有向无环图（保证&#x27;交换相交点之后的部分&#x27;仍合法且权重相同），且 A、B 两两互不重复。应用流程：选定合适的 A、B（通常取必经的入口/出口集合），用 DP 或组合数算出每个 e(ai,bj)，再求行列式。当配对自然（如 a1&lt;a2&lt;...&lt;an 与 b1&lt;b2&lt;...&lt;bn 且路径不交即对应），答案直接是 det(M)，无需处理符号。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>引理由 Lindström 于 1973 年、Gessel 与 Viennot 于 1985 年分别证明/推广，是组合数学中把不相交路径与行列式联系起来的经典工具。在信息学竞赛中最常见的形式是格点棋盘上（只能向下/向右走）的路径计数，1980 年代后成为 combinatorics on lattice paths 的基本工具。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 网格不相交路径计数 (经典应用)</span>
+<span class="t-c"># 起点 A, 终点 B, 边权=1</span>
+<span class="t-c"># 1. 对每个 (ai, bj) 用组合数/DP 求路径数 e(ai,bj)</span>
+<span class="t-c">#    DP: dp[i][j] = dp[i-1][j] + dp[i][j-1] (带障碍)</span>
+<span class="t-c">#    无障碍时 e(ai,bj) = C(Δx+Δy, Δx)</span>
+<span class="t-c"># 2. 构造矩阵 M[i][j] = e(ai,bj)</span>
+<span class="t-c"># 3. 答案 = det(M) (配对自然时无符号问题)</span>
+<span class="t-c"># 4. 行列式用高斯消元 O(n^3) 求, 模质数下除法用逆元</span></code></pre><h3>Python 实现</h3><pre><code class="python">MOD = <span class="t-n">10</span>**<span class="t-n">9</span> + <span class="t-n">7</span>
+
+
+<span class="t-k">def</span> <span class="t-f">comb</span>(n, k):
+    <span class="t-s">&quot;&quot;&quot;组合数 C(n,k) mod MOD, n&lt;=2000 用阶乘表&quot;&quot;&quot;</span>
+    fac = [<span class="t-n">1</span>] * (n + <span class="t-n">1</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, n + <span class="t-n">1</span>):
+        fac[i] = fac[i - <span class="t-n">1</span>] * i % MOD
+    inv = [<span class="t-n">1</span>] * (n + <span class="t-n">1</span>)
+    inv[n] = <span class="t-b">pow</span>(fac[n], MOD - <span class="t-n">2</span>, MOD)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n, <span class="t-n">0</span>, -<span class="t-n">1</span>):
+        inv[i - <span class="t-n">1</span>] = inv[i] * i % MOD
+    <span class="t-k">return</span> <span class="t-k">lambda</span> x, y: fac[x] * inv[y] % MOD * inv[x - y] % MOD <span class="t-k">if</span> <span class="t-n">0</span> &lt;= y &lt;= x <span class="t-k">else</span> <span class="t-n">0</span>
+
+
+<span class="t-k">def</span> <span class="t-f">det_mod</span>(a):
+    <span class="t-s">&quot;&quot;&quot;模质数下的高斯消元行列式&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(a)
+    res = <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        piv = i
+        <span class="t-k">while</span> piv &lt; n <span class="t-k">and</span> a[piv][i] == <span class="t-n">0</span>:
+            piv += <span class="t-n">1</span>
+        <span class="t-k">if</span> piv == n:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        <span class="t-k">if</span> piv != i:
+            a[i], a[piv] = a[piv], a[i]
+            res = -res
+        inv = <span class="t-b">pow</span>(a[i][i], MOD - <span class="t-n">2</span>, MOD)
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>, n):
+            f = a[j][i] * inv % MOD
+            <span class="t-k">for</span> k <span class="t-k">in</span> <span class="t-b">range</span>(i, n):
+                a[j][k] = (a[j][k] - f * a[i][k]) % MOD
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        res = res * a[i][i] % MOD
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">lgv_paths_2</span>(start_pts, end_pts, n_grid):
+    <span class="t-s">&quot;&quot;&quot;2x2 LGV: 格点棋盘(只能右/下)从两个起点到两个终点的
+    不相交路径数. 每个 e(ai,bj) 用组合数, 行列式即答案.
+    返回 (行列式, e矩阵)
+    &quot;&quot;&quot;</span>
+    C = <span class="t-f">comb</span>(<span class="t-n">2</span> * n_grid, n_grid)
+    M = [[<span class="t-n">0</span>, <span class="t-n">0</span>], [<span class="t-n">0</span>, <span class="t-n">0</span>]]
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>):
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2</span>):
+            x1, y1 = start_pts[i]
+            x2, y2 = end_pts[j]
+            dx, dy = x2 - x1, y2 - y1
+            M[i][j] = <span class="t-f">C</span>(dx + dy, dx)
+    d = <span class="t-f">det_mod</span>([row[:] <span class="t-k">for</span> row <span class="t-k">in</span> M])
+    <span class="t-k">return</span> d % MOD, M
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 小棋盘: (0,0)-&gt;(1,1) 与 (0,1)-&gt;(1,2) 两条路径不交</span>
+    <span class="t-c"># 起点 (0,0),(0,1); 终点 (1,1),(1,2)</span>
+    <span class="t-c"># e((0,0),(1,1)) = C(2,1)=2 ; e((0,0),(1,2)) = C(3,1)=3</span>
+    <span class="t-c"># e((0,1),(1,1)) = C(1,1)=1 ; e((0,1),(1,2)) = C(2,1)=2</span>
+    <span class="t-c"># det = 2*2 - 3*1 = 1</span>
+    start = [(<span class="t-n">0</span>, <span class="t-n">0</span>), (<span class="t-n">0</span>, <span class="t-n">1</span>)]
+    end = [(<span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">1</span>, <span class="t-n">2</span>)]
+    d, M = <span class="t-f">lgv_paths_2</span>(start, end, <span class="t-n">3</span>)
+    <span class="t-k">assert</span> d == <span class="t-n">1</span>, d
+    <span class="t-k">assert</span> M == [[<span class="t-n">2</span>, <span class="t-n">3</span>], [<span class="t-n">1</span>, <span class="t-n">2</span>]]
+
+    <span class="t-c"># 起点 (0,0),(0,1); 终点 (1,1),(2,1) : 第一条必经过</span>
+    <span class="t-c"># e((0,0),(1,1))=C(2,1)=2, e((0,0),(2,1))=C(3,1)=3</span>
+    <span class="t-c"># e((0,1),(1,1))=1, e((0,1),(2,1))=C(2,1)=2 =&gt; det=2*2-3*1=1</span>
+    <span class="t-c"># 实际 det = 2*1 - 3*1 = -1 (mod MOD) -&gt; MOD-1</span>
+    d2, _ = <span class="t-f">lgv_paths_2</span>([(<span class="t-n">0</span>, <span class="t-n">0</span>), (<span class="t-n">0</span>, <span class="t-n">1</span>)], [(<span class="t-n">1</span>, <span class="t-n">1</span>), (<span class="t-n">2</span>, <span class="t-n">1</span>)], <span class="t-n">3</span>)
+    <span class="t-k">assert</span> d2 == MOD - <span class="t-n">1</span>, d2
+
+    <span class="t-b">print</span>(<span class="t-s">&quot;lgv-lemma tests passed&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">核心是组合数 + 行列式。格点路径数在障碍情况下改用 O(nm) DP 预处理每个 e(ai,bj)。行列式模运算在 PyPy 下高斯消元 O(k^3) 可跑 k≤100 左右；注意 Python 二维列表逐行乘在 k 较大时用内建循环优化。组合数表若 n 很大（1e5+）需用阶乘+逆元全局预处理。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>DP 求 e 为 O(nm)（或 O(n) 组合数），行列式高斯消元 O(k^3)，k 为起点个数</td></tr><tr><th>空间复杂度</th><td>O(nm + k^2)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只适用于 DAG；A、B 中元素必须两两不同；必须正确选择起点/终点集合（通常取必经的关键集合），选错则行列式无意义；k 较大时行列式求解成本高。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>只适用于有向无环图；存在环时交换路径部分不合法</li><li>A、B 起点/终点不能重复，集合大小必须相等</li><li>配对非自然时，行列式带符号，需按 σ 的逆序数取符号</li><li>起点终点集合选择不当会得到错误/无意义答案，选关键必经点</li><li>行列式需在模数下用逆元；模数为质数时简单，否则用高斯消元除法</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Codeforces</td><td><strong>348D</strong></td><td>4</td><td>Turtles：网格障碍路径计数，取 A={(1,2),(2,1)}, B={(n-1,m),(n,m-1)} 应用 LGV，O(nm) DP</td><td class="u"><a href="https://codeforces.com/problemset/problem/348/D" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/348/D</a></td></tr><tr><td>Luogu</td><td><strong>U461211</strong></td><td>4</td><td>（此题为字符串哈希加强题，非 LGV 题；仅作交叉对比参考）</td><td class="u"><a href="https://www.luogu.com.cn/problem/U461211" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/U461211</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-lgv-lemma" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "pick_ab", "label": "选取起点集 A 与终点集 B"}}, {"data": {"id": "count_e", "label": "计算每个 e(ai,bj)（DP/组合数）"}}, {"data": {"id": "matrix", "label": "构造路径计数矩阵 M"}}, {"data": {"id": "det", "label": "高斯消元求行列式"}}, {"data": {"id": "answer", "label": "得到不相交路径数（处理符号）"}}, {"data": {"id": "epick_ab->count_e", "source": "pick_ab", "target": "count_e"}}, {"data": {"id": "ecount_e->matrix", "source": "count_e", "target": "matrix"}}, {"data": {"id": "ematrix->det", "source": "matrix", "target": "det"}}, {"data": {"id": "edet->answer", "source": "det", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-lgv-lemma'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/lgv/" target="_blank" rel="noopener">https://oi-wiki.org/graph/lgv/</a></li><li><span class="srctype">Wikipedia</span><span class="v-ok">&#10003;</span> <a href="https://en.wikipedia.org/wiki/Lindström–Gessel–Viennot_lemma" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Lindström–Gessel–Viennot_lemma</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

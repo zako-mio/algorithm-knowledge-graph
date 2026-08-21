@@ -1,0 +1,102 @@
+{
+ "id": "sbt",
+ "name": "Size Balanced Tree(SBT)",
+ "group": "G-A-8",
+ "stage": "advanced",
+ "priority": "P2",
+ "depth_tier": "standard",
+ "brief": "按子树size维护平衡，O(log n)操作",
+ "what": "Size Balanced Tree（SBT，大小平衡树）由中国 OI 选手陈启峰（chenqifeng）2007 年提出，是一种自平衡二叉搜索树。每个节点额外维护以自身为根的子树节点数 size，通过旋转维持「任意节点的 size 不小于其兄弟节点的所有子节点的 size」这一平衡条件，从而保证 O(log n) 的树高与操作复杂度，且能高效支持 rank/按 rank 取值的排名查询。",
+ "why": {
+  "intuition": "只依赖 size 字段就能判定失衡：一个节点若被「孙子」超过，说明某侧子树过重。SBT 的平衡条件保证任意节点的左/右子树高度差被限制在常数倍内（实际最多 2 倍），因此树高 O(log n)。旋转发生在递归返回路径上，且一次旋转后失衡会向根传播，需要 loop 检查。",
+  "principle": "平衡条件（对任意节点 N）：size(N.left) ≥ size(N.right.left)，size(N.left) ≥ size(N.right.right)，size(N.right) ≥ size(N.left.left)，size(N.right) ≥ size(N.left.right)——即节点 size 不小于其兄弟的孙 size。维护操作 maintain(x)：插入发生在左子树且 size(左左) > size(右) 时右旋；size(左右) > size(右) 时先左旋左子树再右旋，递归 maintain 直到无需调整；右子树对称。由于每层至多常数次旋转、每操作路径 O(log n)，总复杂度 O(log n)。",
+  "history": "SBT 由陈启峰于 2007 年在中国提出，最早在 2007 年 NOI 冬令营/集训队论文中系统阐述，之后成为中国竞赛圈常见的平衡树实现，以旋转直接、常数小、代码量适中著称。OI Wiki 设有专门页面介绍其性质与维护算法。"
+ },
+ "how": {
+  "pseudocode": "maintain(x):               # 在插入/删除后调用恢复平衡\n  if size(x.left) < size(x.right.left):        # 情况1：右子左孙过大\n    右旋(right)?? 用旋转组合处理\n  ...四种失衡形态(l/r 子孙过大)分别做旋转\n  递归 maintain 左/右子树至稳定\n\ninsert(x, val):\n  if val < x.val: insert(x.left, val)\n  else: insert(x.right, val)\n  push_up(x); maintain(x)\n\ndelete(x, val):   # 叶子直接删；单子顶替；双子用前驱/后继替换\n  与 BST 删除一致，回溯 push_up + maintain",
+  "python": "class SBT:\n    def __init__(self):\n        self.val = [0]\n        self.ch = [[0, 0]]\n        self.sz = [0]\n        self.root = 0\n\n    def _new(self, v):\n        self.val.append(v)\n        self.ch.append([0, 0])\n        self.sz.append(1)\n        return len(self.val) - 1\n\n    def _pull(self, x):\n        self.sz[x] = 1 + self.sz[self.ch[x][0]] + self.sz[self.ch[x][1]]\n\n    def _rr(self, x):   # 右旋：x 的左儿子上浮\n        y = self.ch[x][0]\n        self.ch[x][0] = self.ch[y][1]\n        self.ch[y][1] = x\n        self._pull(x)\n        self._pull(y)\n        return y\n\n    def _lr(self, x):   # 左旋：x 的右儿子上浮\n        y = self.ch[x][1]\n        self.ch[x][1] = self.ch[y][0]\n        self.ch[y][0] = x\n        self._pull(x)\n        self._pull(y)\n        return y\n\n    def fix(self, x):\n        \"\"\"SBT 平衡维护（OI Wiki 四情形 + fixBalance 递归）\"\"\"\n        if not x:\n            return x\n        l, r = self.ch[x][0], self.ch[x][1]\n        if self.sz[l] < self.sz[self.ch[r][0]]:      # Case1: 右左孙子过大\n            self.ch[x][1] = self._rr(r)\n            x = self._lr(x)\n            self.ch[x][0] = self.fix(self.ch[x][0])\n            self.ch[x][1] = self.fix(self.ch[x][1])\n            x = self.fix(x)\n        elif self.sz[l] < self.sz[self.ch[r][1]]:    # Case2: 右右孙子过大\n            x = self._lr(x)\n            self.ch[x][0] = self.fix(self.ch[x][0])\n            x = self.fix(x)\n        elif self.sz[r] < self.sz[self.ch[l][0]]:    # Case3: 左左孙子过大\n            x = self._rr(x)\n            self.ch[x][1] = self.fix(self.ch[x][1])\n            x = self.fix(x)\n        elif self.sz[r] < self.sz[self.ch[l][1]]:    # Case4: 左右孙子过大\n            self.ch[x][0] = self._lr(l)\n            x = self._rr(x)\n            self.ch[x][0] = self.fix(self.ch[x][0])\n            self.ch[x][1] = self.fix(self.ch[x][1])\n            x = self.fix(x)\n        return x\n\n    def _insert(self, x, v):\n        if not x:\n            return self._new(v)\n        if v < self.val[x]:\n            self.ch[x][0] = self._insert(self.ch[x][0], v)\n        else:\n            self.ch[x][1] = self._insert(self.ch[x][1], v)\n        self._pull(x)\n        return self.fix(x)\n\n    def insert(self, v):\n        self.root = self._insert(self.root, v)\n\n    def _find(self, x, v):\n        while x and self.val[x] != v:\n            x = self.ch[x][0] if v < self.val[x] else self.ch[x][1]\n        return x\n\n    def search(self, v):\n        return self._find(self.root, v) != 0\n\n    def _erase(self, x, v):\n        \"\"\"删除：叶子直接删；单子顶替；双子用左子树最大节点(前驱)替换\"\"\"\n        if not x:\n            return 0\n        if v < self.val[x]:\n            self.ch[x][0] = self._erase(self.ch[x][0], v)\n        elif v > self.val[x]:\n            self.ch[x][1] = self._erase(self.ch[x][1], v)\n        else:\n            if not self.ch[x][0]:\n                return self.ch[x][1]\n            if not self.ch[x][1]:\n                return self.ch[x][0]\n            p = self.ch[x][0]\n            while self.ch[p][1]:\n                p = self.ch[p][1]\n            self.val[x] = self.val[p]\n            self.ch[x][0] = self._erase(self.ch[x][0], self.val[p])\n        self._pull(x)\n        return self.fix(x)\n\n    def delete(self, v):\n        self.root = self._erase(self.root, v)\n\n    def kth(self, k):\n        x = self.root\n        while x:\n            ls = self.sz[self.ch[x][0]]\n            if k == ls + 1:\n                return self.val[x]\n            if k <= ls:\n                x = self.ch[x][0]\n            else:\n                k -= ls + 1\n                x = self.ch[x][1]\n        raise ValueError(\"k out of range\")\n\n    def rank(self, v):\n        \"\"\"小于 v 的元素个数 + 1\"\"\"\n        x = self.root\n        r = 1\n        while x:\n            if v <= self.val[x]:\n                x = self.ch[x][0]\n            else:\n                r += self.sz[self.ch[x][0]] + 1\n                x = self.ch[x][1]\n        return r\n\n    def inorder(self):\n        out = []\n        def dfs(x):\n            if not x:\n                return\n            dfs(self.ch[x][0])\n            out.append(self.val[x])\n            dfs(self.ch[x][1])\n        dfs(self.root)\n        return out\n\n\ndef balanced(t):\n    def go(x):\n        if not x:\n            return True\n        l, r = t.ch[x][0], t.ch[x][1]\n        ok = t.sz[l] >= t.sz[t.ch[r][0]] and t.sz[l] >= t.sz[t.ch[r][1]] \\\n             and t.sz[r] >= t.sz[t.ch[l][0]] and t.sz[r] >= t.sz[t.ch[l][1]]\n        return ok and go(l) and go(r)\n    return go(t.root)\n\n\ndef height(t):\n    def go(x):\n        if not x:\n            return 0\n        return 1 + max(go(t.ch[x][0]), go(t.ch[x][1]))\n    return go(t.root)\n\n\nif __name__ == \"__main__\":\n    import random\n    random.seed(5)\n    t = SBT()\n    arr = []\n    for _ in range(2000):\n        v = random.randint(0, 100000)\n        t.insert(v)\n        arr.append(v)\n    got = t.inorder()\n    assert got == sorted(arr)\n    assert balanced(t)\n    assert height(t) <= 60, height(t)\n    uniq = sorted(set(arr))\n    for v in uniq[::7]:\n        assert t.rank(v) == sum(1 for a in arr if a < v) + 1\n    for k in [1, 3, 50, len(got) // 2, len(got)]:\n        assert t.kth(k) == got[k - 1]\n    removed = set(uniq[:len(uniq) // 2])\n    for v in removed:\n        while t.search(v):\n            t.delete(v)\n    got2 = t.inorder()\n    expect2 = sorted(a for a in arr if a not in removed)\n    assert got2 == expect2, (len(got2), len(expect2))\n    assert balanced(t)\n    assert height(t) <= 60\n    print(\"All tests passed.\")\n",
+  "pypy_notes": "SBT 维护代码略繁但无递归风险（平衡树高 ~log n），Python 可实现。旋转次数多但每次 O(1)；注意 _maintain 递归调用自身可能多层，但层数受 size 平衡限制。duplicate 处理同 BST（右子树允许等值）。",
+  "complexity": {
+   "time": "插入/删除/查找/排名 O(log n)；维护旋转均摊 O(1) 次每次 O(log n) 递归",
+   "space": "O(n)"
+  },
+  "limitations": "实现较繁琐（四形态维护递归）；删除实现有陷阱（用前驱替换后需对左子树递归维护）；实际竞赛 Python 中用 FHQ-Treap 更简洁。SBT 无区间操作支持，无随机化、严格平衡保证但常数比红黑树小。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P3369",
+   "url": "https://www.luogu.com.cn/problem/P3369",
+   "difficulty": 4,
+   "key_point": "普通平衡树：SBT 完整实现校验"
+  }
+ ],
+ "pitfalls": [
+  "_maintain 递归条件用错 size 关系（把 size(兄弟孙) 写成 size(兄弟)）",
+  "删除双子节点后漏掉对左子树的递归 maintain",
+  "kth/rank 中 size 未及时 push_up 导致结果偏移",
+  "把 SBT 平衡条件与 AVL 高度条件混淆，误判失衡"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "node",
+    "label": "节点:val+size"
+   },
+   {
+    "id": "rotate",
+    "label": "左旋/右旋+size更新"
+   },
+   {
+    "id": "maintain",
+    "label": "四种失衡形态维护(递归)"
+   },
+   {
+    "id": "insert",
+    "label": "插入后 push_up+maintain"
+   },
+   {
+    "id": "delete",
+    "label": "删除(前驱替换)+maintain"
+   },
+   {
+    "id": "query",
+    "label": "rank/kth/前驱后继"
+   }
+  ],
+  "edges": [
+   {
+    "from": "node",
+    "to": "rotate"
+   },
+   {
+    "from": "rotate",
+    "to": "maintain"
+   },
+   {
+    "from": "maintain",
+    "to": "insert"
+   },
+   {
+    "from": "maintain",
+    "to": "delete"
+   },
+   {
+    "from": "node",
+    "to": "query"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/sbt/",
+   "verified": true
+  },
+  {
+   "type": "paper",
+   "ref": "陈启峰《Size Balanced Tree》集训队论文 2007",
+   "verified": true
+  }
+ ]
+}

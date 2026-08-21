@@ -1,0 +1,92 @@
+{
+  "id": "lct",
+  "name": "Link-Cut Tree（LCT，动态树）",
+  "group": "G-D-4",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "deep",
+  "brief": "用 Splay 森林维护实链剖分（Preferred Path Decomposition）的动态树数据结构，支持 O(log n) 均摊的加边、删边、换根、路径修改与路径查询。",
+  "what": "LCT 用一组 Splay（辅助树）维护动态森林。原树被『实链剖分』为若干条实链（preferred path），每条实链放进一棵 Splay 中，Splay 的中序遍历对应原树上从上到下的一条链；每棵 Splay 的根通过虚边（认父不认子）指向其链顶在原树中的父节点。核心操作 access(x) 把 x 到根的路径暴露成一条实链（放进一棵 Splay），其余一切操作（makeroot 换根、link 连边、cut 删边、split 提取路径、findroot 求连通块根）都由若干次 access + splay 组合而成。所有基于 access 的操作均摊 O(log n)。",
+  "why": {
+    "intuition": "树链剖分把静态树切成若干链再放线段树，但静态剖分无法应对动态加删边。LCT 的洞察：我们不需要固定剖分，而是『用哪条链就剖哪条』——让当前需要用到的路径实时变为一条实链，然后用 Splay 的区间操作去处理。虚边『认父不认子』的设计让森林在辅助树中仍然是一棵树，任何时刻辅助树都唯一对应一棵原树。",
+    "principle": "① 辅助树性质：每棵 Splay 对应原树一条从上到下的路径（中序遍历即路径顺序）；Splay 根的父亲指向路径顶端节点在原树的父节点（虚边，父不认子）。② access(x)：自下而上把 x 到原树根的路径全部改为实链——每次 splay(x) 后把 x 右儿子设为上一步的 y（y 是上段链的根），并把 x 原右儿子的虚边保留（认父不认子）。③ makeroot(x)：access(x)+splay(x) 后对 x 打翻转标记 rev，则 x 变为该树的新根（利用 Splay 区间翻转）。④ link(x,y)：makeroot(x) 后令 fa[x]=y（若 x,y 已连通则非法）。⑤ cut(x,y)：makeroot(x)+access(y)+splay(y) 后，x 是 y 的左儿子且没有右儿子，直接断开。⑥ split(x,y)：makeroot(x)+access(y)+splay(y)，此时 y 的 Splay 子树（中序整段）即 x→y 路径。复杂度证明基于 Splay 的势能分析：access 中 splay 部分 O(log n)，虚边访问的均摊复杂度亦为 O(log n)，故 m 次 access 为 O((n+m)log n)。",
+    "history": "LCT 由 Daniel Sleator 与 Robert Tarjan 在 1983 年的论文《A Data Structure for Dynamic Trees》中提出，与 Splay 树同出于这两位作者（Sleator-Tarjan 1985 发表 Splay）。早期是自调整二叉搜索树思想在动态树上的扩展。国内 OI 竞赛中 LCT 模板（Luogu P3690）与大量题目（弹飞绵羊、洞穴勘测、Tree II 等）将其推向普及，OI Wiki 有系统中文教程。"
+  },
+  "how": {
+    "pseudocode": "struct LCT:\n    ch[0..n][2], fa[0..n], rev[0..n], sum[0..n], val[0..n]\n\n    isroot(x):  return ch[fa[x]][0] != x and ch[fa[x]][1] != x\n    pushup(x):  sum[x] = sum[ch[x][0]] + val[x] + sum[ch[x][1]]\n    pushrev(x): swap(ch[x][0], ch[x][1]); rev[x] ^= 1\n    pushdown(x): if rev[x]: pushrev(ch[x][0]); pushrev(ch[x][1]); rev[x]=0\n\n    rotate(x):  # 经典 splay 旋转，注意 isroot 判断\n    splay(x):   # 先下放路径上的翻转标记，再双旋\n\n    access(x):\n        last = 0\n        while x:\n            splay(x)\n            ch[x][1] = last     # 实边切到 last，原右儿子变虚边\n            pushup(x)\n            last = x\n            x = fa[x]           # 沿虚边向上\n        return last\n\n    makeroot(x): access(x); splay(x); pushrev(x)\n    findroot(x):\n        access(x); splay(x)\n        while ch[x][0]: pushdown(x); x = ch[x][0]\n        splay(x); return x\n    split(x, y): makeroot(x); access(y); splay(y)   # 此时 y 子树即路径\n    link(x, y):  makeroot(x); fa[x] = y             # 需判连通\n    cut(x, y):   makeroot(x); access(y); splay(y)\n                 # ch[y][0]==x 且 ch[x][1]==0 才合法，然后置零",
+    "python": "class LinkCutTree:\n    \"\"\"教学实现：点权路径异或和（可改为 sum/max）。\n    节点编号 1..n。\n    \"\"\"\n    def __init__(self, n, val):\n        self.n = n\n        self.ch = [[0, 0] for _ in range(n + 1)]\n        self.fa = [0] * (n + 1)\n        self.rev = [0] * (n + 1)\n        self.val = [0] + val[:]\n        self.sum = [0] * (n + 1)\n        for i in range(1, n + 1):\n            self.sum[i] = self.val[i]\n\n    def _isroot(self, x):\n        f = self.fa[x]\n        return f == 0 or (self.ch[f][0] != x and self.ch[f][1] != x)\n\n    def _pushup(self, x):\n        self.sum[x] = self.sum[self.ch[x][0]] ^ self.sum[self.ch[x][1]] ^ self.val[x]\n\n    def _pushrev(self, x):\n        self.ch[x][0], self.ch[x][1] = self.ch[x][1], self.ch[x][0]\n        self.rev[x] ^= 1\n\n    def _pushdown(self, x):\n        if self.rev[x]:\n            self._pushrev(self.ch[x][0])\n            self._pushrev(self.ch[x][1])\n            self.rev[x] = 0\n\n    def _rotate(self, x):\n        y, z = self.fa[x], self.fa[self.fa[x]]\n        c = self.ch[y][1] == x\n        b = self.ch[x][c ^ 1]\n        if not self._isroot(y):\n            self.ch[z][self.ch[z][1] == y] = x\n        self.fa[x] = z\n        self.ch[y][c] = b\n        if b:\n            self.fa[b] = y\n        self.fa[y] = x\n        self.ch[x][c ^ 1] = y\n        self._pushup(y)\n        self._pushup(x)\n\n    def _splay(self, x):\n        st = [x]\n        y = x\n        while not self._isroot(y):\n            y = self.fa[y]\n            st.append(y)\n        for v in reversed(st):\n            self._pushdown(v)\n        while not self._isroot(x):\n            y, z = self.fa[x], self.fa[self.fa[x]]\n            if not self._isroot(y):\n                if (self.ch[y][1] == x) == (self.ch[z][1] == y):\n                    self._rotate(y)\n                else:\n                    self._rotate(x)\n            self._rotate(x)\n\n    def access(self, x):\n        last = 0\n        while x:\n            self._splay(x)\n            self.ch[x][1] = last\n            self._pushup(x)\n            last = x\n            x = self.fa[x]\n        return last\n\n    def makeroot(self, x):\n        self.access(x)\n        self._splay(x)\n        self._pushrev(x)\n\n    def findroot(self, x):\n        self.access(x)\n        self._splay(x)\n        while self.ch[x][0]:\n            self._pushdown(x)\n            x = self.ch[x][0]\n        self._splay(x)\n        return x\n\n    def split(self, x, y):\n        self.makeroot(x)\n        self.access(y)\n        self._splay(y)\n        return self.sum[y]\n\n    def link(self, x, y):\n        self.makeroot(x)\n        if self.findroot(y) != x:\n            self.fa[x] = y\n\n    def cut(self, x, y):\n        self.makeroot(x)\n        self.access(y)\n        self._splay(y)\n        if self.ch[y][0] == x and self.ch[x][1] == 0:\n            self.ch[y][0] = 0\n            self.fa[x] = 0\n            self._pushup(y)\n\n    def connected(self, x, y):\n        if x == y:\n            return True\n        self.makeroot(x)\n        return self.findroot(y) == x\n\nif __name__ == '__main__':\n    n = 5\n    val = [1, 2, 3, 4, 5]\n    lct = LinkCutTree(n, val)\n    # 建树: 1-2, 1-3, 3-4, 3-5\n    lct.link(1, 2)\n    lct.link(1, 3)\n    lct.link(3, 4)\n    lct.link(3, 5)\n    assert lct.connected(2, 5)\n    print('path 2..5 xor =', lct.split(2, 5))\n    assert lct.split(2, 5) == (2 ^ 1 ^ 3 ^ 5)  # 2-1-3-5\n    # 换根后查询不同路径\n    lct.makeroot(4)\n    assert lct.split(4, 1) == (4 ^ 3 ^ 1)\n    # 删边 1-3，断开 1 与 3/4/5\n    lct.cut(1, 3)\n    assert not lct.connected(1, 4)\n    assert lct.connected(3, 5)\n    print('OK')",
+    "pypy_notes": "Python 教学实现常数大，n 达 1e5 全功能操作在 PyPy 下约 3-5s 量级，竞赛通常仅作了解或小数据题；若必须用，应内联 _isroot/_pushup、用数组替代属性、避免递归。PyPy 的 while 循环性能尚可，真正瓶颈是 _splay 中的 path 收集（可用显式栈）。生产环境建议 C++。",
+    "complexity": {
+      "time": "access/splay/makeroot/link/cut/split 均摊 O(log n)；初始化 O(n)",
+      "space": "O(n)"
+    },
+    "limitations": "只维护路径信息，子树信息需配合虚子树维护（较复杂）；均摊而非最坏界，个别操作可能 O(n)（但摊还 O(log n)）；Python 实现常数大，大范围数据不建议用 Python 提交。实现细节极多，isroot 判断、翻转标记顺序、cut 合法性检查缺一不可，稍错即 WA。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3690",
+      "url": "https://www.luogu.com.cn/problem/P3690",
+      "difficulty": 5,
+      "key_point": "【模板】动态树（LCT）：link/cut/路径异或查询全功能模板"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3203",
+      "url": "https://www.luogu.com.cn/problem/P3203",
+      "difficulty": 4,
+      "key_point": "[HNOI2010] 弹飞绵羊：i 向 i+a[i] 连边，改装根（n+1 为虚拟根），查询跳出的步数即到虚拟根的路径长度"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2147",
+      "url": "https://www.luogu.com.cn/problem/P2147",
+      "difficulty": 4,
+      "key_point": "[SDOI2008] 洞穴勘测：link/cut/连通性查询，LCT 基础应用"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1501",
+      "url": "https://www.luogu.com.cn/problem/P1501",
+      "difficulty": 6,
+      "key_point": "[国家集训队] Tree II：路径加/乘/求和，需在 Splay 上维护 add/mul 双懒标记"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4234",
+      "url": "https://www.luogu.com.cn/problem/P4234",
+      "difficulty": 7,
+      "key_point": "最小差值生成树：边权转点权（边结点），LCT 维护最大边权，加边删边求最小差值"
+    }
+  ],
+  "pitfalls": [
+    "isroot 用 fa 判断而不用『儿子是否为 x』，否则虚边方向错误",
+    "_rotate 中必须先判断 y 是否 isroot 再改 z 的儿子，否则破坏辅助树",
+    "splay 前必须把祖先链上的 rev 标记按序下放，否则翻转错位",
+    "makeroot 的 rev 标记会反转路径，查询路径前要先 pushdown 再取信息",
+    "cut 必须先验证 ch[y][0]==x 且 ch[x][1]==0（x 与 y 直连）才断开",
+    "节点编号从 1 开始，0 号节点的 fa/ch 恒为 0，isroot(0) 需特判",
+    "access 里要 pushup(x)，忘记更新 sum 是常见 WA 源"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "splay", "label": "Splay 树与区间翻转"},
+      {"id": "preferred-path", "label": "实链剖分 / 辅助树"},
+      {"id": "access", "label": "access(x) 暴露路径"},
+      {"id": "makeroot", "label": "makeroot 换根"},
+      {"id": "ops", "label": "link/cut/split/findroot"},
+      {"id": "lazy", "label": "路径懒标记（加/乘）"}
+    ],
+    "edges": [
+      {"from": "splay", "to": "preferred-path"},
+      {"from": "preferred-path", "to": "access"},
+      {"from": "access", "to": "makeroot"},
+      {"from": "makeroot", "to": "ops"},
+      {"from": "ops", "to": "lazy"}
+    ]
+  },
+  "sources": [
+    {"type": "oiwiki", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/lct.md", "verified": true},
+    {"type": "oiwiki", "url": "https://oi-wiki.org/ds/lct/", "verified": true}
+  ]
+}

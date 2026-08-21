@@ -1,0 +1,76 @@
+{
+  "id": "big-integer",
+  "name": "高精度(大整数)",
+  "group": "G-C-18",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "大整数加减乘除：Python 原生 int 无上限直接可用；C++/PyPy 需数组模拟，乘法 O(n^2) 可 Karatsuba/FFT 加速，压位优化常数",
+  "what": "高精度（bignum / arbitrary-precision arithmetic）：对超出内建整型位宽的大整数进行四则运算。C++ 需要手写（用 string/数组存储，从低位开始按竖式运算，或压位存 4~9 位一组）；Python 内建 int 是任意精度，直接支持任意大小的 + - * // % ** 与位运算，底层已做 Karatsuba/Toom/FFT 级优化，竞赛中几乎不用手写，但需了解 Python 大数的复杂度特性（乘法大数用 Karatsuba，更大用 Toom/FFT，比朴素 O(n^2) 快很多）。PyPy 的 int 同样是任意精度但内部实现不同，大数乘法性能与 CPython 有差异。核心知识：数组竖式算法、压位、快速乘法（Karatsuba、FFT/NTT）。",
+  "why": {
+    "intuition": "数太大内建类型装不下时，用数组存每一位，把「竖式计算」程序化。Python 则把这件事内置了：int 对象不限长度，CPython 用 digit 数组（每个 digit 存 15/30 位）+ 支持多精度算术，所以 Python 选手只需知道什么时候会爆范围、大数运算多快。",
+    "principle": "1) 存储：C++ 用数组 a[]，a[i] 存第 i 位（低位在前），或压位：每格存 base=10^4/10^8/10^9 的一「位」，减少数组长度与进位次数。2) 加法：逐位相加+进位 O(n)。3) 减法：借位 O(n)。4) 乘法：朴素 O(n^2) 逐位卷积；Karatsuba 分治 T(n)=3T(n/2)+O(n)=O(n^1.585)；用 FFT/NTT 做卷积可到 O(n log n)。5) 除法：试商法，估商（如 double 估商 + 回退修正）O(n^2)。Python 内建 int 乘法对 2^64~2^2^30 范围分别走 grade-school、Karatsuba、Toom-Cook3、FFT（NTT）等不同算法。",
+    "history": "任意精度算术自计算机早期即存在（如 1960 年代 LISP 的 bignum）；现代语言（Python、Java BigInteger、Golang math/big）普遍内置。竞赛语境下 C++ 选手长期手写模板；Karatsuba(1960)、Schönhage-Strassen(1971)、FFT 卷积（Rader/Bluestein 等）构成现代大数乘法演进。Python 3.11 起 CPython 引入渐进式大数乘法（deviation-based scaling），Python 3.12 引入幂运算的优化，大数性能持续改进。PyPy 使用 RPython 大整数实现，基准与大数乘法行为和 CPython 不同。"
+  },
+  "how": {
+    "pseudocode": "# 竖式加法（压位，base=B），a,b 为低位在前数组\ndef add(a, b):\n    c, carry, i = [], 0, 0\n    while i < len(a) or i < len(b) or carry:\n        v = carry\n        if i < len(a): v += a[i]\n        if i < len(b): v += b[i]\n        c.append(v % B); carry = v // B; i += 1\n    return c\n\n# 竖式乘法 O(n*m)\ndef mul(a, b):\n    c = [0] * (len(a) + len(b))\n    for i, x in enumerate(a):\n        carry = 0\n        for j in range(len(b)):\n            cur = c[i+j] + x*b[j] + carry\n            c[i+j] = cur % B; carry = cur // B\n        c[i+len(b)] += carry\n    while len(c) > 1 and c[-1] == 0: c.pop()\n    return c",
+    "python": "BASE = 10000  # 压位基底：每格存 4 位十进制\n\n\ndef str_to_blocks(s):\n    s = s.lstrip('0') or '0'\n    blocks = []\n    for i in range(len(s), 0, -4):\n        blocks.append(int(s[max(0, i - 4):i]))\n    return blocks\n\n\ndef blocks_to_str(b):\n    if not b:\n        return '0'\n    res = str(b[-1])\n    for x in reversed(b[:-1]):\n        res += f'{x:04d}'\n    return res\n\n\ndef add(a, b):\n    i = carry = 0\n    c = []\n    while i < len(a) or i < len(b) or carry:\n        v = carry\n        if i < len(a):\n            v += a[i]\n        if i < len(b):\n            v += b[i]\n        c.append(v % BASE)\n        carry = v // BASE\n        i += 1\n    return c\n\n\ndef sub(a, b):  # 要求 a >= b\n    i = borrow = 0\n    c = []\n    while i < len(a) or borrow:\n        v = a[i] - borrow - (b[i] if i < len(b) else 0)\n        borrow = 0\n        if v < 0:\n            v += BASE\n            borrow = 1\n        c.append(v)\n        i += 1\n    while len(c) > 1 and c[-1] == 0:\n        c.pop()\n    return c\n\n\ndef mul(a, b):\n    c = [0] * (len(a) + len(b))\n    for i, x in enumerate(a):\n        carry = 0\n        for j in range(len(b)):\n            cur = c[i + j] + x * b[j] + carry\n            c[i + j] = cur % BASE\n            carry = cur // BASE\n        c[i + len(b)] += carry\n    while len(c) > 1 and c[-1] == 0:\n        c.pop()\n    return c\n\n\ndef main():\n    # 与内建 int 对拍验证压位四则\n    import random\n    random.seed(42)\n    for _ in range(200):\n        x = random.randint(0, 10**30)\n        y = random.randint(0, 10**30)\n        assert int(blocks_to_str(add(str_to_blocks(str(x)), str_to_blocks(str(y))))) == x + y\n        if x >= y:\n            assert int(blocks_to_str(sub(str_to_blocks(str(x)), str_to_blocks(str(y))))) == x - y\n        assert int(blocks_to_str(mul(str_to_blocks(str(x)), str_to_blocks(str(y))))) == x * y\n    # Python 内建大整数直接可用（竞赛常用）\n    a = 10**500\n    assert (a * a) == 10**1000\n    assert len(str(2**1000)) == 302\n    print(\"big-integer OK\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "pypy_notes": "Python 选手直接内建 int：CPython 3.11+ 与 PyPy 都支持任意精度。大数乘法上 CPython 有 Karatsuba 与更高级算法，PyPy 的 RPython 大整数实现对于 1e5 位级乘法可能比 CPython 慢，但竞赛大数题通常 n≤10^4~10^5 位，两者都够。PyPy 下 int 转 str 对大数也快（Str 优化）。若真遇到 Python 手写高精度（少见，一般是需自定义输出格式或配合 NTT 的卷积题），竖式模板如上；压位时注意进位溢出（PyPy 也是 int 无上限，无溢出问题）。",
+    "complexity": {
+      "time": "加/减 O(n)；朴素乘法 O(n·m)（压位后 O((n/4)^2)）；Karatsuba O(n^1.585)；FFT/NTT 乘法 O(n log n)；Python 内建乘法底层自适应",
+      "space": "O(n) 存数字（压位后数组长度 n/4~n/9）"
+    },
+    "limitations": "C++ 手写大数除法最易出错（试商/估商/修正），Python 直接用 // 与 % 无此烦恼。Python 内建 int 无上限但运算有常量差异：大数乘法 O(n^1.585)~O(n log n) 而非线性，需要乘 10^5 位级大数时仍会较慢。浮点转大整数注意精度（int(1e20) 与真值不同）。PyPy 与 CPython 的大数速度不同，极限题需实测。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1601",
+      "url": "https://www.luogu.com.cn/problem/P1601",
+      "difficulty": 1,
+      "key_point": "A+B Problem（高精）：Python 直接 int 秒过，C++ 高精度加法入门"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1932",
+      "url": "https://www.luogu.com.cn/problem/P1932",
+      "difficulty": 5,
+      "key_point": "A+B*A-B/A/B：高精度四则运算综合，Python 内建 int 一行解决"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1045",
+      "url": "https://www.luogu.com.cn/problem/P1045",
+      "difficulty": 4,
+      "key_point": "麦森数：2^p-1 求位数+末500位，Python 用 pow(2,p) 直接算，理解十进制位数=floor(p*log10(2))+1"
+    }
+  ],
+  "pitfalls": [
+    "Python 中 int(1e20) 是把 float 转 int，1e20 已超 float 精确表示范围，大数请用字符串/十进制字面量",
+    "// 与 % 对负数语义是向下取整，需商向零取整的场合要自己调整",
+    "C++ 手写高精度：反转存储（低位在前）后所有运算从 a[0] 开始；忘除前导零会输出多 0 或格式错误",
+    "压位输出必须用 %0{d} 补零（万进制补 4 位），否则 '1 0023' 会输出 '123'",
+    "Python 做 10^5 位级大数乘法仍可能超时，需用 NTT/FFT（如 Python 的 numpy 或手写 NTT）",
+    "2^1000 之类超大数求十进制位数用 math.log10 会有浮点误差，安全做法是 len(str(x)) 或取整公式"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "s1", "label": "判断是否需要高精度：范围超 int64/10^19"},
+      {"id": "s2", "label": "Python：直接用内建 int 运算"},
+      {"id": "s3", "label": "C++/需自定义：字符串读入+低位在前数组/压位数组"},
+      {"id": "s4", "label": "实现 加/减/乘（除）竖式，注意进位与去前导零"},
+      {"id": "s5", "label": "输出：反转+补零，与内建 int 对拍验证"}
+    ],
+    "edges": [
+      {"from": "s1", "to": "s2"},
+      {"from": "s1", "to": "s3"},
+      {"from": "s3", "to": "s4"},
+      {"from": "s4", "to": "s5"}
+    ]
+  },
+  "sources": [
+    {"type": "oiwiki", "url": "https://oi-wiki.org/math/bignum/", "verified": true},
+    {"type": "cpalg", "url": "https://cp-algorithms.com/algebra/big-integer.html", "verified": true},
+    {"type": "web", "url": "https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex", "verified": true}
+  ]
+}

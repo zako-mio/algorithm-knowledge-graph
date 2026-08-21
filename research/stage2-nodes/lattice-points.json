@@ -1,0 +1,109 @@
+{
+ "id": "lattice-points",
+ "name": "格点计数",
+ "group": "G-D-3",
+ "stage": "advanced",
+ "priority": "P2",
+ "depth_tier": "standard",
+ "brief": "线段/多边形内整点计数，结合皮克定理与整除递推",
+ "what": "格点计数问题：统计线段上、直线下区域、多边形内（或内加边界）的整点（整数坐标点）数量。三条主线：① 线段上的整点：端点 (x1,y1)-(x2,y2) 间整点数 = gcd(|x2-x1|,|y2-y1|)+1；② 整点多边形：皮克定理反解内部点数 i = (A2 - b + 2)/2，其中 A2 是两倍面积（叉积和），b 是边界整点数（各边 gcd 之和）；③ 一般（非整点顶点）多边形：把每条边看作直线 y=k·x+b，用 floor sum Σ floor((a·x+b)/m) 的类欧几里得递推 O(log n) 求出直线下整点数，再按边方向带符号累加（类似梯形积分）。核心引擎是 floor_sum。",
+ "why": {
+  "intuition": "数'直线下的整点'就是数每个 x 处 y 能取几层，即 Σ floor((a·x+b)/m)。naive 逐个 x 是 O(n)，但把坐标轴翻转、斜率取倒数，剩余的点恰好构成一个规模更小的同构子问题——这就像欧几里得算法的'辗转'，每次参数减半，所以 O(log n)。多边形则是把每条边'底下的整点'像梯形积分一样带符号累加，凸的取正、凹的抵消，最后正好是内部整点数。",
+  "principle": "floor_sum(n,m,a,b) = Σ_{x=0}^{n-1} floor((a·x+b)/m)。递推：① 若 a≥m，拆出 floor(a/m)·(n-1)n/2 并取模；② 若 b≥m，拆出 floor(b/m)·n 并取模；③ 令 y_max = a·n+b，若 y_max < m 结束；④ 翻转：递归 floor_sum(n', a, m, y_max mod m)，其中 n' = floor(y_max/m)——几何意义是把直线关于 y=x 对称重数，直线下的点与翻转后直线下的点一一对应。整点多边形内部点用皮克定理 O(n)；非整点顶点时用 floor_sum 逐边积分，还需处理边界归属（端点/边上点）。",
+  "history": "floor sum 的 O(log n) 递推被称作'类欧几里得算法'，因递归结构与欧几里得算法同构，在数论 OI 界流行，Luogu P5170 为模板题；cp-algorithms 的 'Lattice points of non-lattice polygon' 页将其用于非整点多边形格点计数。皮克定理（1899）处理整点多边形，二者互补覆盖格点计数问题族。"
+ },
+ "how": {
+  "pseudocode": "# 线段上整点数（含端点）\non_segment(a, b) = gcd(|b.x-a.x|, |b.y-a.y|) + 1\n\n# floor_sum: Σ_{x=0}^{n-1} floor((a*x+b)/m)，a,b≥0，O(log n)\ndef floor_sum(n, m, a, b):\n    ans = 0\n    while True:\n        if a >= m: ans += (n-1)*n*(a//m)//2; a %= m\n        if b >= m: ans += n*(b//m); b %= m\n        y_max = a*n + b\n        if y_max < m: break\n        n, b = y_max // m, y_max % m\n        m, a = a, m\n    return ans\n\n# 整点多边形内部点数（皮克定理）\ndef polygon_interior(poly):\n    A2 = |Σ x_i*y_{i+1} - x_{i+1}*y_i|          # 两倍面积\n    b  = Σ gcd(|dx_i|, |dy_i|)                    # 边界整点数\n    return (A2 - b + 2) // 2",
+  "python": "# -*- coding: utf-8 -*-\nimport math\n\n\ndef floor_sum(n, m, a, b):\n    \"\"\"Σ_{x=0}^{n-1} floor((a*x + b) / m)。要求 a,b>=0, m>0。O(log n)。\n    这就是'类欧几里得'的核心递推。\n    \"\"\"\n    ans = 0\n    while True:\n        if a >= m:\n            ans += (n - 1) * n * (a // m) // 2\n            a %= m\n        if b >= m:\n            ans += n * (b // m)\n            b %= m\n        y_max = a * n + b\n        if y_max < m:\n            break\n        n = y_max // m\n        b = y_max % m\n        m, a = a, m\n    return ans\n\n\ndef floor_sum_signed(n, m, a, b):\n    \"\"\"与 floor_sum 相同但允许 a、b 为负（先对 a 取模归并到 [0,m)，再平移 b）。\"\"\"\n    ans = 0\n    q, r = divmod(a, m)          # a = q*m + r, 0 <= r < m\n    if q != 0:\n        ans += q * n * (n - 1) // 2\n        a = r\n    if b < 0:\n        k = (-b + m - 1) // m\n        ans -= k * n\n        b += k * m\n    return ans + floor_sum(n, m, a, b)\n\n\ndef lattice_on_segment(a, b):\n    \"\"\"线段 a→b 上的整点数（含两端）。\"\"\"\n    return math.gcd(abs(b[0]-a[0]), abs(b[1]-a[1])) + 1\n\n\ndef polygon_interior_points(poly):\n    \"\"\"整点多边形内部整点数（皮克定理）。顶点必须都是整点。\"\"\"\n    n = len(poly)\n    A2 = 0\n    b = 0\n    for i in range(n):\n        x1, y1 = poly[i]\n        x2, y2 = poly[(i+1) % n]\n        A2 += x1*y2 - x2*y1\n        b += math.gcd(abs(x2-x1), abs(y2-y1))\n    A2 = abs(A2)\n    return (A2 - b + 2) // 2\n\n\ndef polygon_boundary_points(poly):\n    \"\"\"整点多边形边界整点数。\"\"\"\n    n = len(poly)\n    return sum(math.gcd(abs(poly[(i+1) % n][0]-poly[i][0]),\n                        abs(poly[(i+1) % n][1]-poly[i][1])) for i in range(n))\n\n\nif __name__ == '__main__':\n    import random\n    # floor_sum 对拍暴力\n    for _ in range(1000):\n        n = random.randint(1, 40)\n        m = random.randint(1, 50)\n        a = random.randint(0, 40)\n        b = random.randint(0, 50)\n        bf = sum((a*i + b) // m for i in range(n))\n        assert floor_sum(n, m, a, b) == bf, (n, m, a, b, floor_sum(n, m, a, b), bf)\n    # floor_sum_signed 对拍（允许负 a,b）\n    for _ in range(1000):\n        n = random.randint(1, 40)\n        m = random.randint(1, 50)\n        a = random.randint(-30, 30)\n        b = random.randint(-40, 40)\n        bf = sum((a*i + b) // m for i in range(n))\n        assert floor_sum_signed(n, m, a, b) == bf, (n, m, a, b, floor_sum_signed(n, m, a, b), bf)\n    # 线段整点数\n    assert lattice_on_segment((0, 0), (6, 9)) == 4    # gcd(6,9)=3 → 4 个点\n    assert lattice_on_segment((0, 0), (0, 5)) == 6\n    assert lattice_on_segment((0, 0), (1, 1)) == 2\n    # 皮克定理与暴力对拍\n    def brute_interior(poly):\n        xs = [p[0] for p in poly]\n        ys = [p[1] for p in poly]\n        cnt = 0\n        for x in range(min(xs), max(xs)+1):\n            for y in range(min(ys), max(ys)+1):\n                n = len(poly)\n                onb = False\n                for i in range(n):\n                    x1, y1 = poly[i]\n                    x2, y2 = poly[(i+1) % n]\n                    if (y1-y)*(x2-x) == (y2-y)*(x1-x) and min(x1,x2) <= x <= max(x1,x2) and min(y1,y2) <= y <= max(y1,y2):\n                        onb = True\n                if onb:\n                    continue\n                inside = False\n                for i in range(n):\n                    x1, y1 = poly[i]\n                    x2, y2 = poly[(i+1) % n]\n                    if (y1 > y) != (y2 > y):\n                        xi = x1 + (x2-x1)*(y-y1)/(y2-y1)\n                        if x < xi:\n                            inside = not inside\n                if inside:\n                    cnt += 1\n        return cnt\n    polys = [\n        [(0, 0), (5, 0), (5, 3), (0, 3)],\n        [(0, 0), (4, 0), (4, 4), (0, 4)],\n        [(0, 0), (3, 1), (4, 4), (1, 3)],\n        [(0, 0), (2, 0), (2, 2), (0, 2)],\n    ]\n    for poly in polys:\n        assert polygon_interior_points(poly) == brute_interior(poly), (poly, polygon_interior_points(poly), brute_interior(poly))\n    print('lattice-points all tests passed')\n",
+  "pypy_notes": "floor_sum 迭代 O(log n)，PyPy 下极快，参数可到 1e18（Python 大整数无溢出）。多边形整点：整点用皮克 O(n)；非整点顶点需按边方向对 floor_sum 做带符号累加，注意每条边要把 x 区间离散化并用 ceil/floor 处理非整端点，边界点归属单独修正。",
+  "complexity": {
+   "time": "线段上整点 O(log C)（gcd）；floor_sum 单次 O(log C)；皮克定理 O(n)",
+   "space": "O(1)"
+  },
+  "limitations": "floor_sum 要求 a,b≥0，负数需先归一化（floor_sum_signed）；非整点多边形逐边积分时，端点非整点的取整方向（ceil/floor）与边界点归属需要仔细处理，否则差 1；皮克定理仅适用整点顶点且不自交；浮点直线不能用 floor_sum（斜率必须有理数）。"
+ },
+ "examples": [
+  {
+   "oj": "CSES",
+   "pid": "2193",
+   "url": "https://cses.fi/problemset/task/2193/",
+   "difficulty": 3,
+   "key_point": "Polygon Lattice Points：皮克定理 + 边界 gcd，求内部与边界整点数"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P5170",
+   "url": "https://www.luogu.com.cn/problem/P5170",
+   "difficulty": 5,
+   "key_point": "【模板】类欧几里德算法：floor_sum 三合一递推模板题"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P2735",
+   "url": "https://www.luogu.com.cn/problem/P2735",
+   "difficulty": 4,
+   "key_point": "网 Electric Fences：整点多边形计数综合（皮克定理）"
+  }
+ ],
+ "pitfalls": [
+  "floor_sum 的 a、b 必须非负，负输入要先归一化",
+  "非整点多边形逐边积分时端点取整方向写反会差 1",
+  "边界整点归属：内部点数不含边界（皮克定理 i 的定义）",
+  "自交多边形不适用",
+  "线段上整点数公式是 gcd+1（含两端），不要漏 +1 或重复计端点"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "gcd",
+    "label": "线段整点数（gcd）"
+   },
+   {
+    "id": "fs",
+    "label": "floor_sum 类欧几里得递推"
+   },
+   {
+    "id": "signed",
+    "label": "负参数归一化"
+   },
+   {
+    "id": "pick",
+    "label": "整点多边形皮克定理"
+   },
+   {
+    "id": "edge",
+    "label": "非整点多边形逐边积分"
+   }
+  ],
+  "edges": [
+   {
+    "from": "gcd",
+    "to": "pick"
+   },
+   {
+    "from": "signed",
+    "to": "fs"
+   },
+   {
+    "from": "fs",
+    "to": "edge"
+   },
+   {
+    "from": "edge",
+    "to": "pick"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/geometry/lattice-points.html",
+   "verified": true
+  },
+  {
+   "type": "oiwiki",
+   "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/pick.md",
+   "verified": true
+  }
+ ]
+}

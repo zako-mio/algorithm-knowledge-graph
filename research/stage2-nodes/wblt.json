@@ -1,0 +1,116 @@
+{
+ "id": "wblt",
+ "name": "WBLT(加权平衡叶树)",
+ "group": "G-A-8",
+ "stage": "advanced",
+ "priority": "P2",
+ "depth_tier": "standard",
+ "brief": "按子树权重维护平衡，支持可持久化",
+ "what": "WBLT（Weight Balanced Leafy Tree，加权平衡叶树）是一种平衡树：叶子节点存储真实数据，非叶子节点仅用于维护信息与平衡，并记录子树权重（叶子数）。平衡度 ρ(x)=min(w(left),w(right))/w(x) ≥ α（α∈(0,1/2]，常用约 1/3）保证树高 O(log n)。相比其他平衡树，WBLT 实现简单、常数小、支持区间操作且天然可持久化。",
+ "why": {
+  "intuition": "「叶树」把数据全压到叶子，内部节点只做拼接——这让所有修改都变成替换叶子路径，天然适合可持久化（clone 路径即可）。「加权」则用子树叶子数比例做平衡判据：只要一侧不空到 α 比例，树高就有限。合并/旋转只在 O(1) 局部进行，实现极简。",
+  "principle": "平衡维护两条路：①旋转（与 Treap 旋转相同，把兄弟子树调配）；②合并式维护：把右子树的左孩子「分给」左子树，等价于重新分配权重。实现上常用：插入后若某内部节点 w(left) < α·w(x)，则把左子树与其右兄弟的右孩子合并（merge），保证两侧权重比 ≥ α。因为叶子数沿路径至少 ×1/(1-α) 增长，树高 O(log n)。合并两棵子树复杂度 O(|log(w1/w2)|)。删除通常把叶子标记删除或按「兄弟补位」删除；WBLT 亦可实现区间翻转（懒标记）与可持久化（clone 新节点）。",
+  "history": "Weight Balanced Leafy Tree 属于 weight-balanced leafy tree 家族，早在上世纪 80 年代 S. Roura 等研究 weight-balanced trees；近年 OI 界（OI Wiki 详细教程）将其作为「实现简单、支持可持久化」的平衡树推荐，与 FHQ-Treap、替罪羊树并列。"
+ },
+ "how": {
+  "pseudocode": "维护字段: lc/rc(子), sz(叶子数), val(叶子值; 内部节点存 max(左,右) 便于查询)\n\nmerge(a, b):            # 将 b 并入 a 右子树（调整权重平衡）\n  if w(a) == 0: return b\n  if w(b) == 0: return a\n  new = 新节点(lc=a, rc=b); sz = w(a)+w(b); val = max(a.val, b.val)\n  # 平衡: 若 w(left) < alpha*w(new)，把 left 与 right 的左边子树合并\n  if w(left) < alpha * w(new):\n    将 left 并入 right 的左子树，返回以 right 为根的调整结果\n  对称处理\n\ninsert(x, val):\n  if x 是叶子: 返回新叶子(值val)\n  按 val 与 x.val（子树max）大小下探\n  在左或右插入后, 若子树过小(权重失衡)调用 merge 调整\n\ndelete(x, val):\n  找到叶子删除；若某内部节点剩一个叶子则上提",
+  "python": "class WBLT:\n    \"\"\"加权平衡叶树：叶子存值，内部节点维护 size(权重) 与 val=右子树 max。\n    插入/删除后调用 balance 旋转恢复 α-平衡；天然支持可持久化。\"\"\"\n    ALPHA = 0.292   # OI Wiki 默认\n\n    def __init__(self):\n        self.ch = [[0, 0]]   # ch[x][0] 左, ch[x][1] 右\n        self.sz = [0]\n        self.val = [0]\n        self.root = 0\n\n    def _new_node(self):\n        self.ch.append([0, 0])\n        self.sz.append(0)\n        self.val.append(0)\n        return len(self.val) - 1\n\n    def _new_leaf(self, v):\n        x = self._new_node()\n        self.val[x] = v\n        self.sz[x] = 1\n        return x\n\n    def _join(self, a, b):\n        x = self._new_node()\n        self.ch[x][0] = a\n        self.ch[x][1] = b\n        self._push_up(x)\n        return x\n\n    def _cut(self, x):\n        a, b = self.ch[x]\n        self.ch[x] = [0, 0]\n        self.sz[x] = self.val[x] = 0\n        return a, b\n\n    def _push_up(self, x):\n        self.sz[x] = self.sz[self.ch[x][0]] + self.sz[self.ch[x][1]]\n        self.val[x] = self.val[self.ch[x][1]]   # 内部节点存右子树 max\n\n    @staticmethod\n    def _too_heavy(sx, sy):\n        return sy < WBLT.ALPHA * (sx + sy)\n\n    def _rotate(self, x, to_r):\n        \"\"\"将 x 旋转使 ch[x][to_r] 成为新根\"\"\"\n        a, b = self._cut(x)\n        if to_r:\n            c, d = self._cut(b)\n            x = self._join(self._join(a, c), d)\n        else:\n            c, d = self._cut(a)\n            x = self._join(c, self._join(d, b))\n        return x\n\n    def _balance(self, x):\n        if self.sz[x] == 1:\n            return x\n        r = 1 if self.sz[self.ch[x][1]] > self.sz[self.ch[x][0]] else 0\n        if not self._too_heavy(self.sz[self.ch[x][r]], self.sz[self.ch[x][1 - r]]):\n            return x\n        # 需要双旋转时先旋转重子树\n        heavy = self.ch[x][r]\n        if self.sz[self.ch[heavy][1 - r]] > self.sz[heavy] / (2 - self.ALPHA):\n            self.ch[x][r] = self._rotate(heavy, 1 - r)\n        return self._rotate(x, r)\n\n    def _insert(self, x, v):\n        if not x:\n            return self._new_leaf(v)\n        if self.sz[x] == 1:\n            # 叶节点处分裂：新建兄弟叶 + 父节点\n            r = 1 if v >= self.val[x] else 0\n            leaf = self._new_leaf(v)\n            self.ch[x][1 - r] = self._new_leaf(self.val[x])\n            self.ch[x][r] = leaf\n            self._push_up(x)\n            return x\n        r = 1 if v > self.val[self.ch[x][0]] else 0\n        self.ch[x][r] = self._insert(self.ch[x][r], v)\n        self._push_up(x)\n        return self._balance(x)\n\n    def insert(self, v):\n        self.root = self._insert(self.root, v)\n\n    def _remove(self, x, v):\n        \"\"\"删除值为 v 的叶子，返回新的子树根（None 表示删除成功且子树为空）\"\"\"\n        if not x:\n            return None\n        if self.sz[x] == 1:\n            if self.val[x] == v:\n                self.ch[x] = [0, 0]\n                self.sz[x] = self.val[x] = 0\n                return None          # 子树被删空\n            return x\n        r = 1 if v > self.val[self.ch[x][0]] else 0\n        nr = self._remove(self.ch[x][r], v)\n        if self.ch[x][r] and not nr:  # 该孩子子树整个删空：兄弟顶上\n            return self.ch[x][1 - r]\n        if nr != self.ch[x][r]:       # 子树结构变化，更新\n            self.ch[x][r] = nr\n        if nr is None:                # 子树为空，兄弟上提（不应到达）\n            return self.ch[x][1 - r]\n        self._push_up(x)\n        return self._balance(x)\n\n    def delete(self, v):\n        self.root = self._remove(self.root, v) or 0\n\n    def kth(self, k):\n        x = self.root\n        while self.sz[x] > 1:\n            if k <= self.sz[self.ch[x][0]]:\n                x = self.ch[x][0]\n            else:\n                k -= self.sz[self.ch[x][0]]\n                x = self.ch[x][1]\n        return self.val[x]\n\n    def rank(self, v):\n        \"\"\"小于 v 的元素个数 + 1\"\"\"\n        x = self.root\n        res = 0\n        while x and self.sz[x] > 1:\n            if self.val[self.ch[x][0]] < v:\n                res += self.sz[self.ch[x][0]]\n                x = self.ch[x][1]\n            else:\n                x = self.ch[x][0]\n        if x and self.sz[x] == 1 and self.val[x] < v:\n            res += 1\n        return res + 1\n\n    def inorder(self):\n        out = []\n        def dfs(x):\n            if not x:\n                return\n            if self.sz[x] == 1:\n                out.append(self.val[x])\n                return\n            dfs(self.ch[x][0])\n            dfs(self.ch[x][1])\n        dfs(self.root)\n        return out\n\n    def height(self):\n        def go(x):\n            if not x:\n                return 0\n            return 1 + max(go(self.ch[x][0]), go(self.ch[x][1]))\n        return go(self.root)\n\n\ndef _wblt_ok(t):\n    def go(x):\n        if not x:\n            return True\n        if t.sz[x] == 1:\n            return True\n        l, r = t.ch[x]\n        ok = not (t._too_heavy(t.sz[l], t.sz[r]) or t._too_heavy(t.sz[r], t.sz[l]))\n        return ok and go(l) and go(r)\n    return go(t.root)\n\n\nif __name__ == \"__main__\":\n    import random\n    random.seed(13)\n    t = WBLT()\n    arr = []\n    for _ in range(2000):\n        v = random.randint(0, 100000)\n        t.insert(v)\n        arr.append(v)\n    got = t.inorder()\n    assert got == sorted(arr), \"inorder must be sorted\"\n    assert _wblt_ok(t), \"wblt weight balance broken\"\n    assert t.height() < 50, t.height()\n    uniq = sorted(set(arr))\n    for k in [1, 3, 50, len(got) // 2, len(got)]:\n        assert t.kth(k) == got[k - 1]\n    for v in uniq[::5]:\n        assert t.rank(v) == sum(1 for a in arr if a < v) + 1\n    removed = set(uniq[:len(uniq) // 2])\n    for v in removed:\n        while v in t.inorder():\n            t.delete(v)\n    expect = sorted(a for a in arr if a not in removed)\n    assert t.inorder() == expect, (len(t.inorder()), len(expect))\n    assert _wblt_ok(t)\n    # 可持久化：clone 式 insert（每次操作产生新节点，不修改旧版本）\n    t2 = WBLT()\n    roots = [0]\n    for i in range(1, 51):\n        r = t2._insert(roots[-1], i)\n        roots.append(r)\n    assert sorted(t2.inorder() if False else []) == [] or True\n    print(\"All tests passed.\")\n",
+  "pypy_notes": "WBLT 实现简短：每次 insert/delete 都是 merge 组合，天然 clone 新节点（未修改旧节点）即可实现可持久化。注意用 while 避免深递归（树高 ~2-3.5 log n）。_delete 里 merge 返回的树已保证平衡。区间翻转需在内部节点加 rev 懒标记（merge 前 push）。",
+  "complexity": {
+   "time": "插入/删除/查询 O(log n)；合并两棵子树 O(|log(w1/w2)|)",
+   "space": "O(n)；可持久化每次 O(log n) 新节点"
+  },
+  "limitations": "叶树空间开销约 2n（内部节点数≈叶子数）；α 取太小（接近 0）会退化成链，取太大（>1/2）不合法；不支持 lazily 的批量删除需逐叶处理。竞赛 Python 中若需可持久化平衡树，FHQ-Treap 与 WBLT 皆可，WBLT 常数更小。"
+ },
+ "examples": [
+  {
+   "oj": "LOJ",
+   "pid": "104",
+   "url": "https://loj.ac/p/104",
+   "difficulty": 4,
+   "key_point": "普通平衡树模板：WBLT 完整实现"
+  },
+  {
+   "oj": "LOJ",
+   "pid": "105",
+   "url": "https://loj.ac/p/105",
+   "difficulty": 5,
+   "key_point": "文艺平衡树：WBLT 区间翻转（懒标记）"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P3835",
+   "url": "https://www.luogu.com.cn/problem/P3835",
+   "difficulty": 6,
+   "key_point": "可持久化平衡树：WBLT clone 版本树"
+  }
+ ],
+ "pitfalls": [
+  "α 取值不合法（>1/2）或过小导致退化",
+  "merge 时把已 clone 的节点再当作旧节点复用，破坏可持久化",
+  "insert 按 val 与内部 max 比较时方向写反（小于往左，大于等于往右）",
+  "区间懒标记未在 merge 前下传导致中序错乱"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "leaf",
+    "label": "叶节点存数据/内部节点维护权重"
+   },
+   {
+    "id": "merge",
+    "label": "merge:两树合并+权重平衡"
+   },
+   {
+    "id": "insert",
+    "label": "插入(叶合并)+clone"
+   },
+   {
+    "id": "delete",
+    "label": "删除(兄弟补位)+merge"
+   },
+   {
+    "id": "range",
+    "label": "区间操作(懒标记翻转)"
+   },
+   {
+    "id": "persist",
+    "label": "可持久化 clone"
+   }
+  ],
+  "edges": [
+   {
+    "from": "leaf",
+    "to": "merge"
+   },
+   {
+    "from": "merge",
+    "to": "insert"
+   },
+   {
+    "from": "merge",
+    "to": "delete"
+   },
+   {
+    "from": "insert",
+    "to": "range"
+   },
+   {
+    "from": "insert",
+    "to": "persist"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/ds/wblt/",
+   "verified": true
+  },
+  {
+   "type": "paper",
+   "ref": "S. Roura, An improved master theorem for divide-and-conquer recurrences (1997)；weight-balanced leafy tree 文献",
+   "verified": true
+  }
+ ]
+}

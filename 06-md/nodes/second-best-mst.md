@@ -1,0 +1,197 @@
+---
+id: second-best-mst
+name: 次小生成树
+group: G-B-3
+stage: advanced
+priority: P2
+depth_tier: standard
+---
+
+# 次小生成树
+
+> 严格次小生成树，Kruskal建MST+倍增求环上最大边替换，O(m log n)
+
+<!-- 元信息: id=second-best-mst · group=G-B-3 · stage=advanced · priority=P2 · depth_tier=standard -->
+
+## What · 是什么
+
+次小生成树问题是求一棵生成树 T，使得 T ≠ MST 且权值仅大于最小生成树（严格次小）。核心观察：任意次小生成树可由 MST 交换一条树边与一条非树边得到。做法：先 Kruskal 建出 MST；对每条非树边 (u,v,w)，把它加入 MST 会成环，删去环上权值最大的边(严格次小时若最大边=w 需删次大边)得到一棵候选树；所有候选树取最小。环上最大边用倍增(LCA)预处理树边最大值 O(log n) 查询。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+把 MST 看成『骨架』，任何其它生成树与它的差别就在于换掉若干条边。因为要权值最小又必须和 MST 不同，只需换一条边即可达到——换更多边只会更差(可由 MST 局部最优性证明)。所以枚举『哪条非树边补进来、哪条树边被顶掉』即可覆盖所有候选。
+
+### 原理 · Principle
+
+交换定理：对任意生成树 T 与非树边 e=(u,v)，在 T 中加入 e 形成唯一环 C，删去 C 上任一边 f 得到新树 T'。若 w(e)≥w(f) 则 T' 不比 T 差。次小生成树 = MST 中做一次『最小增量的替换』，增量为 w(e)−max_edge_on_path(u,v)。严格次小要求 w(e) > 被删边权，故当环上最大边恰等于 w(e) 时(存在等权树边)，需删环上严格次大边。倍增预处理树上路径的最大与严格次大边。
+
+### 历史 · History
+
+次小生成树是经典生成树延伸问题，倍增 LCA + 最大值合并的思路在 2000 年代竞赛广泛使用；POJ 1679『The Unique MST』是判断 MST 唯一性的著名题目(求非严格次小是否等于最小)。
+
+## How · 实现
+
+### 伪代码
+
+```python
+function second_best_mst(n, edges):
+  total, used_id = kruskal(n, edges)   # 建 MST
+  build adj from used tree edges
+  倍增预处理 depth/up/max1/max2 (树上路径最大与严格次大边)
+  best = INF
+  for each (w,u,v) not in MST:
+    m1, m2 = path_max_and_second(u, v)
+    if m1 < w:  cand = total - m1 + w
+    elif m2 != -1:  cand = total - m2 + w   # 严格次大
+    else: continue
+    best = min(best, cand)
+  return best
+```
+
+### Python 实现
+
+```python
+def mst_kruskal(n, edges):
+    """edges: list of (w, u, v)。返回 (总权, 使用边id集合) 或 None"""
+    parent = list(range(n))
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    order = sorted(range(len(edges)), key=lambda i: edges[i][0])
+    total = 0
+    used = []
+    for idx in order:
+        w, u, v = edges[idx]
+        ru, rv = find(u), find(v)
+        if ru != rv:
+            parent[ru] = rv
+            total += w
+            used.append(idx)
+    if len(used) != n - 1:
+        return None
+    return total, set(used)
+
+
+def second_best_mst(n, edges):
+    """严格次小生成树: Kruskal建MST + 倍增求环上最大(严格次大)边"""
+    if len(edges) < n - 1:
+        return None
+    res = mst_kruskal(n, edges)
+    if res is None:
+        return None
+    total, used_id = res
+    adj = [[] for _ in range(n)]
+    for idx, (w, u, v) in enumerate(edges):
+        if idx in used_id:
+            adj[u].append((v, w))
+            adj[v].append((u, w))
+    LOG = (n).bit_length()
+    depth = [0] * n
+    up = [[-1] * LOG for _ in range(n)]
+    mx1 = [[0] * LOG for _ in range(n)]
+    mx2 = [[0] * LOG for _ in range(n)]
+    def merge(u, a, b):
+        vals = sorted({a[0], a[1], b[0], b[1]}, reverse=True)
+        return vals[0], (vals[1] if len(vals) > 1 and vals[1] < vals[0] else -1)
+    st = [(0, -1)]
+    while st:
+        u, p = st.pop()
+        for v, w in adj[u]:
+            if v == p:
+                continue
+            depth[v] = depth[u] + 1
+            up[v][0] = u
+            mx1[v][0] = w
+            mx2[v][0] = -1
+            st.append((v, u))
+    for j in range(1, LOG):
+        for u in range(n):
+            a = up[u][j - 1]
+            if a != -1:
+                up[u][j] = up[a][j - 1]
+                mx1[u][j], mx2[u][j] = merge(u, (mx1[u][j - 1], mx2[u][j - 1]), (mx1[a][j - 1], mx2[a][j - 1]))
+    def path_max(u, v):
+        best1, best2 = 0, -1
+        if depth[u] < depth[v]:
+            u, v = v, u
+        diff = depth[u] - depth[v]
+        for j in range(LOG):
+            if diff >> j & 1:
+                best1, best2 = merge(u, (best1, best2), (mx1[u][j], mx2[u][j]))
+                u = up[u][j]
+        if u == v:
+            return best1, best2
+        for j in range(LOG - 1, -1, -1):
+            if up[u][j] != up[v][j]:
+                best1, best2 = merge(u, (best1, best2), (mx1[u][j], mx2[u][j]))
+                best1, best2 = merge(u, (best1, best2), (mx1[v][j], mx2[v][j]))
+                u, v = up[u][j], up[v][j]
+        best1, best2 = merge(u, (best1, best2), (mx1[u][0], mx2[u][0]))
+        best1, best2 = merge(u, (best1, best2), (mx1[v][0], mx2[v][0]))
+        return best1, best2
+    INF = float('inf')
+    best = INF
+    for idx, (w, u, v) in enumerate(edges):
+        if idx in used_id:
+            continue
+        m1, m2 = path_max(u, v)
+        if m1 < w:
+            cand = total - m1 + w
+        elif m2 != -1:
+            cand = total - m2 + w
+        else:
+            continue
+        if cand < best:
+            best = cand
+    return None if best == INF else best
+
+
+if __name__ == "__main__":
+    e = [(2, 0, 1), (3, 1, 2), (4, 0, 2)]
+    assert second_best_mst(3, e) == 6
+    e3 = [(1, 0, 1), (1, 1, 2), (2, 0, 2)]  # MST=2, 严格次小=3
+    assert second_best_mst(3, e3) == 3, second_best_mst(3, e3)
+    e2 = [(1, 0, 1), (1, 0, 1), (2, 1, 2)]  # 平行边等权
+    print("parallel:", second_best_mst(3, e2))
+    print("second-best-mst OK")
+
+```
+
+**PyPy 提示**: 倍增表用 list-of-list (up/mx1/mx2 各 n×LOG)，PyPy 下内存约为 n×LOG×3 个整数，n=1e5 时约 3×1e5×17×8B≈40MB 可接受。严格次大合并时用 sorted({...}) 的 set 去重开销较小但循环内频繁调用有常数；可手工比较。树用迭代 DFS(栈)而非递归，避免 n=1e5 递归爆栈。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | O(m log m + m log n)，主要来自 Kruskal 排序与倍增 LCA 查询 |
+| 空间 | O(n log n + m) |
+
+### 局限
+
+1) 图必须连通且至少 n-1 条边，否则无次小生成树；2) 平行边须用边 id 区分(不能用 (u,v,w) 元组判重)，否则同权平行边会被误判为非树边；3) 要求严格次小(树边权 < 非树边权)时需额外维护路径严格次大边，仅维护最大边会得到『非严格次小』；4) 倍增预处理依赖 LCA 知识点。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| Luogu | P4180 | 5 | 【模板】严格次小生成树：倍增维护路径最大与严格次大边，标准题 | [https://www.luogu.com.cn/problem/P4180](https://www.luogu.com.cn/problem/P4180) |
+| POJ | 1679 | 3 | The Unique MST：判断 MST 是否唯一，等价于非严格次小是否等于最小 | [http://poj.org/problem?id=1679](http://poj.org/problem?id=1679) |
+| Codeforces | 1108F | 4 | MST Unification：计数使 MST 唯一需提高的边数，次小/等权边思路 | [https://codeforces.com/problemset/problem/1108/F](https://codeforces.com/problemset/problem/1108/F) |
+
+## Pitfalls · 易错点
+
+- 平行边必须用边 id 标记树边，用 (u,v,w) 元组会错判
+- 求严格次小时只维护路径最大边，遇等权树边会得到错误(非严格)答案
+- 对每条非树边都跑 DFS 求环上最大值导致 O(nm)，必须倍增 LCA
+- 忘记图不连通/边数不足的边界，返回 None 前应判 len(edges)<n-1
+- 合并最大与次大边时去重错误，等权两棵树边同权时次大应保留同权值
+
+## Sources · 信源
+
+- CP-Algorithms ✓ [https://cp-algorithms.com/graph/second_best_mst.html](https://cp-algorithms.com/graph/second_best_mst.html)
+- OI Wiki ✓ [https://oi-wiki.org/graph/mst/](https://oi-wiki.org/graph/mst/)
+- 书籍 ✓ `CPH ch15 pp151-158`

@@ -1,0 +1,134 @@
+---
+id: bitset-compression
+name: bitset压位
+group: G-E-2
+stage: intermediate
+priority: P1
+depth_tier: standard
+---
+
+# bitset压位
+
+> 用 bitset 把 O(n^2)/w 的操作压成位运算：Python 用 int 当 bitset（int 无限位宽+bit_count），莫队配合 bitset 加速区间统计
+
+<!-- 元信息: id=bitset-compression · group=G-E-2 · stage=intermediate · priority=P1 · depth_tier=standard -->
+
+## What · 是什么
+
+bitset 压位：把 0/1 布尔数组用一个整数（或 std::bitset）表示，一次位运算等价于对整个数组并行操作。C++ 用 std::bitset（库函数含 count/any/移位/位运算，底层按字长 32/64 位并行）。Python 直接用 int：`bs=0`，`bs |= 1<<k` 置位，`bs.bit_count()` 数 1，`bs << s` 整体左移 = 平移，`bs & mask` 取子集。这使背包可达性、区间统计等 O(n^2) 复杂度降为 O(n^2/64)，因为 Python 大整数底层就是字长并行运算。常见应用：背包 DP（f |= f<<w）、集合包含判定、莫队+bitset 统计区间不同元素（如洛谷 P3674）。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+背包 dp[j]=可达到 j 吗？朴素 O(n·sum)。把整个可达数组编码成一个二进制数，『加一个物品』= 把可达集合左移 w 后与原来或起来：f |= f<<w。一次大整数移位+或，在底层是按 30/64 位字并行执行的，等价于一次性完成 w 列 DP 转移，常数除以字长。
+
+### 原理 · Principle
+
+Python int 用 30 位/digit 存储（3.11 后可变），<< >> & | ^ 都是按字（digit）循环的 C 层运算，对 n 位整数 O(n/30)。所以 `f |= f<<w` 对 f 有 N 位的场景 O(N/30)，而朴素 for 循环是 O(N) Python 层 → 快约 30-64 倍（再叠加 C 层优势）。C++ std::bitset 每 64 位一个 unsigned long long，库函数用 __builtin_popcountll 等。莫队+bitset：把区间元素的出现状态按值离散化后压进 bitset，莫队移动指针时 O(1) 翻转一位，回答『区间内出现的不同值』时对整个 bitset 做 & | 统计，配合分块处理（如 Ynoi 题）。
+
+### 历史 · History
+
+bitset 由 OI Wiki lang/csl/bitset 页系统介绍（含 LOJ515 模板题与手写 64 位优化）；OI Wiki misc/mo-algo-with-bitset 页讲莫队配合 bitset（Ynoi2016 掉进兔子洞等）。Python 用 int 当 bitset 的技巧在社区广泛使用（int.bit_count、int.bit_length、移位），是 Python 选手实现『压位』的标准手段。
+
+## How · 实现
+
+### 伪代码
+
+```python
+# Python int 当 bitset
+def subset_possible(weights, target):
+    bs = 1                 # bit0 = 可达（空集）
+    for w in weights:
+        bs |= bs << w      # 加入物品 w
+    return (bs >> target) & 1 == 1
+
+# 常用操作
+置位: bs |= 1 << k
+判位: (bs >> k) & 1
+数 1: bs.bit_count()
+清空: bs = 0
+平移: bs << k
+取前 k 位: bs & ((1 << k) - 1)
+```
+
+### Python 实现
+
+```python
+def subset_possible(weights, target):
+    bs = 1
+    for w in weights:
+        bs |= bs << w
+    return (bs >> target) & 1 == 1
+
+
+def main():
+    # 背包可达性：3+5=8 可达
+    assert subset_possible([3, 5, 2], 8)
+    assert subset_possible([3, 5, 2], 10)
+    assert not subset_possible([3, 5], 9)
+    assert subset_possible([], 0)
+    # int 操作
+    bs = 0
+    bs |= 1 << 3
+    bs |= 1 << 5
+    assert (bs >> 3) & 1 == 1
+    assert (bs >> 4) & 1 == 0
+    assert bs.bit_count() == 2
+    assert (bs << 2) == ((1 << 5) | (1 << 7))
+    # 大范围：10^5 位级 bitset 仍可行
+    big = 1
+    for _ in range(20000):
+        big |= big << 1
+    assert big.bit_count() == 20001
+    # 与朴素对拍
+    import random
+    random.seed(1)
+    for _ in range(30):
+        ws = [random.randint(1, 10) for _ in range(8)]
+        t = random.randint(0, 40)
+        naive = {0}
+        for w in ws:
+            naive |= {x + w for x in list(naive)}
+        assert subset_possible(ws, t) == (t in naive)
+    print("bitset-compression OK")
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+**PyPy 提示**: PyPy 的大整数实现与 CPython 不同（RPython 大整数），移位/或仍按字并行但 digit 宽度与常数可能不同；bit_count 可用。PyPy 下 int-bitset 依然远快于 Python 层循环。超大 bitset（10^6 位+）注意内存（10^6 位≈128KB，OK）；连续多次移位会产生临时大 int，PyPy 的分配策略可能造成 GC 压力，必要时复用变量。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | 一次位运算 O(n/30)~O(n/64)（n 为 bitset 位数）；背包 DP 总 O(#items·sum/64)；莫队+bitset 见具体题 |
+| 空间 | O(n) 位（Python int O(n/30) digit） |
+
+### 局限
+
+int 当 bitset 只能做『并行位级操作』，若要随机访问单元素仍 O(1)（(bs>>k)&1）；但不能像 list 那样对某一位就地改而不新建大对象（bs|=1<<k 每次创建新 int）。莫队+bitset 需要离散化与处理多重值（用出现次数编码），实现较复杂。Python int-bitset 的移位对超大 int 会分配新内存，连续大量移位时注意性能。bitset 本质仍是布尔运算，无法维护计数（出现次数>1）除非额外处理。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| LibreOJ | 515 | 3 | 「LibreOJ β Round #2」贪心只能过样例：背包可达性用 f\|=f<<(j*j)，OI Wiki bitset 页模板题 | [https://loj.ac/problem/515](https://loj.ac/problem/515) |
+| Luogu | P3674 | 6 | 小清新人渣的本愿：莫队+bitset 判定区间内存在差/和/积关系，OI Wiki 莫队配合 bitset 习题 | [https://www.luogu.com.cn/problem/P3674](https://www.luogu.com.cn/problem/P3674) |
+
+## Pitfalls · 易错点
+
+- f \|= f<<w 里 f<<w 是新对象，循环内变量不要写反（f <<= w 会丢失原可达集）
+- Python int 无限位宽：f 的最高位会被左移不断抬高，答案判断用 (f>>target)&1 前确认 target 位数足够
+- 莫队+bitset 中多重值需离散化编码（值+出现次数），忘记处理会漏数
+- bitset 只做存在性，不能维护计数；要计数需另存 cnt
+- 超大 bitset 一次移位分配大内存，极限内存题注意评估
+- C++ std::bitset 需编译期定长，动态大小用 vector<bool> 或手写数组
+
+## Sources · 信源
+
+- OI Wiki ✓ [https://oi-wiki.org/lang/csl/bitset/](https://oi-wiki.org/lang/csl/bitset/)
+- OI Wiki ✓ [https://oi-wiki.org/misc/mo-algo-with-bitset/](https://oi-wiki.org/misc/mo-algo-with-bitset/)

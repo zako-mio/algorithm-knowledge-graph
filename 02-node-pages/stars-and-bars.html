@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>插板法(Stars and Bars) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-10.html">组合计数基础族</a> / <span>插板法(Stars and Bars)</span></div>
+  <h1>插板法(Stars and Bars)</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-C-10</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="catalan-number.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">catalan-number</span></a>
+    <a class="nav-index" href="../03-groups/G-C-10.html"><span class="dir">组内第 3 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="fibonacci.html"><span class="dir">下一个 / 组内</span><span class="v">fibonacci</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">将n个相同物品分给k组的方案数C(n+k-1,k-1)，整数拆分计数</div><p>插板法（Stars and Bars）是一类把『n 个相同物品分给 k 组』的计数问题转化为组合数的技巧。核心结论：x_1+x_2+...+x_k=n 的正整数解（每组至少 1 个）有 C(n-1,k-1) 组；非负整数解（允许空组）有 C(n+k-1,k-1)=C(n+k-1,n) 组；带下界 x_i≥a_i 时先把 ∑a_i 个物品预先分掉，转化为非负解，答案 C(n-∑a_i+k-1, n-∑a_i)。它是多重集组合数、不定方程计数、货币/称重/投球等『相同物品+有区分盒子』计数问题的通用工具。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>把 n 个星（★）排成一列，n-1 个空隙；要分成 k 组就在其中选 k-1 个空隙插入隔板，方案数 C(n-1,k-1)。允许空组时『先借 k 个物品』垫底使每组非空，插完板再还回去——借用后等价于在 n+k 个物品的 n+k-1 个空隙插 k-1 块板，故 C(n+k-1,k-1)。名字 Stars（星=物品）and Bars（杠=隔板）由此而来。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>设第 i 组分得 x_i 个，问题即不定方程 x_1+...+x_k=n 的解数。① 正整数解：C(n-1,k-1)；② 非负整数解：令 y_i=x_i+1≥1，Σy_i=n+k，得 C(n+k-1,k-1)；③ 一般下界：令 x_i&#x27;=x_i-a_i≥0，Σx_i&#x27;=n-∑a_i，得 C(n-∑a_i+k-1, k-1)。统一视角是『先满足下界再分配剩余』。它等价于多重集 {n_1·a_1,...,n_k·a_k} 中选 r 个元素的方案数（x_i≤n_i 时用容斥剔除上界）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>方法本身源于组合数学对『投球问题（balls into boxes）』与『不定方程正整数解』的经典处理，Stars and Bars 这一名称在 W. Feller 的《概率论及其应用》中普及，现代竞赛数学中作为计数基础出现在 CP-Algorithms 与 OI Wiki 组合计数入门。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 直接套组合数</span>
+<span class="t-c"># 非负解 x1+..+xk=n:</span>
+ans = <span class="t-f">C</span>(n+k-<span class="t-n">1</span>, k-<span class="t-n">1</span>)
+<span class="t-c"># 正整数解:</span>
+ans = <span class="t-f">C</span>(n-<span class="t-n">1</span>, k-<span class="t-n">1</span>)
+<span class="t-c"># 带下界 a_i:</span>
+ans = <span class="t-f">C</span>(n - <span class="t-b">sum</span>(a) + k - <span class="t-n">1</span>, k - <span class="t-n">1</span>)
+
+<span class="t-c"># 组合数建议预计算阶乘+逆元 (模质数) 或逐项乘除 (不取模)</span></code></pre><h3>Python 实现</h3><pre><code class="python">MOD = <span class="t-n">10</span>**<span class="t-n">9</span> + <span class="t-n">7</span>
+
+
+<span class="t-k">def</span> <span class="t-f">comb_precompute</span>(maxn, mod):
+    <span class="t-s">&quot;&quot;&quot;预计算 0..maxn 阶乘与逆元, 返回 lambda comb(n,k)&quot;&quot;&quot;</span>
+    fact = [<span class="t-n">1</span>] * (maxn + <span class="t-n">1</span>)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, maxn + <span class="t-n">1</span>):
+        fact[i] = fact[i - <span class="t-n">1</span>] * i % mod
+    invf = [<span class="t-n">1</span>] * (maxn + <span class="t-n">1</span>)
+    invf[maxn] = <span class="t-b">pow</span>(fact[maxn], mod - <span class="t-n">2</span>, mod)
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(maxn, <span class="t-n">0</span>, -<span class="t-n">1</span>):
+        invf[i - <span class="t-n">1</span>] = invf[i] * i % mod
+
+    <span class="t-k">def</span> <span class="t-f">comb</span>(n, k):
+        <span class="t-k">if</span> k &lt; <span class="t-n">0</span> <span class="t-k">or</span> k &gt; n:
+            <span class="t-k">return</span> <span class="t-n">0</span>
+        <span class="t-k">return</span> fact[n] * invf[k] % mod * invf[n - k] % mod
+
+    <span class="t-k">return</span> comb
+
+
+<span class="t-k">def</span> <span class="t-f">stars_bars</span>(n, k, lower=<span class="t-k">None</span>, mod=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;x_1+..+x_k = n 的解数.
+    lower: 可选下界列表 a_i (长度 k); mod: 取模 (需为质数)&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> lower <span class="t-k">is</span> <span class="t-k">None</span>:
+        lower = [<span class="t-n">0</span>] * k
+    rem = n - <span class="t-b">sum</span>(lower)
+    <span class="t-k">if</span> rem &lt; <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    n_ = rem + k - <span class="t-n">1</span>
+    k_ = k - <span class="t-n">1</span>
+    <span class="t-k">if</span> n_ &lt; <span class="t-n">0</span> <span class="t-k">or</span> k_ &lt; <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-n">0</span>
+    <span class="t-k">if</span> mod:
+        <span class="t-k">return</span> <span class="t-f">comb_precompute</span>(n_, mod)(n_, k_)
+    <span class="t-c"># 不取模: 逐项乘除 (n_ 可能较大, 逐项整数除法保精度)</span>
+    k_ = <span class="t-b">min</span>(k_, n_ - k_)
+    r = <span class="t-n">1</span>
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, k_ + <span class="t-n">1</span>):
+        r = r * (n_ - k_ + i) // i
+    <span class="t-k">return</span> r
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 非负解 x+y+z=5: 枚举验证</span>
+    cnt = <span class="t-n">0</span>
+    <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">6</span>):
+        <span class="t-k">for</span> y <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">6</span> - x):
+            z = <span class="t-n">5</span> - x - y
+            cnt += <span class="t-n">1</span>
+    <span class="t-k">assert</span> cnt == <span class="t-f">stars_bars</span>(<span class="t-n">5</span>, <span class="t-n">3</span>) == <span class="t-n">21</span>
+    <span class="t-c"># 正整数解 x+y+z=5: (1,1,3)(1,2,2)(1,3,1)(2,1,2)(2,2,1)(3,1,1) =&gt; 6</span>
+    <span class="t-k">assert</span> <span class="t-f">stars_bars</span>(<span class="t-n">5</span>, <span class="t-n">3</span>, lower=[<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>]) == <span class="t-n">6</span> == <span class="t-f">comb_precompute</span>(<span class="t-n">10</span>, MOD)(<span class="t-n">4</span>, <span class="t-n">2</span>)
+    <span class="t-c"># 下界 a=[2,1,0], n=7: rem=4, C(4+3-1,2)=C(6,2)=15</span>
+    <span class="t-k">assert</span> <span class="t-f">stars_bars</span>(<span class="t-n">7</span>, <span class="t-n">3</span>, lower=[<span class="t-n">2</span>, <span class="t-n">1</span>, <span class="t-n">0</span>]) == <span class="t-n">15</span>
+    <span class="t-c"># 模版与非模版一致</span>
+    <span class="t-k">assert</span> <span class="t-f">stars_bars</span>(<span class="t-n">100</span>, <span class="t-n">5</span>, mod=MOD) == <span class="t-f">stars_bars</span>(<span class="t-n">100</span>, <span class="t-n">5</span>) % MOD
+    <span class="t-c"># 边界: 空组全给 k=1</span>
+    <span class="t-k">assert</span> <span class="t-f">stars_bars</span>(<span class="t-n">5</span>, <span class="t-n">1</span>) == <span class="t-n">1</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;All tests passed.&quot;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">大规模时阶乘+逆元数组 O(maxn) 预处理后每个询问 O(1)，PyPy 下注意 pow(fact, MOD-2, MOD) 一次调用即可；非取模大组合数逐项整除在 n 达 1e6 时可用；若需处理组合数超模数，改用 exLucas。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>单次组合数 O(k) 或 O(min(k,n))；预处理后 O(1)</td></tr><tr><th>空间复杂度</th><td>O(1) 单次；O(maxn) 预处理</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只适用于『物品不可区分、盒子可区分』。物品可区分时方案数是 k^n（每个物品独立选盒子）而非插板；盒子不可区分是整数拆分（partition）问题，不是插板公式。k 或 n 很大且模数为合数时组合数需 exLucas。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>把非负解 C(n+k-1,k-1) 与正整数解 C(n-1,k-1) 搞混——先确认每组是否允许为空</li><li>下界不为 1 时忘记『先扣掉 ∑a_i』再插板</li><li>n&lt;∑a_i 时答案为 0（下界超额）</li><li>『盒子不可区分』时不能用插板公式（那是 partition）</li><li>模数非质时不能直接逆元求组合数</li><li>k=0 或 n=0 的边界：非负解 x_1+..+x_k=0 恰 1 组（全 0）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Codeforces</td><td><strong>451E</strong></td><td>5</td><td>Devu and Flowers：上界限制的整数和计数，插板法+容斥（CP-Alg 例题）</td><td class="u"><a href="https://codeforces.com/problemset/problem/451/E" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/451/E</a></td></tr><tr><td>Codeforces</td><td><strong>553A</strong></td><td>4</td><td>Kyoya and Coloured Balls：组合计数用插板法分段（CP-Alg Practice）</td><td class="u"><a href="https://codeforces.com/problemset/problem/553/A" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/553/A</a></td></tr><tr><td>Codeforces</td><td><strong>1288C</strong></td><td>4</td><td>Two Arrays：单调序列计数转化为带可重复组合/插板（CP-Alg Practice）</td><td class="u"><a href="https://codeforces.com/problemset/problem/1288/C" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/1288/C</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-stars-and-bars" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "identify", "label": "识别相同物品分组问题"}}, {"data": {"id": "eq", "label": "转化为不定方程 x1+..+xk=n"}}, {"data": {"id": "shift", "label": "下界处理: 先扣 ∑a_i 或借物品"}}, {"data": {"id": "comb", "label": "套用组合数公式"}}, {"data": {"id": "multi", "label": "多重集组合数与容斥扩展"}}, {"data": {"id": "eidentify->eq", "source": "identify", "target": "eq"}}, {"data": {"id": "eeq->shift", "source": "eq", "target": "shift"}}, {"data": {"id": "eshift->comb", "source": "shift", "target": "comb"}}, {"data": {"id": "ecomb->multi", "source": "comb", "target": "multi"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-stars-and-bars'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="combination-number.html" title="插板法方案数C(n+k-1,k-1)是组合数的直接应用">组合数<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/combinatorics/stars_and_bars.html" target="_blank" rel="noopener">https://cp-algorithms.com/combinatorics/stars_and_bars.html</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/combinatorics/combination/" target="_blank" rel="noopener">https://oi-wiki.org/math/combinatorics/combination/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch22 Combinatorics (p217-226)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

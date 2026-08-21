@@ -1,0 +1,69 @@
+{
+  "id": "backtracking",
+  "name": "回溯法",
+  "group": "G-A-14",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "DFS+撤销操作，走不通就回头，排列/组合/棋盘类问题",
+  "what": "回溯法（backtracking）是深度优先搜索的一种系统化变体：构造问题的解空间树，用 DFS 遍历；到达不满足约束的分支（边界条件）就'剪枝回头'，探索另一条链；到达目标状态则记录解。核心是'试探-标记-递归-撤销'四步，通过撤销操作保证搜索空间互不污染。排列、组合、子集、N皇后、数独、迷宫计数等问题都用回溯法。",
+  "why": {
+    "intuition": "把解想象成一步步做选择：放第一个皇后在第几列？第二个在第几列？……每步做选择时如果发现当前部分选择已经非法（如皇后冲突），就立刻放弃继续往下走，回到上一步换一个选择——这就是'走不通就回头'。撤销操作让上层选择改变时下层状态是干净的。",
+    "principle": "解空间是 n 叉树（每层一次选择），DFS 遍历所有叶节点即遍历所有候选解。回溯法在遍历中维护'当前路径'与'已用资源'（如列、对角线占用）。约束剪枝发生在扩展前：若当前部分解已不可能满足约束，则其子树全部不可行，可直接跳过。空间开销 O(深度)，与候选解数量无关，这是相对全量枚举的优势。N皇后用列/两条对角线三个布尔数组将判定复杂度降为 O(1)。",
+    "history": "回溯法的思想可追溯到 19 世纪，N皇后问题最早由高斯 1850 年左右提出并研究。现代算法教材中，回溯是分支限界法（branch and bound）的姊妹技巧，1970s 由 Horowitz 与 Sahni 等人在算法教科书中系统整理。"
+  },
+  "how": {
+    "pseudocode": "def backtrack(path, 已用资源):\n    if 到达目标(解):\n        记录解; return\n    if 不可行/边界条件:\n        return  # 剪枝\n    for 每个候选选择 c:\n        if 选择 c 合法:\n            做出选择(标记资源)\n            backtrack(path + [c])\n            撤销选择(清除标记)",
+    "python": "def solve_nqueens(n):\n    \"\"\"N皇后问题: 返回所有解, 每个解是长度n的列表, 第i行皇后所在列(1-based)\n    用列/主对角线/副对角线三个布尔数组实现 O(1) 冲突判定\n    \"\"\"\n    col = [False] * n\n    diag1 = [False] * (2 * n - 1)  # r-c 偏移\n    diag2 = [False] * (2 * n - 1)  # r+c\n    board = [0] * n\n    ans = []\n\n    def dfs(r):\n        if r == n:\n            ans.append(board[:])\n            return\n        for c in range(n):\n            if not col[c] and not diag1[r - c + n - 1] and not diag2[r + c]:\n                col[c] = diag1[r - c + n - 1] = diag2[r + c] = True\n                board[r] = c + 1\n                dfs(r + 1)\n                col[c] = diag1[r - c + n - 1] = diag2[r + c] = False\n\n    dfs(0)\n    return ans\n\n\ndef permutations(arr):\n    \"\"\"回溯求全排列(去重版)\"\"\"\n    n = len(arr)\n    used = [False] * n\n    path = []\n    res = []\n\n    def dfs():\n        if len(path) == n:\n            res.append(path[:])\n            return\n        for i in range(n):\n            if used[i]:\n                continue\n            if i > 0 and arr[i] == arr[i - 1] and not used[i - 1]:\n                continue  # 去重: 相同元素按顺序使用\n            used[i] = True\n            path.append(arr[i])\n            dfs()\n            path.pop()\n            used[i] = False\n\n    dfs()\n    return res\n\n\ndef verify(board):\n    \"\"\"验证N皇后解合法\"\"\"\n    n = len(board)\n    for i in range(n):\n        for j in range(i + 1, n):\n            if board[i] == board[j]:\n                return False\n            if abs(board[i] - board[j]) == abs(i - j):\n                return False\n    return True\n\n\nif __name__ == \"__main__\":\n    assert len(solve_nqueens(1)) == 1\n    assert len(solve_nqueens(4)) == 2\n    s8 = solve_nqueens(8)\n    assert len(s8) == 92\n    assert all(verify(sol) for sol in s8)\n    assert s8[0] == [1, 5, 8, 6, 3, 7, 2, 4]  # 字典序第一个解\n\n    # 全排列: [1,1,2] 去重后 3 种\n    perms = permutations([1, 1, 2])\n    assert len(perms) == 3\n    assert sorted(perms) == sorted([[1, 1, 2], [1, 2, 1], [2, 1, 1]])\n\n    print(\"backtracking all tests passed\")\n",
+    "pypy_notes": "N皇后等回溯题纯 Python 可过（n≤13 常用），再大需剪枝或位运算优化。PyPy 的递归开销略高，深递归可用 sys.setrecursionlimit。位运算状态压缩（列/对角线的位掩码）能显著提速。",
+    "complexity": {
+      "time": "最坏 O(分支数^深度)，实际靠剪枝大幅减少；N皇后上界 O(n!)",
+      "space": "O(深度 + 资源标记数组)，与候选解数量无关"
+    },
+    "limitations": "回溯是指数级算法，仅适合 n≤20 左右的选择空间；分支因子大且剪枝弱时退化近纯枚举；递归深度受系统限制（Python 默认 1000）。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1219",
+      "url": "https://www.luogu.com.cn/problem/P1219",
+      "difficulty": 3,
+      "key_point": "USACO Checker Challenge：N皇后模板，输出前3解+总数"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P1605",
+      "url": "https://www.luogu.com.cn/problem/P1605",
+      "difficulty": 2,
+      "key_point": "迷宫：回溯计数，每格最多经过一次"
+    }
+  ],
+  "pitfalls": [
+    "撤销操作必须在递归返回后执行，否则污染后续分支（最经典bug）",
+    "N皇后两条对角线的索引映射：r-c 需偏移，r+c 直接；范围 2n-1",
+    "排列去重：相同元素需'按序使用'（used[i-1] 检查），否则重复解",
+    "边界条件与目标条件都要写，避免死循环或漏解",
+    "记录解时必须复制 path（path[:]），否则引用同一对象"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "model", "label": "把解建模为逐步选择" },
+      { "id": "state", "label": "定义状态与资源标记" },
+      { "id": "prune", "label": "可行性剪枝(提前判非法)" },
+      { "id": "rec", "label": "递归搜索所有合法分支" },
+      { "id": "undo", "label": "递归后撤销操作" },
+      { "id": "collect", "label": "到达目标时记录解" }
+    ],
+    "edges": [
+      { "from": "model", "to": "state" },
+      { "from": "state", "to": "prune" },
+      { "from": "prune", "to": "rec" },
+      { "from": "rec", "to": "undo" },
+      { "from": "rec", "to": "collect" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/search/backtracking/", "verified": true },
+    { "type": "book", "url": "", "ref": "CPH ch5 p57 (backtracking)", "verified": true }
+  ]
+}

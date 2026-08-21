@@ -1,0 +1,59 @@
+{
+  "id": "flush-buffer",
+  "name": "缓冲区刷新",
+  "group": "G-E-1",
+  "stage": "basic",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "交互题必须每次输出后刷新缓冲区：C++ fflush(stdout)/std::endl，Python sys.stdout.flush() 或 print(..., flush=True)，否则 Idleness limit exceeded",
+  "what": "缓冲区刷新（flush）：程序输出先进入用户态缓冲区，由系统按块（如 4/8KB）或行缓冲刷出。普通题依赖程序结束时统一刷新即可；但**交互题**中，评测机等你输出后再给输入，你的输出若滞留在缓冲区，对方永远收不到 → 超时（Idleness Limit Exceeded, ILE）。因此交互题每次输出『询问/答案』后必须显式刷新：C++ `fflush(stdout)` 或 `std::endl`；Python `sys.stdout.flush()` 或 `print(x, flush=True)`。",
+  "why": {
+    "intuition": "普通批处理题：评测机读文件，文件在程序结束时就写完了，所以无所谓何时刷新。交互题：评测机与你的程序『对话』，你发一句、它回一句，你发的话必须立刻送达对方——而输出缓冲区会把它扣住直到攒够一块或程序结束，双方死等。",
+    "principle": "stdout 默认对终端行缓冲、对管道/文件全缓冲（4KB/8KB 一块）。Python 的 print 写 TextIO 后内容先进 BufferWriter，flush 才真正 write 到 fd。交互题协议：你输出一行后评测程序读取该行并依据它产生输入行。若不 flush，评测程序读不到你的行，卡在 read，直到你的程序结束才 flush → 直接 ILE。多组数据时若已能提前得到答案，仍要读完所有输入避免读入混乱。Python 用 flush=True 或 sys.stdout.flush()；C++ 关 sync 后 std::endl 强制 flush、'\n' 不刷。",
+    "history": "交互题是 OI/ICPC 的常见题型（如 Codeforces 交互题、UOJ APIO2016 Gap）。OI Wiki contest/interaction 页明确警告：『选手每一次输出后都需要刷新缓冲区，否则会引起 Idleness limit exceeded 错误』，并指出不要使用快读（会破坏逐行交互读入的节奏）。Python 交互模板用 print(..., flush=True) 是社区标准。"
+  },
+  "how": {
+    "pseudocode": "# Python 交互模板\ndef ask(x):\n    print(f'? {x}', flush=True)     # 每次输出必 flush\n    return int(input())\n\nans = ask(42)\nprint(f'! {ans}', flush=True)       # 最终答案也要 flush\n\n# C++ 对应\n# cout << \"? \" << x << endl;  或  printf(...); fflush(stdout);",
+    "python": "import sys\n\n\ndef main():\n    # 自测：模拟评测机交互（猜数字）\n    import io\n    log = []\n\n    def fake_judge(q):\n        \"\"\"模拟评测机：对每次询问立即给回应\"\"\"\n        log.append(q)\n        if q < 50:\n            return 'higher'\n        if q > 50:\n            return 'lower'\n        return 'equal'\n\n    # 手动模拟：输出立即 flush（此处直接写 log 模拟）\n    lo, hi = 1, 100\n    res = None\n    for _ in range(10):\n        mid = (lo + hi) // 2\n        r = fake_judge(mid)\n        if r == 'higher':\n            lo = mid + 1\n        elif r == 'lower':\n            hi = mid - 1\n        else:\n            res = mid\n            break\n    assert res == 50\n    # 验证 flush=True 存在（print 关键字参数合法性）\n    import contextlib\n    buf = io.StringIO()\n    with contextlib.redirect_stdout(buf):\n        print('? 3', flush=True)\n    assert buf.getvalue() == '? 3\\n'\n    # sys.stdout.flush 可调用\n    assert callable(sys.stdout.flush)\n    print(\"flush-buffer OK\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "pypy_notes": "PyPy 的 print 与 sys.stdout.flush 行为与 CPython 一致；flush=True 同样适用。交互题中 PyPy 的 input() 逐行读没问题（禁止用 read() 一次读）。注意 PyPy 对 buffered output 的块大小可能不同，但显式 flush 后无差别。交互题绝不要用 sys.stdin.buffer.read()（会读尽所有输入，破坏交互）。",
+    "complexity": {
+      "time": "flush 是系统调用，每次 O(1) 但开销存在；交互题询问次数受限（如 100 次内）时无碍",
+      "space": "O(1)"
+    },
+    "limitations": "只在交互题必须；普通题频繁 flush 反而拖慢（批量输出用 join 一次写）。部分交互题评测机允许一次输出多行询问再统一读答案（queries in batch），仍需在输出块后 flush 一次。交互读入不能用快读 read()；若题目含多组数据且程序提前知道答案，仍必须读完所有输入再输出。",
+    "examples": []
+  },
+  "examples": [
+    {
+      "oj": "Codeforces",
+      "pid": "679A",
+      "url": "https://codeforces.com/problemset/problem/679/A",
+      "difficulty": 1600,
+      "key_point": "Bear and Prime 100：交互猜质因子，经典入门交互题，输出后必须 flush"
+    }
+  ],
+  "pitfalls": [
+    "漏 flush 导致 ILE（Idleness Limit Exceeded），是最常见交互题失误",
+    "print(..., end='') 后再 print 第二次输出同一行时，两段都要在同一 flush 前拼接或用 flush=True",
+    "C++ 关 sync_with_stdio(false) 后 '\n' 不刷缓冲区，必须 std::endl 或显式 fflush",
+    "交互题误用 sys.stdin.buffer.read() 一次性读入会死等或读乱",
+    "批量输出多个询问时要在所有输出后只 flush 一次，别每条都 flush（减少系统调用），但每条之间不可依赖对方先回"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "s1", "label": "识别交互题：需 flush 输出"},
+      {"id": "s2", "label": "Python：print(..., flush=True) 或 sys.stdout.flush()"},
+      {"id": "s3", "label": "读输入用逐行 input()，禁用 read()"},
+      {"id": "s4", "label": "结束时输出最终答案并 flush"}
+    ],
+    "edges": [
+      {"from": "s1", "to": "s2"},
+      {"from": "s2", "to": "s3"},
+      {"from": "s3", "to": "s4"}
+    ]
+  },
+  "sources": [
+    {"type": "oiwiki", "url": "https://oi-wiki.org/contest/interaction/", "verified": true},
+    {"type": "oiwiki", "url": "https://oi-wiki.org/contest/problems/", "verified": true}
+  ]
+}

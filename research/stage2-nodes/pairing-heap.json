@@ -1,0 +1,74 @@
+{
+  "id": "pairing-heap",
+  "name": "配对堆",
+  "group": "G-A-3",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "均摊O(1)插入/O(log n)删除，Fibonacci堆的简单替代",
+  "what": "配对堆（Pairing Heap）是一种基于势能分析的可并堆：一棵满足堆性质的多叉树，用『儿子-兄弟』表示法存储。它只维护堆性质，不维护树的任何大小/深度/排名额外信息，因此结构极其简单灵活。所有操作归约为两个：meld（合并两个堆，O(1)：小根做根、大根挂为第一个儿子）与 delete-min（删除根后把儿子们先两两配对合并、再从右往左依次合并，均摊 O(log n)）。它还支持 O(log n) 均摊的 decrease-key（把节点从父链上割下来再与根合并）。是 Fibonacci 堆的实践替代品：实现简单、常数小、平均性能优秀，但因为是均摊复杂度，无法持久化。",
+  "why": {
+    "intuition": "合并只需把大根挂成小根的儿子，O(1)。难点在删除最小值：根没了，儿子们散成森林，必须按特定顺序合并回去。若从左到右逐个合并会退化 O(n)——因为合并越往后树越深。『两步走』：先把儿子两两配对合并（树的形状变矮），再从右往左合并，这样每次 delete-min 的均摊代价是对数的。",
+    "principle": "① 儿子-兄弟表示：每个节点存第一个儿子 child 和下一个兄弟 sibling；② meld(x,y)：小根做根，大根 y 插到 x 儿子链头（y.sibling = x.child; x.child = y），O(1)；③ delete-min：取出根，对其儿子链调用 merges——两两一组 meld 配对，然后新产生的堆从右往左挨个 meld；④ decrease-key(x,v)：把 x 从父的儿子链中剖出（更新父的 child/sibling），与根 meld。均摊复杂度由势能分析保证：Iacono 证明 meld O(1)、decrease-key O(log n)；Pettie 给出 O(2^(2√(log log n))) 的上界，delete-min 均摊 O(log n)。与斐波那契堆不同，它不维护 mark/degree 等额外信息。",
+    "history": "1986 年 Fredman、Sedgewick、Sleator、Tarjan 在论文『The pairing heap: a new form of self-adjusting heap』中提出，受 Splay 树『自调整』思想启发，试图作为斐波那契堆（1987，更早发表）的简单替代。后来证明其某些操作无法达到斐波那契堆的全部均摊界（decrease-key 下界 Ω(log log n)），但实践速度极快，被广泛用于需要 merge 的场景。"
+  },
+  "how": {
+    "pseudocode": "meld(x, y):\n  if x 为空: return y\n  if y 为空: return x\n  if val(x) > val(y): swap(x, y)\n  y.sibling = x.child   # 大根挂为小根的第一个儿子\n  x.child = y\n  return x\ninsert(root, v) = meld(root, new_node(v))\nfind_min(root)  = root.val\nmerges(first):  # 合并一个儿子的兄弟链\n  if first 为空 or first.sibling 为空: return first\n  y = first.sibling; c = y.sibling\n  first.sibling = y.sibling = None\n  return meld(merges(c), meld(first, y))\ndelete_min(root) = (merges(root.child), root.val)",
+    "python": "import heapq\nimport random\n\n\nclass Node:\n    __slots__ = ('val', 'ch', 'sib')\n\n    def __init__(self, val):\n        self.val = val\n        self.ch = None\n        self.sib = None\n\n\ndef meld(a, b):\n    \"\"\"合并两个配对堆，返回新根。O(1) 均摊\"\"\"\n    if a is None:\n        return b\n    if b is None:\n        return a\n    if a.val > b.val:\n        a, b = b, a\n    b.sib = a.ch\n    a.ch = b\n    return a\n\n\ndef insert(root, val):\n    return meld(root, Node(val))\n\n\ndef _pairs(first):\n    \"\"\"两两配对合并儿子链，再自右向左合并（删除最小值核心）\"\"\"\n    if first is None or first.sib is None:\n        return first\n    a, b = first, first.sib\n    rest = b.sib\n    a.sib = b.sib = None\n    return meld(_pairs(rest), meld(a, b))\n\n\ndef pop_min(root):\n    \"\"\"删除最小值。返回 (新根, 原最小值)；空堆返回 (None, None)\"\"\"\n    if root is None:\n        return None, None\n    return _pairs(root.ch), root.val\n\n\ndef decrease_key(root, node, new_val):\n    \"\"\"把 node 的值减小为 new_val（须保证 new_val <= node.val）\"\"\"\n    if new_val > node.val:\n        raise ValueError('decrease_key 只能减小')\n    node.val = new_val\n    # 若 node 是根则直接返回\n    # 本实现为无父指针的简化版：此处仅演示；完整实现需 fa 指针把 node 从父链剖出后 meld(root, node)\n    return root\n\n\nif __name__ == '__main__':\n    random.seed(2)\n    h = None\n    ref = []\n    for _ in range(5000):\n        op = random.random()\n        if op < 0.5 or not ref:\n            v = random.randint(0, 100000)\n            h = insert(h, v)\n            heapq.heappush(ref, v)\n        else:\n            h, m = pop_min(h)\n            r = heapq.heappop(ref)\n            assert m == r, (m, r)\n        if h is None:\n            assert not ref\n    # 双堆合并验证\n    h1 = h2 = None\n    r1, r2 = [], []\n    for v in [9, 3, 7, 1, 5]:\n        h1 = insert(h1, v); r1.append(v)\n    for v in [8, 2, 6, 0, 4]:\n        h2 = insert(h2, v); r2.append(v)\n    h = meld(h1, h2)\n    r = sorted(r1 + r2)\n    out = []\n    while h is not None:\n        h, m = pop_min(h)\n        out.append(m)\n    assert out == r, (out, r)\n    print('pairing heap: All tests passed.')",
+    "pypy_notes": "实现极简，常数小，PyPy 下 5e5-1e6 规模可过。decrease-key 需维护父指针（区分该节点是父的 child 还是 sibling 两种剖出情况）。均摊复杂度无法持久化（见限制）。儿子链用单链表即可，两两配对注意先存 rest 再拆边。",
+    "complexity": {
+      "time": "insert/find-min/meld 均摊 O(1)；delete-min 均摊 O(log n)；decrease-key 均摊 O(log n)（上界 O(2^(2√(log log n)))）",
+      "space": "O(n) 节点；无额外辅助信息"
+    },
+    "limitations": "所有复杂度均为均摊（势能分析），因此无法持久化。decrease-key 的均摊下界 Ω(log log n)，达不到斐波那契堆的 O(1)。不同操作的均摊界不能简单取各最优。若不维护父指针则 decrease-key 需先知道节点位置（如 Dijkstra 中在入堆时记录）。OI 竞赛中大多数『只需 merge+insert+pop_min』的场景用左偏树更稳（非均摊），配对堆更适合常数敏感的场合。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3378",
+      "url": "https://www.luogu.com.cn/problem/P3378",
+      "difficulty": 2,
+      "key_point": "【模板】堆：基础堆操作模板，可用配对堆实现（插入/取最小/删最小）"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "abc138_f",
+      "url": "https://atcoder.jp/contests/abc138/tasks/abc138_f",
+      "difficulty": 3,
+      "key_point": "Coordinate-like 堆应用练习：配对堆适合快速合并场景的入门"
+    }
+  ],
+  "pitfalls": [
+    "delete-min 若直接从左到右合并儿子会退化成 O(n)，必须『两两配对 + 从右往左』",
+    "儿子链表按插入时间排序：最左是最新儿子；删最小前的配对顺序写错会破坏均摊界",
+    "decrease-key 剖出节点时需区分该节点是父节点的 child 还是 sibling，漏判会断链",
+    "均摊结构不支持持久化，误用持久化思路会得到错误复杂度",
+    "_pairs 递归在儿子链长时深度 O(n)（但配对后每层减半），需注意 Python 递归深度",
+    "meld 后 min 指针（若有缓存）需更新，否则 find_min 返回旧值"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "repr", "label": "儿子-兄弟表示（child + sibling 单链表）" },
+      { "id": "meld", "label": "小根做根，大根挂为第一个儿子，O(1)" },
+      { "id": "insert", "label": "insert = meld(root, 单点堆)" },
+      { "id": "delmin", "label": "delete-min = 儿子两两配对 + 自右向左 meld" },
+      { "id": "dec", "label": "decrease-key = 剖出节点 + meld(root, node)" },
+      { "id": "limit", "label": "限制：均摊→不可持久化" }
+    ],
+    "edges": [
+      { "from": "repr", "to": "meld" },
+      { "from": "meld", "to": "insert" },
+      { "from": "repr", "to": "delmin" },
+      { "from": "meld", "to": "delmin" },
+      { "from": "repr", "to": "dec" },
+      { "from": "meld", "to": "dec" },
+      { "from": "dec", "to": "limit" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/ds/pairing-heap/", "verified": true },
+    { "type": "oiwiki", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/pairing-heap.md", "verified": true },
+    { "type": "oiwiki", "url": "https://oi-wiki.org/ds/heap/", "verified": true },
+    { "type": "book", "ref": "Fredman, Sedgewick, Sleator, Tarjan, The pairing heap: a new form of self-adjusting heap, 1986", "verified": true }
+  ]
+}

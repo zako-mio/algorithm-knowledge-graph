@@ -1,0 +1,66 @@
+{
+  "id": "bidirectional",
+  "name": "双向搜索/Meet in the Middle",
+  "group": "G-A-14",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "从两端同时搜索或折半枚举，O(2^{n/2})降低指数",
+  "what": "双向搜索包含两种紧密相关的技术：①双向同时搜索（bidirectional BFS/DFS）：从起点和终点同时开始搜索，两端状态相遇即得解，把搜索半径从 d 降到约 d/2；②Meet in the Middle（折半搜索）：把搜索过程分成两半，分别枚举两半所有状态，再合并结果，把 O(2^n) 降到 O(2^{n/2})。两者共同思路：指数减半。适用状态空间大、单端搜索爆炸的问题。",
+  "why": {
+    "intuition": "一个球从山顶滚到底比两个球从两端同时滚要慢——搜索树的分支是乘法增长，把深度减半就是给指数开平方根。MITM 就像把一把锁劈两半分别配钥匙：每一半的尝试次数都少得多，再找配对。",
+    "principle": "设搜索树分支因子为 b，单端搜到深度 d 需展开约 b^d 个节点。双向同时搜索两端各展开约 b^{d/2}，相遇时总节点数约 2b^{d/2}，远小于 b^d。MITM 对 O(2^n) 的暴力枚举：把 n 个元素拆成两半，每半枚举 2^{n/2} 种组合，一半排序后对另一半逐个二分查找/哈希配对，总复杂度 O(n·2^{n/2})。前提：问题可分两半且可合并（如子集和的补集配对、灯光状态按半段枚举）。",
+    "history": "双向搜索是图论经典技巧（1970s 常见于 AI 搜索文献）；Meet in the Middle 在密码学中早有类似思想（如中间相遇攻击，1977 Diffie-Hellman 相关），后成为算法竞赛折半枚举的标准方法。OI Wiki 将两页内容合并介绍。"
+  },
+  "how": {
+    "pseudocode": "# 双向BFS\nqueue qs=[start], qg=[goal]\ndists={start:0}, distg={goal:0}\nwhile qs and qg:\n  扩展较小的一边\n  对邻居v: 若v在另一边已出现 -> 相遇, 距离=dist[u]+1+dist_other[v]\n  否则标记并入队\n\n# Meet in the Middle (子集和)\n把数组分成两半 A, B\n枚举A的所有子集和 -> sums_A (排序)\n枚举B的所有子集和 -> 对每个查 target-s 是否在 sums_A",
+    "python": "from collections import deque\n\n\ndef bidirectional_bfs(start, goal, neighbors):\n    \"\"\"双向BFS: 求边权为1的最短步数, 不可达返回-1\n    neighbors(u) 返回u的邻居列表(无向图)\n    \"\"\"\n    if start == goal:\n        return 0\n    qs, qg = deque([start]), deque([goal])\n    dists, distg = {start: 0}, {goal: 0}\n    while qs and qg:\n        if len(qs) <= len(qg):   # 优先扩展较小的一边\n            q, dist, other = qs, dists, distg\n        else:\n            q, dist, other = qg, distg, dists\n        for _ in range(len(q)):\n            u = q.popleft()\n            for v in neighbors(u):\n                if v not in dist:\n                    dist[v] = dist[u] + 1\n                    if v in other:\n                        return dist[v] + other[v]  # 相遇\n                    q.append(v)\n    return -1\n\n\ndef gen_subset_sums(xs):\n    \"\"\"枚举所有子集和\"\"\"\n    sums = []\n    for mask in range(1 << len(xs)):\n        s = 0\n        for i, v in enumerate(xs):\n            if mask >> i & 1:\n                s += v\n        sums.append(s)\n    return sums\n\n\ndef meet_in_middle_subset_sum(arr, target):\n    \"\"\"MITM 子集和: 是否存在子集和 == target\n    复杂度 O(2^(n/2) * n), 适用于 n<=40\n    \"\"\"\n    half = len(arr) // 2\n    sums_a = sorted(gen_subset_sums(arr[:half]))\n    for s in gen_subset_sums(arr[half:]):\n        need = target - s\n        lo, hi = 0, len(sums_a)\n        while lo < hi:\n            mid = (lo + hi) // 2\n            if sums_a[mid] < need:\n                lo = mid + 1\n            else:\n                hi = mid\n        if lo < len(sums_a) and sums_a[lo] == need:\n            return True\n    return False\n\n\nif __name__ == \"__main__\":\n    # 链图 0-1-2-3-4\n    def neighbors(u):\n        m = {0: [1], 1: [0, 2], 2: [1, 3], 3: [2, 4], 4: [3]}\n        return m[u]\n    assert bidirectional_bfs(0, 4, neighbors) == 4\n    assert bidirectional_bfs(0, 0, neighbors) == 0\n    assert bidirectional_bfs(0, 3, neighbors) == 3\n\n    # MITM 子集和\n    assert meet_in_middle_subset_sum([3, 5, 2, 8, 1, 4], 9) is True   # 5+4\n    assert meet_in_middle_subset_sum([3, 5, 2, 8, 1, 4], 10) is True  # 8+2\n    assert meet_in_middle_subset_sum([3, 5, 2, 8, 1, 4], 99) is False\n    assert meet_in_middle_subset_sum([2, 4, 6, 8], 10) is True        # 2+8 / 4+6\n\n    print(\"bidirectional all tests passed\")\n",
+    "pypy_notes": "MITM 的 2^(n/2) 枚举常用位运算 + 列表生成，PyPy 快。子集和配对可用 dict 存前半段状态最小值（如 P2962 灯光题），比二分更快。双向BFS用 dict 作距离表，PyPy 字典操作较快。",
+    "complexity": {
+      "time": "双向BFS: O(b^{d/2})；MITM: O(2^{n/2})（含排序则 O(2^{n/2}·n)）",
+      "space": "双向BFS: O(b^{d/2}) 双端距离表；MITM: O(2^{n/2}) 存一半状态"
+    },
+    "limitations": "双向同时搜索要求目标状态已知且可逆（反向也能扩展）；MITM 要求问题能拆成两半并合并，且两半的枚举量都要 2^{n/2} 可控（n≤40 左右）；配对阶段需要能高效判定'互补'。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1379",
+      "url": "https://www.luogu.com.cn/problem/P1379",
+      "difficulty": 3,
+      "key_point": "八数码难题：双向BFS经典例题（目标状态固定123804765）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2962",
+      "url": "https://www.luogu.com.cn/problem/P2962",
+      "difficulty": 4,
+      "key_point": "USACO09NOV Lights：折半枚举+状态合并，n≤35"
+    }
+  ],
+  "pitfalls": [
+    "双向BFS须交替/按大小扩展两边，单边一直扩展到相遇可能退化为普通BFS",
+    "MITM 拆半后要保证两半互补可判定（子集和查 target-s 而非 s 自身）",
+    "目标状态必须可从终点反向扩展（无向图OK，有向图需反图）",
+    "一半状态枚举量 2^(n/2) 也要存下，内存随 n 指数增长"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "check_rev", "label": "确认目标状态可反向扩展/可分两半" },
+      { "id": "split", "label": "拆半或建立双端搜索" },
+      { "id": "enumerate", "label": "枚举两半状态(各 2^(n/2))" },
+      { "id": "merge", "label": "哈希/二分合并配对" },
+      { "id": "answer", "label": "输出相遇/配对结果" }
+    ],
+    "edges": [
+      { "from": "check_rev", "to": "split" },
+      { "from": "split", "to": "enumerate" },
+      { "from": "enumerate", "to": "merge" },
+      { "from": "merge", "to": "answer" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/search/bidirectional/", "verified": true },
+    { "type": "book", "url": "", "ref": "CPH ch4 p91 (bidirectional BFS)", "verified": true }
+  ]
+}

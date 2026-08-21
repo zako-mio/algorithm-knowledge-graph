@@ -1,0 +1,177 @@
+---
+id: comparison-sort
+name: 简单比较排序(冒泡/选择/插入/希尔)
+group: G-A-1
+stage: basic
+priority: P2
+depth_tier: standard
+---
+
+# 简单比较排序(冒泡/选择/插入/希尔)
+
+> O(n^2) 简单排序及希尔分组优化，教学与小规模数据
+
+<!-- 元信息: id=comparison-sort · group=G-A-1 · stage=basic · priority=P2 · depth_tier=standard -->
+
+## What · 是什么
+
+教学与基础场景的 O(n^2) 排序族：冒泡排序（相邻逆序交换）、选择排序（每趟选最小放到前）、插入排序（类似整理扑克牌，把当前元素插入已排序前缀）、希尔排序（插入排序的分组/间隔优化，最坏约 O(n^(4/3)) 到 O(n^2) 取决于间隔序列）。其中插入、冒泡稳定，选择不稳定。对小规模数据（n ≤ 几十）插入排序常数小，常作为快排/Timsort 的兜底。
+
+## Why · 为什么
+
+### 直觉 · Intuition
+
+冒泡=『大的往上浮』，选择=『每轮挑最小的』，插入=『像插扑克牌』。三者都是 O(n^2)：两层循环，每对元素最多比较/交换常数次。希尔排序先做粗粒度间隔的插入排序让数组大致有序，再逐步缩小间隔做精确插入排序，减少数据搬移。
+
+### 原理 · Principle
+
+插入排序在『几乎有序』时接近 O(n)：内层 while 几乎不循环。这是它与 Timsort 结合的原因（MIN_RUN 内用二分插入）。冒泡的优化版本在某一趟无交换时提前终止。选择排序无论输入如何都做满 n(n-1)/2 次比较，但交换次数至多 n 次（适合交换代价高的场景）。希尔排序最坏复杂度依赖间隔序列（如 Hibbard 间隔 O(n^(3/2))）。
+
+### 历史 · History
+
+插入排序是最早的排序思想之一（纸牌整理），希尔排序 1959 年由 Donald Shell 提出，是第一个突破 O(n^2) 的通用排序。冒泡与选择是 20 世纪中期的教学经典，现在实际意义有限但仍是排序入门的逻辑起点。
+
+## How · 实现
+
+### 伪代码
+
+```python
+bubble_sort(a):
+    for i in range(n-1, 0, -1):            # 每趟把最大值浮到末尾
+        for j in range(i):
+            if a[j] > a[j+1]: swap(a[j], a[j+1])
+
+selection_sort(a):
+    for i in range(n-1):
+        k = i                              # 找 [i,n) 最小元素
+        for j in range(i+1, n):
+            if a[j] < a[k]: k = j
+        swap(a[i], a[k])
+
+insertion_sort(a):
+    for i in range(1, n):
+        key = a[i]
+        j = i - 1
+        while j >= 0 and a[j] > key:
+            a[j+1] = a[j]; j -= 1
+        a[j+1] = key
+
+shell_sort(a):
+    gap = n // 2
+    while gap > 0:
+        for i in range(gap, n):            # 间隔 gap 的插入排序
+            key = a[i]; j = i
+            while j >= gap and a[j-gap] > key:
+                a[j] = a[j-gap]; j -= gap
+            a[j] = key
+        gap //= 2
+```
+
+### Python 实现
+
+```python
+def bubble_sort(a):
+    n = len(a)
+    for i in range(n - 1, 0, -1):
+        swapped = False
+        for j in range(i):
+            if a[j] > a[j + 1]:
+                a[j], a[j + 1] = a[j + 1], a[j]
+                swapped = True
+        if not swapped:
+            break
+    return a
+
+
+def selection_sort(a):
+    n = len(a)
+    for i in range(n - 1):
+        k = i
+        for j in range(i + 1, n):
+            if a[j] < a[k]:
+                k = j
+        a[i], a[k] = a[k], a[i]
+    return a
+
+
+def insertion_sort(a):
+    for i in range(1, len(a)):
+        key = a[i]
+        j = i - 1
+        while j >= 0 and a[j] > key:
+            a[j + 1] = a[j]
+            j -= 1
+        a[j + 1] = key
+    return a
+
+
+def shell_sort(a):
+    n = len(a)
+    gap = n // 2
+    while gap > 0:
+        for i in range(gap, n):
+            key = a[i]
+            j = i
+            while j >= gap and a[j - gap] > key:
+                a[j] = a[j - gap]
+                j -= gap
+            a[j] = key
+        gap //= 2
+    return a
+
+
+if __name__ == "__main__":
+    import random
+    sorts = {"冒泡": bubble_sort, "选择": selection_sort, "插入": insertion_sort, "希尔": shell_sort}
+    for _ in range(300):
+        arr = [random.randint(0, 60) for _ in range(random.randint(0, 100))]
+        for name, fn in sorts.items():
+            b = arr[:]
+            fn(b)
+            assert b == sorted(arr), (name, arr, b)
+    print("冒泡/选择/插入/希尔 四排序正确性 OK（300 组随机）")
+    # 插入排序在近乎有序时的比较次数演示
+    arr = list(range(1000))
+    arr[500], arr[501] = arr[501], arr[500]
+    cmp_count = 0
+    for i in range(1, len(arr)):
+        key = arr[i]; j = i - 1
+        while j >= 0 and arr[j] > key:
+            cmp_count += 1
+            arr[j + 1] = arr[j]; j -= 1
+        arr[j + 1] = key
+    print("近乎有序时插入排序比较次数（n=1000）:", cmp_count)
+
+```
+
+**PyPy 提示**: 这四种排序在 OI 中几乎只用于教学或作为内层兜底（n 极小）。真正的工程内建排序（Timsort）内部对小数组就用插入排序。PyPy 下无特殊优化，直接内建 sort 即可。
+
+### 复杂度
+
+| 维度 | 值 |
+| --- | --- |
+| 时间 | 冒泡/选择/插入 O(n^2)，插入最优 O(n)；希尔最坏 O(n^2)（常用间隔） |
+| 空间 | O(1) 原地 |
+
+### 局限
+
+O(n^2) 无法应对大 n。冒泡/选择在实际竞赛中几乎无用武之地；插入排序的价值在于小规模兜底与近乎有序数据。
+
+## Examples · 例题
+
+| OJ | 题号 | 难度 | 考点 | 链接 |
+| --- | --- | --- | --- | --- |
+| OI-Wiki | basic/bubble-sort | 2 | 冒泡/选择/插入排序讲解 | [https://oi-wiki.org/basic/bubble-sort/](https://oi-wiki.org/basic/bubble-sort/) |
+| CPH | ch3 p35 | 2 | 排序与复杂度章节 | [https://cses.fi/book/book.pdf](https://cses.fi/book/book.pdf) |
+
+## Pitfalls · 易错点
+
+- 冒泡的内层循环上界随趟数递减，写成定长 n 会多做无谓比较
+- 选择排序『交换次数少』但比较次数固定 n(n-1)/2，不要误以为它快
+- 希尔排序的间隔序列影响复杂度，gap//=2 只是最简实现，不是最优
+
+## Sources · 信源
+
+- OI Wiki ✓ [https://oi-wiki.org/basic/bubble-sort/](https://oi-wiki.org/basic/bubble-sort/)
+- 书籍 ✓ `CPH ch3 p35`
+- Wikipedia ✓ [https://zh.wikipedia.org/wiki/希尔排序](https://zh.wikipedia.org/wiki/希尔排序)

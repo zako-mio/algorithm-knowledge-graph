@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lyndon分解 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-6.html">Lyndon与周期族</a> / <span>Lyndon分解</span></div>
+  <h1>Lyndon分解</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-C-6</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-C-6.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-C-6.html"><span class="dir">组内第 1 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="main-lorentz.html"><span class="dir">下一个 / 组内</span><span class="v">main-lorentz</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">Duval 算法 O(n) 将字符串分解为字典序非严格递减的 Lyndon 串，同时给出最小循环移位；周期性与字典序的强力工具</div><p>Lyndon 串（简单串）：s 严格小于它的所有非平凡后缀（等价地严格小于所有非平凡循环同移）。例：a,b,ab,aab,abb,ababb,abcd 是 Lyndon 串。Lyndon 分解：s=w1w2…wk，每个 wi 是 Lyndon 串且 w1≥w2≥…≥wk（非严格递减），存在且唯一。Duval 算法在 O(n) 时间、O(1) 附加空间求出分解：维护三个指针 i（s2 起点）、j（s3 起点）、k（s2 中当前比较位），把当前串分为已定分解 s1、近似 Lyndon 串 s2（形如 ww…w·前缀）、未处理 s3。比较 s[j] 与 s[k]：相等则 j,k 各 +1；s[j]&gt;s[k] 则 s2+s[j] 成为新的 Lyndon 串（j+1,k 回到 i）；s[j]&lt;s[k] 则 s2 不再近似简单，截出长度 j−k 的循环节（Lyndon 串）加入分解，i 前进。推论应用：最小循环移位（对 ss 做 Duval，找跨越中点且起点&lt;n 的 Lyndon 块起点）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>Lyndon 串直觉上&#x27;自己最小&#x27;：任何后缀都不比它小。分解唯一性的关键是：s 中第一个 Lyndon 块必须是最长的满足&#x27;w 是 Lyndon 串且是前缀&#x27;的块，之后递归。Duval 的近似简单串 s2=w^t·w&#x27;（w&#x27; 是 w 的前缀）说明 s2 本身尚不能拆分，只有当 s[j]&lt;s[k] 破坏周期性时才截出整块 w。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>Duval 正确性：设 i 指向 s2 起点，j 指向 s3 首字符，k 在 s2 中与 s[j] 对应比较。①s[j]==s[k]：s2+s[j] 仍近似简单（周期结构延续），j++,k++；②s[j]&gt;s[k]：由于 s2 是近似简单且比较位更大，s2+s[j] 成为严格 Lyndon 串（字典序小于所有后缀），k 重置为 i，s2 变长为新的 w^1；③s[j]&lt;s[k]：s2+s[j] 破坏近似简单，此时 s2 中周期为 j−k 的整块（长度 j−k）是可确定的 Lyndon 分解块，从 i 开始截出（长度 j−k）加入答案，i+=j−k，循环直到 i&gt;k（即余下部分重新作为 s2）。复杂度：外层 while 每轮 i 增加；内层比较总次数 O(n)（每轮比较的&#x27;剩余&#x27;长度递减，界 4n−3）。最小循环移位：ss 的 Lyndon 分解中，唯一满足&#x27;起点&lt;n 且终点≥n&#x27;的块 w 的起点即为最小循环移位的起点（可用 w 的字典序最小性证明）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>Lyndon 串与分解得名于 R. C. Lyndon（1954，研究自由群的字问题），Chen–Fox–Lyndon 定理（1958）给出分解的存在唯一性。Duval 算法由 Jean-Pierre Duval 于 1983 年提出，O(n) 线性时间，是竞赛中求 Lyndon 分解与最小表示的标准算法（OI Wiki 与 CP-Algorithms 均收录）。最小表示问题（UVa 719 Glass Beads）与循环字符串处理是其主要应用。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># Duval 算法</span>
+factorization = []
+i = <span class="t-n">0</span>
+<span class="t-k">while</span> i &lt; n:
+    j, k = i+<span class="t-n">1</span>, i
+    <span class="t-k">while</span> j &lt; n <span class="t-k">and</span> s[k] &lt;= s[j]:
+        <span class="t-k">if</span> s[k] &lt; s[j]: k = i      <span class="t-c"># 成为新的 Lyndon 串</span>
+        <span class="t-k">else</span>: k += <span class="t-n">1</span>
+        j += <span class="t-n">1</span>
+    <span class="t-k">while</span> i &lt;= k:
+        factorization.<span class="t-f">append</span>(s[i : i + j - k])
+        i += j - k
+<span class="t-k">return</span> factorization
+
+<span class="t-c"># 最小循环移位</span>
+s = s + s; n = <span class="t-b">len</span>(s)
+i, ans = <span class="t-n">0</span>, <span class="t-n">0</span>
+<span class="t-k">while</span> i &lt; n//<span class="t-n">2</span>:
+    ans = i
+    j, k = i+<span class="t-n">1</span>, i
+    <span class="t-k">while</span> j &lt; n <span class="t-k">and</span> s[k] &lt;= s[j]:
+        <span class="t-k">if</span> s[k] &lt; s[j]: k = i
+        <span class="t-k">else</span>: k += <span class="t-n">1</span>
+        j += <span class="t-n">1</span>
+    <span class="t-k">while</span> i &lt;= k: i += j - k
+<span class="t-k">return</span> s[ans : ans + n//<span class="t-n">2</span>]</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+<span class="t-c"># Duval 算法：O(n) 求 Lyndon 分解</span>
+
+<span class="t-k">def</span> <span class="t-f">duval</span>(s):
+    <span class="t-s">&quot;&quot;&quot;返回 s 的 Lyndon 分解（块列表，字典序非严格递减）。&quot;&quot;&quot;</span>
+    n, i = <span class="t-b">len</span>(s), <span class="t-n">0</span>
+    fac = []
+    <span class="t-k">while</span> i &lt; n:
+        j, k = i + <span class="t-n">1</span>, i
+        <span class="t-k">while</span> j &lt; n <span class="t-k">and</span> s[k] &lt;= s[j]:
+            <span class="t-k">if</span> s[k] &lt; s[j]:
+                k = i               <span class="t-c"># s2+s[j] 成为新的 Lyndon 串</span>
+            <span class="t-k">else</span>:
+                k += <span class="t-n">1</span>
+            j += <span class="t-n">1</span>
+        <span class="t-k">while</span> i &lt;= k:               <span class="t-c"># 截出循环节长度 j-k</span>
+            fac.<span class="t-f">append</span>(s[i:i + j - k])
+            i += j - k
+    <span class="t-k">return</span> fac
+
+
+<span class="t-k">def</span> <span class="t-f">is_lyndon</span>(s):
+    <span class="t-s">&quot;&quot;&quot;判断 s 是否为 Lyndon 串（严格小于所有非平凡后缀）。&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> <span class="t-b">all</span>(s &lt; s[i:] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-b">len</span>(s)))
+
+
+<span class="t-k">def</span> <span class="t-f">min_cyclic_shift_duval</span>(s):
+    <span class="t-s">&quot;&quot;&quot;最小循环移位：对 ss 做 Duval，跨中点的 Lyndon 块起点即答案。&quot;&quot;&quot;</span>
+    ss = s + s
+    n = <span class="t-b">len</span>(ss)
+    i, ans = <span class="t-n">0</span>, <span class="t-n">0</span>
+    <span class="t-k">while</span> i &lt; n // <span class="t-n">2</span>:
+        ans = i
+        j, k = i + <span class="t-n">1</span>, i
+        <span class="t-k">while</span> j &lt; n <span class="t-k">and</span> ss[k] &lt;= ss[j]:
+            <span class="t-k">if</span> ss[k] &lt; ss[j]:
+                k = i
+            <span class="t-k">else</span>:
+                k += <span class="t-n">1</span>
+            j += <span class="t-n">1</span>
+        <span class="t-k">while</span> i &lt;= k:
+            i += j - k
+    <span class="t-k">return</span> ss[ans:ans + n // <span class="t-n">2</span>]
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 分解性质验证：每个块是 Lyndon 串且块字典序非严格递减，拼接还原</span>
+    <span class="t-k">for</span> s <span class="t-k">in</span> [<span class="t-s">&#x27;ababab&#x27;</span>, <span class="t-s">&#x27;aaaa&#x27;</span>, <span class="t-s">&#x27;ababac&#x27;</span>, <span class="t-s">&#x27;banana&#x27;</span>, <span class="t-s">&#x27;aababbababb&#x27;</span>]:
+        fac = <span class="t-f">duval</span>(s)
+        <span class="t-k">assert</span> <span class="t-s">&#x27;&#x27;</span>.<span class="t-f">join</span>(fac) == s
+        <span class="t-k">assert</span> <span class="t-b">all</span>(<span class="t-f">is_lyndon</span>(w) <span class="t-k">for</span> w <span class="t-k">in</span> fac)
+        <span class="t-k">assert</span> <span class="t-b">all</span>(fac[i] &gt;= fac[i + <span class="t-n">1</span>] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(fac) - <span class="t-n">1</span>)), fac
+    <span class="t-k">assert</span> <span class="t-f">duval</span>(<span class="t-s">&#x27;ababab&#x27;</span>) == [<span class="t-s">&#x27;ab&#x27;</span>, <span class="t-s">&#x27;ab&#x27;</span>, <span class="t-s">&#x27;ab&#x27;</span>]
+    <span class="t-k">assert</span> <span class="t-f">duval</span>(<span class="t-s">&#x27;aaaa&#x27;</span>) == [<span class="t-s">&#x27;a&#x27;</span>, <span class="t-s">&#x27;a&#x27;</span>, <span class="t-s">&#x27;a&#x27;</span>, <span class="t-s">&#x27;a&#x27;</span>]
+    <span class="t-c"># 最小循环移位与暴力对拍</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">0</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">10</span>)
+        t = <span class="t-s">&#x27;&#x27;</span>.<span class="t-f">join</span>(random.<span class="t-f">choice</span>(<span class="t-s">&#x27;abc&#x27;</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n))
+        shifts = [t[i:] + t[:i] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">assert</span> <span class="t-f">min_cyclic_shift_duval</span>(t) == <span class="t-b">min</span>(shifts), (t, <span class="t-f">min_cyclic_shift_duval</span>(t), <span class="t-b">min</span>(shifts))
+    <span class="t-c"># 分解唯一性：暴力检查所有合法分解（小规模）</span>
+    <span class="t-k">import</span> itertools
+    <span class="t-k">for</span> s <span class="t-k">in</span> [<span class="t-s">&#x27;aab&#x27;</span>, <span class="t-s">&#x27;ababa&#x27;</span>, <span class="t-s">&#x27;baba&#x27;</span>]:
+        n = <span class="t-b">len</span>(s)
+        ways = []
+        <span class="t-k">for</span> cut <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span> &lt;&lt; (n - <span class="t-n">1</span>)):
+            parts, last = [], <span class="t-n">0</span>
+            <span class="t-k">for</span> bit <span class="t-k">in</span> <span class="t-b">range</span>(n - <span class="t-n">1</span>):
+                <span class="t-k">if</span> (cut &gt;&gt; bit) &amp; <span class="t-n">1</span>:
+                    parts.<span class="t-f">append</span>(s[last:bit + <span class="t-n">1</span>]); last = bit + <span class="t-n">1</span>
+            parts.<span class="t-f">append</span>(s[last:])
+            <span class="t-k">if</span> <span class="t-b">all</span>(<span class="t-f">is_lyndon</span>(p) <span class="t-k">for</span> p <span class="t-k">in</span> parts) <span class="t-k">and</span> <span class="t-b">all</span>(parts[i] &gt;= parts[i + <span class="t-n">1</span>] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(parts) - <span class="t-n">1</span>)):
+                ways.<span class="t-f">append</span>(parts)
+        <span class="t-k">assert</span> ways == [<span class="t-f">duval</span>(s)], (s, ways, <span class="t-f">duval</span>(s))
+    <span class="t-b">print</span>(<span class="t-s">&#x27;lyndon-factorization tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Duval 是 O(n) 纯指针算法，PyPy 下可处理 1e6 长度。切片 s[i:i+j-k] 建块会 O(n) 内存，若只需块数/长度可直接累加。最小循环移位用双指针算法更省（见 minimal-string 节点）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>Duval O(n)（总比较次数 ≤4n−3）；判断 Lyndon 串 O(n)；最小循环移位 O(n)</td></tr><tr><th>空间复杂度</th><td>O(n)（分解结果）/ O(1)（仅长度信息）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">分解唯一但构造需小心指针细节；块字典序非严格递减（可相等）。最小循环移位用 Duval 需拼接 ss 并正确处理 n/2 边界。Lyndon 分解与后缀数组/最小表示联系紧密，需理解字典序比较严格性（&#x27;&lt;&#x27; 与 &#x27;&lt;=&#x27;）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>比较是 s[k] &lt;= s[j] 才继续，s[k] &lt; s[j] 时 k 回 i 而不是 k+=1</li><li>截块长度是 j-k 不是 j-i，且条件是 while i &lt;= k 而非 i &lt; j</li><li>最小循环移位的 while 条件 i &lt; n//2，且返回 ss[ans:ans+n//2]</li><li>分解的块要满足 w_i &gt;= w_{i+1}（非严格递减），验证时注意相等允许</li><li>Lyndon 串要求&#x27;严格&#x27;小于后缀，全等块（如 aaa）不构成单一 Lyndon 串</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>UVa</td><td><strong>719</strong></td><td>3</td><td>Glass Beads：最小循环移位（Duval 或双指针）模板题</td><td class="u"><a href="https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=660" target="_blank" rel="noopener">https://uva.onlinejudge.org/index.php?option=onlinejudge&amp;page=show_problem&amp;problem=660</a></td></tr><tr><td>Luogu</td><td><strong>P1368</strong></td><td>3</td><td>最小表示法：求循环串字典序最小的起点（双指针或 Duval）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1368" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1368</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-lyndon-factorization" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "def", "label": "Lyndon 串与分解定义、唯一性"}}, {"data": {"id": "presimple", "label": "近似简单串概念（w^t·w'）"}}, {"data": {"id": "duval", "label": "Duval 算法三情形（=,>,\u003c）与截块"}}, {"data": {"id": "minimal", "label": "最小循环移位（对 ss 分解）"}}, {"data": {"id": "apply", "label": "周期/字典序应用"}}, {"data": {"id": "edef->presimple", "source": "def", "target": "presimple"}}, {"data": {"id": "epresimple->duval", "source": "presimple", "target": "duval"}}, {"data": {"id": "eduval->minimal", "source": "duval", "target": "minimal"}}, {"data": {"id": "eminimal->apply", "source": "minimal", "target": "apply"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-lyndon-factorization'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="minimal-string.html" title="最小表示法基于Lyndon分解或其双指针思想">最小表示法<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/string/lyndon/" target="_blank" rel="noopener">https://oi-wiki.org/string/lyndon/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/string/lyndon_factorization.html" target="_blank" rel="noopener">https://cp-algorithms.com/string/lyndon_factorization.html</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

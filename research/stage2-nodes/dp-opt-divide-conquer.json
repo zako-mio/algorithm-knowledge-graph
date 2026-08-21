@@ -1,0 +1,121 @@
+{
+ "id": "dp-opt-divide-conquer",
+ "name": "分治优化DP",
+ "group": "G-A-12",
+ "stage": "advanced",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "决策点单调时利用分治缩小决策空间，O(n log n)",
+ "what": "分治优化 DP（Divide and Conquer DP）适用于形如 dp[i][j] = min_{k≤j} { dp[i-1][k-1] + C(k,j) } 的分层转移。当成本函数 C 满足四边形不等式时，最优切分点 opt(i,j) 关于 j 单调不减（决策单调性）。据此用分治递归计算单行的所有状态：计算中点 mid 的最优决策时只在 [optl,optr] 枚举，之后左半状态决策界 [optl,opt(mid)]、右半 [opt(mid),optr]，每层每个决策至多被扫描常数次。单层分治 O(n log n)，全部 m 行 O(m n log n)（朴素 O(m n²)）。",
+ "why": {
+  "intuition": "分治优化像二分搜索找最优切点：先算中间 j 的最优 k，就知道左边 j' 的最优 k' ≤ k、右边的最优 ≥ k，两侧候选区间各自缩小一半。递归下去每个状态的枚举范围大幅收窄。之所以敢收窄，是因为决策单调性保证「切点随 j 只增不减」，不会漏掉最优解。",
+  "principle": "前提（CP-Algorithms 表述）：dp(i,j) = min_{0≤k≤j} { dp(i-1,k-1) + C(k,j) }，C 满足四边形不等式 ⟹ opt(i,j) ≤ opt(i,j+1)。算法 compute(l,r,optl,optr)：mid=(l+r)/2，在 [optl, min(mid,optr)] 枚举 k 求 dp[i][mid] 的最优 opt；递归 compute(l,mid-1,optl,opt) 与 compute(mid+1,r,opt,optr)。复杂度证明：设第 k 层 opt 区间总长 S_k，每层分裂使 S_{k+1} ≤ S_k + 2^k，由 S_0=n 归纳得 S_k < n+2^k = O(n)，共 O(log n) 层故单行 O(n log n)，全表 O(m n log n)。该优化仅适用于 w 可 O(1) 计算的情形；若 w 需动态计算则用二分队列（Aliens trick）替代。",
+  "history": "分治优化 DP 的思想来自计算几何与组合优化的经典 divide-and-conquer 加速（最早可追溯至 1970s-80s 决策单调性文献，如 1982 年 F. F. Yao 的 quadrangle inequality 论文）。CP-Algorithms 将其整理为 Divide and Conquer DP 专章，OI Wiki 在四边形不等式章节将其列为两种主要实现之一（另一种为二分队列）。广泛用于邮局选址、IOI/省选分层划分类题目。"
+ },
+ "how": {
+  "pseudocode": "# dp[i][j] = min_{k<=j} { dp[i-1][k-1] + C(k,j) }，决策单调\n\ncompute(l, r, optl, optr):      # 计算第 i 行的状态 dp[i][l..r]\n  if l > r: return\n  mid = (l + r) // 2\n  best_v, best_k = INF, -1\n  for k in range(optl, min(mid, optr) + 1):\n    v = dp_before[k-1] + C(k, mid)\n    if v < best_v: best_v, best_k = v, k\n  dp_cur[mid] = best_v\n  compute(l, mid-1, optl, best_k)\n  compute(mid+1, r, best_k, optr)\n\n# 主流程：for i in 1..m: compute(0, n-1, 0, n-1)",
+  "python": "def divide_conquer_dp(n, m, cost):\n    \"\"\"分层 DP 分治优化（1-indexed 元素数）：\n    dp[i][j] = min_{k<=j} { dp[i-1][k-1] + cost(k, j) }，j 表示前 j 个元素。\n    cost(k, j) 需满足四边形不等式（决策单调）。返回 dp[m][n]。\n    n 个元素划分成 m 段的最小代价。\"\"\"\n    INF = 10 ** 30\n    dp_before = [INF] * (n + 1)    # 第 0 行：只有 0 段合法\n    dp_before[0] = 0\n    dp_cur = [0] * (n + 1)\n\n    def compute(l, r, optl, optr):\n        if l > r:\n            return\n        mid = (l + r) // 2\n        best_v, best_k = INF, optl\n        for k in range(optl, min(mid, optr) + 1):\n            v = dp_before[k - 1] + cost(k, mid)\n            if v < best_v:\n                best_v, best_k = v, k\n        dp_cur[mid] = best_v\n        compute(l, mid - 1, optl, best_k)\n        compute(mid + 1, r, best_k, optr)\n\n    for i in range(m):\n        compute(1, n, 1, n)\n        dp_before, dp_cur = dp_cur, dp_before\n    return dp_before[n]\n\n\ndef divide_conquer_naive(n, m, cost):\n    \"\"\"朴素 O(m n^2) 对拍（1-indexed）\"\"\"\n    INF = float('inf')\n    dp = [[INF] * (n + 1) for _ in range(m + 1)]\n    dp[0][0] = 0\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            for k in range(1, j + 1):\n                dp[i][j] = min(dp[i][j], dp[i - 1][k - 1] + cost(k, j))\n    return dp[m][n]\n\n\ndef monge_cost(n):\n    \"\"\"构造满足四边形不等式的成本：cost(k,j) = (j-k)^2（平方函数满足 Monge）\"\"\"\n    def cost(k, j):\n        return (j - k) ** 2\n    return cost\n\n\ndef monge_cost_abs(n):\n    \"\"\"绝对距离型：cost(k,j)=sum_{t=k..j} |a[t]|，前缀和可 O(1)，Monge\"\"\"\n    import random\n    random.seed(2)\n    a = [random.randint(1, 100) for _ in range(n)]\n    pref = [0] * (n + 1)\n    for i in range(n):\n        pref[i + 1] = pref[i] + a[i]\n    def cost(k, j):\n        return pref[j] - pref[k - 1]\n    return cost\n\n\nif __name__ == \"__main__\":\n    import random\n    random.seed(51)\n    for n in [3, 5, 8, 12, 20]:\n        for m in [1, 2, 3, 4]:\n            if m > n:\n                continue\n            cost = monge_cost(n)\n            got = divide_conquer_dp(n, m, cost)\n            exp = divide_conquer_naive(n, m, cost)\n            assert got == exp, (n, m, got, exp)\n            cost2 = monge_cost_abs(n)\n            got2 = divide_conquer_dp(n, m, cost2)\n            exp2 = divide_conquer_naive(n, m, cost2)\n            assert got2 == exp2, (n, m, got2, exp2)\n    # 决策单调性验证（单行内 opt 单调，1-indexed）\n    cost = monge_cost(30)\n    INF = float('inf')\n    n = 30\n    dpb = [0] * (n + 1)\n    dpc = [0] * (n + 1)\n    def comp(l, r, ol, opr):\n        if l > r:\n            return\n        mid = (l + r) // 2\n        best_v, best_k = INF, ol\n        for k in range(ol, min(mid, opr) + 1):\n            v = dpb[k - 1] + cost(k, mid)\n            if v < best_v:\n                best_v, best_k = v, k\n        dpc[mid] = best_v\n        comp(l, mid - 1, ol, best_k)\n        comp(mid + 1, r, best_k, opr)\n    comp(1, n, 1, n)\n    opt = []\n    for j in range(1, n + 1):\n        best_k = min(range(1, j + 1), key=lambda k: dpb[k - 1] + cost(k, j))\n        opt.append(best_k)\n    assert all(opt[i] <= opt[i + 1] for i in range(n - 1)), opt\n    print(\"All tests passed.\")",
+  "pypy_notes": "分治优化实现要点：compute 内枚举上界 min(mid, optr) 而非 optr（避免越界）；dp 行滚动两数组即可（dp_before/dp_cur 交换）。cost 必须 O(1)（预计算前缀和/闭式）。递归深度 O(log n) 安全。m 行复杂度 O(m n log n)，n=1e5 时单行 O(1e5 log 1e5) PyPy 可行。",
+  "complexity": {
+   "time": "单行 O(n log n)，全部 m 行 O(m n log n)（朴素 O(m n²)）",
+   "space": "O(n)（滚动两行）"
+  },
+  "limitations": "前提是 C 满足四边形不等式（决策单调）；不满足时不可用。若 C 需依赖已算出的 dp 值（动态计算）则分治失效，需二分队列。cost 须 O(1) 可算（否则需游标维护）。仅适用「分层划分」型 DP（状态有层 i 与位置 j 两维）。"
+ },
+ "examples": [
+  {
+   "oj": "Codeforces",
+   "pid": "321E",
+   "url": "https://codeforces.com/contest/321/problem/E",
+   "difficulty": 6,
+   "key_point": "Ciel and Gondolas：分治优化 DP 经典模板（CP-Algorithms 例题）"
+  },
+  {
+   "oj": "Codeforces",
+   "pid": "673E",
+   "url": "https://codeforces.com/problemset/problem/673/E",
+   "difficulty": 6,
+   "key_point": "Levels And Regions：决策单调分治优化"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P4767",
+   "url": "https://www.luogu.com.cn/problem/P4767",
+   "difficulty": 6,
+   "key_point": "IOI2000 邮局：分治优化经典题（划分型）"
+  },
+  {
+   "oj": "SPOJ",
+   "pid": "NKLEAVES",
+   "url": "https://www.spoj.com/problems/NKLEAVES/",
+   "difficulty": 5,
+   "key_point": "Leaf Partition 变体：分治优化练习"
+  }
+ ],
+ "pitfalls": [
+  "枚举上界写 min(mid, optr) 漏掉导致访问越界或答案错误",
+  "未验证 C 满足四边形不等式就套用，决策单调不成立",
+  "滚动两行时交换顺序写反导致使用未更新行",
+  "C 不是 O(1) 时误用（应预计算或游标）",
+  "单行 compute 的 optl/optr 初始化错误（应为 0..n-1）"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "precond",
+    "label": "确认 C 满足四边形不等式(决策单调)"
+   },
+   {
+    "id": "recur",
+    "label": "写出分层转移 dp[i][j]=min dp[i-1][k-1]+C(k,j)"
+   },
+   {
+    "id": "compute",
+    "label": "compute(l,r,optl,optr) 中点枚举"
+   },
+   {
+    "id": "recurse",
+    "label": "左右递归缩决策界"
+   },
+   {
+    "id": "rows",
+    "label": "滚动两行逐 i 计算"
+   }
+  ],
+  "edges": [
+   {
+    "from": "precond",
+    "to": "recur"
+   },
+   {
+    "from": "recur",
+    "to": "compute"
+   },
+   {
+    "from": "compute",
+    "to": "recurse"
+   },
+   {
+    "from": "recurse",
+    "to": "rows"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html",
+   "verified": true
+  },
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/dp/opt/quadrangle/",
+   "verified": true
+  },
+  {
+   "type": "paper",
+   "ref": "F. F. Yao, Efficiency of dynamic programming, JACM 1982",
+   "verified": true
+  }
+ ]
+}

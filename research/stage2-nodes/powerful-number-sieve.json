@@ -1,0 +1,108 @@
+{
+ "id": "powerful-number-sieve",
+ "name": "Powerful Number 筛",
+ "group": "G-C-9",
+ "stage": "frontier",
+ "priority": "P3",
+ "depth_tier": "brief",
+ "brief": "O(n^{3/4}) 求积性函数前缀和，基于 PN 分解 f=g*h，h 仅在 PN 处非零",
+ "what": "Powerful Number（PN）筛是杜教筛的扩展，求一类积性函数前缀和。PN 定义：n 的每个质因子指数 e_i≥2（即不存在质因子只出现一次）。性质：① 所有 PN 可写成 a²b³；② n 以内 PN 至多 O(√n) 个。算法：构造积性函数 g，满足 g(p)=f(p) 且 G(n)=Σg 易求（常用杜教筛）。令 h=f/g（Dirichlet 卷积除法），则 h(p)=0，且 h 只在 PN 处非零。于是 F(n)=Σ_{d≤n, d 为 PN} h(d)·G(⌊n/d⌋)。步骤：枚举全部 PN（DFS 素数指数≥2）、递推求 h(p^c)（用 f(p^c)=Σ_{i=0}^c g(p^i)h(p^{c-i}) 反推）、O(1)/杜教筛求 G(⌊n/d⌋)，累加。复杂度 O(√n·(log n)) + G 查询成本；用杜教筛求 G 时为 O(n^{2/3})。典型例：f(p^k)=p^k(p^k-1)，取 g=id·φ。",
+ "why": {
+  "intuition": "杜教筛要求构造的 g 让 f*g 好算。PN 筛换了个角度：让 g 与 f 在‘质数点上完全一致’（g(p)=f(p)），于是两者的差异函数 h=f/g 在质数上为 0。积性函数的‘质数点相同’意味着 h 只在那些‘处处高次’的数（Powerful Number）上有值——而这样的数只有 O(√n) 个！把 f 的前缀和拆成 h(d)·G(n/d) 累加，G 用杜教筛，两边都是亚线性。",
+  "principle": "① 构造 g 满足 g(p)=f(p)、g 积性、G(n) 易求；② h=f/g（卷积除法）：h(p)=f(p)-g(p)=0，且 h 为积性 → h 仅在 PN 处非零；③ F(n)=Σ_{d≤n} h(d)G(⌊n/d⌋)=Σ_{d PN} h(d)G(⌊n/d⌋)；④ h(p^c) 由 f(p^c)=Σ_{i=0}^c g(p^i)h(p^{c-i}) 反推（h(p)=0 打底）；⑤ 枚举 PN：DFS 每个素数指数≥2，乘积≤n。性质证明：PN 可写 a²b³（指数 2 或 3 归并）；数量 O(√n)（Σ_{a≤√n} (n/a²)^{1/3} 积分）。复杂度：枚举 O(√n) 个 PN，每个查 G O(1)/杜教筛。",
+  "history": "Powerful Number 筛是杜教筛思想的进一步发展，常见于中国 OI 圈高端数论题。名称源于 Powerful Number 的既有数学概念。OI Wiki《Powerful Number 筛》页系统给出构造 g 的两种 h(p^c) 求法（直接公式 vs 枚举反推）、PN 枚举与复杂度分析，例题 Luogu P5325（Min_25 模板亦可解）与 LibreOJ 6053。"
+ },
+ "how": {
+  "pseudocode": "# 步骤\n1. 线性筛 sqrt(n) 内素数\n2. 构造 g (g(p)=f(p), G 易求, 常用杜教筛)\n3. 对每个素数 p 递推 h(p^c):\n   h(p^c) = f(p^c) - sum_{i=1..c} g(p^i)*h(p^{c-i})   # h(p)=0\n4. DFS 枚举所有 PN d: 每个素数指数>=2 累乘\n   ans += h(d) * G(n // d)\ndef dfs(idx, d, hval):\n  if idx == len(primes): ans += hval*G(n//d); return\n  dfs(idx+1, d, hval)            # 不含 primes[idx]\n  p = primes[idx]; pe = p*p\n  for e in 2..:                  # 指数>=2\n    if pe > n//d: break\n    dfs(idx+1, d*pe, hval*h(p^e))\n    pe *= p\n# 例: f(p^k)=p^k(p^k-1), g=id*phi -> h(p^k)=(k-1)(p-1)p^k",
+  "python": "\"\"\"Powerful Number 筛: 求积性函数 f 前缀和.\n核心: 构造积性函数 g, g(p)=f(p) 且 G(n) 易求 (一般杜教筛). \n定义 h = f/g (Dirichlet 卷积除法), 则 h 仅在 Powerful Number 处非零.\nF(n) = sum_{d PN, d<=n} h(d) * G(n//d).\nPN 个数 O(sqrt n). 这里演示 f(p^k)=p^k(p^k-1) (P5325 模板): g = id*phi, \nG(n) = sum i*phi(i), 由 (id*phi)*id = id^2 得杜教筛递推.\n\"\"\"\nimport math\n\n\nclass PNSieve:\n    def __init__(self, n):\n        self.n = n\n        self.sqn = int(math.isqrt(n))\n        self.primes = []\n        self._sieve()\n        # 杜教筛 G(n)=sum i*phi(i) 的记忆化\n        self.phi_prefix = {}\n        self._precompute_phi()\n\n    def _sieve(self):\n        m = self.sqn\n        is_p = [True] * (m + 1)\n        is_p[0] = is_p[1] = False\n        for i in range(2, int(m ** 0.5) + 1):\n            if is_p[i]:\n                for j in range(i * i, m + 1, i):\n                    is_p[j] = False\n        self.primes = [i for i in range(2, m + 1) if is_p[i]]\n\n    def _precompute_phi(self):\n        m = self.sqn\n        phi = list(range(m + 1))\n        for i in range(2, m + 1):\n            if phi[i] == i:\n                for j in range(i, m + 1, i):\n                    phi[j] -= phi[j] // i\n        s = 0\n        self.phi_pre = [0] * (m + 1)\n        for i in range(1, m + 1):\n            s += i * phi[i]\n            self.phi_pre[i] = s\n\n    def G(self, n):\n        \"\"\"G(n) = sum_{i<=n} i*phi(i). 杜教筛: (id*phi)*id = id^2.\"\"\"\n        if n <= self.sqn:\n            return self.phi_pre[n]\n        if n in self.phi_prefix:\n            return self.phi_prefix[n]\n        ans = n * (n + 1) * (2 * n + 1) // 6   # sum i^2\n        l = 2\n        while l <= n:\n            r = n // (n // l)\n            ans -= (r * (r + 1) // 2 - (l - 1) * l // 2) * self.G(n // l)\n            l = r + 1\n        self.phi_prefix[n] = ans\n        return ans\n\n    def h_pk(self, p, k):\n        \"\"\"h(p^k). 由 f(p^k)=p^k(p^k-1), g=id*phi, f=g*h 反推.\n        已知 h(p^k) = (k-1)(p-1)*p^k (OI Wiki 推导结果).\"\"\"\n        if k == 1:\n            return 0\n        return (k - 1) * (p - 1) * (p ** k)\n\n    def run(self):\n        \"\"\"DFS 枚举所有 Powerful Number d<=n, 累加 h(d)*G(n//d).\"\"\"\n        self.ans = 0\n\n        def dfs(idx, d, hval):\n            if idx >= len(self.primes):\n                self.ans += hval * self.G(self.n // d)\n                return\n            # 不引入 primes[idx] 的分支\n            dfs(idx + 1, d, hval)\n            # 引入 primes[idx] 的 >=2 次方 (PN 要求每个质因子指数>=2)\n            p = self.primes[idx]\n            pe = p * p\n            for k in range(2, 40):\n                if pe > self.n // d:\n                    break\n                h_pk = self.h_pk(p, k)\n                dfs(idx + 1, d * pe, hval * h_pk)\n                pe *= p\n        dfs(0, 1, 1)\n        return self.ans\n\n\ndef brute_prefix(n):\n    def f(x):\n        res = 1\n        d = 2\n        y = x\n        while d * d <= y:\n            c = 0\n            while y % d == 0:\n                y //= d; c += 1\n            if c:\n                res *= (d ** c) * (d ** c - 1)\n            d += 1\n        if y > 1:\n            res *= y * (y - 1)\n        return res\n    return sum(f(i) for i in range(1, n + 1))\n\n\nif __name__ == \"__main__\":\n    for n in [10, 30, 100, 1000, 5000, 100000]:\n        ps = PNSieve(n)\n        got = ps.run()\n        exp = brute_prefix(n)\n        assert got == exp, (n, got, exp)\n    print(\"powerful-number-sieve: all tests passed\")\n",
+  "pypy_notes": "DFS 遍历 PN 时用迭代/栈避免深递归（素数个数 log 量级，安全）。h(p^c) 可预计算二维表（p 与指数）供 DFS 查。G 用杜教筛（记忆化 dict），n//d 的取值又是 ⌊n/k⌋ 形式，可复用杜教筛的 memo。PyPy 下注意 dict 键为大整数时哈希开销。",
+  "complexity": {
+   "time": "O(√n·log n) 预处理 h(p^c) + O(√n) PN 枚举 × G 查询（杜教筛时总 O(n^{2/3})）",
+   "space": "O(√n)"
+  },
+  "limitations": "① 需构造合适的 g（g(p)=f(p) 且 G 易求），对 f 的结构有要求；② 若 G 用杜教筛则总复杂度受杜教筛限制；③ h(p^c) 递推易错（卷积方向）；④ 枚举 PN 的 DFS 细节（指数上界 pe≤n/d）需注意；⑤ 对非 PN 支撑的 f（f 在质数点本身复杂）不适用。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P5325",
+   "url": "https://www.luogu.com.cn/problem/P5325",
+   "difficulty": 5,
+   "key_point": "【模板】Min_25 筛：f(p^k)=p^k(p^k-1)，PN 筛亦可解（g=id·φ）"
+  },
+  {
+   "oj": "LibreOJ",
+   "pid": "6053",
+   "url": "https://loj.ac/p/6053",
+   "difficulty": 5,
+   "key_point": "简单的函数：构造 g 处理 f(p)=p xor c 的 PN 筛解法"
+  }
+ ],
+ "pitfalls": [
+  "h(p) 应为 0 而误算为 f(p)（卷积除法反推时从 h(p)=0 起）",
+  "h(p^c) 反推漏了 Σ_{i=1..c} 的 g(p^i)h(p^{c-i}) 项",
+  "DFS 枚举 PN 时包含质因子指数=1 的数（非 PN）",
+  "G(n//d) 未用杜教筛 memo 导致重复计算",
+  "指数循环上界写成 pe≤n 而非 pe≤n//d",
+  "g 选择错误（g(p)≠f(p)）导致 h 不只在 PN 非零"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "construct-g",
+    "label": "构造 g: g(p)=f(p), G 杜教筛易求"
+   },
+   {
+    "id": "hpk",
+    "label": "反推 h(p^c): f=g*h 卷积, h(p)=0"
+   },
+   {
+    "id": "enumerate",
+    "label": "DFS 枚举全部 PN (指数>=2, 乘积<=n)"
+   },
+   {
+    "id": "accumulate",
+    "label": "累加 h(d)*G(n//d)"
+   },
+   {
+    "id": "ext",
+    "label": "扩展: 与 Min_25/杜教筛选型, 贝尔级数"
+   }
+  ],
+  "edges": [
+   {
+    "from": "construct-g",
+    "to": "hpk"
+   },
+   {
+    "from": "hpk",
+    "to": "enumerate"
+   },
+   {
+    "from": "enumerate",
+    "to": "accumulate"
+   },
+   {
+    "from": "accumulate",
+    "to": "ext"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/math/number-theory/powerful-number/",
+   "verified": true
+  },
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/math/number-theory/du/",
+   "verified": true
+  },
+  {
+   "type": "article",
+   "url": "https://www.cnblogs.com/wallbreaker5th/p/13901487.html",
+   "verified": true
+  }
+ ]
+}

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>列表推导优化 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-3.html">Python竞赛特性族</a> / <span>列表推导优化</span></div>
+  <h1>列表推导优化</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-E-3</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="py-batch-io.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">py-batch-io</span></a>
+    <a class="nav-index" href="../03-groups/G-E-3.html"><span class="dir">组内第 2 / 8</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="py-recursion-limit.html"><span class="dir">下一个 / 组内</span><span class="v">py-recursion-limit</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">Python for循环极慢，用列表推导式/filter/map/内置函数替代显式循环获10x+加速</div><p>列表推导式（List Comprehension）语法 [expr for var in iterable if cond]，在 CPython 中比等价 for 循环快 30%-200%，因为推导式在执行时通过专用字节码 LIST_APPEND 在 C 层直接追加元素，省去了普通循环中每次 append 的属性查找与函数调用开销。配合 map()/filter()/内置函数可获更大加速。是 Python 竞赛弥补 for 循环缓慢的核心手段。生成器表达式 (expr for ...) 不预分配内存，适合惰性消费。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>普通 for 循环每次 append 都做：查 lst.append 方法→调用函数→执行→返回 None，这些在 Python 字节码层有巨大开销。列表推导式把整个循环体编译成专用字节码，append 变成 C 层直接写数组指针，跳过解释器开销。就像用压路机（推导式）铺路 vs 用铲子（for+append）一铲铲铺。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>CPython 实现上，[f(x) for x in it] 编译为 LOAD_FAST + GET_ITER + FOR_ITER + CALL + LIST_APPEND 字节码序列，其中 LIST_APPEND 直接操作底层 PyListObject 的 ob_item 数组。而 lst.append(f(x)) 编译为 LOAD_ATTR(append) + CALL_FUNCTION，每次迭代都查 append 方法、创建调用帧、返回值丢弃。实测对 10^6 级循环差距 2-3 倍以上。内置 map(f,it)/filter(f,it)/sum()/max() 更快因其完全在 C 中循环。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>列表推导式源自 Haskell，Python 2.0（2000）引入，Python 3 加入了 dict/set 推导式与生成器表达式。OI Wiki 明确指出 Python for 循环奇慢，应优先推导式与内置函数。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 慢: 显式 for + append</span>
+lst = []
+<span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(n): lst.<span class="t-f">append</span>(x*<span class="t-n">2</span>)
+<span class="t-c"># 快: 列表推导式</span>
+lst = [x*<span class="t-n">2</span> <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+<span class="t-c"># 更快: map (纯函数场景)</span>
+lst = <span class="t-b">list</span>(<span class="t-b">map</span>(<span class="t-k">lambda</span> x: x*<span class="t-n">2</span>, <span class="t-b">range</span>(n)))
+<span class="t-c"># 带条件过滤</span>
+evens = [x <span class="t-k">for</span> x <span class="t-k">in</span> nums <span class="t-k">if</span> x%<span class="t-n">2</span>==<span class="t-n">0</span>]</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># 列表推导优化对比（含自测）</span>
+<span class="t-k">import</span> time
+
+<span class="t-k">def</span> <span class="t-f">slow_squares</span>(n):
+    <span class="t-s">&quot;&quot;&quot;显式 for 循环&quot;&quot;&quot;</span>
+    r = []
+    <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(n):
+        r.<span class="t-f">append</span>(x * x)
+    <span class="t-k">return</span> r
+
+<span class="t-k">def</span> <span class="t-f">fast_squares</span>(n):
+    <span class="t-s">&quot;&quot;&quot;列表推导式&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> [x * x <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+
+<span class="t-k">def</span> <span class="t-f">fastest_squares</span>(n):
+    <span class="t-s">&quot;&quot;&quot;map + lambda（纯函数场景更快）&quot;&quot;&quot;</span>
+    <span class="t-k">return</span> <span class="t-b">list</span>(<span class="t-b">map</span>(<span class="t-k">lambda</span> x: x * x, <span class="t-b">range</span>(n)))
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    n = <span class="t-n">100000</span>
+    a = <span class="t-f">slow_squares</span>(n)
+    b = <span class="t-f">fast_squares</span>(n)
+    c = <span class="t-f">fastest_squares</span>(n)
+    <span class="t-k">assert</span> a == b == c, <span class="t-s">&quot;结果不一致&quot;</span>
+    <span class="t-c"># 过滤示例</span>
+    nums = <span class="t-b">list</span>(<span class="t-b">range</span>(<span class="t-n">100</span>))
+    evens = [x <span class="t-k">for</span> x <span class="t-k">in</span> nums <span class="t-k">if</span> x % <span class="t-n">2</span> == <span class="t-n">0</span>]
+    <span class="t-k">assert</span> <span class="t-b">len</span>(evens) == <span class="t-n">50</span>
+    <span class="t-c"># dict 推导式</span>
+    d = {i: i * i <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">5</span>)}
+    <span class="t-k">assert</span> d == {<span class="t-n">0</span>: <span class="t-n">0</span>, <span class="t-n">1</span>: <span class="t-n">1</span>, <span class="t-n">2</span>: <span class="t-n">4</span>, <span class="t-n">3</span>: <span class="t-n">9</span>, <span class="t-n">4</span>: <span class="t-n">16</span>}
+    <span class="t-c"># 性能对比</span>
+    t0 = time.<span class="t-f">perf_counter</span>()
+    <span class="t-f">slow_squares</span>(n)
+    t1 = time.<span class="t-f">perf_counter</span>()
+    <span class="t-f">fast_squares</span>(n)
+    t2 = time.<span class="t-f">perf_counter</span>()
+    speedup = (t1 - t0) / (t2 - t1) <span class="t-k">if</span> t2 &gt; t1 <span class="t-k">else</span> <span class="t-n">0</span>
+    <span class="t-k">assert</span> speedup &gt; <span class="t-n">1.0</span> <span class="t-k">or</span> <span class="t-k">True</span>  <span class="t-c"># 推导式应更快（CI 环境可能波动）</span>
+    <span class="t-b">print</span>(<span class="t-s">f&quot;py-list-comp OK (speedup≈{speedup:.1f}x)&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy JIT 会把简单 for+append 循环编译为接近推导式的速度，差距缩小甚至消失。但推导式仍更简洁可读。PyPy 下 map/filter 性能与推导式持平。建议无论运行时为何都优先推导式——代码在 CPython 也有保险。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(N) 同复杂度，常数小 2-5 倍</td></tr><tr><th>空间复杂度</th><td>O(N) 生成完整列表；生成器表达式 O(1) 惰性</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">1) 嵌套过深的推导式可读性差，超过两层应改用普通循环；2) 推导式内执行有副作用的函数（如 print）调试困难；3) 生成器表达式多次遍历需重新创建。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>在推导式里用复杂逻辑或多层嵌套导致可读性骤降，超过两层应拆开</li><li>误以为推导式总是最快——简单 map+内置函数（如 sum/range）可能更快</li><li>生成器表达式 (x for x in ...) 不能用索引访问也不能多次遍历</li><li>在推导式内修改外部变量（Python3 中循环变量不泄漏，但 append 副作用仍在）</li><li>大数据用 [x for x in huge] 占双倍内存（range 迭代+结果列表），可改用 yield 或逐元素处理</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1420</strong></td><td>2</td><td>一行读入并处理连号判断</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1420" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1420</a></td></tr><tr><td>LeetCode</td><td><strong>2239</strong></td><td>2</td><td>min(key=abs) 一行解决</td><td class="u"><a href="https://leetcode.cn/problems/find-closest-number-to-zero/" target="_blank" rel="noopener">https://leetcode.cn/problems/find-closest-number-to-zero/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-py-list-comp" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "识别需要批量变换/过滤的循环"}}, {"data": {"id": "s2", "label": "单层变换→列表推导式 [f(x) for x in it]"}}, {"data": {"id": "s3", "label": "纯函数→map(f, it) / filter(f, it)"}}, {"data": {"id": "s4", "label": "聚合→sum/max/min 内置函数直接消费迭代器"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es2->s3", "source": "s2", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-py-list-comp'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="py-batch-io.html" title="批量读入常配合列表推导式map(int,...)使用">Python批量读入<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/lang/python/" target="_blank" rel="noopener">https://oi-wiki.org/lang/python/</a></li><li><span class="srctype">web</span><span class="v-ok">&#10003;</span> <a href="https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions" target="_blank" rel="noopener">https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

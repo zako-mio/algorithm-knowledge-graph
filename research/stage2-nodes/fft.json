@@ -1,0 +1,114 @@
+{
+  "id": "fft",
+  "name": "FFT(快速傅里叶变换)",
+  "group": "G-C-12",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "O(n log n)计算多项式乘法，基于DFT与蝴蝶操作，NTT为模意义版本",
+  "what": "快速傅里叶变换（FFT）把多项式从系数表示转为在单位根处的点值表示（DFT），利用单位根性质分治加速，在 O(n log n) 内完成多项式乘法：系数→点值（正变换）→逐点相乘→点值→系数（逆变换）。核心是蝴蝶操作（奇偶分治+旋转因子），实现分递归与迭代（位逆序置换+倍增合并）两种。FFT 用复数运算，存在浮点误差；模意义版本是 NTT。应用远超多项式乘法：大整数乘法、所有可能和/差、循环相关与自相关、卷积型 DP 加速、字符串匹配（与 pattern 反转卷积）等。",
+  "why": {
+    "intuition": "朴素乘法把每个系数对乘一遍 O(n^2)。换个角度：多项式在 n 个点上的取值（点值）可以逐点相乘来得到乘积的点值，而求 n 个点的点值+还原系数都能用分治加速——因为取单位根时奇偶项平方重合，能成对复用，这就是'快速'的来源。",
+    "principle": "DFT 是线性变换，取 n=2^k 次单位根 ω_n=e^{-2πi/n}。分治：f(x)=G(x^2)+x·H(x^2)，由 ω_n^{k+n/2}=-ω_n^k 得 f(ω^k)=G(ω^{2k})+ω^k H(ω^{2k})，f(ω^{k+n/2})=G(ω^{2k})-ω^k H(ω^{2k})，一次算出两点。递归深度 log n，总 O(n log n)。逆变换取共轭根再除 n。迭代版先用位逆序置换把输入排成可自底向上合并的顺序，每层做蝶形。",
+    "history": "FFT 的思想源于 Fourier(1807)，离散版本 DFT 用于信号处理。Cooley & Tukey 1965 提出分治 FFT 算法（思想可追溯至 Gauss），被列为计算数学十大算法之一。OI/ACM 中 2000 年代起成为多项式全家桶的基石，OI Wiki 与 CP-Algorithms 均有系统教程。"
+  },
+  "how": {
+    "pseudocode": "# 迭代 FFT (in-place), n=2^k\nbit_reverse_permute(a)      # 位逆序置换\nfor h in 2,4,8,...,n:        # 合并区间长度\n    wn = exp(-2πi/h)        # 旋转因子\n    for i in step h:\n        w = 1\n        for j in i..i+h/2-1:\n            u = a[j]; v = a[j+h/2]*w\n            a[j] = u+v; a[j+h/2] = u-v\n            w *= wn\n# 逆变换: 根取共轭, 最后整体除以 n",
+    "python": "import cmath\nimport math\nimport random\n\n\ndef fft_recursive(a, invert=False):\n    \"\"\"递归 FFT。a: list[complex], 长度必须是 2 的幂。\n    invert=False: DFT; invert=True: IDFT(由调用方负责除以 n).\"\"\"\n    n = len(a)\n    if n == 1:\n        return a[:]\n    w_n = cmath.exp(complex(0, -2 * math.pi / n)) if not invert else cmath.exp(complex(0, 2 * math.pi / n))\n    a_even = fft_recursive(a[0::2], invert)\n    a_odd = fft_recursive(a[1::2], invert)\n    w = 1 + 0j\n    out = [0j] * n\n    half = n // 2\n    for k in range(half):\n        t = w * a_odd[k]\n        out[k] = a_even[k] + t\n        out[k + half] = a_even[k] - t\n        w *= w_n\n    return out\n\n\ndef fft_recursive_rounded(a, invert=False):\n    \"\"\"带归一化的递归 FFT 封装: invert 时自动除以 n. 返回新列表。\"\"\"\n    out = fft_recursive(a, invert)\n    if invert:\n        n = len(a)\n        out = [x / n for x in out]\n    return out\n\n\ndef bit_reverse_permute(a):\n    n = len(a)\n    j = 0\n    for i in range(1, n):\n        bit = n >> 1\n        while j & bit:\n            j ^= bit\n            bit >>= 1\n        j ^= bit\n        if i < j:\n            a[i], a[j] = a[j], a[i]\n\n\ndef fft_iterative(a, invert=False):\n    \"\"\"迭代 FFT(位逆序置换 + 蝴蝶操作). 原地修改. 长度须为 2 的幂.\"\"\"\n    n = len(a)\n    a = a[:]\n    bit_reverse_permute(a)\n    h = 2\n    while h <= n:\n        angle = -2 * math.pi / h\n        if invert:\n            angle = -angle\n        w_h = cmath.exp(complex(0, angle))\n        for i in range(0, n, h):\n            w = 1 + 0j\n            for j in range(i, i + h // 2):\n                u = a[j]\n                v = a[j + h // 2] * w\n                a[j] = u + v\n                a[j + h // 2] = u - v\n                w *= w_h\n        h <<= 1\n    if invert:\n        for i in range(n):\n            a[i] /= n\n    return a\n\n\ndef poly_multiply_fft(a, b):\n    \"\"\"FFT 多项式乘法(返回实部圆整的整数系数). 支持小规模正数系数.\"\"\"\n    n = 1\n    need = len(a) + len(b) - 1\n    while n < need:\n        n <<= 1\n    fa = [complex(x, 0) for x in a] + [0j] * (n - len(a))\n    fb = [complex(x, 0) for x in b] + [0j] * (n - len(b))\n    fa = fft_iterative(fa, False)\n    fb = fft_iterative(fb, False)\n    for i in range(n):\n        fa[i] *= fb[i]\n    fc = fft_iterative(fa, True)\n    return [int(round(fc[i].real)) for i in range(need)]\n\n\ndef poly_multiply_naive(a, b):\n    res = [0] * (len(a) + len(b) - 1)\n    for i, x in enumerate(a):\n        for j, y in enumerate(b):\n            res[i + j] += x * y\n    return res\n\n\nif __name__ == \"__main__\":\n    # 自测: 与朴素卷积对拍(小规模)\n    for _ in range(50):\n        la = random.randint(1, 8)\n        lb = random.randint(1, 8)\n        a = [random.randint(0, 9) for _ in range(la)]\n        b = [random.randint(0, 9) for _ in range(lb)]\n        assert poly_multiply_fft(a, b) == poly_multiply_naive(a, b), (a, b)\n    # OI-wiki 引入样例: (5x^2+3x+7)(7x^2+2x+1)\n    A = [7, 3, 5]\n    B = [1, 2, 7]\n    assert poly_multiply_fft(A, B) == [7, 17, 60, 31, 35], poly_multiply_fft(A, B)\n    # 递归版与迭代版一致\n    x = [complex(random.randint(-5, 5), random.randint(-5, 5)) for _ in range(8)]\n    assert all(abs(fft_recursive(x)[k] - fft_iterative(x)[k]) < 1e-9 for k in range(8))\n    # 单位复根校验: 插值还原\n    y = fft_iterative(x, False)\n    z = fft_iterative(y, True)\n    assert all(abs(z[k] - x[k]) < 1e-9 for k in range(8))\n    # 多项式乘法样例: (5x^2+3x+7)(7x^2+2x+1)=35x^4+31x^3+60x^2+17x+7\n    assert poly_multiply_fft([7, 3, 5], [1, 2, 7]) == [7, 17, 60, 31, 35]\n    print(\"FFT tests passed\")\n",
+    "pypy_notes": "Python 纯循环 FFT 常数大，1e5 长度乘法可能 TLE（复杂度 O(n log n) 但每次迭代有 Python 开销与复数对象）。教学正确。竞赛中 Python 建议：能取模就用 NTT；不能取模时可用 numpy 的 FFT（numpy 未内置不可用则手写递归版）。分块卷积（块内朴素/FFT）可缓解。",
+    "complexity": {
+      "time": "O(n log n) 多项式乘法",
+      "space": "O(n)"
+    },
+    "limitations": "浮点误差: 系数较大(如 1e9 量级且 n 大)时圆整可能错, 需要 NTT/拆系数 FFT(three-FFT / 任意模数)。长度必须是 2 的幂, 需补齐。Python 纯实现性能差, N=1e5 级可能 TLE, 应改用 NTT 或 numpy。递归版在 Python 有递归深度限制, 需 sys.setrecursionlimit 或改迭代。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3803",
+      "url": "https://www.luogu.com.cn/problem/P3803",
+      "difficulty": 3,
+      "key_point": "多项式乘法模板题(FFT/NTT 均可), 入门必做"
+    },
+    {
+      "oj": "HDU",
+      "pid": "1402",
+      "url": "http://acm.hdu.edu.cn/showproblem.php?pid=1402",
+      "difficulty": 3,
+      "key_point": "A * B Problem Plus: 大整数乘法, 经典 FFT 应用"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "553E",
+      "url": "https://codeforces.com/contest/553/problem/E",
+      "difficulty": 6,
+      "key_point": "Kyoya and Train: FFT 优化 DP 转移的卷积结构"
+    }
+  ],
+  "pitfalls": [
+    "忘记把长度补齐到 2 的幂(且需 >= degA+degB+1)",
+    "逆变换忘记除以 n(每个点都要除)",
+    "浮点圆整用 round 而非 int 截断(负数系数会错)",
+    "位逆序置换实现写错(标准翻转循环易错)",
+    "复数旋转因子方向搞反(正负号), 导致结果共轭"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "pad",
+        "label": "补齐到 2 的幂 n>=len(a)+len(b)-1"
+      },
+      {
+        "id": "dft",
+        "label": "正变换: 位逆序+蝶形合并, 得到点值"
+      },
+      {
+        "id": "pointwise",
+        "label": "点值逐点相乘"
+      },
+      {
+        "id": "idft",
+        "label": "逆变换(共轭根+除以 n)还原系数"
+      },
+      {
+        "id": "round",
+        "label": "浮点圆整为整数系数"
+      }
+    ],
+    "edges": [
+      {
+        "from": "pad",
+        "to": "dft"
+      },
+      {
+        "from": "dft",
+        "to": "pointwise"
+      },
+      {
+        "from": "pointwise",
+        "to": "idft"
+      },
+      {
+        "from": "idft",
+        "to": "round"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/poly/fft/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/fft.md",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/algebra/fft.html",
+      "verified": true
+    }
+  ]
+}

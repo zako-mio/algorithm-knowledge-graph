@@ -1,0 +1,109 @@
+{
+  "id": "fwt",
+  "name": "FWT(快速沃尔什变换)",
+  "group": "G-C-12",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "O(n log n)计算位运算(and/or/xor)卷积，FFT的位运算推广",
+  "what": "快速沃尔什变换（FWT）在 O(n log n) 内计算位运算卷积：C[k]=Σ_{i⊕j=k} A[i]·B[j]，其中 ⊕ 为按位与/或/异或（以及同或、max/min 等）。与 FFT 把时域卷积变频域乘积一样，FWT 找出一个可逆线性变换 T 使得 T(A⊕B)=T(A)·T(B)（逐点），于是 变换→逐点乘→逆变换。对 or：T 是子集和(SOS/高维前缀和)，对 and：超集和，对 xor：沃尔什变换(用 ±1 特征)。FWT 是线性变换，常用于位运算相关计数、期望 min-max 容斥、高维子集卷积、以及把 DP 的转移写成位卷积后用 FWT 加速（如 CF1103E Radix Sum）。",
+  "why": {
+    "intuition": "位运算卷积像一种'按位求和'的乘法。对每一位独立做小变换：or 是前缀和(1 的传递)、and 是后缀和、xor 是 [1,1;1,-1] 的哈达玛变换，然后把各位变换复合(蝴蝶),复杂度 O(n log n)。",
+    "principle": "设 n=2^m，把数组按最高位分成两半 a0,a1。or 卷积变换：T(a)=(T(a0), T(a0)+T(a1))，其中前半不包含该位 1、后半包含。递归 m 层，总 O(n log n)。and 类似：T=(T(a0)+T(a1), T(a1))。xor 用哈达玛：T=(T(a0)+T(a1), T(a0)-T(a1))。逆变换对应层内做逆运算（or/and 交换加减，xor 再乘 1/2）。K 维 FWT 对每个二进制位做同一蝴蝶。",
+    "history": "沃尔什变换(1923)是 FFT 的 ±1 矩阵版本；推广到位运算卷积的 FWT 在 1970s 成型，1990s 进入算法竞赛。OI Wiki 的 math/poly/fwt 页面系统整理 or/and/xor/同或/K 维/max/min 各版本，并给出 CF1103E 的进制不进位加法例题。"
+  },
+  "how": {
+    "pseudocode": "# 异或卷积模板\nfwt_xor(a, invert):\n    for h in 1,2,4,...,n/2:\n        for i in step 2h:\n            for j in i..i+h-1:\n                x=a[j]; y=a[j+h]\n                a[j]=x+y; a[j+h]=x-y\n                if invert: a[j]/=2; a[j+h]/=2\n# 使用: fwt_xor(a); fwt_xor(b); c=a*b 逐点; fwt_xor(c, invert=True)\n# or 版本: 正 a[j]=x+y,a[j+h]=x; 逆 a[j]=y,a[j+h]=x-y\n# and 版本: 正 a[j]=y,a[j+h]=x+y; 逆 a[j]=y-x,a[j+h]=x",
+    "python": "MOD = 998244353\nINV2 = (MOD + 1) // 2\n\n\ndef fwt_or(a, invert=False):\n    \"\"\"FWT 或卷积(原地)。invert 为 True 时做逆变换(除以 n 由调用方处理).\"\"\"\n    n = len(a)\n    h = 1\n    while h < n:\n        for i in range(0, n, h * 2):\n            for j in range(i, i + h):\n                x = a[j]\n                y = a[j + h]\n                if not invert:\n                    a[j] = (x + y) % MOD\n                    a[j + h] = x\n                else:\n                    a[j] = y\n                    a[j + h] = (x - y) % MOD\n        h <<= 1\n    return a\n\n\ndef fwt_and(a, invert=False):\n    \"\"\"FWT 与卷积(原地)。\"\"\"\n    n = len(a)\n    h = 1\n    while h < n:\n        for i in range(0, n, h * 2):\n            for j in range(i, i + h):\n                x = a[j]\n                y = a[j + h]\n                if not invert:\n                    a[j] = y\n                    a[j + h] = (x + y) % MOD\n                else:\n                    a[j] = (y - x) % MOD\n                    a[j + h] = x\n        h <<= 1\n    return a\n\n\ndef fwt_xor(a, invert=False):\n    \"\"\"FWT 异或卷积(原地). 逆变换需再乘 n^-1。\"\"\"\n    n = len(a)\n    h = 1\n    while h < n:\n        for i in range(0, n, h * 2):\n            for j in range(i, i + h):\n                x = a[j]\n                y = a[j + h]\n                a[j] = (x + y) % MOD\n                a[j + h] = (x - y) % MOD\n                if invert:\n                    a[j] = a[j] * INV2 % MOD\n                    a[j + h] = a[j + h] * INV2 % MOD\n        h <<= 1\n    return a\n\n\ndef xor_convolution(a, b):\n    n = 1\n    need = max(len(a), len(b))\n    while n < need:\n        n <<= 1\n    fa = a[:] + [0] * (n - len(a))\n    fb = b[:] + [0] * (n - len(b))\n    fwt_xor(fa)\n    fwt_xor(fb)\n    for i in range(n):\n        fa[i] = fa[i] * fb[i] % MOD\n    fwt_xor(fa, True)\n    return fa\n\n\ndef or_convolution(a, b):\n    n = 1\n    need = max(len(a), len(b))\n    while n < need:\n        n <<= 1\n    fa = a[:] + [0] * (n - len(a))\n    fb = b[:] + [0] * (n - len(b))\n    fwt_or(fa)\n    fwt_or(fb)\n    for i in range(n):\n        fa[i] = fa[i] * fb[i] % MOD\n    fwt_or(fa, True)\n    return fa\n\n\ndef xor_naive(a, b):\n    res = [0] * (max(len(a), len(b)))\n    for i, x in enumerate(a):\n        for j, y in enumerate(b):\n            res[i ^ j] = (res[i ^ j] + x * y) % MOD\n    return res\n\n\ndef or_naive(a, b):\n    res = [0] * (max(len(a), len(b)))\n    for i, x in enumerate(a):\n        for j, y in enumerate(b):\n            res[i | j] = (res[i | j] + x * y) % MOD\n    return res\n\n\ndef and_convolution(a, b):\n    n = 1\n    need = max(len(a), len(b))\n    while n < need:\n        n <<= 1\n    fa = a[:] + [0] * (n - len(a))\n    fb = b[:] + [0] * (n - len(b))\n    fwt_and(fa)\n    fwt_and(fb)\n    for i in range(n):\n        fa[i] = fa[i] * fb[i] % MOD\n    fwt_and(fa, True)\n    return fa\n\n\ndef and_naive(a, b):\n    res = [0] * (max(len(a), len(b)))\n    for i, x in enumerate(a):\n        for j, y in enumerate(b):\n            res[i & j] = (res[i & j] + x * y) % MOD\n    return res\n\n\nif __name__ == \"__main__\":\n    import random\n    for _ in range(200):\n        n = 1 << random.randint(1, 4)\n        a = [random.randint(0, 20) for _ in range(n)]\n        b = [random.randint(0, 20) for _ in range(n)]\n        assert xor_convolution(a, b) == xor_naive(a, b), (\"xor\", a, b)\n        assert or_convolution(a, b) == or_naive(a, b), (\"or\", a, b)\n        assert and_convolution(a, b) == and_naive(a, b), (\"and\", a, b)\n    # 手工样例: (1+x^1)(1+x^1) 的异或卷积\n    assert xor_convolution([1, 1], [1, 1]) == [2, 2]\n    print(\"FWT (and/or/xor) tests passed\")\n",
+    "pypy_notes": "FWT 无乘法、纯加减, Python 实现比 FFT/NTT 快得多, 1e6 级可过。逐层蝴蝶内层用局部变量缓存数组引用可再提速。",
+    "complexity": {
+      "time": "O(n log n)",
+      "space": "O(n)"
+    },
+    "limitations": "数组长度必须是 2 的幂。非 2 的幂需补零。xor 逆变换除以 2 在模数需用 2 的逆元。子集卷积(要求不交并)不能直接 FWT, 需按 popcount 分层的 FWT(fast zeta transform + 附加维)。对非标准运算(如 K 进制不进位加法)需定制变换矩阵。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P6097",
+      "url": "https://www.luogu.com.cn/problem/P6097",
+      "difficulty": 4,
+      "key_point": "子集卷积模板题: 需要按 popcount 分层的 FWT"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "1103E",
+      "url": "https://www.luogu.com.cn/problem/CF1103E",
+      "difficulty": 6,
+      "key_point": "Radix Sum: 10 进制不进位加法的 K 维 FWT 高级应用"
+    },
+    {
+      "oj": "AtCoder",
+      "pid": "abc331_g",
+      "url": "https://atcoder.jp/contests/abc331/tasks/abc331_g",
+      "difficulty": 5,
+      "key_point": "Collect Them All: FWT+容斥/期望的经典组合"
+    }
+  ],
+  "pitfalls": [
+    "and/or/xor 三版的蝴蝶公式互相记混",
+    "xor 逆变换忘记乘 2 的逆元(模意义下)",
+    "子集卷积直接套 FWT(结果混入重叠集合)",
+    "长度不是 2 的幂没补零",
+    "把 FWT 当 FFT 用在多项式卷积上(运算类型不同)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "identify",
+        "label": "确认卷积运算类型(and/or/xor/子集卷积)"
+      },
+      {
+        "id": "pad",
+        "label": "补零到 2 的幂"
+      },
+      {
+        "id": "transform",
+        "label": "对应版本正变换"
+      },
+      {
+        "id": "pointwise",
+        "label": "逐点相乘(模意义)"
+      },
+      {
+        "id": "inverse",
+        "label": "逆变换(含 /2 处理)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "identify",
+        "to": "pad"
+      },
+      {
+        "from": "pad",
+        "to": "transform"
+      },
+      {
+        "from": "transform",
+        "to": "pointwise"
+      },
+      {
+        "from": "pointwise",
+        "to": "inverse"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/poly/fwt/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/fwt.md",
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+ "id": "ac-automaton",
+ "name": "AC 自动机",
+ "group": "G-C-2",
+ "stage": "advanced",
+ "priority": "P1",
+ "depth_tier": "standard",
+ "brief": "Trie + KMP 失配指针，多模式串匹配自动机，预处理 O(Σ|s|)，匹配 O(文本长+z)",
+ "what": "AC（Aho–Corasick）自动机以 Trie 结构为基础、结合 KMP 失配指针思想，解决『一次匹配多个模式串』问题。构建分两步：① 把所有模式串插入 Trie；② BFS 构建 fail 指针——fail[u] 指向 u 的最长真后缀状态（即字典树中存在的最长后缀字符串所对应的节点）。常配合『Trie 图』优化：把不存在的转移补全为 fail 的转移，使匹配过程每字符 O(1) 无需回溯。匹配：文本串沿 Trie 图走，每到一个节点沿 fail 链累加所有匹配模式。优化：fail 树拓扑/DFS 求和可在 O(len) 统计每个模式出现次数。时间复杂度：建 O(Σ|s_i|+n·字符集)，匹配 O(|S|+z)（z 为匹配总数）。",
+ "why": {
+  "intuition": "单模式匹配用 KMP，多模式若每个都跑一遍 KMP 太慢。AC 自动机把多个模式塞进一棵 Trie，然后给每个节点配一根‘失败了去哪接’的弹簧（fail 指针）——匹配到某节点失败时，弹簧直接跳到所有模式前缀中与之最长后缀相同的节点，一次到位，不必从头再来。就像查字典时发现整页没有，直接翻到能接上的那一页。",
+  "principle": "fail[u] 定义：u 代表的字符串的最长真后缀，且该后缀是某个模式串的前缀。构建（BFS 按深度）：设 u 由父 p 经字符 c 到达，则 fail[u]=δ(fail[p],c)（若不存在则递归 fail 链直到根，最终为根或补全转移直接取到）。Trie 图补全：对不存在的 δ(u,c) 令其=δ(fail[u],c)，这样一次转移即到达‘最合理继续点’。匹配每字符 u=δ(u,c)，随后沿 fail 链收集匹配（或用 fail 树差分：只给命中节点打标记，最后按 fail 树自底向上求和）。正确性：每个状态代表文本当前后缀与某个模式前缀的最大匹配；fail 链上的所有状态都代表可匹配模式。",
+  "history": "1975 年 Alfred Aho 与 Margaret Corasick 提出该算法（论文 “Efficient string matching: an aid to bibliographic search”），源于贝尔实验室的检索需求。它把 KMP 从单模式推广到多模式，复杂度线性。现代文本索引、病毒库扫描（如 ClamAV）、正则引擎 NFA 化均有其思想。CP-Algorithms 与 OI Wiki《AC 自动机》页给出完整实现，含拓扑优化与 AC 自动机 DP（如 HNOI2004 L 语言）。"
+ },
+ "how": {
+  "pseudocode": "# 节点: tr[u][26] 转移(Trie图), fail[u], cnt[u]\ndef build():\n  q = deque(根的所有直接儿子)   # 根儿子 fail=0\n  while q:\n    u = q.popleft()\n    for c in range(26):\n      v = tr[u][c]\n      if v:\n        fail[v] = tr[fail[u]][c]\n        q.append(v)\n      else:\n        tr[u][c] = tr[fail[u]][c]   # 补全 Trie图\ndef query(text):\n  u = 0; res = 0\n  for ch in text:\n    u = tr[u][ch]\n    v = u\n    while v and cnt[v]: res += cnt[v]; cnt[v]=0; v = fail[v]\n  return res\n# 求每个模式次数: 命中节点 acc++ -> 按 fail 树逆拓扑累加",
+  "python": "from collections import deque\n\n\nclass AhoCorasick:\n    \"\"\"AC 自动机: Trie + 失配指针(fail) + Trie图(补全转移).\n    build 后 tr[u][c] 为补全后的转移; fail[u] 指向最长后缀状态.\n    匹配复杂度 O(文本长) 不计输出, 建图 O(模式串总长 * 字符集).\"\"\"\n    def __init__(self, alpha_size=26):\n        self.alpha = alpha_size\n        self.tr = [[0] * self.alpha]    # tr[0] 全 0 表示根\n        self.fail = [0]\n        self.cnt = [0]                  # 该节点作为模式串结尾的次数(0/1)\n        self.used = []                  # 匹配时已计入答案的模式(去重)\n\n    def add(self, s):\n        u = 0\n        for ch in s:\n            c = ord(ch) - ord('a')\n            if self.tr[u][c] == 0:\n                self.tr[u][c] = len(self.tr)\n                self.tr.append([0] * self.alpha)\n                self.fail.append(0)\n                self.cnt.append(0)\n                self.used.append(False)\n            u = self.tr[u][c]\n        self.cnt[u] += 1\n\n    def build(self):\n        \"\"\"BFS 构建 fail, 同时把不存在的转移补全为 fail 的转移(Trie图).\"\"\"\n        q = deque()\n        for c in range(self.alpha):\n            v = self.tr[0][c]\n            if v:\n                self.fail[v] = 0\n                q.append(v)\n        while q:\n            u = q.popleft()\n            for c in range(self.alpha):\n                v = self.tr[u][c]\n                if v:\n                    self.fail[v] = self.tr[self.fail[u]][c]\n                    q.append(v)\n                else:\n                    self.tr[u][c] = self.tr[self.fail[u]][c]\n\n    def query(self, text):\n        \"\"\"返回文本中出现的模式串个数(每个模式串计一次).\"\"\"\n        u = 0\n        res = 0\n        for ch in text:\n            c = ord(ch) - ord('a')\n            u = self.tr[u][c]\n            v = u\n            while v and self.cnt[v]:\n                res += self.cnt[v]\n                self.cnt[v] = 0\n                v = self.fail[v]\n        return res\n\n    def query_count_all(self, text):\n        \"\"\"返回每个模式串在文本中的出现次数(含重叠), 借助 fail 树自底向上累加.\n        要求已 build. 返回数组 acc, 下标为节点号, acc[结束节点] 即该模式串出现次数.\"\"\"\n        n = len(self.tr)\n        acc = [0] * n\n        u = 0\n        for ch in text:\n            c = ord(ch) - ord('a')\n            u = self.tr[u][c]\n            acc[u] += 1\n        # BFS 序(按真实 Trie 边, 深度非降). 逆序累加 => 自底向上沿 fail 树求和\n        for v in reversed(self._order):\n            acc[self.fail[v]] += acc[v]\n        return acc\n\n    def _record_order(self):\n        \"\"\"在 build 前调用: 用真实 Trie 边做 BFS, 记录节点序.\"\"\"\n        order = [0]\n        q = deque([0])\n        while q:\n            u = q.popleft()\n            for c in range(self.alpha):\n                v = self.tr[u][c]\n                if v:\n                    order.append(v)\n                    q.append(v)\n        self._order = order\n\ndef build_ac(patterns):\n    \"\"\"便捷封装: 返回 (ac, end_nodes). end_nodes[i] 为第 i 个模式串的结束节点.\"\"\"\n    ac = AhoCorasick()\n    ends = []\n    for p in patterns:\n        ac.add(p)\n    # 记录真实儿子(在补全前)\n    ac._record_order()\n    for p in patterns:\n        u = 0\n        for ch in p:\n            u = ac.tr[u][ord(ch) - ord('a')]\n        ends.append(u)\n    ac.build()\n    return ac, ends\n\n\nif __name__ == \"__main__\":\n    patterns = [\"she\", \"he\", \"his\", \"hers\"]\n    text = \"ushersheishis\"\n    ac, ends = build_ac(patterns)\n    assert ac.query(\"ushersheishis\") >= 1\n    # 计数每种模式\n    ac2, ends2 = build_ac(patterns)\n    acc = ac2.query_count_all(text)\n    # 暴力验证\n    def brute(patterns, text):\n        res = {}\n        for p in patterns:\n            c = 0\n            for i in range(len(text) - len(p) + 1):\n                if text[i:i+len(p)] == p:\n                    c += 1\n            res[p] = c\n        return res\n    expected = brute(patterns, text)\n    for p, e in zip(patterns, ends2):\n        assert acc[e] == expected[p], (p, acc[e], expected[p])\n    print(\"ac-automaton: all tests passed\")\n",
+  "pypy_notes": "用 list 嵌套 list 存 tr，字符集 26 时每节点 26 ints；总节点 1e6 时内存 ~100MB+，必要时用 dict 转移换内存。匹配用 while 沿 fail 链累加在极端数据（如所有模式互为后缀）会退化，务必用 fail 树拓扑/差分优化。build 的 BFS 用 collections.deque。PyPy 下 for c in range(26) 固定循环比遍历 dict 快。",
+  "complexity": {
+   "time": "构建 O(Σ|s_i|·字符集)；匹配 O(|S|+z)；fail树统计 O(|S|+节点数)",
+   "space": "O(Σ|s_i|·字符集) 节点"
+  },
+  "limitations": "① 字符集大时每节点数组爆炸（改用 map 或压缩）；② 朴素匹配每次沿 fail 链跳在重叠严重数据上退化，需拓扑优化；③ 不能匹配重叠模式的最长公共后缀之外的形态（需后缀自动机）；④ Python 实现注意对象/数组内存权衡；⑤ 建图补全修改了 tr 结构，无法直接复用为纯 Trie。"
+ },
+ "examples": [
+  {
+   "oj": "Luogu",
+   "pid": "P3808",
+   "url": "https://www.luogu.com.cn/problem/P3808",
+   "difficulty": 3,
+   "key_point": "AC 自动机（简单版）：统计出现过的模式串个数，OI Wiki 模板"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P3796",
+   "url": "https://www.luogu.com.cn/problem/P3796",
+   "difficulty": 3,
+   "key_point": "AC 自动机（简单版 II）：统计出现次数最多的模式串（需要逐个计数）"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P5357",
+   "url": "https://www.luogu.com.cn/problem/P5357",
+   "difficulty": 3,
+   "key_point": "AC 自动机【模板】：全模式计数，必须用 fail 树拓扑优化，OI Wiki 模板"
+  },
+  {
+   "oj": "Luogu",
+   "pid": "P2292",
+   "url": "https://www.luogu.com.cn/problem/P2292",
+   "difficulty": 4,
+   "key_point": "HNOI2004 L 语言：AC 自动机 + DP / 状态压缩优化"
+  }
+ ],
+ "pitfalls": [
+  "根的儿子 fail 忘了置 0（应直接入队而非根本身）",
+  "build 时没做 Trie 图补全，匹配时回溯 fail 太慢",
+  "朴素 query 每次跳 fail 链在重叠数据上 TLE（必须拓扑/DFS 优化）",
+  "多模式计数时重复清零 cnt 导致多模式计数丢失",
+  "字符集下标/文本字符越界",
+  "递归建树过深（总长 1e6）导致 RecursionError"
+ ],
+ "step_dag": {
+  "nodes": [
+   {
+    "id": "trie",
+    "label": "模式串插入 Trie"
+   },
+   {
+    "id": "fail",
+    "label": "BFS 构建 fail + Trie图补全"
+   },
+   {
+    "id": "match",
+    "label": "沿图匹配文本, 沿 fail 收集结果"
+   },
+   {
+    "id": "count",
+    "label": "fail 树拓扑/DFS 统计每个模式出现次数"
+   },
+   {
+    "id": "ext",
+    "label": "扩展: AC自动机DP/文本索引/敏感词过滤"
+   }
+  ],
+  "edges": [
+   {
+    "from": "trie",
+    "to": "fail"
+   },
+   {
+    "from": "fail",
+    "to": "match"
+   },
+   {
+    "from": "match",
+    "to": "count"
+   },
+   {
+    "from": "count",
+    "to": "ext"
+   }
+  ]
+ },
+ "sources": [
+  {
+   "type": "oiwiki",
+   "url": "https://oi-wiki.org/string/ac-automaton/",
+   "verified": true
+  },
+  {
+   "type": "cpalg",
+   "url": "https://cp-algorithms.com/string/aho_corasick.html",
+   "verified": true
+  },
+  {
+   "type": "paper",
+   "url": "https://dl.acm.org/doi/10.1145/360825.360855",
+   "verified": true
+  }
+ ]
+}

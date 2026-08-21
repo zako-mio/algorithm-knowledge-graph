@@ -1,0 +1,90 @@
+{
+  "id": "tim-sort",
+  "name": "Timsort",
+  "group": "G-A-1",
+  "stage": "intermediate",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "归并+插入混合稳定排序，Python/Java 标准库使用",
+  "what": "Timsort 是 2002 年 Tim Peters 为 Python 设计的混合稳定排序，结合插入排序与归并排序，并针对『已存在有序段（Run）』做优化：识别 Run → 不足 MIN_RUN 用插入排序扩展 → 用栈+特定归并规则（galloping 加速）合并相邻 Run。已有序数据接近 O(n)，最坏 O(n log n)，空间 O(n)。是 Python、Java SE7+ 对象数组、GNU Swift 的默认排序。",
+  "why": {
+    "intuition": "真实数据常有大量部分有序段。Timsort 先把这些天然有序段找出来（升序直接用、降序反转），再把它们高效合并——就像人类对『大半已排好的牌』补几张牌而不是全盘重排。",
+    "principle": "三个关键设计：①Run 识别：升序段直接取，降序段反转；长度不足 MIN_RUN（32~64，按 n 计算）用二分插入排序扩展。②栈归并规则：压入 Run 后检查栈顶 X,Y,Z 满足 len(Z)>len(Y)+len(X) 且 len(Y)>len(X)，否则合并较小的相邻对，保证归并平衡（防斐波那契式退化，见 ESA 2018 最坏情况论文）。③Galloping：当一侧连续赢 ≥Min_Gallop(7) 次就进入加速模式，用指数查找+二分查找批量搬移元素，动态调整 Min_Gallop。",
+    "history": "2002 年 Tim Peters 在 Python 2.3 引入，Python 内建 sort 至今用它；2009 年 Java SE 7 用于非原始类型数组；也被 Android、GNU Swift 采用。其最坏情况复杂度直到 2015 年才由 Augusteijn 等给出严格证明（论文《On the Worst-Case Complexity of TimSort》，ESA 2018）。"
+  },
+  "how": {
+    "pseudocode": "tim_sort(a):\n    nRemaining = len(a)\n    minRun = compute_min_run(n)          # 32~64\n    start = 0\n    while nRemaining > 0:\n        runLen = 识别天然 Run（不足 minRun 用插入排序补齐到 minRun）\n        push (start, runLen) 到栈\n        merge_collapse(栈)               # 保证堆叠平衡\n        start += runLen; nRemaining -= runLen\n    merge_force_collapse(栈)\n    return a",
+    "python": "MIN_RUN = 32\n\n\ndef binary_insertion_sort(a, lo, hi):\n    \"\"\"二分插入排序区间 [lo, hi)，用于补齐小 Run\"\"\"\n    for i in range(lo + 1, hi):\n        key = a[i]\n        # 二分找插入点（lo, i] 区间已有序）\n        l, r = lo, i\n        while l < r:\n            m = (l + r) // 2\n            if a[m] <= key:\n                l = m + 1\n            else:\n                r = m\n        for j in range(i, l, -1):\n            a[j] = a[j - 1]\n        a[l] = key\n\n\ndef count_run(a, lo):\n    \"\"\"识别从 lo 开始的天然 Run，降序则反转，返回 Run 的结束下标\"\"\"\n    n = len(a)\n    if lo + 1 >= n:\n        return lo + 1\n    if a[lo] <= a[lo + 1]:           # 升序\n        hi = lo + 1\n        while hi + 1 < n and a[hi] <= a[hi + 1]:\n            hi += 1\n    else:                            # 降序 → 反转成升序\n        hi = lo + 1\n        while hi + 1 < n and a[hi] > a[hi + 1]:\n            hi += 1\n        a[lo:hi + 1] = a[lo:hi + 1][::-1]\n    return hi + 1\n\n\ndef merge_runs(a, lo, mid, hi):\n    \"\"\"合并两个相邻有序段 [lo,mid) 与 [mid,hi)\"\"\"\n    left = a[lo:mid]\n    i, j, k = 0, mid, lo\n    while i < len(left) and j < hi:\n        if a[j] < left[i]:\n            a[k] = a[j]; j += 1\n        else:\n            a[k] = left[i]; i += 1\n        k += 1\n    while i < len(left):\n        a[k] = left[i]; i += 1; k += 1\n\n\ndef tim_sort(a):\n    \"\"\"简化版 Timsort：识别 Run + 插入补齐 + 归并所有 Run\"\"\"\n    n = len(a)\n    if n <= 1:\n        return a\n    runs = []\n    lo = 0\n    while lo < n:\n        hi = count_run(a, lo)\n        if hi - lo < MIN_RUN:\n            hi = min(lo + MIN_RUN, n)\n            binary_insertion_sort(a, lo, hi)\n        runs.append((lo, hi))\n        lo = hi\n    while len(runs) > 1:\n        new_runs = []\n        for k in range(0, len(runs) - 1, 2):\n            merge_runs(a, runs[k][0], runs[k][1], runs[k + 1][1])\n            new_runs.append((runs[k][0], runs[k + 1][1]))\n        if len(runs) % 2:\n            new_runs.append(runs[-1])\n        runs = new_runs\n    return a\n\n\nif __name__ == \"__main__\":\n    import random\n    for _ in range(200):\n        arr = [random.randint(0, 200) for _ in range(random.randint(0, 150))]\n        b = arr[:]\n        tim_sort(b)\n        assert b == sorted(arr), (arr, b)\n    near_sorted = list(range(5000))\n    near_sorted[2500], near_sorted[2501] = near_sorted[2501], near_sorted[2500]\n    b = near_sorted[:]\n    tim_sort(b)\n    assert b == sorted(near_sorted)\n    print(\"简化 Timsort 正确性 OK（200 组随机 + 近乎有序）\")\n    print(\"示例:\", tim_sort([3, 7, 4, 9, 5, 2, 6, 1]))\n",
+    "pypy_notes": "比赛中不需要手写 Timsort——Python 内建 list.sort 就是它。本实现为教学简化版，去掉了 galloping 与栈平衡规则，仅演示 Run 识别+插入补齐+归并骨架。",
+    "complexity": {
+      "time": "已有序 O(n)，最坏 O(n log n)",
+      "space": "O(n)"
+    },
+    "limitations": "真实实现（galloping、mergeCollapse 栈规则、Min_Gallop 动态调整）相当复杂，比赛中应直接用内建 sort；理解其原理有助于写出对有序数据更友好的代码。"
+  },
+  "examples": [
+    {
+      "oj": "OI-Wiki",
+      "pid": "basic/tim-sort",
+      "url": "https://oi-wiki.org/basic/tim-sort/",
+      "difficulty": 3,
+      "key_point": "Timsort 伪代码与归并规则"
+    },
+    {
+      "oj": "CPython",
+      "pid": "Objects/listsort.txt",
+      "url": "https://github.com/python/cpython/blob/main/Objects/listsort.txt",
+      "difficulty": 3,
+      "key_point": "Tim Peters 原始说明"
+    }
+  ],
+  "pitfalls": [
+    "不要把 Timsort 简单理解为『插入+归并』——栈平衡与 galloping 决定其最坏复杂度保证",
+    "降序 Run 识别时要先判断 a[lo]<=a[lo+1] 再区分升/降，边界处 lo+1 可能越界",
+    "简化实现省略 mergeCollapse 后，最坏情况内存/时间可能不再严格受控"
+  ],
+  "step_dag": {
+    "nodes": [
+      "识别 Run",
+      "插入补齐",
+      "入栈",
+      "归并",
+      "galloping"
+    ],
+    "edges": [
+      [
+        "识别 Run",
+        "插入补齐"
+      ],
+      [
+        "插入补齐",
+        "入栈"
+      ],
+      [
+        "入栈",
+        "归并"
+      ],
+      [
+        "归并",
+        "galloping"
+      ]
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/basic/tim-sort/",
+      "verified": true
+    },
+    {
+      "type": "github",
+      "url": "https://github.com/python/cpython/blob/main/Objects/listsort.txt",
+      "verified": true
+    },
+    {
+      "type": "wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Timsort",
+      "verified": true
+    }
+  ]
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高精度(大整数) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-18.html">大整数与数制族</a> / <span>高精度(大整数)</span></div>
+  <h1>高精度(大整数)</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-C-18</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-C-18.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-C-18.html"><span class="dir">组内第 1 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="gray-code.html"><span class="dir">下一个 / 组内</span><span class="v">gray-code</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">大整数加减乘除：Python 原生 int 无上限直接可用；C++/PyPy 需数组模拟，乘法 O(n^2) 可 Karatsuba/FFT 加速，压位优化常数</div><p>高精度（bignum / arbitrary-precision arithmetic）：对超出内建整型位宽的大整数进行四则运算。C++ 需要手写（用 string/数组存储，从低位开始按竖式运算，或压位存 4~9 位一组）；Python 内建 int 是任意精度，直接支持任意大小的 + - * // % ** 与位运算，底层已做 Karatsuba/Toom/FFT 级优化，竞赛中几乎不用手写，但需了解 Python 大数的复杂度特性（乘法大数用 Karatsuba，更大用 Toom/FFT，比朴素 O(n^2) 快很多）。PyPy 的 int 同样是任意精度但内部实现不同，大数乘法性能与 CPython 有差异。核心知识：数组竖式算法、压位、快速乘法（Karatsuba、FFT/NTT）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>数太大内建类型装不下时，用数组存每一位，把「竖式计算」程序化。Python 则把这件事内置了：int 对象不限长度，CPython 用 digit 数组（每个 digit 存 15/30 位）+ 支持多精度算术，所以 Python 选手只需知道什么时候会爆范围、大数运算多快。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>1) 存储：C++ 用数组 a[]，a[i] 存第 i 位（低位在前），或压位：每格存 base=10^4/10^8/10^9 的一「位」，减少数组长度与进位次数。2) 加法：逐位相加+进位 O(n)。3) 减法：借位 O(n)。4) 乘法：朴素 O(n^2) 逐位卷积；Karatsuba 分治 T(n)=3T(n/2)+O(n)=O(n^1.585)；用 FFT/NTT 做卷积可到 O(n log n)。5) 除法：试商法，估商（如 double 估商 + 回退修正）O(n^2)。Python 内建 int 乘法对 2^64~2^2^30 范围分别走 grade-school、Karatsuba、Toom-Cook3、FFT（NTT）等不同算法。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>任意精度算术自计算机早期即存在（如 1960 年代 LISP 的 bignum）；现代语言（Python、Java BigInteger、Golang math/big）普遍内置。竞赛语境下 C++ 选手长期手写模板；Karatsuba(1960)、Schönhage-Strassen(1971)、FFT 卷积（Rader/Bluestein 等）构成现代大数乘法演进。Python 3.11 起 CPython 引入渐进式大数乘法（deviation-based scaling），Python 3.12 引入幂运算的优化，大数性能持续改进。PyPy 使用 RPython 大整数实现，基准与大数乘法行为和 CPython 不同。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 竖式加法（压位，base=B），a,b 为低位在前数组</span>
+<span class="t-k">def</span> <span class="t-f">add</span>(a, b):
+    c, carry, i = [], <span class="t-n">0</span>, <span class="t-n">0</span>
+    <span class="t-k">while</span> i &lt; <span class="t-b">len</span>(a) <span class="t-k">or</span> i &lt; <span class="t-b">len</span>(b) <span class="t-k">or</span> carry:
+        v = carry
+        <span class="t-k">if</span> i &lt; <span class="t-b">len</span>(a): v += a[i]
+        <span class="t-k">if</span> i &lt; <span class="t-b">len</span>(b): v += b[i]
+        c.<span class="t-f">append</span>(v % B); carry = v // B; i += <span class="t-n">1</span>
+    <span class="t-k">return</span> c
+
+<span class="t-c"># 竖式乘法 O(n*m)</span>
+<span class="t-k">def</span> <span class="t-f">mul</span>(a, b):
+    c = [<span class="t-n">0</span>] * (<span class="t-b">len</span>(a) + <span class="t-b">len</span>(b))
+    <span class="t-k">for</span> i, x <span class="t-k">in</span> <span class="t-b">enumerate</span>(a):
+        carry = <span class="t-n">0</span>
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(b)):
+            cur = c[i+j] + x*b[j] + carry
+            c[i+j] = cur % B; carry = cur // B
+        c[i+<span class="t-b">len</span>(b)] += carry
+    <span class="t-k">while</span> <span class="t-b">len</span>(c) &gt; <span class="t-n">1</span> <span class="t-k">and</span> c[-<span class="t-n">1</span>] == <span class="t-n">0</span>: c.<span class="t-f">pop</span>()
+    <span class="t-k">return</span> c</code></pre><h3>Python 实现</h3><pre><code class="python">BASE = <span class="t-n">10000</span>  <span class="t-c"># 压位基底：每格存 4 位十进制</span>
+
+
+<span class="t-k">def</span> <span class="t-f">str_to_blocks</span>(s):
+    s = s.<span class="t-f">lstrip</span>(<span class="t-s">&#x27;0&#x27;</span>) <span class="t-k">or</span> <span class="t-s">&#x27;0&#x27;</span>
+    blocks = []
+    <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(s), <span class="t-n">0</span>, -<span class="t-n">4</span>):
+        blocks.<span class="t-f">append</span>(<span class="t-b">int</span>(s[<span class="t-b">max</span>(<span class="t-n">0</span>, i - <span class="t-n">4</span>):i]))
+    <span class="t-k">return</span> blocks
+
+
+<span class="t-k">def</span> <span class="t-f">blocks_to_str</span>(b):
+    <span class="t-k">if</span> <span class="t-k">not</span> b:
+        <span class="t-k">return</span> <span class="t-s">&#x27;0&#x27;</span>
+    res = <span class="t-b">str</span>(b[-<span class="t-n">1</span>])
+    <span class="t-k">for</span> x <span class="t-k">in</span> <span class="t-b">reversed</span>(b[:-<span class="t-n">1</span>]):
+        res += <span class="t-s">f&#x27;{x:04d}&#x27;</span>
+    <span class="t-k">return</span> res
+
+
+<span class="t-k">def</span> <span class="t-f">add</span>(a, b):
+    i = carry = <span class="t-n">0</span>
+    c = []
+    <span class="t-k">while</span> i &lt; <span class="t-b">len</span>(a) <span class="t-k">or</span> i &lt; <span class="t-b">len</span>(b) <span class="t-k">or</span> carry:
+        v = carry
+        <span class="t-k">if</span> i &lt; <span class="t-b">len</span>(a):
+            v += a[i]
+        <span class="t-k">if</span> i &lt; <span class="t-b">len</span>(b):
+            v += b[i]
+        c.<span class="t-f">append</span>(v % BASE)
+        carry = v // BASE
+        i += <span class="t-n">1</span>
+    <span class="t-k">return</span> c
+
+
+<span class="t-k">def</span> <span class="t-f">sub</span>(a, b):  <span class="t-c"># 要求 a &gt;= b</span>
+    i = borrow = <span class="t-n">0</span>
+    c = []
+    <span class="t-k">while</span> i &lt; <span class="t-b">len</span>(a) <span class="t-k">or</span> borrow:
+        v = a[i] - borrow - (b[i] <span class="t-k">if</span> i &lt; <span class="t-b">len</span>(b) <span class="t-k">else</span> <span class="t-n">0</span>)
+        borrow = <span class="t-n">0</span>
+        <span class="t-k">if</span> v &lt; <span class="t-n">0</span>:
+            v += BASE
+            borrow = <span class="t-n">1</span>
+        c.<span class="t-f">append</span>(v)
+        i += <span class="t-n">1</span>
+    <span class="t-k">while</span> <span class="t-b">len</span>(c) &gt; <span class="t-n">1</span> <span class="t-k">and</span> c[-<span class="t-n">1</span>] == <span class="t-n">0</span>:
+        c.<span class="t-f">pop</span>()
+    <span class="t-k">return</span> c
+
+
+<span class="t-k">def</span> <span class="t-f">mul</span>(a, b):
+    c = [<span class="t-n">0</span>] * (<span class="t-b">len</span>(a) + <span class="t-b">len</span>(b))
+    <span class="t-k">for</span> i, x <span class="t-k">in</span> <span class="t-b">enumerate</span>(a):
+        carry = <span class="t-n">0</span>
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-b">len</span>(b)):
+            cur = c[i + j] + x * b[j] + carry
+            c[i + j] = cur % BASE
+            carry = cur // BASE
+        c[i + <span class="t-b">len</span>(b)] += carry
+    <span class="t-k">while</span> <span class="t-b">len</span>(c) &gt; <span class="t-n">1</span> <span class="t-k">and</span> c[-<span class="t-n">1</span>] == <span class="t-n">0</span>:
+        c.<span class="t-f">pop</span>()
+    <span class="t-k">return</span> c
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    <span class="t-c"># 与内建 int 对拍验证压位四则</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">42</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        x = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">10</span>**<span class="t-n">30</span>)
+        y = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, <span class="t-n">10</span>**<span class="t-n">30</span>)
+        <span class="t-k">assert</span> <span class="t-b">int</span>(<span class="t-f">blocks_to_str</span>(<span class="t-f">add</span>(<span class="t-f">str_to_blocks</span>(<span class="t-b">str</span>(x)), <span class="t-f">str_to_blocks</span>(<span class="t-b">str</span>(y))))) == x + y
+        <span class="t-k">if</span> x &gt;= y:
+            <span class="t-k">assert</span> <span class="t-b">int</span>(<span class="t-f">blocks_to_str</span>(<span class="t-f">sub</span>(<span class="t-f">str_to_blocks</span>(<span class="t-b">str</span>(x)), <span class="t-f">str_to_blocks</span>(<span class="t-b">str</span>(y))))) == x - y
+        <span class="t-k">assert</span> <span class="t-b">int</span>(<span class="t-f">blocks_to_str</span>(<span class="t-f">mul</span>(<span class="t-f">str_to_blocks</span>(<span class="t-b">str</span>(x)), <span class="t-f">str_to_blocks</span>(<span class="t-b">str</span>(y))))) == x * y
+    <span class="t-c"># Python 内建大整数直接可用（竞赛常用）</span>
+    a = <span class="t-n">10</span>**<span class="t-n">500</span>
+    <span class="t-k">assert</span> (a * a) == <span class="t-n">10</span>**<span class="t-n">1000</span>
+    <span class="t-k">assert</span> <span class="t-b">len</span>(<span class="t-b">str</span>(<span class="t-n">2</span>**<span class="t-n">1000</span>)) == <span class="t-n">302</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;big-integer OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">Python 选手直接内建 int：CPython 3.11+ 与 PyPy 都支持任意精度。大数乘法上 CPython 有 Karatsuba 与更高级算法，PyPy 的 RPython 大整数实现对于 1e5 位级乘法可能比 CPython 慢，但竞赛大数题通常 n≤10^4~10^5 位，两者都够。PyPy 下 int 转 str 对大数也快（Str 优化）。若真遇到 Python 手写高精度（少见，一般是需自定义输出格式或配合 NTT 的卷积题），竖式模板如上；压位时注意进位溢出（PyPy 也是 int 无上限，无溢出问题）。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>加/减 O(n)；朴素乘法 O(n·m)（压位后 O((n/4)^2)）；Karatsuba O(n^1.585)；FFT/NTT 乘法 O(n log n)；Python 内建乘法底层自适应</td></tr><tr><th>空间复杂度</th><td>O(n) 存数字（压位后数组长度 n/4~n/9）</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">C++ 手写大数除法最易出错（试商/估商/修正），Python 直接用 // 与 % 无此烦恼。Python 内建 int 无上限但运算有常量差异：大数乘法 O(n^1.585)~O(n log n) 而非线性，需要乘 10^5 位级大数时仍会较慢。浮点转大整数注意精度（int(1e20) 与真值不同）。PyPy 与 CPython 的大数速度不同，极限题需实测。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>Python 中 int(1e20) 是把 float 转 int，1e20 已超 float 精确表示范围，大数请用字符串/十进制字面量</li><li>// 与 % 对负数语义是向下取整，需商向零取整的场合要自己调整</li><li>C++ 手写高精度：反转存储（低位在前）后所有运算从 a[0] 开始；忘除前导零会输出多 0 或格式错误</li><li>压位输出必须用 %0{d} 补零（万进制补 4 位），否则 &#x27;1 0023&#x27; 会输出 &#x27;123&#x27;</li><li>Python 做 10^5 位级大数乘法仍可能超时，需用 NTT/FFT（如 Python 的 numpy 或手写 NTT）</li><li>2^1000 之类超大数求十进制位数用 math.log10 会有浮点误差，安全做法是 len(str(x)) 或取整公式</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1601</strong></td><td>1</td><td>A+B Problem（高精）：Python 直接 int 秒过，C++ 高精度加法入门</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1601" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1601</a></td></tr><tr><td>Luogu</td><td><strong>P1932</strong></td><td>5</td><td>A+B*A-B/A/B：高精度四则运算综合，Python 内建 int 一行解决</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1932" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1932</a></td></tr><tr><td>Luogu</td><td><strong>P1045</strong></td><td>4</td><td>麦森数：2^p-1 求位数+末500位，Python 用 pow(2,p) 直接算，理解十进制位数=floor(p*log10(2))+1</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1045" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1045</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-big-integer" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "判断是否需要高精度：范围超 int64/10^19"}}, {"data": {"id": "s2", "label": "Python：直接用内建 int 运算"}}, {"data": {"id": "s3", "label": "C++/需自定义：字符串读入+低位在前数组/压位数组"}}, {"data": {"id": "s4", "label": "实现 加/减/乘（除）竖式，注意进位与去前导零"}}, {"data": {"id": "s5", "label": "输出：反转+补零，与内建 int 对拍验证"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es1->s3", "source": "s1", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}, {"data": {"id": "es4->s5", "source": "s4", "target": "s5"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-big-integer'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-cooccurrence" href="fft.html" title="大整数乘法可用FFT/NTT加速到O(n log n)">FFT(快速傅里叶变换)<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/bignum/" target="_blank" rel="noopener">https://oi-wiki.org/math/bignum/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/algebra/big-integer.html" target="_blank" rel="noopener">https://cp-algorithms.com/algebra/big-integer.html</a></li><li><span class="srctype">web</span><span class="v-ok">&#10003;</span> <a href="https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex" target="_blank" rel="noopener">https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

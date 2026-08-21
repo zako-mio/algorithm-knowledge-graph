@@ -1,0 +1,76 @@
+{
+  "id": "random-incremental",
+  "name": "随机增量法",
+  "group": "G-D-3",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "按随机序逐点加入并增量维护结构，期望线性复杂度",
+  "what": "随机增量法（Randomized Incremental Construction）是计算几何的通用方法论：先把输入元素随机打乱，然后按序逐个加入，增量维护目标结构；每个新元素以'是否破坏当前结构'决定是否触发局部修复。核心是概率论证：对随机序，第 i 个元素触发修复的概率很小（通常 ≤ 常数/i），期望总复杂度线性。最经典应用是最小覆盖圆（Welzl）：圆外点触发 O(i) 修复，期望 O(n)。它还可用于三维凸包（增量删面补面）、随机增量三角剖分、最近点对期望分析等。",
+  "why": {
+    "intuition": "增量法像'砌墙'：每放一块砖，若放对了继续，若放歪了（点落在当前圆外/结构外）就局部返工。随机打乱的意义：大部分点一进来就在当前结构内，什么都不做；只有'刺头'点（概率约 常数/i）才需要重扫前面的点。因为刺头通常位于结构边界附近，数量有界，所以平均下来每层修复成本被分摊成常数。",
+    "principle": "以最小覆盖圆为例（Welzl）：圆 O 是前 i-1 个点的最小覆盖圆，加入 p_i 若在圆内则 O 不变；否则新圆必过 p_i。此时以'过 p_i'为约束对前面 j<i 的点重做一层：直径圆 (p_i, p_j) 起步，若 p_j 在外则圆必过 p_i、p_j；再内层过三点的外接圆。数学上每层调用等价于 minidisk(P, R) 递归（R 为必过点集，|R|≤3）。概率论证：随机序下 p_i 不在当前圆内的概率 ≤ 3/i（因为最小覆盖圆由最多 3 个点决定，被它排除在外的概率与该点是否决定圆有关，平均为 O(1/i)），于是期望总时间 Σ O(i)·(3/i) = O(n)。",
+    "history": "随机增量法由 Clarkson 与 Shor 在 1980 年代末系统化（Clarkson-Shor 随机增量技术），Welzl 1991 年将其应用到最小覆盖圆/球，成为计算几何随机化算法的范式。后由 Seidel、Mulmuley 等扩展到凸包、三角剖分等，是《Computational Geometry》教材中随机化章节的支柱内容。"
+  },
+  "how": {
+    "pseudocode": "# 通用框架\nshuffle(points)\n结构 S = 由前 1~2 个元素构造\nfor i in range(n):\n    if 元素 i 不破坏 S: continue\n    以'必含元素 i'为约束, 增量重建局部: \n    for j in range(i):\n        if j 不破坏: continue\n        ... 逐层加深约束直到 |约束|=3\n\n# 最小覆盖圆（Welzl 具体化）\ncx, cy = p[0]; r = 0\nfor i in 1..n-1:\n    if p[i] 在圆内: continue\n    cx, cy = p[i]; r = 0                     # 约束: 圆必过 i\n    for j in 0..i-1:\n        if p[j] 在圆内: continue\n        cx, cy = (p[i]+p[j])/2; r = |ij|/2   # 约束: 必过 i,j\n        for k in 0..j-1:\n            if p[k] 在圆内: continue\n            外接圆(p[i], p[j], p[k])          # 三点定圆",
+    "python": "# -*- coding: utf-8 -*-\nimport math\nimport random\n\n\ndef circle_from_3(a, b, c):\n    ax, ay = a\n    bx, by = b\n    cx, cy = c\n    d = 2 * (ax*(by-cy) + bx*(cy-ay) + cx*(ay-by))\n    if abs(d) < 1e-15:\n        return None\n    ux = ((ax*ax + ay*ay)*(by-cy) + (bx*bx + by*by)*(cy-ay) + (cx*cx + cy*cy)*(ay-by)) / d\n    uy = ((ax*ax + ay*ay)*(cx-bx) + (bx*bx + by*by)*(ax-cx) + (cx*cx + cy*cy)*(bx-ax)) / d\n    return (ux, uy, math.hypot(ax-ux, ay-uy))\n\n\ndef enclosing_circle(points):\n    \"\"\"最小覆盖圆：随机增量（Welzl）的具体实现，期望 O(n)。\"\"\"\n    pts = points[:]\n    random.shuffle(pts)\n    n = len(pts)\n    if n == 0:\n        return (0.0, 0.0, 0.0)\n    cx, cy = pts[0]\n    r = 0.0\n    for i in range(1, n):\n        if math.hypot(pts[i][0]-cx, pts[i][1]-cy) <= r + 1e-12:\n            continue\n        cx = (pts[i][0] + pts[0][0]) / 2\n        cy = (pts[i][1] + pts[0][1]) / 2\n        r = math.hypot(pts[i][0]-cx, pts[i][1]-cy)\n        for j in range(1, i):\n            if math.hypot(pts[j][0]-cx, pts[j][1]-cy) <= r + 1e-12:\n                continue\n            cx = (pts[i][0] + pts[j][0]) / 2\n            cy = (pts[i][1] + pts[j][1]) / 2\n            r = math.hypot(pts[i][0]-cx, pts[i][1]-cy)\n            for k in range(j):\n                if math.hypot(pts[k][0]-cx, pts[k][1]-cy) <= r + 1e-12:\n                    continue\n                c = circle_from_3(pts[i], pts[j], pts[k])\n                if c:\n                    cx, cy, r = c\n    return (cx, cy, r)\n\n\ndef minidisk_recursive(points, fixed, memo=None):\n    \"\"\"Welzl 递归版（教学用）：minidisk(P, R)。fixed 是必在圆周上的点。\"\"\"\n    P = points[:]\n    if not P or len(fixed) == 3:\n        if len(fixed) == 0:\n            return (0.0, 0.0, 0.0)\n        if len(fixed) == 1:\n            a = fixed[0]\n            return (a[0], a[1], 0.0)\n        if len(fixed) == 2:\n            a, b = fixed\n            cx, cy = (a[0]+b[0])/2, (a[1]+b[1])/2\n            return (cx, cy, math.hypot(a[0]-cx, a[1]-cy))\n        return circle_from_3(*fixed) or (0.0, 0.0, 0.0)\n    p = P.pop()\n    c = minidisk_recursive(P, fixed)\n    if math.hypot(p[0]-c[0], p[1]-c[1]) <= c[2] + 1e-12:\n        return c\n    return minidisk_recursive(P, fixed + [p])\n\n\nif __name__ == '__main__':\n    import itertools\n    pts = [(0, 0), (4, 0), (0, 3)]\n    cx, cy, r = enclosing_circle(pts)\n    assert abs(r - 2.5) < 1e-9 and abs(cx - 2.0) < 1e-9, (cx, cy, r)\n    c2 = minidisk_recursive(pts[:], [])\n    assert abs(c2[2] - 2.5) < 1e-9, c2\n    # 暴力对拍（覆盖所有点且半径最小）\n    def mec_brute(P):\n        best = 1e18\n        for a in P:\n            best = min(best, max(math.hypot(p[0]-a[0], p[1]-a[1]) for p in P))\n        for a, b in itertools.combinations(P, 2):\n            cx2, cy2 = (a[0]+b[0])/2, (a[1]+b[1])/2\n            rr = math.hypot(a[0]-cx2, a[1]-cy2)\n            if all(math.hypot(p[0]-cx2, p[1]-cy2) <= rr + 1e-9 for p in P):\n                best = min(best, rr)\n        for a, b, c in itertools.combinations(P, 3):\n            cc = circle_from_3(a, b, c)\n            if cc:\n                cx2, cy2, rr = cc\n                if all(math.hypot(p[0]-cx2, p[1]-cy2) <= rr + 1e-9 for p in P):\n                    best = min(best, rr)\n        return best\n    for _ in range(100):\n        P = [(random.uniform(-10, 10), random.uniform(-10, 10)) for _ in range(9)]\n        cx, cy, r = enclosing_circle(P)\n        assert all(math.hypot(p[0]-cx, p[1]-cy) <= r + 1e-7 for p in P)\n        assert abs(r - mec_brute(P)) < 1e-6, (r, mec_brute(P))\n    print('random-incremental all tests passed')\n",
+    "pypy_notes": "随机增量对 Python 友好：主要成本在常数与随机打乱；内层三层循环在随机序下期望触发次数少。PyPy 下 1e6 点可过模板题。最小覆盖圆也可用模拟退火/三分近似解，但随机增量是精确解法。",
+    "complexity": {
+      "time": "期望 O(n)（随机序）；最坏 O(n^3)（构造数据）",
+      "space": "O(n)（递归版额外 O(n) 栈深）"
+    },
+    "limitations": "期望复杂度依赖随机化，恶意构造数据可退化到 O(n^3)；递归版在 n 大时栈深可能爆（Python 递归上限 ~1000），工程上常用三层循环迭代版；浮点下三点共线外接圆退化需特判；'概率 ≤ c/i'的论证需要随机均匀打乱（用 random.shuffle 即可）。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1742",
+      "url": "https://www.luogu.com.cn/problem/P1742",
+      "difficulty": 4,
+      "key_point": "最小圆覆盖：随机增量法模板题（本方法论最经典应用）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3222",
+      "url": "https://www.luogu.com.cn/problem/P3222",
+      "difficulty": 5,
+      "key_point": "[HNOI2012] 射箭：随机增量思想 + 可行性二分综合"
+    },
+    {
+      "oj": "Library Checker",
+      "pid": "min_enclosing_circle",
+      "url": "https://judge.yosupo.jp/problem/min_enclosing_circle",
+      "difficulty": 4,
+      "key_point": "MEC 官方评测（随机增量/ Welzl 验证）"
+    }
+  ],
+  "pitfalls": [
+    "忘记随机打乱，最坏数据直接 O(n^3)",
+    "内层循环的边界（j 从 1 起、k 从 0 起）写错导致结果偏差",
+    "递归版 Python 默认递归深度 ~1000，大 n 用迭代版",
+    "三点共线时外接圆返回 None 要跳过",
+    "浮点 eps 判定点是否在圆内，太小会反复触发修复",
+    "随机种子固定可能被 hack 构造退化数据（多数 OJ 无此问题）"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "shuffle", "label": "随机打乱"},
+      {"id": "base", "label": "由 1~2 个元素构造初始结构"},
+      {"id": "add", "label": "逐个加入元素"},
+      {"id": "repair", "label": "破坏则带约束局部重建"},
+      {"id": "layer", "label": "约束加深（点→直径→外接圆）"}
+    ],
+    "edges": [
+      {"from": "shuffle", "to": "base"},
+      {"from": "base", "to": "add"},
+      {"from": "add", "to": "repair"},
+      {"from": "repair", "to": "layer"}
+    ]
+  },
+  "sources": [
+    {"type": "oiwiki", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/geometry/random-incremental.md", "verified": true},
+    {"type": "cpalg", "url": "https://cp-algorithms.com/geometry/enclosing-circle.html", "verified": true},
+    {"type": "book", "url": "", "ref": "CPH ch29", "verified": true}
+  ]
+}

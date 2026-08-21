@@ -1,0 +1,85 @@
+{
+  "id": "merge-sort",
+  "name": "归并排序",
+  "group": "G-A-1",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "分治排序，O(n log n) 稳定排序，可用于求逆序对",
+  "what": "归并排序（merge sort）是基于分治的稳定排序算法：把数组一分为二，递归排序两半，再合并两个有序数组。最坏/平均/最优复杂度均为 Θ(n log n)，空间 O(n)。关键操作是 merge（合并两个有序序列）。额外价值：合并过程中可顺便统计逆序对（i<j 且 a[i]>a[j]），复杂度仍为 O(n log n)。",
+  "why": {
+    "intuition": "『把大问题切成两半分别排好，再逐个小比，拼起来』。合并两半时只需线性扫描，总代价是每层 O(n) × log n 层 = O(n log n)，且这是严格的、不依赖数据分布——因此归并是理论最优的比较排序之一。",
+    "principle": "数学归纳：长度为 1 的数组天然有序；若左右两半已各自有序，合并后整体有序。合并时用『前段首元素 ≤ 后段首元素』（而非 <）保证稳定性——相等时先取前段，则原在前面的元素继续在前。倍增法实现（bottom-up）从长度 1 的段开始逐轮翻倍合并，避免递归栈。",
+    "history": "1945 年由 John von Neumann 提出，是最早被提出的高效通用排序之一。其在外部排序（磁带排序）中也有应用（多路归并）。求逆序对是其经典工程应用：合并时每当后段元素被取走，前段剩余元素个数就是新发现的逆序对数量。"
+  },
+  "how": {
+    "pseudocode": "merge_sort(a, l, r):\n    if r - l <= 1: return\n    mid = (l + r) // 2\n    merge_sort(a, l, mid)\n    merge_sort(a, mid, r)\n    merge(a, l, mid, r)   # 合并 [l,mid) 与 [mid,r)\n\nmerge(a, l, mid, r):\n    i, j = l, mid; tmp = []\n    while i < mid and j < r:\n        if a[j] < a[i]: tmp.append(a[j]); j += 1   # 先取后段 → 统计逆序对\n        else:           tmp.append(a[i]); i += 1\n    tmp += a[i:mid]; tmp += a[j:r]\n    a[l:r] = tmp",
+    "python": "def merge(a, l, mid, r):\n    \"\"\"合并有序区间 [l,mid) 与 [mid,r)，返回本次合并发现的逆序对数量\"\"\"\n    i, j = l, mid\n    tmp = []\n    inv = 0\n    while i < mid and j < r:\n        if a[j] < a[i]:\n            tmp.append(a[j])\n            inv += mid - i          # 后段元素比前段剩余所有元素都小 → 逆序对\n            j += 1\n        else:\n            tmp.append(a[i])\n            i += 1\n    tmp.extend(a[i:mid])\n    tmp.extend(a[j:r])\n    a[l:r] = tmp\n    return inv\n\n\ndef merge_sort(a, l=0, r=None):\n    \"\"\"原地归并排序 [l,r)，返回区间内逆序对数量\"\"\"\n    if r is None:\n        r = len(a)\n    if r - l <= 1:\n        return 0\n    mid = (l + r) // 2\n    inv = merge_sort(a, l, mid) + merge_sort(a, mid, r)\n    inv += merge(a, l, mid, r)\n    return inv\n\n\ndef merge_sort_bottomup(a):\n    \"\"\"倍增（自底向上）实现，避免递归\"\"\"\n    n = len(a)\n    seg = 1\n    while seg < n:\n        for l1 in range(0, n - seg, seg + seg):\n            r1 = l1 + seg\n            l2 = r1\n            r2 = min(l2 + seg, n)\n            merge(a, l1, r1, r2)\n        seg <<= 1\n    return a\n\n\ndef count_inversions(a):\n    \"\"\"暴力验证用：O(n^2) 数逆序对\"\"\"\n    return sum(1 for i in range(len(a)) for j in range(i + 1, len(a)) if a[i] > a[j])\n\n\nif __name__ == \"__main__\":\n    import random\n    for _ in range(200):\n        arr = [random.randint(0, 30) for _ in range(random.randint(0, 80))]\n        b = arr[:]\n        inv = merge_sort(b)\n        assert b == sorted(arr), (arr, b)\n        assert inv == count_inversions(arr), (arr, inv)\n    # 稳定性检查\n    data = [(random.randint(0, 5), i) for i in range(50)]\n    d2 = data[:]\n    merge_sort(d2)\n    by_val = {}\n    for v, i in d2:\n        by_val.setdefault(v, []).append(i)\n    assert all(seq == sorted(seq) for seq in by_val.values()), \"不稳定!\"\n    print(\"归并排序正确性 OK（200 组随机含重复值）\")\n    print(\"逆序对示例:\", merge_sort([5, 3, 2, 4, 1]))\n    print(\"倍增法:\", merge_sort_bottomup([5, 3, 2, 4, 1]))\n",
+    "pypy_notes": "递归深度 = log n，不会爆栈；PyPy 下切片 a[l:r] 创建新列表较慢，竞赛可改用显式 tmp 数组下标回填。统计逆序对时注意 Python int 无溢出，但要用正确公式 mid - i。",
+    "complexity": {
+      "time": "最优/平均/最坏均为 Θ(n log n)",
+      "space": "O(n)（辅助数组）"
+    },
+    "limitations": "非原地排序（需要 O(n) 辅助空间）；对缓存不友好（与快排相比常数大）。但稳定、复杂度严格保证，且天然支持外部排序。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1908",
+      "url": "https://www.luogu.com.cn/problem/P1908",
+      "difficulty": 3,
+      "key_point": "归并排序求逆序对"
+    },
+    {
+      "oj": "OI-Wiki",
+      "pid": "basic/merge-sort",
+      "url": "https://oi-wiki.org/basic/merge-sort/",
+      "difficulty": 2,
+      "key_point": "归并排序含倍增法"
+    }
+  ],
+  "pitfalls": [
+    "合并时用 < 而非 ≤ 会破坏稳定性（相等时取了后段）",
+    "倍增法最后一段长度可能不完整，右边界用 min(l2+seg, n) 否则越界",
+    "递归区间 [l,r) 与 [l,mid),[mid,r) 混淆导致元素丢失或重复"
+  ],
+  "step_dag": {
+    "nodes": [
+      "切分",
+      "递归排序",
+      "合并",
+      "统计逆序对"
+    ],
+    "edges": [
+      [
+        "切分",
+        "递归排序"
+      ],
+      [
+        "递归排序",
+        "合并"
+      ],
+      [
+        "合并",
+        "统计逆序对"
+      ]
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/basic/merge-sort/",
+      "verified": true
+    },
+    {
+      "type": "book",
+      "ref": "CPH ch3 p35",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://www.luogu.com.cn/problem/P1908",
+      "verified": true
+    }
+  ]
+}

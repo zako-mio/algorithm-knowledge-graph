@@ -1,0 +1,76 @@
+{
+  "id": "simulate",
+  "name": "模拟",
+  "group": "G-A-1",
+  "stage": "basic",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "按题意直接模拟过程，考察代码实现能力",
+  "what": "模拟（Simulation）是用计算机忠实再现题目描述的操作流程：把题面中文字描述的规则翻译为程序逻辑，逐条执行，最终得到答案。它不依赖高深算法，主要考察读题准确性、状态建模与代码实现能力。模拟题通常码量大、操作多、逻辑分支繁杂，是最容易出现低级 bug 的题型。",
+  "why": {
+    "intuition": "模拟的本质是「照做」：题目描述了某个世界如何运转（虫爬井、机器人走迷宫、扑克洗牌），你只需要忠实地把这个流程一步步翻译成代码。难点不在想算法，而在「不把题意理解错」和「把复杂流程写得不乱」。",
+    "principle": "核心方法论：(1) 把题面中的每条规则抽象成状态与状态转移（当前状态用什么变量表示、一步操作改变哪些状态）；(2) 复杂规则统一化——例如时间统一换算成秒、方向统一用数字编号、坐标统一按 1 开始索引，减少概念混淆；(3) 按函数/结构体模块化拆分流程，便于单步调试；(4) 关注边界条件（越界、循环终止条件、恰好完成 vs 超出的判定）。",
+    "history": "模拟是最古老的问题解决方式之一，从最初级的信息学入门题到 NOIP/NOI 的高分题（如「猪国杀」）都以模拟为骨架。OI Wiki 将模拟列为基础算法的首要内容，并总结出「先写流程图再写代码、模块化、统一转化概念、分块调试」四条实战经验。"
+  },
+  "how": {
+    "pseudocode": "simulate():\n  init state          # 按题意初始化所有变量\n  while not done:     # 循环直到满足终止条件\n    op = read_next()  # 读取下一步操作\n    apply(op, state)  # 按规则更新状态\n    check_done()      # 检查是否达到目标\n  output(state)       # 输出答案",
+    "python": "import sys\n\ndef climbing_worm(n, u, d):\n    \"\"\"OI Wiki 例题：蠕虫爬井。\n    井深 n，每次爬 u 英寸，休息时下滑 d 英寸，问爬出井口最少爬几次。\n    注意：若某次爬完刚好到顶也算成功。\n    \"\"\"\n    pos = 0\n    cnt = 0\n    while True:\n        cnt += 1\n        pos += u\n        if pos >= n:\n            break\n        pos -= d\n    return cnt\n\n\ndef stone_scissors_cloth(a, b, turns):\n    \"\"\"NOIP2014 生活大爆炸版石头剪刀布（简化）:\n    a 出拳序列, b 出拳序列, 循环出 turns 局, 返回 (a胜数, b胜数)。\n    0=石头 1=剪刀 2=布。\n    \"\"\"\n    win = [[0, 1, 2], [2, 0, 1], [1, 2, 0]]  # win[x][y]=1 表示 x 赢 y\n    sa = sb = 0\n    la, lb = len(a), len(b)\n    for i in range(turns):\n        x, y = a[i % la], b[i % lb]\n        if win[x][y] == 1:\n            sa += 1\n        elif win[x][y] == 2:\n            sb += 1\n    return sa, sb\n\n\nif __name__ == \"__main__\":\n    assert climbing_worm(6, 3, 1) == 3, climbing_worm(6, 3, 1)\n    assert climbing_worm(10, 2, 1) == 9, climbing_worm(10, 2, 1)\n\n    sa, sb = stone_scissors_cloth([0], [1], 5)\n    assert (sa, sb) == (5, 0), (sa, sb)\n    sa, sb = stone_scissors_cloth([0, 1], [1, 0], 4)\n    assert (sa, sb) == (2, 2), (sa, sb)\n\n    print(\"All tests passed.\")",
+    "pypy_notes": "PyPy 与 CPython 在模拟题上差别不大，瓶颈主要在代码逻辑而非解释器。复杂模拟（如多对象状态）注意用类或字典组织状态，避免散落全局变量。循环体内避免低效操作（如大量 list.pop(0)）。",
+    "complexity": {
+      "time": "取决于模拟步数：一次操作 O(1) 时总 O(总操作数)；需反复遍历对象的模拟可能 O(N×M)",
+      "space": "O(状态规模) — 通常为常数级或 O(N)"
+    },
+    "limitations": "模拟没有通用套路，每次都要根据具体题面建模；状态复杂时易漏边界条件。若操作数极大（10^18 级）则纯模拟不可行，需寻找周期/数学规律（此时转向数学推导或倍增）。"
+  },
+  "examples": [
+    {
+      "oj": "Kattis",
+      "pid": "climbingworm",
+      "url": "https://open.kattis.com/problems/climbingworm",
+      "difficulty": 1,
+      "key_point": "OI Wiki 官方例题：蠕虫爬井，最简单直白的循环模拟，注意恰好到顶也算成功"
+    },
+    {
+      "oj": "UOJ",
+      "pid": "UOJ#15",
+      "url": "https://uoj.ac/problem/15",
+      "difficulty": 4,
+      "key_point": "NOIP2014 生活大爆炸版石头剪刀布：按约定规则模拟多局博弈，考察状态打表与取模循环"
+    },
+    {
+      "oj": "LibreOJ",
+      "pid": "LOJ#2885",
+      "url": "https://loj.ac/problem/2885",
+      "difficulty": 8,
+      "key_point": "SDOI2010 猪国杀：大型复杂模拟题，状态繁多，是检验模块化与分块调试能力的经典题"
+    }
+  ],
+  "pitfalls": [
+    "读题不全/漏条件，导致模拟规则与题面不符——动手前先把所有规则列成清单",
+    "循环终止条件错误：『恰好到达 vs 超过』『循环节 vs 一次性』判断不清",
+    "下标/坐标从 1 还是 0 开始混乱，导致 off-by-one",
+    "时间、方向等量未统一单位/编号，导致概念混淆（应抽取成统一格式）",
+    "一次性把整段逻辑写出来，出错后难以定位——应模块化并分块调试"
+  ],
+  "step_dag": {
+    "nodes": [
+      { "id": "parse", "label": "解析题意，列出全部规则与状态" },
+      { "id": "unify", "label": "统一化：单位/编号/坐标规范化" },
+      { "id": "model", "label": "建立状态模型（变量或类）" },
+      { "id": "loop", "label": "按规则写主循环" },
+      { "id": "edge", "label": "处理边界与终止条件" },
+      { "id": "output", "label": "输出结果" }
+    ],
+    "edges": [
+      { "from": "parse", "to": "unify" },
+      { "from": "unify", "to": "model" },
+      { "from": "model", "to": "loop" },
+      { "from": "loop", "to": "edge" },
+      { "from": "edge", "to": "output" }
+    ]
+  },
+  "sources": [
+    { "type": "oiwiki", "url": "https://oi-wiki.org/basic/simulate/", "verified": true },
+    { "type": "kattis", "url": "https://open.kattis.com/problems/climbingworm", "verified": true }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "linear-system",
+  "name": "线性方程组",
+  "group": "G-C-14",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "高斯消元求解Ax=b，判断唯一/无穷/无解，异或方程组变体",
+  "what": "线性方程组Ax=b的求解通过高斯消元将增广矩阵[A|b]化为行简化阶梯形。若秩(A)=秩(A|b)=n（变量数），有唯一解；若秩(A)=秩(A|b)<n，有无穷多解（自由变量）；若秩(A)<秩(A|b)，无解。竞赛中还有异或方程组（GF(2)域上的线性方程组），用bitset优化的高斯消元求解。",
+  "why": {
+    "intuition": "解方程组就是'消元'：通过行变换把方程组化简到每个方程只含一个未知数，然后直接读出解。",
+    "principle": "高斯消元三步：消元（化为上三角）→回代（求各变量值）→判断解的存在性。模质数时用逆元替代除法。GF(2)域上异或代替减法。",
+    "history": "高斯消元是线性代数核心算法。GF(2)上的高斯消元常用于异或方程组（如开关灯问题）。"
+  },
+  "how": {
+    "pseudocode": "for col in 0..n-1:\n  find pivot, swap\n  normalize pivot row\n  eliminate other rows\nif singular: return None\nreturn back-substituted solution",
+    "python": "def solve_linear_system(A, b):\n    \"\"\"Solve Ax=b via Gaussian elimination with back-substitution.\n    Returns solution list, or None if no unique solution.\"\"\"\n    n = len(A)\n    aug = [A[i][:] + [b[i]] for i in range(n)]\n    for col in range(n):\n        pivot = -1\n        for r in range(col, n):\n            if abs(aug[r][col]) > 1e-9:\n                pivot = r\n                break\n        if pivot == -1:\n            return None  # singular\n        aug[col], aug[pivot] = aug[pivot], aug[col]\n        piv = aug[col][col]\n        for j in range(n + 1):\n            aug[col][j] /= piv\n        for r in range(n):\n            if r != col and abs(aug[r][col]) > 1e-9:\n                factor = aug[r][col]\n                for j in range(n + 1):\n                    aug[r][j] -= factor * aug[col][j]\n    return [aug[i][n] for i in range(n)]\n\ndef solve_xor_system(equations, n_vars):\n    \"\"\"Solve XOR linear system (GF(2)). equations: list of (coeffs, rhs).\"\"\"\n    aug = []\n    for coeffs, rhs in equations:\n        row = list(coeffs) + [rhs]\n        aug.append(row)\n    row = 0\n    for col in range(n_vars):\n        pivot = -1\n        for r in range(row, len(aug)):\n            if aug[r][col]:\n                pivot = r\n                break\n        if pivot == -1:\n            continue\n        aug[row], aug[pivot] = aug[pivot], aug[row]\n        for r in range(len(aug)):\n            if r != row and aug[r][col]:\n                for j in range(n_vars + 1):\n                    aug[r][j] ^= aug[row][j]\n        row += 1\n    # Back-substitute for free variables = 0\n    sol = [0] * n_vars\n    for i in range(min(row, n_vars) - 1, -1, -1):\n        # Find pivot column\n        pc = -1\n        for j in range(n_vars):\n            if aug[i][j]:\n                pc = j\n                break\n        if pc >= 0:\n            sol[pc] = aug[i][n_vars]\n            for j in range(pc + 1, n_vars):\n                if aug[i][j]:\n                    sol[pc] ^= sol[j]\n    return sol\n\nif __name__ == \"__main__\":\n    # 2x + y = 3, x + 3y = 5 => x=0.8, y=1.4\n    sol = solve_linear_system([[2, 1], [1, 3]], [3, 5])\n    assert abs(sol[0] - 0.8) < 1e-6\n    assert abs(sol[1] - 1.4) < 1e-6\n    # Singular matrix\n    assert solve_linear_system([[1, 2], [2, 4]], [3, 6]) is None\n    # 3x3\n    sol3 = solve_linear_system([[1, 0, 0], [0, 1, 0], [0, 0, 1]], [1, 2, 3])\n    assert abs(sol3[0] - 1) < 1e-6\n    assert abs(sol3[1] - 2) < 1e-6\n    assert abs(sol3[2] - 3) < 1e-6\n    # XOR system: x1^x2=1, x2^x3=1, x1^x3=0 => x1=0,x2=1,x3=0\n    xor_sol = solve_xor_system([([1, 1, 0], 1), ([0, 1, 1], 1), ([1, 0, 1], 0)], 3)\n    assert xor_sol[0] ^ xor_sol[1] == 1\n    assert xor_sol[1] ^ xor_sol[2] == 1\n    assert xor_sol[0] ^ xor_sol[2] == 0\n    print(\"linear-system: ALL TESTS PASSED\")\n",
+    "pypy_notes": "异或方程组可用Python int的位运算模拟bitset。浮点解需注意精度判断。模质数系统用pow求逆元。",
+    "complexity": {
+      "time": "O(n^3)",
+      "space": "O(n^2)"
+    },
+    "limitations": "浮点精度影响解的准确性。奇异矩阵无唯一解。大规模异或方程组需bitset优化常数。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3389",
+      "url": "https://www.luogu.com.cn/problem/P3389",
+      "difficulty": 4,
+      "key_point": "解 n 元线性方程组"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2966",
+      "url": "https://www.luogu.com.cn/problem/P2966",
+      "difficulty": 6,
+      "key_point": "异或方程组求最小操作数"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "1740",
+      "url": "https://leetcode.cn/problems/find-distance-in-a-tree/",
+      "difficulty": 4,
+      "key_point": "线性方程组相关思维"
+    }
+  ],
+  "pitfalls": [
+    "浮点消元精度：用abs(x)<1e-9判断零",
+    "自由变量需赋默认值（通常取0）",
+    "异或方程组的解可能不唯一，自由变量取0得到一个特解",
+    "无解判断：增广矩阵某行出现0=非零"
+  ],
+  "step_dag": {
+    "nodes": [],
+    "edges": []
+  },
+  "sources": [
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/linear_algebra/linear-system-gauss.html",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/linear-algebra/elementary-operations/",
+      "verified": true
+    }
+  ]
+}

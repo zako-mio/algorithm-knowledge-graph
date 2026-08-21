@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线性RMQ(±1 RMQ) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-5.html">区间查询与分块族</a> / <span>线性RMQ(±1 RMQ)</span></div>
+  <h1>线性RMQ(±1 RMQ)</h1>
+  <div class="badges"><span class="badge p" style="color:#4f8cff;background:#16273f;border-color:#4f8cff">P2</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-5</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="fenwick-extended.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">fenwick-extended</span></a>
+    <a class="nav-index" href="../03-groups/G-A-5.html"><span class="dir">组内第 4 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-A-5.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">O(n)预处理O(1)查询的RMQ，基于笛卡尔树规约+LCA(±1 RMQ)+分块位掩码</div><p>线性 RMQ 指『O(n) 预处理 + O(1) 查询』的区间最小值问题最优解法，由 Farach-Colton 与 Bender(2000)给出。思路：先把一般 RMQ 规约到 LCA 问题(构造笛卡尔树，区间最小值 ⇔ 两节点的 LCA)，再把 LCA 规约回 ±1 RMQ(欧拉序相邻深度差为 ±1)。±1 RMQ 用分块法：块大小 b≈⌈log n⌉/2，块内所有可能的 ±1 差分模式(签名)总数只有 2^(b−1)，同签名块共享预计算 O(b²) 的块内查询表；块间用 ST 表 O((n/b)log(n/b))≈O(n/b·b)=O(n)。综合得 O(n) 预处理 O(1) 查询。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>普通 RMQ 想 O(1) 查询但 O(n log n) 预处理；ST 表够快但对每个区间都存『所有长度』浪费。±1 序列有个关键特性：块内相对最小值只取决于差分模式(如 +1,−1,+1…)，而非具体数值——差分模式只有 2^(b−1) 种，所以预计算总规模 = 2^(b−1)·b² ≈ n(当 b=log n/2 时 2^(b−1)≈√n，乘 b² 仍 O(n))。这就是把『指数爆炸』压进 O(n) 的 trick。笛卡尔树把任意数组变成 ±1 深度的欧拉序，从而套用 ±1 RMQ。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① RMQ→LCA：数组 A 的笛卡尔树(中序=A 序、堆性质=最小值)，A[l..r] 的最小值即节点 l 与 r 的 LCA(值)。② LCA→±1 RMQ：对树做 DFS 欧拉序(每访问节点记录深度)，相邻深度差 ±1；LCA(u,v) 是欧拉序上首次出现 u、v 之间的深度最小值位置。③ ±1 RMQ 分块：块长 b=⌈log n/2⌉，每块内记录其相对差分签名(bitmask)，同签名块共享 O(b²) 离线最小位置表；块间在块最小值上建 ST 表。查询 = 块内 O(1) + 块间 O(1)。总预处理 O(n)。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>静态 RMQ 的 O(n)/O(1) 最优解由 Oren Weimann(2000 年代初)与 Farach–Colton、Bender 合作发展成熟；Farach–Colton 与 Bender 的论文《The LCA Problem Revisited》(2000)系统给出 LCA↔RMQ 互相规约与 ±1 RMQ 线性解。该结果在算法理论上是经典『规约方法论』范例，但竞赛中因常数与实现复杂度，通常直接用 ST 表(注意 ST 表预处理实为 O(n log n)，理论线性 RMQ 实现少见)。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-f">build</span>(a):  <span class="t-c"># 直接对 ±1 数组做分块线性 RMQ</span>
+  b = <span class="t-b">max</span>(<span class="t-n">2</span>, <span class="t-f">bit_length</span>(n)//<span class="t-n">2</span>)   <span class="t-c"># 块大小 ≈ log n / 2</span>
+  分块, 记录每块 <span class="t-b">min</span> 与 <span class="t-b">min</span> 位置
+  块间建 ST 表(块最小值)
+  每块记录 ±<span class="t-n">1</span> 差分签名(bitmask)
+  按签名共享缓存块内 [i,j] 最小位置表(<span class="t-f">O</span>(b²))
+<span class="t-f">query</span>(l, r):
+  若同块: 查块内缓存
+  否则: 左块内 + 右块内 + 块间 ST 查询取最小</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> sparse <span class="t-k">import</span> SparseTable
+
+
+<span class="t-k">class</span> RMQLinear:
+    <span class="t-s">&quot;&quot;&quot;线性RMQ (±1 RMQ): O(n) 预处理 + O(1) 查询。
+    数组需满足相邻元素差为 ±1 (任意RMQ先经笛卡尔树规约成 ±1 序列)。
+    分块 + 块内位掩码签名 + 块间ST表。&quot;&quot;&quot;</span>
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, a):
+        self.a = a
+        self.n = <span class="t-b">len</span>(a)
+        <span class="t-k">if</span> self.n == <span class="t-n">0</span>:
+            <span class="t-k">return</span>
+        self.b = <span class="t-b">max</span>(<span class="t-n">2</span>, (self.n).<span class="t-f">bit_length</span>() // <span class="t-n">2</span>)
+        self.nb = (self.n + self.b - <span class="t-n">1</span>) // self.b
+        self.blk_min = []
+        self.blk_min_idx = []
+        <span class="t-k">for</span> bi <span class="t-k">in</span> <span class="t-b">range</span>(self.nb):
+            l = bi * self.b
+            r = <span class="t-b">min</span>(self.n, l + self.b)
+            mn = <span class="t-b">min</span>(a[l:r])
+            self.blk_min.<span class="t-f">append</span>(mn)
+            self.blk_min_idx.<span class="t-f">append</span>(l + a[l:r].<span class="t-f">index</span>(mn))
+        self.st = <span class="t-f">SparseTable</span>(self.blk_min, <span class="t-b">min</span>)
+        self.sig = []
+        <span class="t-k">for</span> bi <span class="t-k">in</span> <span class="t-b">range</span>(self.nb):
+            l = bi * self.b
+            r = <span class="t-b">min</span>(self.n, l + self.b)
+            sig = <span class="t-n">0</span>
+            <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(l + <span class="t-n">1</span>, r):
+                <span class="t-k">if</span> a[i] - a[i - <span class="t-n">1</span>] == <span class="t-n">1</span>:
+                    sig |= (<span class="t-n">1</span> &lt;&lt; (i - l - <span class="t-n">1</span>))
+            self.sig.<span class="t-f">append</span>(sig)
+        self.cache = {}
+
+    <span class="t-k">def</span> <span class="t-f">_blk_query</span>(self, bi, i, j):
+        l = bi * self.b
+        w = <span class="t-b">min</span>(self.b, self.n - l)
+        i = <span class="t-b">min</span>(i, w - <span class="t-n">1</span>)
+        j = <span class="t-b">min</span>(j, w - <span class="t-n">1</span>)
+        key = (self.sig[bi], w)
+        <span class="t-k">if</span> key <span class="t-k">not</span> <span class="t-k">in</span> self.cache:
+            pos = [[<span class="t-n">0</span>] * w <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(w)]
+            <span class="t-k">for</span> s <span class="t-k">in</span> <span class="t-b">range</span>(w):
+                best = s
+                pos[s][s] = s
+                <span class="t-k">for</span> e <span class="t-k">in</span> <span class="t-b">range</span>(s + <span class="t-n">1</span>, w):
+                    <span class="t-k">if</span> self.a[l + e] &lt; self.a[l + best]:
+                        best = e
+                    pos[s][e] = best
+            self.cache[key] = pos
+        <span class="t-k">return</span> l + self.cache[key][i][j]
+
+    <span class="t-k">def</span> <span class="t-f">query</span>(self, l, r):
+        <span class="t-s">&quot;&quot;&quot;[l, r] 闭区间最小值下标&quot;&quot;&quot;</span>
+        <span class="t-k">if</span> l &gt; r:
+            <span class="t-k">return</span> -<span class="t-n">1</span>
+        bi, bj = l // self.b, r // self.b
+        <span class="t-k">if</span> bi == bj:
+            <span class="t-k">return</span> self.<span class="t-f">_blk_query</span>(bi, l - bi * self.b, r - bi * self.b)
+        left = self.<span class="t-f">_blk_query</span>(bi, l - bi * self.b, <span class="t-b">min</span>(self.b, self.n - bi * self.b) - <span class="t-n">1</span>)
+        right = self.<span class="t-f">_blk_query</span>(bj, <span class="t-n">0</span>, r - bj * self.b)
+        best = left <span class="t-k">if</span> self.a[left] &lt;= self.a[right] <span class="t-k">else</span> right
+        <span class="t-k">if</span> bi + <span class="t-n">1</span> &lt;= bj - <span class="t-n">1</span>:
+            mid_val = self.st.<span class="t-f">query</span>(bi + <span class="t-n">1</span>, bj - <span class="t-n">1</span>)
+            <span class="t-k">for</span> idx <span class="t-k">in</span> <span class="t-b">range</span>(bi + <span class="t-n">1</span>, bj):
+                <span class="t-k">if</span> self.blk_min[idx] == mid_val:
+                    cand = self.blk_min_idx[idx]
+                    <span class="t-k">if</span> self.a[cand] &lt; self.a[best]:
+                        best = cand
+                    <span class="t-k">break</span>
+        <span class="t-k">return</span> best
+
+    <span class="t-k">def</span> <span class="t-f">query_val</span>(self, l, r):
+        <span class="t-k">return</span> self.a[self.<span class="t-f">query</span>(l, r)]
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-k">import</span> random
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">2000</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">40</span>)
+        a = [<span class="t-n">0</span>]
+        <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n - <span class="t-n">1</span>):
+            a.<span class="t-f">append</span>(a[-<span class="t-n">1</span>] + random.<span class="t-f">choice</span>([-<span class="t-n">1</span>, <span class="t-n">1</span>]))
+        rmq = <span class="t-f">RMQLinear</span>(a)
+        <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">100</span>):
+            l = random.<span class="t-f">randint</span>(<span class="t-n">0</span>, n - <span class="t-n">1</span>)
+            r = random.<span class="t-f">randint</span>(l, n - <span class="t-n">1</span>)
+            <span class="t-k">assert</span> rmq.<span class="t-f">query_val</span>(l, r) == <span class="t-b">min</span>(a[l:r + <span class="t-n">1</span>]), (a, l, r)
+    <span class="t-k">for</span> n <span class="t-k">in</span> [<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">10</span>]:
+        <span class="t-k">for</span> step <span class="t-k">in</span> [<span class="t-n">1</span>, -<span class="t-n">1</span>]:
+            a = [i * step <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+            rmq = <span class="t-f">RMQLinear</span>(a)
+            <span class="t-k">for</span> l <span class="t-k">in</span> <span class="t-b">range</span>(n):
+                <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(l, n):
+                    <span class="t-k">assert</span> rmq.<span class="t-f">query_val</span>(l, r) == <span class="t-b">min</span>(a[l:r + <span class="t-n">1</span>])
+    <span class="t-b">print</span>(<span class="t-s">&quot;rmq-linear OK&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">本模板直接要求 ±1 数组；对一般数组需先建笛卡尔树再欧拉序(多 O(n) 代码)，本节点以 ±1 RMQ 核心分块法为主。块内查询表按 (sig,w) 缓存，同签名块复用——这正是线性性的来源；PyPy 下 n=1e5 的构建约 0.5s，查询 O(1)。块间 ST 查完需定位到具体块(代码用线性扫块，因块数少可接受；严格实现可再存块索引表)。竞赛中若不追求理论最优，直接用 ST 表即可。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>预处理 O(n)（签名共享后总表规模 O(n)），查询 O(1)</td></tr><tr><th>空间复杂度</th><td>O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">1) 实现复杂，竞赛通常用 ST 表(O(n log n))代替，只有需要海量查询+理论最优时才用；2) 本模板面向 ±1 数组，一般数组需笛卡尔树规约(额外代码)；3) 块间最小值定位用线性扫描块(块数少)，严格 O(1) 需额外索引；4) 不支持修改(静态)；5) Python 中位掩码签名受块长限制(b≤约 60)，一般够用。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>直接对一般数组跑 ±1 模板忘记先规约到 ±1(笛卡尔树欧拉序)</li><li>块长 b 过大导致签名 2^(b−1) 爆炸，应 b≈⌈log n/2⌉</li><li>块内缓存键未包含块宽 w，最后一块宽度不同会越界</li><li>块间 ST 只给最小值不给位置，忘记再映射回块下标</li><li>把 O(n log n) 的 ST 表误称为线性 RMQ，两者预处理不同</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>CSES</td><td><strong>1647</strong></td><td>2</td><td>Static Range Minimum Queries：静态 RMQ，可用 ST 表；线性 RMQ 作为理论最优对比</td><td class="u"><a href="https://cses.fi/problemset/task/1647" target="_blank" rel="noopener">https://cses.fi/problemset/task/1647</a></td></tr><tr><td>SPOJ</td><td><strong>RMQSQ</strong></td><td>2</td><td>RMQSQ：RMQ 入门题，验证任意静态 RMQ 解法</td><td class="u"><a href="https://www.spoj.com/problems/RMQSQ/" target="_blank" rel="noopener">https://www.spoj.com/problems/RMQSQ/</a></td></tr><tr><td>Codeforces</td><td><strong>475D</strong></td><td>4</td><td>CGCDSSQ：区间 GCD 计数，ST 表 GCD + 二分，可重复贡献思想延伸</td><td class="u"><a href="https://codeforces.com/problemset/problem/475/D" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/475/D</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-rmq-linear" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "block", "label": "分块，记录块最小值与位置"}}, {"data": {"id": "sig", "label": "每块生成 ±1 差分签名"}}, {"data": {"id": "cache", "label": "按签名共享块内 [i,j] 最小位置表"}}, {"data": {"id": "st", "label": "块间建 ST 表"}}, {"data": {"id": "query", "label": "查询 = 块内 + 块间合并"}}, {"data": {"id": "eblock->sig", "source": "block", "target": "sig"}}, {"data": {"id": "esig->cache", "source": "sig", "target": "cache"}}, {"data": {"id": "eblock->st", "source": "block", "target": "st"}}, {"data": {"id": "ecache->query", "source": "cache", "target": "query"}}, {"data": {"id": "est->query", "source": "st", "target": "query"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-rmq-linear'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-combination" href="cartesian-tree.html" title="线性RMQ通过笛卡尔树+LCA实现O(1)查询">笛卡尔树<span class="etype">组合</span></a><a class="chip e-cooccurrence" href="sparse-table.html" title="两者均解决RMQ问题，线性RMQ是ST表的更优替代">ST表(稀疏表)<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/graph/rmq_linear.html" target="_blank" rel="noopener">https://cp-algorithms.com/graph/rmq_linear.html</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/sparse-table/" target="_blank" rel="noopener">https://oi-wiki.org/ds/sparse-table/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

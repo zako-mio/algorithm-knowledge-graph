@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高斯消元 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-C-14.html">线性代数族</a> / <span>高斯消元</span></div>
+  <h1>高斯消元</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-C-14</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="determinant.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">determinant</span></a>
+    <a class="nav-index" href="../03-groups/G-C-14.html"><span class="dir">组内第 3 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="linear-system.html"><span class="dir">下一个 / 组内</span><span class="v">linear-system</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">O(n^3)解线性方程组/求秩/求行列式，线性代数核心算法</div><p>高斯消元法通过初等行变换将矩阵化为行简化阶梯形（RREF）。三种初等变换：倍乘（某行乘非零数k）、对换（交换两行）、倍加（某行k倍加到另一行）。初等变换对应左乘初等矩阵。消元后矩阵的非零行数即为秩。增广矩阵可用于解线性方程组Ax=b。竞赛中常需模质数消元（用逆元替代除法）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>解方程组的消元过程：把方程组的系数排成矩阵，通过行变换把矩阵化简到&#x27;一目了然&#x27;的阶梯形，然后回代求解。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>逐列处理：对每列找非零主元，交换到当前行，用倍加消去该列其他行的元素。主元归一化后消去上下行，得到行简化阶梯形。非零行数=矩阵秩。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>高斯消元法以Carl Friedrich Gauss命名，但其方法更早由中国古代《九章算术》中已有记载。是线性代数最基本的算法。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">row = <span class="t-n">0</span>
+<span class="t-k">for</span> col <span class="t-k">in</span> <span class="t-n">0.</span>.m-<span class="t-n">1</span>:
+  find <span class="t-f">pivot</span> (nonzero) <span class="t-k">in</span> rows row..n-<span class="t-n">1</span>
+  <span class="t-k">if</span> none: <span class="t-k">continue</span>
+  swap to row
+  normalize pivot <span class="t-f">row</span> (divide by pivot)
+  eliminate other rows
+  row++
+<span class="t-k">return</span> rank = row</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">gauss_eliminate</span>(A, b=<span class="t-k">None</span>):
+    <span class="t-s">&quot;&quot;&quot;Gaussian elimination with partial pivoting.
+    A: n x m matrix, b: optional RHS vector.
+    Returns (augmented_matrix, rank).
+    &quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(A)
+    m = <span class="t-b">len</span>(A[<span class="t-n">0</span>])
+    aug = [row[:] <span class="t-k">for</span> row <span class="t-k">in</span> A]
+    <span class="t-k">if</span> b <span class="t-k">is</span> <span class="t-k">not</span> <span class="t-k">None</span>:
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            aug[i] = aug[i] + [b[i]]
+    m2 = <span class="t-b">len</span>(aug[<span class="t-n">0</span>])
+    row = <span class="t-n">0</span>
+    <span class="t-k">for</span> col <span class="t-k">in</span> <span class="t-b">range</span>(m):
+        <span class="t-k">if</span> row &gt;= n:
+            <span class="t-k">break</span>
+        pivot = -<span class="t-n">1</span>
+        <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(row, n):
+            <span class="t-k">if</span> aug[r][col] != <span class="t-n">0</span>:
+                pivot = r
+                <span class="t-k">break</span>
+        <span class="t-k">if</span> pivot == -<span class="t-n">1</span>:
+            <span class="t-k">continue</span>
+        aug[row], aug[pivot] = aug[pivot], aug[row]
+        piv = aug[row][col]
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(m2):
+            aug[row][j] /= piv
+        <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> r != row <span class="t-k">and</span> aug[r][col] != <span class="t-n">0</span>:
+                factor = aug[r][col]
+                <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(m2):
+                    aug[r][j] -= factor * aug[row][j]
+        row += <span class="t-n">1</span>
+    <span class="t-k">return</span> aug, row
+
+<span class="t-k">def</span> <span class="t-f">gauss_mod</span>(A, mod):
+    <span class="t-s">&quot;&quot;&quot;Gaussian elimination under modular arithmetic (mod must be prime).&quot;&quot;&quot;</span>
+    n = <span class="t-b">len</span>(A)
+    m = <span class="t-b">len</span>(A[<span class="t-n">0</span>])
+    aug = [row[:] <span class="t-k">for</span> row <span class="t-k">in</span> A]
+    row = <span class="t-n">0</span>
+    <span class="t-k">for</span> col <span class="t-k">in</span> <span class="t-b">range</span>(m):
+        <span class="t-k">if</span> row &gt;= n:
+            <span class="t-k">break</span>
+        pivot = -<span class="t-n">1</span>
+        <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(row, n):
+            <span class="t-k">if</span> aug[r][col] % mod != <span class="t-n">0</span>:
+                pivot = r
+                <span class="t-k">break</span>
+        <span class="t-k">if</span> pivot == -<span class="t-n">1</span>:
+            <span class="t-k">continue</span>
+        aug[row], aug[pivot] = aug[pivot], aug[row]
+        inv = <span class="t-b">pow</span>(aug[row][col] % mod, mod - <span class="t-n">2</span>, mod)
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(m):
+            aug[row][j] = aug[row][j] * inv % mod
+        <span class="t-k">for</span> r <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> r != row <span class="t-k">and</span> aug[r][col] % mod != <span class="t-n">0</span>:
+                factor = aug[r][col]
+                <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(m):
+                    aug[r][j] = (aug[r][j] - factor * aug[row][j]) % mod
+        row += <span class="t-n">1</span>
+    <span class="t-k">return</span> aug, row
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    aug, rank = <span class="t-f">gauss_eliminate</span>([[<span class="t-n">1</span>, <span class="t-n">1</span>], [<span class="t-n">1</span>, <span class="t-n">0</span>]])
+    <span class="t-k">assert</span> rank == <span class="t-n">2</span>
+    aug2, rank2 = <span class="t-f">gauss_eliminate</span>([[<span class="t-n">1</span>, <span class="t-n">2</span>, <span class="t-n">3</span>], [<span class="t-n">2</span>, <span class="t-n">4</span>, <span class="t-n">6</span>], [<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>]])
+    <span class="t-k">assert</span> rank2 == <span class="t-n">2</span>
+    <span class="t-c"># With RHS</span>
+    aug3, rank3 = <span class="t-f">gauss_eliminate</span>([[<span class="t-n">2</span>, <span class="t-n">1</span>], [<span class="t-n">1</span>, <span class="t-n">3</span>]], b=[<span class="t-n">3</span>, <span class="t-n">5</span>])
+    <span class="t-k">assert</span> rank3 == <span class="t-n">2</span>
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(aug3[<span class="t-n">0</span>][<span class="t-n">2</span>] - <span class="t-n">0.8</span>) &lt; <span class="t-n">1e-6</span>
+    <span class="t-k">assert</span> <span class="t-b">abs</span>(aug3[<span class="t-n">1</span>][<span class="t-n">2</span>] - <span class="t-n">1.4</span>) &lt; <span class="t-n">1e-6</span>
+    <span class="t-c"># Modular</span>
+    aug4, rank4 = <span class="t-f">gauss_mod</span>([[<span class="t-n">1</span>, <span class="t-n">1</span>], [<span class="t-n">1</span>, <span class="t-n">0</span>]], <span class="t-n">10</span>**<span class="t-n">9</span> + <span class="t-n">7</span>)
+    <span class="t-k">assert</span> rank4 == <span class="t-n">2</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;gaussian-elimination: ALL TESTS PASSED&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">模质数时用pow(pivot,mod-2,mod)求逆元。浮点消元需注意精度，模运算无精度问题。三层循环Python慢，n&gt;100建议PyPy。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>O(n^3)</td></tr><tr><th>空间复杂度</th><td>O(n^2)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">浮点数精度问题（可改用分数运算）。模非质数时需辗转相消法。高消不能直接处理异或方程组（需bitset优化）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>浮点精度：abs(x)&lt;1e-9判断零而非==0</li><li>模质数消元中逆元计算需mod为质数</li><li>自由变量处理：秩&lt;变量数时有无穷多解</li><li>部分主元选择可减少浮点误差</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3389</strong></td><td>4</td><td>高斯消元解线性方程组模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3389" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3389</a></td></tr><tr><td>Luogu</td><td><strong>P4452</strong></td><td>6</td><td>高斯消元在计数中的应用</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4452" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4452</a></td></tr><tr><td>LeetCode</td><td><strong>1030</strong></td><td>3</td><td>简单矩阵距离排序（入门）</td><td class="u"><a href="https://leetcode.cn/problems/matrix-cells-in-distance-order/" target="_blank" rel="noopener">https://leetcode.cn/problems/matrix-cells-in-distance-order/</a></td></tr></tbody></table></div></div>
+
+  
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="matrix-basics.html" title="高斯消元即初等行变换，需矩阵运算基础">矩阵基础<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-prerequisite" href="determinant.html" title="行列式通过高斯消元上三角化后对角元乘积">行列式<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="linear-system.html" title="线性方程组求解核心是高斯消元">线性方程组<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="matrix-rank.html" title="矩阵秩通过高斯消元后非零行数确定">矩阵秩<span class="etype">前置依赖</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/math/linear-algebra/elementary-operations/" target="_blank" rel="noopener">https://oi-wiki.org/math/linear-algebra/elementary-operations/</a></li><li><span class="srctype">CP-Algorithms</span><span class="v-ok">&#10003;</span> <a href="https://cp-algorithms.com/linear_algebra/linear-system-gauss.html" target="_blank" rel="noopener">https://cp-algorithms.com/linear_algebra/linear-system-gauss.html</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch23 Matrices (p227-234)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

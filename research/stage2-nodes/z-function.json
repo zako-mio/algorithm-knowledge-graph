@@ -1,0 +1,119 @@
+{
+  "id": "z-function",
+  "name": "Z函数",
+  "group": "G-C-1",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "Z数组 z[i]=LCP(S, S[i..])，线性构造O(n)，用于匹配与周期判断",
+  "what": "Z 函数(扩展 KMP)：对字符串 s，z[i] = s 与后缀 s[i..n−1] 的最长公共前缀(LCP)长度，规定 z[0]=0。线性算法维护最右的 Z-box [l,r]，当 i≤r 时 z[i]=min(z[i−l], r−i+1) 可直接继承，否则暴力扩展。匹配文本 t 中模式 p：构造 p+'#'+t 求 Z，z[i+|p|+1]==|p| 即出现。Z 函数与 KMP 前缀函数本质互通(互为镜像)，但 Z 的直观是『与自身前缀匹配』，适合周期判断、整周期、本质不同子串增量计数等。",
+  "why": {
+    "intuition": "若已知某个后缀区间 [l,r] 与整个字符串前缀完全相等，那对 i∈[l,r] 位置，s[i..] 与 s 的 LCP 至少等于 s[i−l..] 与 s 的 LCP 截断在 r−i+1 处——因为两段字符都在同一个『与前缀相同』的盒子 [l,r] 里。所以只需维护最靠右的盒子，多数 z[i] 可以 O(1) 复制，只有越界/超盒时暴力扩展，而每次扩展都会把 r 右移，总扩展 O(n)。",
+    "principle": "维护 [l,r] 使 s[l..r]=s[0..r−l](Z-box)。计算 z[i]：① i≤r 且 z[i−l]<r−i+1 → z[i]=z[i−l]；② 否则 z[i]=max(0,r−i+1) 后暴力 while 扩展 s[i+z[i]]==s[z[i]]；③ 若 i+z[i]−1>r 更新 l,r。线性性：暴力 while 每轮必使 r 增加≥1，总 O(n)。匹配应用与 KMP 的拼接法完全对称。",
+    "history": "Z 算法最早由 Dan Gusfield 在其 1997 年著作《Algorithms on Strings, Trees, and Sequences》中系统介绍，因此常称 Z Algorithm；国内因与 KMP 功能相近称『扩展 KMP』。它本质上与 Morris–Pratt 前缀函数是同一数学结构的两种视角。"
+  },
+  "how": {
+    "pseudocode": "function z_function(s):\n  n=len(s); z=[0]*n; l=r=0\n  for i in 1..n-1:\n    if i<=r and z[i-l] < r-i+1:\n      z[i] = z[i-l]\n    else:\n      z[i] = max(0, r-i+1)\n      while i+z[i]<n and s[z[i]]==s[i+z[i]]: z[i]+=1\n    if i+z[i]-1 > r: l=i; r=i+z[i]-1\n  return z\n\nfunction z_match(t, p):\n  s = p + '#' + t; z = z_function(s)\n  for i in |p|+1 .. |s|-1:\n    if z[i]==|p|: record i-|p|-1",
+    "python": "def z_function(s):\n    \"\"\"Z 函数: z[i] = LCP(s, s[i:]), z[0]=0, O(n)\"\"\"\n    n = len(s)\n    z = [0] * n\n    l = r = 0\n    for i in range(1, n):\n        if i <= r and z[i - l] < r - i + 1:\n            z[i] = z[i - l]\n        else:\n            z[i] = max(0, r - i + 1)\n            while i + z[i] < n and s[z[i]] == s[i + z[i]]:\n                z[i] += 1\n        if i + z[i] - 1 > r:\n            l, r = i, i + z[i] - 1\n    return z\n\n\ndef z_match(text, pattern):\n    \"\"\"Z 算法匹配: pattern 在 text 中所有出现位置\"\"\"\n    if not pattern:\n        return list(range(len(text) + 1))\n    s = pattern + '#' + text\n    z = z_function(s)\n    n = len(pattern)\n    return [i - n - 1 for i in range(n + 1, len(s)) if z[i] == n]\n\n\ndef min_period_z(s):\n    \"\"\"Z 函数求最小整周期\"\"\"\n    n = len(s)\n    z = z_function(s)\n    for i in range(1, n):\n        if n % i == 0 and i + z[i] == n:\n            return i\n    return n\n\n\nif __name__ == \"__main__\":\n    assert z_function('aaaaa') == [0, 4, 3, 2, 1]\n    assert z_function('aaabaab') == [0, 2, 1, 0, 2, 1, 0]\n    assert z_function('abacaba') == [0, 0, 1, 0, 3, 0, 1]\n    assert z_match('ababaab', 'aba') == [0, 2]\n    assert z_match('aaaa', 'aa') == [0, 1, 2]\n    assert min_period_z('abcabcabc') == 3\n    assert min_period_z('abab') == 2\n    assert min_period_z('abcd') == 4\n    print(\"zfunc OK\")\n",
+    "pypy_notes": "z_function 的 while 扩展总次数 O(n)，PyPy 下 n=1e6 约 0.3s。z 数组与 pi 数组可互相转换(镜像关系)，选一种记熟即可。整周期判断条件：i 从 1 开始找 n%i==0 且 i+z[i]==n 的最小 i；若用 KMP 视角则是 n−pi[n−1] 整除 n。注意 z[0] 约定为 0(有些资料令 z[0]=n，需看上下文)。",
+    "complexity": {
+      "time": "O(n) 构造；匹配 O(n+m)",
+      "space": "O(n+m)"
+    },
+    "limitations": "1) 与 KMP 功能高度重叠，取一即可，但 Z 求『整周期』和『本质不同子串增量』更直接；2) 需哨兵 '#' 保证不越界到模式串内；3) 只处理单模式匹配；4) 内存 O(n+m) 拼接串，超大文本可用分段处理，但竞赛通常可接受。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P5410",
+      "url": "https://www.luogu.com.cn/problem/P5410",
+      "difficulty": 3,
+      "key_point": "【模板】扩展 KMP/exKMP(Z 函数)：标准 Z 函数模板题"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "126B",
+      "url": "https://codeforces.com/problemset/problem/126/B",
+      "difficulty": 3,
+      "key_point": "Password：Z/前缀函数求最长前缀后缀且出现中间的子串"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "2223",
+      "url": "https://leetcode.cn/problems/sum-of-scores-of-built-strings/",
+      "difficulty": 4,
+      "key_point": "Sum of Scores of Built Strings：Z 数组求和，Z 函数直接应用"
+    }
+  ],
+  "pitfalls": [
+    "z[0] 约定混乱(0 vs n)，必须统一",
+    "z_box 更新条件 i+z[i]−1>r 写成 >= 导致少更新",
+    "继承分支 i<=r 但 z[i−l]≥r−i+1 时落入 else 暴力扩展，忘记 max(0,r−i+1) 初始化",
+    "匹配映射下标 i−n−1 与 KMP 的 i−2n 混淆",
+    "对空 pattern 特殊处理遗漏"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "box",
+        "label": "维护最右 Z-box [l,r]"
+      },
+      {
+        "id": "inherit",
+        "label": "i≤r 且 z[i−l]<r−i+1 → 直接继承"
+      },
+      {
+        "id": "extend",
+        "label": "否则暴力扩展(初始化 r−i+1 后 while)"
+      },
+      {
+        "id": "update",
+        "label": "更新 [l,r]"
+      },
+      {
+        "id": "match",
+        "label": "拼接 p+'#'+t 后按 z[i]==|p| 收集出现"
+      }
+    ],
+    "edges": [
+      {
+        "from": "box",
+        "to": "inherit"
+      },
+      {
+        "from": "box",
+        "to": "extend",
+        "cond": "i>r 或越界"
+      },
+      {
+        "from": "inherit",
+        "to": "update"
+      },
+      {
+        "from": "extend",
+        "to": "update"
+      },
+      {
+        "from": "update",
+        "to": "box"
+      },
+      {
+        "from": "box",
+        "to": "match",
+        "cond": "构造完整 z"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/string/z-func/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/string/z-function.html",
+      "verified": true
+    }
+  ]
+}

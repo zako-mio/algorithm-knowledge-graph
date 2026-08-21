@@ -1,0 +1,109 @@
+{
+  "id": "multipoint-eval-interpolation",
+  "name": "多点求值与插值",
+  "group": "G-C-12",
+  "stage": "frontier",
+  "priority": "P3",
+  "depth_tier": "brief",
+  "brief": "O(n log^2 n)多项式多点求值与插值，基于分治与NTT",
+  "what": "多点求值：给定 n 次多项式 f(x) 与 n 个点 x_1..x_n，求所有 f(x_i)。朴素 O(n^2)。分治解法：把点分成两半 X0,X1，构造 g0(x)=∏_{x∈X0}(x-x_i)，则 f 在 X0 上的取值 f mod g0 计算，即 f(x)≡f mod g0 (mod 对 X0 内点成立)，递归到规模一半。T(n)=2T(n/2)+O(n log n)=O(n log^2 n)。插值是其逆问题：给 n+1 个点求 n 次多项式，同样分治：f=f0·M1+f1·M0，M0=∏_{左半}(x-x_i)，M1=∏_{右半}(x-x_i)，递归+NTT 乘法，O(n log^2 n)。两者都依赖分段积多项式(segment tree product tree)与 NTT。",
+  "why": {
+    "intuition": "若 f 的某些取值只与'余数'有关：f(x) ≡ f(x) mod g(x) 当 g(x)=0。构造 g 为一半点的 (x-x_i) 乘积，那么在那些点上 f 的值就等于 f mod g 的值，而 f mod g 的次数减半。分治下去每层规模减半。",
+    "principle": "分治求值: 建立线段树, 每个节点存该区间点的 M(x)=∏(x-x_i)(用 NTT 自底向上乘出)。递归: f 对左子区间用 f mod M_left, 右子区间用 f mod M_right; 叶子返回 f(x_i)。分治插值: 先求 M(x)=∏(x-x_i), 用多点求值求 M'(x_i); 递归求左右插值多项式 f0,f1, 再组合 f=f0·M1+f1·M0。复杂度均为 O(n log^2 n)。",
+    "history": "多点求值与快速插值是多项式算法'快包'的标准成员, 1970s 由多项式的 gcd/乘积树技巧演进, 现代统一框架见于 Modern Computer Algebra(von zur Gathen & Gerhard)。OI Wiki 的 poly/multipoint-eval-interpolation 页面收录 O(n log^2 n) 做法。属于前沿/高级内容, 常作为多项式全家桶压轴。"
+  },
+  "how": {
+    "pseudocode": "# 多点求值\nbuild product tree: 节点 M(l,r)=∏_{i in [l,r)} (x-x_i)   # 自底向上 NTT\nsolve(f, node):\n    f = f mod M[node]\n    if leaf: return f(x_l)\n    return solve(f, left) + solve(f, right)\n\n# 插值\nM = product tree root;  g_i = M'(x_i) via multipoint eval\nsolve2(ys, node):\n    if leaf: return y_i / g_i  (常数)\n    f0 = solve2(ys_left, left); f1 = solve2(ys_right, right)\n    return f0*M_right + f1*M_left",
+    "python": "import sys\nsys.setrecursionlimit(100000)\nMOD = 998244353\nROOT = 3\n\n\ndef mod_pow(a, b, mod=MOD):\n    r = 1\n    while b:\n        if b & 1:\n            r = r * a % mod\n        a = a * a % mod\n        b >>= 1\n    return r\n\n\ndef ntt(a, invert=False):\n    n = len(a)\n    a = a[:]\n    j = 0\n    for i in range(1, n):\n        bit = n >> 1\n        while j & bit:\n            j ^= bit\n            bit >>= 1\n        j ^= bit\n        if i < j:\n            a[i], a[j] = a[j], a[i]\n    h = 2\n    while h <= n:\n        w_h = mod_pow(ROOT, (MOD - 1) // h)\n        if invert:\n            w_h = mod_pow(w_h, MOD - 2)\n        for i in range(0, n, h):\n            w = 1\n            for j in range(i, i + h // 2):\n                u = a[j]\n                v = a[j + h // 2] * w % MOD\n                a[j] = (u + v) % MOD\n                a[j + h // 2] = (u - v) % MOD\n                w = w * w_h % MOD\n        h <<= 1\n    if invert:\n        inv_n = mod_pow(n, MOD - 2)\n        for i in range(n):\n            a[i] = a[i] * inv_n % MOD\n    return a\n\n\ndef poly_mul(a, b):\n    if not a or not b:\n        return []\n    need = len(a) + len(b) - 1\n    n = 1\n    while n < need:\n        n <<= 1\n    fa = a[:] + [0] * (n - len(a))\n    fb = b[:] + [0] * (n - len(b))\n    fa = ntt(fa)\n    fb = ntt(fb)\n    for i in range(n):\n        fa[i] = fa[i] * fb[i] % MOD\n    fa = ntt(fa, True)\n    return fa[:need]\n\n\ndef poly_inv(a, n):\n    res = [pow(a[0], MOD - 2, MOD)]\n    m = 1\n    while m < n:\n        m2 = min(m * 2, n)\n        t = poly_mul(a[:m2], res)\n        t = t[:m2]\n        t[0] = (2 - t[0]) % MOD\n        for i in range(1, len(t)):\n            t[i] = (-t[i]) % MOD\n        res = poly_mul(res, t)[:m2]\n        m = m2\n    return res\n\n\ndef poly_divmod(f, g):\n    n, m = len(f), len(g)\n    if n < m:\n        return [], f[:]\n    fr = f[::-1][:n - m + 1]\n    gr = g[::-1]\n    igr = poly_inv(gr, n - m + 1)\n    qrev = poly_mul(fr, igr)[:n - m + 1]\n    q = qrev[::-1]\n    qg = poly_mul(q, g)\n    r = [(f[i] - qg[i]) % MOD for i in range(m - 1)]\n    return q, r\n\n\ndef poly_mod(f, g):\n    _, r = poly_divmod(f, g)\n    return r\n\n\nclass SegTreePoly:\n    \"\"\"分治树: 每个节点存 prod (x - x_i).\"\"\"\n\n    def __init__(self, xs):\n        self.xs = xs\n        self.n = len(xs)\n        self.tree = [None] * (4 * self.n)\n\n    def build(self, node, l, r):\n        if r - l == 1:\n            self.tree[node] = [(-self.xs[l]) % MOD, 1]\n            return\n        mid = (l + r) // 2\n        self.build(node * 2, l, mid)\n        self.build(node * 2 + 1, mid, r)\n        self.tree[node] = poly_mul(self.tree[node * 2], self.tree[node * 2 + 1])[:r - l + 1]\n\n\ndef multipoint_eval_recursive(f, tree, node, l, r):\n    \"\"\"分治多点求值: 返回 f(x_l)..f(x_{r-1})\"\"\"\n    if r - l == 1:\n        return [poly_eval_naive(f, tree.xs[l]) % MOD]\n    mid = (l + r) // 2\n    fl = poly_mod(f, tree.tree[node * 2])\n    fr = poly_mod(f, tree.tree[node * 2 + 1])\n    return multipoint_eval_recursive(fl, tree, node * 2, l, mid) + \\\n        multipoint_eval_recursive(fr, tree, node * 2 + 1, mid, r)\n\n\ndef poly_eval_naive(f, x):\n    r = 0\n    for c in reversed(f):\n        r = (r * x + c) % MOD\n    return r\n\n\ndef multipoint_eval(f, xs):\n    \"\"\"O(n log^2 n) 多点求值(教学用分治+NTT, 小规模)。\"\"\"\n    if not xs:\n        return []\n    tree = SegTreePoly(xs)\n    tree.build(1, 0, tree.n)\n    return multipoint_eval_recursive(f[:], tree, 1, 0, tree.n)\n\n\ndef multipoint_eval_naive(f, xs):\n    return [poly_eval_naive(f, x) for x in xs]\n\n\nif __name__ == \"__main__\":\n    import random\n    for _ in range(20):\n        deg = random.randint(1, 6)\n        f = [random.randint(0, MOD - 1) for _ in range(deg + 1)]\n        xs = [random.randint(0, 10) for _ in range(random.randint(1, 6))]\n        a = multipoint_eval(f, xs)\n        b = multipoint_eval_naive(f, xs)\n        assert a == b, (f, xs, a, b)\n    # 手工: f(x)=x^2+1 在 0,1,2\n    f = [1, 0, 1]\n    assert multipoint_eval(f, [0, 1, 2]) == [1, 2, 5]\n    print(\"multipoint-eval tests passed\")\n",
+    "pypy_notes": "Python 实现 O(n log^2 n) 需高效 NTT + 大量多项式取模, 常数极大, 1e5 级基本不可行(教学版仅供小规模验证)。实际竞赛中 Python 慎用, 通常转 C++。",
+    "complexity": {
+      "time": "O(n log^2 n)",
+      "space": "O(n log n)(分治栈/乘积树)"
+    },
+    "limitations": "需要可靠 NTT + 多项式取模(带余除法用逆元)作为子程序, 实现复杂; Python 常数过大, 实际用途受限; 插值还要求所有 x_i 两两不同(否则 M' 有零点, 无逆)。纯 Python 仅供小规模学习验证。"
+  },
+  "examples": [
+    {
+      "oj": "Library Checker",
+      "pid": "multipoint_evaluation",
+      "url": "https://judge.yosupo.jp/problem/multipoint_evaluation",
+      "difficulty": 5,
+      "key_point": "多点求值模板题, 权威验证平台"
+    },
+    {
+      "oj": "Library Checker",
+      "pid": "polynomial_interpolation",
+      "url": "https://judge.yosupo.jp/problem/polynomial_interpolation",
+      "difficulty": 5,
+      "key_point": "多项式插值模板题"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P5050",
+      "url": "https://www.luogu.com.cn/problem/P5050",
+      "difficulty": 5,
+      "key_point": "多项式多点求值(国内模板题)"
+    }
+  ],
+  "pitfalls": [
+    "乘积树每节点 M 次数要对应区间长度+1, 截断错误",
+    "递归取模后忘记保留叶子处 f 的次数边界",
+    "插值要求 x_i 互异, 否则 M' 不可逆",
+    "取模多项式时先确保 deg f >= deg g, 处理商为零的情形",
+    "NTT 长度补零错误导致乘积树数值错位"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "product_tree",
+        "label": "构建点集乘积树(分治乘 NTT)"
+      },
+      {
+        "id": "eval_rec",
+        "label": "求值: 逐层 f mod M 递归"
+      },
+      {
+        "id": "leaf_val",
+        "label": "叶子处 Horner 求值"
+      },
+      {
+        "id": "interp_deriv",
+        "label": "插值: 求 M'(x_i) 作分母"
+      },
+      {
+        "id": "interp_rec",
+        "label": "插值递归组合 f0·M1+f1·M0"
+      }
+    ],
+    "edges": [
+      {
+        "from": "product_tree",
+        "to": "eval_rec"
+      },
+      {
+        "from": "eval_rec",
+        "to": "leaf_val"
+      },
+      {
+        "from": "product_tree",
+        "to": "interp_deriv"
+      },
+      {
+        "from": "interp_deriv",
+        "to": "interp_rec"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/math/poly/multipoint-eval-interpolation/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/math/poly/multipoint-eval-interpolation.md",
+      "verified": true
+    }
+  ]
+}

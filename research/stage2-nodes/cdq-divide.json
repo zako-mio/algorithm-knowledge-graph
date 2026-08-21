@@ -1,0 +1,117 @@
+{
+  "id": "cdq-divide",
+  "name": "CDQ分治",
+  "group": "G-E-7",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "分治处理点对问题：三维偏序/DP优化/动态转静态；陈丹琦(IOI2008)提出",
+  "what": "CDQ分治是一种基于分治思想的算法框架，用于解决点对统计问题(如三维偏序)、优化1D/1D DP转移、以及将动态问题转化为静态问题。核心是：将点对(i,j)分为左半内部、右半内部、跨左右三类，递归处理前两类，额外处理跨类。",
+  "why": {
+    "intuition": "统计满足条件的点对(i,j)时，暴力 O(n^2)。分治思路：按中点 mid 将序列分左右两半，点对被分为三类：全在左、全在右、跨左右。前两类递归解决，只需额外处理跨左右的部分——此时 i 恒在左、j 恒在右，一个维度(i<j)自动满足，问题降维。",
+    "principle": "solve(l,r) 处理 [l,r] 内所有点对：①取 mid=(l+r)/2 ②递归 solve(l,mid) 和 solve(mid+1,r) ③处理跨区间点对(l<=i<=mid, mid+1<=j<=r)。第三步因 i<j 已保证，降维后排序+双指针+树状数组解决。三维偏序：先按 a 排序(保证 a 维)，CDQ 分治保证 b 维(左<右)，树状数组处理 c 维。复杂度 T(n)=2T(n/2)+O(n log n)=O(n log^2 n)。",
+    "history": "CDQ 分治由 IOI2008 金牌得主陈丹琦在高中时整理总结，因此得名。原始论文《CDQ分治》系统阐述了这一思想在三维偏序、DP优化、动态转静态三个方向的应用。"
+  },
+  "how": {
+    "pseudocode": "# 三维偏序: 统计 a_i<=a_j, b_i<=b_j, c_i<=c_j 且 i!=j 的点对数\nsolve(l, r):\n  if l == r: return\n  mid = (l + r) / 2\n  solve(l, mid)\n  solve(mid + 1, r)\n  # 处理跨区间: 左半 i, 右半 j\n  # 已按 a 排序 => 左半 a <= 右半 a (同 a 时左在前)\n  # 按 b 排序左右半, 双指针 + 树状数组查 c\n  merge left[l..mid] and right[mid+1..r] by b\n  j = l\n  for i in left:\n    while j <= r and right[j].b <= left[i].b:\n      bit.add(right[j].c, 1); j++\n    ans += bit.query(left[i].c)\n  # 清空树状数组",
+    "python": "import sys\nsys.setrecursionlimit(1 << 20)\n\n\nclass BIT:\n    \"\"\"树状数组(单点修改+前缀查询)。\"\"\"\n    def __init__(self, n):\n        self.n = n\n        self.tree = [0] * (n + 2)\n\n    def add(self, i, v):\n        while i <= self.n:\n            self.tree[i] += v\n            i += i & (-i)\n\n    def query(self, i):\n        s = 0\n        while i > 0:\n            s += self.tree[i]\n            i -= i & (-i)\n        return s\n\n\ndef cdq_3d_partial_order(points):\n    \"\"\"三维偏序: 统计点对(i,j)满足 a_i<=a_j, b_i<=b_j, c_i<=c_j 且 i<j。\n    points: [(a, b, c), ...]\n    返回每个点作为 j 的合法 i 个数(含等号)。\n    \"\"\"\n    n = len(points)\n    if n == 0:\n        return []\n    # 离散化 c 值\n    c_vals = sorted(set(p[2] for p in points))\n    c_map = {v: i + 1 for i, v in enumerate(c_vals)}\n    m = len(c_vals)\n\n    # 按 a 排序(a 相同时按原始位置保证 i<j)\n    arr = [(points[i][0], points[i][1], points[i][2], i) for i in range(n)]\n    arr.sort(key=lambda x: (x[0], x[3]))\n\n    ans = [0] * n\n    bit = BIT(m)\n    # 临时数组用于归并排序(按 b)\n    tmp = [None] * n\n\n    def cdq(l, r):\n        if l == r:\n            return\n        mid = (l + r) // 2\n        cdq(l, mid)\n        cdq(mid + 1, r)\n        # 处理跨区间: arr[l..mid] 为左, arr[mid+1..r] 为右\n        # 按 b 排序: 归并(左半和右半内部已按 b 排好序)\n        i, j, k = l, mid + 1, l\n        while i <= mid and j <= r:\n            if arr[i][1] <= arr[j][1]:\n                tmp[k] = arr[i]\n                k += 1\n                i += 1\n            else:\n                tmp[k] = arr[j]\n                k += 1\n                j += 1\n        while i <= mid:\n            tmp[k] = arr[i]\n            k += 1\n            i += 1\n        while j <= r:\n            tmp[k] = arr[j]\n            k += 1\n            j += 1\n        # tmp[l..r] 现在按 b 排序\n        # 双指针+树状数组: 左半元素入树状数组, 右半元素查询\n        # 重新分离左右(按 b 排序后的顺序)\n        left_items = [tmp[x] for x in range(l, r + 1) if tmp[x][3] < arr[mid][3] or (tmp[x][3] <= mid)]\n        # 简化: 直接用 tmp 数组, 用原始位置区分左右\n        # 原始位置 <= mid 的为左半(已排序后), > mid 的为右半\n        # 但 arr 已按 a 排序, 排序后位置和原始位置不一定对应\n        # 需用原始 idx 判断: arr[l..mid] 的原始位置\n        left_set = set(arr[x][3] for x in range(l, mid + 1))\n\n        # 按 b 排序后的顺序处理\n        added = []\n        for x in range(l, r + 1):\n            item = tmp[x]\n            if item[3] in left_set:\n                # 左半元素: 加入树状数组\n                bit.add(c_map[item[2]], 1)\n                added.append(item)\n            else:\n                # 右半元素: 查询\n                ans[item[3]] += bit.query(c_map[item[2]])\n        # 清空树状数组\n        for item in added:\n            bit.add(c_map[item[2]], -1)\n        # 写回 arr (保持按 b 排序)\n        for x in range(l, r + 1):\n            arr[x] = tmp[x]\n\n    cdq(0, n - 1)\n    return ans\n\n\nif __name__ == '__main__':\n    # 测试三维偏序\n    points = [(1, 1, 1), (2, 2, 2), (1, 2, 3), (2, 1, 3), (3, 3, 3)]\n    result = cdq_3d_partial_order(points)\n    print(f'3D partial order counts: {result}')\n    # 验证: 暴力\n    n = len(points)\n    brute = [0] * n\n    for j in range(n):\n        for i in range(n):\n            if i != j:\n                if (points[i][0] <= points[j][0] and\n                    points[i][1] <= points[j][1] and\n                        points[i][2] <= points[j][2]):\n                    brute[j] += 1\n    print(f'Brute force counts:      {brute}')\n    assert result == brute, f'Mismatch: {result} vs {brute}'\n    print('CDQ 3D partial order: test passed!')\n",
+    "pypy_notes": "PyPy 对递归+排序+树状数组组合性能尚可；但 CDQ 分治层数多、常数大，N>1e5 时 Python 可能 TLE；建议 C++ 实现。Python 用于理解算法和验证小规模数据。",
+    "complexity": {
+      "time": "O(N log^2 N) — 每层排序 O(N log N) 或归并 O(N log N), 共 log N 层",
+      "space": "O(N) — 递归栈+树状数组+临时数组"
+    },
+    "limitations": "常数较大(Python 尤甚)；需要问题可降维(至少一个维度可由分治结构保证)；DP优化版需转移有序(中序遍历线段树性质)；动态转静态需操作可分治。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P3810",
+      "url": "https://www.luogu.com.cn/problem/P3810",
+      "difficulty": 4,
+      "key_point": "三维偏序(mo): CDQ 分治模板题, a 排序+CDQ(b)+树状数组(c)"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P3157",
+      "url": "https://www.luogu.com.cn/problem/P3157",
+      "difficulty": 5,
+      "key_point": "动态逆序对: CDQ 分治处理时间+位置+值三维"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P2487",
+      "url": "https://www.luogu.com.cn/problem/P2487",
+      "difficulty": 5,
+      "key_point": "SDOI2011 拦截导弹: CDQ 优化二维 LIS DP"
+    }
+  ],
+  "pitfalls": [
+    "a 相同时排序不稳定导致 i<j 不满足: 需用原始位置做 tiebreaker",
+    "树状数组用完不清空 → 跨层污染: 必须在每层结束后逆序清除",
+    "DP优化版中转移顺序必须夹在 solve(l,mid) 和 solve(mid+1,r) 之间, 否则转移不完整",
+    "归并合并时顺序错误导致后续层 a 单调性被破坏"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "sort_a",
+        "label": "预处理: 按 a 排序"
+      },
+      {
+        "id": "divide",
+        "label": "分治: 取 mid, 分左右"
+      },
+      {
+        "id": "recur_left",
+        "label": "递归处理左半"
+      },
+      {
+        "id": "recur_right",
+        "label": "递归处理右半"
+      },
+      {
+        "id": "cross",
+        "label": "处理跨区间(双指针+树状数组)"
+      },
+      {
+        "id": "merge",
+        "label": "合并(保持 a 有序)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "sort_a",
+        "to": "divide"
+      },
+      {
+        "from": "divide",
+        "to": "recur_left"
+      },
+      {
+        "from": "recur_left",
+        "to": "cross"
+      },
+      {
+        "from": "cross",
+        "to": "recur_right"
+      },
+      {
+        "from": "recur_right",
+        "to": "merge"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/misc/cdq-divide/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html",
+      "verified": true,
+      "note": "CDQ 分治与分治 DP 优化同源的分治思想"
+    }
+  ]
+}

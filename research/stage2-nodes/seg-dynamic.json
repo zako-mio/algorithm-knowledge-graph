@@ -1,0 +1,78 @@
+{
+  "id": "seg-dynamic",
+  "name": "动态开点线段树",
+  "group": "G-A-6",
+  "stage": "advanced",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "按需创建节点，支持大值域离散化无需预先开空间",
+  "what": "不再用 2p/2p+1 固定编号，而是用 ls[p]/rs[p] 显式记录子节点编号，仅在真正访问某子区间时才新建节点，使大值域(如 1e18)无需离散化即可直接建树。",
+  "why": {
+    "intuition": "值域 1e18 时堆式 4N 数组开不下；但若实际只改/查了 Q 个点，真正用到的节点不过 O(Q log V) 个——那干脆用多少开多少。",
+    "principle": "全局维护节点池 ls/rs/sum 数组与计数器 tot，new_node() 每次追加一个新节点。update/query 递归时若 p==0 表示该子区间从未被创建，按需求新建(单点)或直接返回空值(查询)。区间修改仍可配懒标记，但 pushdown 时若子节点不存在要先 new_node。",
+    "history": "动态开点线段树是显式节点结构（平衡树/主席树）思想在线段树上的应用，OI Wiki ds/seg 章节「动态开点线段树」小节介绍，广泛用于权值线段树与大值域问题。"
+  },
+  "how": {
+    "pseudocode": "update(x,f,s,t,p): 若 !p 则 p=new_node(); sum[p]+=f; 若 s==t 返回; 按 m 递归 ls/rs\nquery(l,r,s,t,p): 若 !p 返回 0; 若 ⊆ 返回 sum[p]; 否则递归",
+    "python": "import sys\n\n# 动态开点线段树: 大值域(如 1e18)离散化或直接按需建点\nMAXV = 1 << 60\ntot = 0\nls = [0]\nrs = [0]\nsm = [0]\n\n\ndef new_node():\n    global tot\n    tot += 1\n    ls.append(0)\n    rs.append(0)\n    sm.append(0)\n    return tot\n\n\ndef update(x, f, s, t, p):\n    # 单点修改: 位置 x 加 f\n    if not p:\n        p = new_node()\n    sm[p] += f\n    if s == t:\n        return p\n    m = s + ((t - s) >> 1)\n    if x <= m:\n        ls[p] = update(x, f, s, m, ls[p])\n    else:\n        rs[p] = update(x, f, m + 1, t, rs[p])\n    return p\n\n\ndef query(l, r, s, t, p):\n    # 区间查询 [l,r] 的和\n    if not p or l > t or r < s:\n        return 0\n    if l <= s and t <= r:\n        return sm[p]\n    m = s + ((t - s) >> 1)\n    res = 0\n    if l <= m:\n        res += query(l, r, s, m, ls[p])\n    if r > m:\n        res += query(l, r, m + 1, t, rs[p])\n    return res\n\n\nif __name__ == \"__main__\":\n    sys.setrecursionlimit(1 << 20)\n    root = new_node()\n    root = update(3, 7, 1, MAXV, root)\n    root = update(100, 4, 1, MAXV, root)\n    print(query(1, 10, 1, MAXV, root))   # 7\n    print(query(1, 200, 1, MAXV, root))  # 11\n",
+    "complexity": {
+      "time": "O((N+Q)log V) — V 为值域；只创建访问过的节点",
+      "space": "O((N+Q)log V) — 节点池按需增长"
+    },
+    "limitations": "Python 全局可变列表(append)做节点池可行但常数大；值域过大应先离散化把 V 压到 n 量级再开 4N 静态数组更快；区间修改可用标记永久化免去 pushdown 时的 new_node 开销。",
+    "pypy_notes": "节点池用并行列表 ls/rs/sum + 计数器 tot，避免对象数组开销；递归深度需 setrecursionlimit。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P13825",
+      "url": "https://www.luogu.com.cn/problem/P13825",
+      "difficulty": 5,
+      "key_point": "线段树1.5 动态开点模板：区间加+区间和，大值域直接开点"
+    }
+  ],
+  "pitfalls": [
+    "递归时 p==0 必须先 new_node 再继续，否则写空指针",
+    "区间修改用懒标记时 pushdown 里也要 new 子节点，或改用标记永久化",
+    "值域能离散化就离散化：动态开点常数远大于静态 4N 数组"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "newroot",
+        "label": "新建根节点"
+      },
+      {
+        "id": "update",
+        "label": "递归修改(按需new_node)"
+      },
+      {
+        "id": "query",
+        "label": "递归查询(p==0返回空值)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "newroot",
+        "to": "update"
+      },
+      {
+        "from": "update",
+        "to": "query"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/seg/#动态开点线段树",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/data_structures/segment_tree.html",
+      "verified": true,
+      "note": "动态开点与递归线段树节点表示"
+    }
+  ]
+}

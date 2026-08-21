@@ -1,0 +1,82 @@
+{
+  "id": "tree-centroid",
+  "name": "树的重心",
+  "group": "G-B-7",
+  "stage": "intermediate",
+  "priority": "P1",
+  "depth_tier": "standard",
+  "brief": "删除后最大连通块大小不超过 n/2 的节点，点分治/重心分解基础",
+  "what": "树的重心是满足如下性质的节点 v：删去 v 后，得到的每个连通分量（子树）大小都不超过整棵树节点数 n 的一半；等价地，在所有节点中 v 的「重量」（删去 v 后最大连通分量大小）最小。重心若不唯一则恰有两个且相邻（n 为偶数时存在），此时删去两重心之间的边会把树分成两个大小相等（各 n/2）的连通分量。重心也是「使所有节点到它的距离和最小」的节点。",
+  "why": {
+    "intuition": "把树想成一堆节点。如果在某个节点处把所有分支的「重量」都压到 n/2 以内，那么从它出发往任何方向走一步，都会有超过一半的节点在反方向——因此它可以同时「钳住」所有子树。删去重心后每块至多 n/2，意味着递归分解时子问题的规模严格减半，这就是它成为分治基点的原因：重心的存在让「把问题劈成一半」成为可能。",
+    "principle": "求重心只需一次 DFS：任意定根后算出每棵子树大小 siz[u]，则删去 u 后各连通块大小 = 各儿子子树大小 siz[ch]，以及「向上」部分 n-siz[u]。若所有儿子子树与向上部分都 <= n/2，u 即重心（从根向儿子走，只要存在 siz[ch]*2 > n 就朝 ch 走，走到走不动即重心）。等价定义：到所有点距离和最小（换根 DP 可证：从 v 换到邻居 u 时距离和变化 Δ = n - 2·siz[u方向]）。这是点分治/重心分解中每次 O(n) 找重心的理论依据。",
+    "history": "重心（centroid）的「每块至多一半」性质使其成为树上分治的基石，点分治在国外常称 centroid decomposition / 重心分解。OI Wiki 给出等价定义（最大连通块最小、距离和最小）及四条常用性质；CP-Algorithms 的 centroid decomposition 页在定理中证明每棵树至少一个、至多两个相邻的重心，并由此推出分治深度 O(log n)。"
+  },
+  "how": {
+    "pseudocode": "dfs(u, fa): siz[u]=1\n  for v in adj[u], v!=fa: dfs(v,u); siz[u]+=siz[v]\nfind_centroid(root):\n  u = root, parent = -1\n  while True:\n    found = False\n    for v in adj[u], v!=parent:\n      if siz[v]*2 > n: parent=u; u=v; found=True; break\n    if not found: return u",
+    "python": "import sys\n\nsys.setrecursionlimit(1 << 20)\n\n\ndef dfs(u, fa, adj, siz):\n    siz[u] = 1\n    for v in adj[u]:\n        if v != fa:\n            dfs(v, u, adj, siz)\n            siz[u] += siz[v]\n\n\ndef find_centroid(n, adj, siz, root=1):\n    u, parent = root, -1\n    while True:\n        moved = False\n        for v in adj[u]:\n            if v != parent and siz[v] * 2 > n:\n                parent, u = u, v\n                moved = True\n                break\n        if not moved:\n            return u\n\n\ndef main():\n    n = 7\n    edges = [(1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (3, 7)]\n    adj = [[] for _ in range(n + 1)]\n    for a, b in edges:\n        adj[a].append(b)\n        adj[b].append(a)\n    siz = [0] * (n + 1)\n    dfs(1, 0, adj, siz)\n    c = find_centroid(n, adj, siz)\n    # 校验：删去 c 后所有连通块 <= n/2\n    seen = [False] * (n + 1)\n    def count_block(start, ban):\n        st = [start]\n        seen[start] = True\n        cnt = 0\n        while st:\n            u = st.pop()\n            cnt += 1\n            for v in adj[u]:\n                if v != ban and not seen[v]:\n                    seen[v] = True\n                    st.append(v)\n        return cnt\n    blocks = []\n    seen[c] = True\n    for v in adj[c]:\n        if not seen[v]:\n            blocks.append(count_block(v, c))\n    print(\"centroid =\", c)\n    print(\"block sizes after removal =\", blocks)\n    assert all(b * 2 <= n for b in blocks), \"not a centroid!\"\n    print(\"OK\")\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "pypy_notes": "本实现两遍 DFS（求 siz + 找重心）递归深度 O(n)，PyPy 下需 sys.setrecursionlimit；菊花图/链最坏递归深度可能达 n，超过默认 1000 栈限制，务必先设大 limit 或用迭代栈。纯 Python 复杂度 O(n) 常数约是 C++ 的 5-10 倍，但 n<=1e6 求单个重心仍可接受。",
+    "complexity": {
+      "time": "O(n) — 一次 DFS 求子树大小，一次 DFS 找重心",
+      "space": "O(n) — 邻接表 + siz 数组"
+    },
+    "limitations": "重心定义依赖「子树大小」，无根树需先定根；点分治中每次递归都要在连通块内重新求 siz（总大小变化），否则用旧 siz 判断会错。多个重心时（n 偶数且存在恰一分为二）题目可能要求输出全部或特殊处理。距离和最小定义在点带权时不再等价，需用带权重心。"
+  },
+  "examples": [
+    {
+      "oj": "Luogu",
+      "pid": "P1364",
+      "url": "https://www.luogu.com.cn/problem/P1364",
+      "difficulty": 2,
+      "key_point": "医院设置：带权重心 / 距离和最小，可直接换根 DP 或枚举"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "685B",
+      "url": "https://codeforces.com/problemset/problem/685/B",
+      "difficulty": 2200,
+      "key_point": "Kay and Snowflake：求每棵子树的重心，利用「子树重心在重儿子子树重心到根的路径上」性质"
+    },
+    {
+      "oj": "Codeforces",
+      "pid": "1406C",
+      "url": "https://codeforces.com/contest/1406/problem/C",
+      "difficulty": 1900,
+      "key_point": "Link Cut Centroids：利用双重心性质构造删边/加边使树只有一个重心"
+    },
+    {
+      "oj": "POJ",
+      "pid": "1655",
+      "url": "http://poj.org/problem?id=1655",
+      "difficulty": 2,
+      "key_point": "Balancing Act：模板题，删点后最大连通块最小"
+    }
+  ],
+  "pitfalls": [
+    "只考虑儿子子树大小而漏掉「向上」部分 n-siz[u] 的判定（删根时没有向上部分，但非根节点有）",
+    "点分治递归时忘了重新计算当前连通块的 siz，直接用全树的 siz 判断重心导致层数退化为 O(n)",
+    "重心不唯一时直接返回一个会漏答案，需判断 n 是否偶数且存在平分边",
+    "递归深度过大：链状树（n=1e5）递归求 siz 会爆 Python 默认栈，必须提高 recursionlimit 或用迭代"
+  ],
+  "step_dag": {
+    "nodes": [
+      {"id": "root", "label": "任选根做 DFS 定 siz"},
+      {"id": "size", "label": "计算每棵子树大小 siz[u]"},
+      {"id": "check", "label": "对每个 u 校验所有连通块 <= n/2"},
+      {"id": "pick", "label": "取满足条件的节点(可多个)为重心"},
+      {"id": "use", "label": "用于点分治/重心分解/距离和最小"}
+    ],
+    "edges": [
+      {"from": "root", "to": "size"},
+      {"from": "size", "to": "check"},
+      {"from": "check", "to": "pick"},
+      {"from": "pick", "to": "use"}
+    ]
+  },
+  "sources": [
+    {"type": "oiwiki", "url": "https://oi-wiki.org/graph/tree-centroid/", "verified": true},
+    {"type": "oiwiki_raw", "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/graph/tree-centroid.md", "verified": true},
+    {"type": "cpalg", "url": "https://cp-algorithms.com/graph/centroid_decomposition.html", "verified": true},
+    {"type": "book", "ref": "CPH ch14 pp143-150 (Tree algorithms: centroid)", "verified": true}
+  ]
+}

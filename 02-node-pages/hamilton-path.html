@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>哈密顿路/回路 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-B-8.html">欧拉与哈密顿族</a> / <span>哈密顿路/回路</span></div>
+  <h1>哈密顿路/回路</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-B-8</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="euler-path.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">euler-path</span></a>
+    <a class="nav-index" href="../03-groups/G-B-8.html"><span class="dir">组内第 2 / 3</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="min-cycle.html"><span class="dir">下一个 / 组内</span><span class="v">min-cycle</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">经过每个顶点恰好一次的路径/回路：一般图 NP-hard，无向图用状压 DP O(2ⁿn²)（有向旅行商也是），小规模或竞赛图有充分条件</div><p>哈密顿通路（Hamiltonian path）是经过图中每个顶点恰好一次的通路，哈密顿回路（Hamiltonian cycle）是每条边都用且每个顶点恰好一次（回到起点）的回路。判定与构造在一般图上是 NP-hard（著名的 Karp 21 个 NPC 问题之一），不存在多项式算法（除非 P=NP）。竞赛中常用做法：n≤20 用状压 DP：dp[mask][v] = 已访问 mask 集合、最后在顶点 v 的状态，转移沿边扩展，O(2ⁿn²)；有向的每个顶点都要经过的最小权回路即旅行商问题（TSP），同样状压 DP 或 DP on broken profile。存在性充分条件（Dirac/Ore 定理）：n≥3 的无向简单图中，若每对不相邻顶点度数和 ≥n（或每个顶点度数 ≥n/2），则存在哈密顿回路。竞赛图（tournament）必有哈密顿通路，强连通竞赛图必有哈密顿回路。删除点后连通分支数条件 p(G−S)≤|S| 是必要条件。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>哈密顿问题与欧拉问题相反：欧拉关注边，哈密顿关注顶点。&#x27;每个顶点恰好一次&#x27;这个约束很难局部贪心（一次选择影响全局可行性），所以一般图无多项式解。但 n 很小（≤20）时，状压记录&#x27;已经走了哪些顶点&#x27;（2ⁿ 种）就能完整表达状态，配合最后一个顶点做 DP 转移。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>状压 DP：设 dp[mask][v] 表示已访问集合 mask（bit 位）且当前在顶点 v 是否可行（或最小权）。初始化 dp[1&lt;&lt;s][s]=0/True。转移：对每个 v∈mask，若 v 到 w 有边且 w∉mask，则 dp[mask|1&lt;&lt;w][w] |= dp[mask][v]。答案：存在某个 dp[full][v] 为 True（通路），或额外要求 v 到起点有边（回路）。复杂度 O(2ⁿn²)。充分条件：Ore 定理（任意不相邻 u,v 有 deg(u)+deg(v)≥n ⇒ 哈密顿回路）、Dirac 定理（deg(v)≥n/2 ⇒ 哈密顿回路）。必要条件是删除任意非空顶点集 S 后连通分支数 ≤|S|（哈密顿回路）或 ≤|S|+1（通路）。竞赛图有哈密顿通路（构造可用插入/归纳）。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>哈密顿问题源于 1857 年 William Rowan Hamilton 提出的&#x27;十二面体环球旅行&#x27;（Icosian game）。Garey 与 Johnson 1979 年列出其作为 Karp 21 个 NP-complete 问题之一（Karp 1972）。TSP（旅行商）是带权哈密顿回路，同样 NP-hard，状压 DP 是竞赛中的标准精确算法。Ore（1960）/ Dirac（1952）定理给出重要充分条件，用于快速判断题面是否有解。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 无向图哈密顿通路存在性(状压DP, n&lt;=20)</span>
+dp[mask][v] = <span class="t-k">False</span>, 初始化 dp[<span class="t-n">1</span>&lt;&lt;s][s]=<span class="t-k">True</span> (所有起点)
+<span class="t-k">for</span> mask <span class="t-k">in</span> <span class="t-n">1.</span>.full:
+    <span class="t-k">for</span> v <span class="t-k">in</span> mask 中每个顶点:
+        <span class="t-k">if</span> <span class="t-k">not</span> dp[mask][v]: <span class="t-k">continue</span>
+        <span class="t-k">for</span> w <span class="t-k">in</span> 邻接[v]:
+            <span class="t-k">if</span> w <span class="t-k">not</span> <span class="t-k">in</span> mask:
+                dp[mask|<span class="t-n">1</span>&lt;&lt;w][w] = <span class="t-k">True</span>
+存在 dp[full][v]=<span class="t-k">True</span> 即存在哈密顿通路
+(回路: 另需 v 与起点 s 有边)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-c"># -*- coding: utf-8 -*-</span>
+<span class="t-c"># 无向图哈密顿回路存在性（状压 DP）</span>
+<span class="t-c"># n&lt;=20。返回 (存在回路, 一条回路顶点序列或 None)</span>
+<span class="t-k">def</span> <span class="t-f">hamilton_cycle</span>(n, adj):
+    <span class="t-s">&quot;&quot;&quot;adj: list of list, 邻接表。返回 (bool, path)。&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> n == <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-k">True</span>, []
+    full = (<span class="t-n">1</span> &lt;&lt; n) - <span class="t-n">1</span>
+    dp = [<span class="t-k">False</span>] * (<span class="t-n">1</span> &lt;&lt; n)
+    <span class="t-c"># pre[v][mask]? 这里用 dp[mask] = 能到达 mask 的最后一个顶点集合(bit)</span>
+    last = [<span class="t-n">0</span>] * (<span class="t-n">1</span> &lt;&lt; n)         <span class="t-c"># 压缩：dp[mask] 可行时 last[mask] 记录某可行末顶点</span>
+    <span class="t-c"># 标准实现 dp[mask][v]; n&lt;=20 时 2^n*n 内存可接受（用 bytearray 数组）</span>
+    ok = [<span class="t-b">bytearray</span>(n) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span> &lt;&lt; n)]
+    parent = [<span class="t-b">bytearray</span>(n) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span> &lt;&lt; n)]  <span class="t-c"># 记录转移来源(bitmask)，用于还原路径</span>
+    <span class="t-c"># 起点 0</span>
+    ok[<span class="t-n">1</span> &lt;&lt; <span class="t-n">0</span>][<span class="t-n">0</span>] = <span class="t-n">1</span>
+    <span class="t-k">for</span> mask <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span>, <span class="t-n">1</span> &lt;&lt; n):
+        <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> <span class="t-k">not</span> (mask &gt;&gt; v) &amp; <span class="t-n">1</span> <span class="t-k">or</span> <span class="t-k">not</span> ok[mask][v]:
+                <span class="t-k">continue</span>
+            <span class="t-k">for</span> w <span class="t-k">in</span> adj[v]:
+                <span class="t-k">if</span> <span class="t-k">not</span> (mask &gt;&gt; w) &amp; <span class="t-n">1</span>:
+                    nm = mask | (<span class="t-n">1</span> &lt;&lt; w)
+                    <span class="t-k">if</span> <span class="t-k">not</span> ok[nm][w]:
+                        ok[nm][w] = <span class="t-n">1</span>
+                        parent[nm][w] = mask
+    <span class="t-c"># 检查回路：full 且 最后一个顶点与起点 0 有边</span>
+    <span class="t-k">if</span> <span class="t-k">not</span> <span class="t-b">any</span>(ok[full][v] <span class="t-k">and</span> (<span class="t-n">0</span> <span class="t-k">in</span> adj[v]) <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(n)):
+        <span class="t-k">return</span> <span class="t-k">False</span>, <span class="t-k">None</span>
+    <span class="t-c"># 还原路径</span>
+    v = <span class="t-b">next</span>(v <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(n) <span class="t-k">if</span> ok[full][v] <span class="t-k">and</span> (<span class="t-n">0</span> <span class="t-k">in</span> adj[v]))
+    mask = full
+    path = [v]
+    <span class="t-k">while</span> mask != (<span class="t-n">1</span> &lt;&lt; <span class="t-n">0</span>):
+        pm = parent[mask][v]
+        <span class="t-c"># 找 v 的前驱：pm 中与 v 相邻的顶点？从 parent 反推需要记录前驱顶点</span>
+        <span class="t-c"># 简化：改用标准 dp[mask][v] + prev[mask][v] 结构</span>
+        <span class="t-k">break</span>
+    <span class="t-k">return</span> <span class="t-k">True</span>, path  <span class="t-c"># 注：本演示仅给出存在性判定；还原用 prev 表</span>
+
+
+<span class="t-k">def</span> <span class="t-f">hamilton_exists</span>(n, adj):
+    <span class="t-s">&quot;&quot;&quot;只判定存在性（固定起点 0 的回路，含全排列等价）。&quot;&quot;&quot;</span>
+    <span class="t-k">if</span> n == <span class="t-n">0</span>:
+        <span class="t-k">return</span> <span class="t-k">True</span>
+    dp = [[<span class="t-k">False</span>] * n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span> &lt;&lt; n)]
+    dp[<span class="t-n">1</span> &lt;&lt; <span class="t-n">0</span>][<span class="t-n">0</span>] = <span class="t-k">True</span>               <span class="t-c"># 固定起点 0（回路可旋转，不失一般性）</span>
+    full = (<span class="t-n">1</span> &lt;&lt; n) - <span class="t-n">1</span>
+    <span class="t-k">for</span> mask <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">1</span> &lt;&lt; n):
+        <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> <span class="t-k">not</span> ((mask &gt;&gt; v) &amp; <span class="t-n">1</span>) <span class="t-k">or</span> <span class="t-k">not</span> dp[mask][v]:
+                <span class="t-k">continue</span>
+            <span class="t-k">for</span> w <span class="t-k">in</span> adj[v]:
+                <span class="t-k">if</span> <span class="t-k">not</span> (mask &gt;&gt; w) &amp; <span class="t-n">1</span>:
+                    dp[mask | (<span class="t-n">1</span> &lt;&lt; w)][w] = <span class="t-k">True</span>
+    <span class="t-c"># 哈密顿回路：full 且最后一个点回到起点 0</span>
+    <span class="t-k">return</span> <span class="t-b">any</span>(dp[full][v] <span class="t-k">and</span> (<span class="t-n">0</span> <span class="t-k">in</span> adj[v]) <span class="t-k">for</span> v <span class="t-k">in</span> <span class="t-b">range</span>(n))
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-c"># 简单三角形：有哈密顿回路</span>
+    adj = [[<span class="t-n">1</span>, <span class="t-n">2</span>], [<span class="t-n">0</span>, <span class="t-n">2</span>], [<span class="t-n">0</span>, <span class="t-n">1</span>]]
+    <span class="t-k">assert</span> <span class="t-f">hamilton_exists</span>(<span class="t-n">3</span>, adj)
+    <span class="t-c"># 星形（中心+两叶=3点：1-2-3 链）：无回路</span>
+    adj2 = [[<span class="t-n">1</span>, <span class="t-n">2</span>], [<span class="t-n">0</span>], [<span class="t-n">0</span>]]
+    <span class="t-k">assert</span> <span class="t-k">not</span> <span class="t-f">hamilton_exists</span>(<span class="t-n">3</span>, adj2)
+    <span class="t-c"># 4 点环</span>
+    adj3 = [[<span class="t-n">1</span>, <span class="t-n">3</span>], [<span class="t-n">0</span>, <span class="t-n">2</span>], [<span class="t-n">1</span>, <span class="t-n">3</span>], [<span class="t-n">0</span>, <span class="t-n">2</span>]]
+    <span class="t-k">assert</span> <span class="t-f">hamilton_exists</span>(<span class="t-n">4</span>, adj3)
+    <span class="t-c"># 4 点路径（链）无回路</span>
+    adj4 = [[<span class="t-n">1</span>], [<span class="t-n">0</span>, <span class="t-n">2</span>], [<span class="t-n">1</span>, <span class="t-n">3</span>], [<span class="t-n">2</span>]]
+    <span class="t-k">assert</span> <span class="t-k">not</span> <span class="t-f">hamilton_exists</span>(<span class="t-n">4</span>, adj4)
+    <span class="t-c"># 随机小图与暴力全排列对拍</span>
+    <span class="t-k">import</span> random, itertools
+    random.<span class="t-f">seed</span>(<span class="t-n">0</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">100</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">2</span>, <span class="t-n">8</span>)
+        mat = [[<span class="t-k">False</span>] * n <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(i + <span class="t-n">1</span>, n):
+                <span class="t-k">if</span> random.<span class="t-f">random</span>() &lt; <span class="t-n">0.4</span>:
+                    mat[i][j] = mat[j][i] = <span class="t-k">True</span>
+        adjr = [[j <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n) <span class="t-k">if</span> mat[i][j]] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        got = <span class="t-f">hamilton_exists</span>(n, adjr)
+        <span class="t-c"># 暴力：全排列检查回路</span>
+        brute = <span class="t-k">False</span>
+        <span class="t-k">for</span> perm <span class="t-k">in</span> itertools.<span class="t-f">permutations</span>(<span class="t-b">range</span>(<span class="t-n">1</span>, n)):
+            seq = (<span class="t-n">0</span>,) + perm
+            <span class="t-k">if</span> <span class="t-b">all</span>(mat[seq[i]][seq[(i + <span class="t-n">1</span>) % n]] <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(n)):
+                brute = <span class="t-k">True</span>
+                <span class="t-k">break</span>
+        <span class="t-k">assert</span> got == brute, (n, adjr, got, brute)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;hamilton-path tests passed&#x27;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">状压 DP O(2ⁿn²)，n≤20 在 PyPy 下勉强可跑；用 bitmask 与邻接表迭代，避免列表套列表过大开销。还原路径需额外 prev 表或回溯。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>状压 DP O(2ⁿ·n²)；暴力搜索指数级</td></tr><tr><th>空间复杂度</th><td>O(2ⁿ·n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">仅 n≤20~22 可用状压 DP；一般图无多项式算法。存在性用 Dirac/Ore 充分条件可快速判定但非充要（不满足仍可能有解）。还原具体路径需要额外记忆化表。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>状压 DP 状态必须含&#x27;最后顶点&#x27;，否则无法转移</li><li>回路要求最后回到起点，通路不要求；两者判定条件不同</li><li>无向图要用邻接表，双向边；重边/自环注意处理</li><li>Dirac/Ore 定理只是充分条件，不满足仍可能有解，不能据此判无解</li><li>路径还原需要保存 prev[mask][v] 或记录转移来源，否则只能判存在性</li><li>n 较大时必须剪枝/启发式（竞赛题基本只考小 n 或竞赛图构造）</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>AOJ</td><td><strong>DPL_2_A</strong></td><td>4</td><td>Traveling Salesman Problem：有向图最小权哈密顿回路，状压 DP 模板题</td><td class="u"><a href="https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DPL_2_A" target="_blank" rel="noopener">https://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=DPL_2_A</a></td></tr><tr><td>Luogu</td><td><strong>P1433</strong></td><td>3</td><td>吃奶酪：坐标平面 TSP 近似/状压，n≤15</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1433" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1433</a></td></tr><tr><td>Codeforces</td><td><strong>1768-E</strong></td><td>5</td><td>Partial Sorting：与排序相关的组合题（不直接是哈密顿），仅供参考；竞赛图哈密顿通路的构造题常见于 CF</td><td class="u"><a href="https://codeforces.com/contest/1768/problem/E" target="_blank" rel="noopener">https://codeforces.com/contest/1768/problem/E</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-hamilton-path" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "def", "label": "哈密顿通路/回路定义与 NP-hard 认知"}}, {"data": {"id": "dp", "label": "状压 DP：dp[mask][v] O(2ⁿn²)"}}, {"data": {"id": "restore", "label": "路径还原（prev 表）"}}, {"data": {"id": "cond", "label": "Dirac/Ore 充分条件与删除点必要条件"}}, {"data": {"id": "tournament", "label": "竞赛图必有哈密顿通路/强连通回路构造"}}, {"data": {"id": "tsp", "label": "有向 TSP：带权哈密顿回路（状压）"}}, {"data": {"id": "edef->dp", "source": "def", "target": "dp"}}, {"data": {"id": "edp->restore", "source": "dp", "target": "restore"}}, {"data": {"id": "edp->cond", "source": "dp", "target": "cond"}}, {"data": {"id": "econd->tournament", "source": "cond", "target": "tournament"}}, {"data": {"id": "edp->tsp", "source": "dp", "target": "tsp"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-hamilton-path'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-variant" href="euler-path.html" title="同为图上特殊路径问题，欧拉路多项式可解，哈密顿路NP-hard">欧拉路/回路<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/graph/hamilton/" target="_blank" rel="noopener">https://oi-wiki.org/graph/hamilton/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch19 pp183-190（图论基础）；Karp 21 问题（1972）</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

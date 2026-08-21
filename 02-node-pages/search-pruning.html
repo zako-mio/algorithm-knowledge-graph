@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>搜索剪枝优化 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-A-14.html">搜索算法族</a> / <span>搜索剪枝优化</span></div>
+  <h1>搜索剪枝优化</h1>
+  <div class="badges"><span class="badge p" style="color:#e8933b;background:#3a2a12;border-color:#e8933b">P1</span><span class="badge st" style="color:#e8933b;background:#332412;border-color:#e8933b">intermediate</span><span class="badge dp" style="color:#9aa0ab;background:#23272f;border-color:#9aa0ab">standard</span><span class="badge grp">G-A-14</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="idastar.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">idastar</span></a>
+    <a class="nav-index" href="../03-groups/G-A-14.html"><span class="dir">组内第 7 / 9</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="minimax-alpha-beta.html"><span class="dir">下一个 / 组内</span><span class="v">minimax-alpha-beta</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">可行性剪枝/最优性剪枝/搜索顺序优化，减少搜索量</div><p>搜索剪枝是减少 DFS 搜索量的系列技术。DFS 时间复杂度过高，直接爆搜常超时；剪枝通过提前判断子树的&#x27;前途&#x27;，在扩展前砍掉无望分支。三大类：①可行性剪枝——当前部分解已违反约束（超容量、无法到达），整棵子树非法；②最优性剪枝——当前代价已差于已得最优解（或乐观上界也追不上），继续搜无意义；③搜索顺序优化——先搜更有希望的分支，让最优解更早出现，间接提升剪枝效率。此外还有记忆化（相同状态只算一次）、等效性剪枝（对称/重复分支只搜一个）。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>剪枝像&#x27;识途的老马&#x27;：走岔路之前就闻出前面是死胡同（可行性），或者就算走到头也不会比现有最好成绩好（最优性），干脆掉头。先搜最有可能成功的路（顺序优化），能更早拿到好成绩，让最优性剪枝更有力。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>DFS 框架中，可行性剪枝在循环内判断 cur+next 是否超约束；最优性剪枝在进入递归前比较 now 与当前最优 ans，若 now 已不可能优于 ans 则 return。顺序优化通过按代价/密度排序候选，使最优解尽快出现——这本质是利用&#x27;找到好下界越快，剪枝越多&#x27;。等效性剪枝（如相同长度木棍只尝试第一个未用的）避免重复探索对称分支。极端法剪枝：若最理想情况（乐观估计）都无法满足，则实际更不可能。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>剪枝思想伴随回溯法出现（见 backtracking 节点），并在 0/1 背包分支限界（Land &amp; Doig, 1960）、N皇后优化中得到系统化。OI Wiki 以工作分配问题（n≤15）与 P1120 小木棍为经典教学例，总结出&#x27;极端法/调整法/数学方法&#x27;三类剪枝思路。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">dfs</span>(状态, 当前代价 now):
+    <span class="t-c"># 最优性剪枝</span>
+    <span class="t-k">if</span> now 已差于/不可能优于 ans: <span class="t-k">return</span>
+    <span class="t-c"># 可行性剪枝</span>
+    <span class="t-k">if</span> 违反约束: <span class="t-k">return</span>
+    <span class="t-k">if</span> 到达目标: ans = <span class="t-b">min</span>(ans, now); <span class="t-k">return</span>
+    <span class="t-k">for</span> 候选 c <span class="t-k">in</span> 按优化顺序排列的候选集:
+        <span class="t-k">if</span> 可行:
+            标记; <span class="t-f">dfs</span>(下一状态); 撤销
+    <span class="t-c"># 等效性剪枝: 相同候选只试第一个</span>
+
+<span class="t-c"># 优化顺序: 按代价/密度/影响力降序</span></code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">def</span> <span class="t-f">stick_break</span>(lengths, k):
+    <span class="t-s">&quot;&quot;&quot;小木棍问题: 能否把 lengths 分成 k 组, 每组和相同
+    返回目标单根长度(存在解)或 -1
+    集中演示: 从长到短排序 + 可行性/最优性/等效性剪枝
+    &quot;&quot;&quot;</span>
+    total = <span class="t-b">sum</span>(lengths)
+    <span class="t-k">if</span> total % k != <span class="t-n">0</span>:
+        <span class="t-k">return</span> -<span class="t-n">1</span>
+    target = total // k
+    lengths = <span class="t-b">sorted</span>(lengths, reverse=<span class="t-k">True</span>)  <span class="t-c"># 搜索顺序优化: 先长后短</span>
+    n = <span class="t-b">len</span>(lengths)
+    used = [<span class="t-k">False</span>] * n
+
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(remaining_groups, cur_sum, start):
+        <span class="t-k">if</span> remaining_groups == <span class="t-n">0</span>:
+            <span class="t-k">return</span> <span class="t-k">True</span>
+        <span class="t-k">if</span> cur_sum == target:
+            <span class="t-k">return</span> <span class="t-f">dfs</span>(remaining_groups - <span class="t-n">1</span>, <span class="t-n">0</span>, <span class="t-n">0</span>)
+        <span class="t-k">for</span> i <span class="t-k">in</span> <span class="t-b">range</span>(start, n):
+            <span class="t-k">if</span> used[i]:
+                <span class="t-k">continue</span>
+            <span class="t-k">if</span> cur_sum + lengths[i] &gt; target:
+                <span class="t-k">continue</span>  <span class="t-c"># 可行性剪枝</span>
+            <span class="t-k">if</span> i &gt; <span class="t-n">0</span> <span class="t-k">and</span> <span class="t-k">not</span> used[i - <span class="t-n">1</span>] <span class="t-k">and</span> lengths[i] == lengths[i - <span class="t-n">1</span>]:
+                <span class="t-k">continue</span>  <span class="t-c"># 等效性剪枝: 相同长度只试第一个</span>
+            used[i] = <span class="t-k">True</span>
+            <span class="t-k">if</span> <span class="t-f">dfs</span>(remaining_groups, cur_sum + lengths[i], i + <span class="t-n">1</span>):
+                <span class="t-k">return</span> <span class="t-k">True</span>
+            used[i] = <span class="t-k">False</span>
+            <span class="t-k">if</span> cur_sum == <span class="t-n">0</span>:
+                <span class="t-k">return</span> <span class="t-k">False</span>  <span class="t-c"># 最长未用都放不下, 无解</span>
+            <span class="t-k">if</span> cur_sum + lengths[i] == target:
+                <span class="t-k">return</span> <span class="t-k">False</span>  <span class="t-c"># 恰好拼满却失败, 无解</span>
+        <span class="t-k">return</span> <span class="t-k">False</span>
+
+    <span class="t-k">return</span> target <span class="t-k">if</span> <span class="t-f">dfs</span>(k, <span class="t-n">0</span>, <span class="t-n">0</span>) <span class="t-k">else</span> -<span class="t-n">1</span>
+
+
+<span class="t-k">def</span> <span class="t-f">assignment_min_time</span>(cost, n):
+    <span class="t-s">&quot;&quot;&quot;工作分配问题: n个人n份工作, 求最小总时间
+    cost[i][j] = 第i人做第j份工作的时间
+    最优性剪枝: 当前总时间超过已有最优即返回
+    &quot;&quot;&quot;</span>
+    used = [<span class="t-k">False</span>] * n
+    best = [<span class="t-b">float</span>(<span class="t-s">&#x27;inf&#x27;</span>)]
+
+    <span class="t-k">def</span> <span class="t-f">dfs</span>(person, cur):
+        <span class="t-k">if</span> cur &gt;= best[<span class="t-n">0</span>]:
+            <span class="t-k">return</span>  <span class="t-c"># 最优性剪枝</span>
+        <span class="t-k">if</span> person == n:
+            best[<span class="t-n">0</span>] = <span class="t-b">min</span>(best[<span class="t-n">0</span>], cur)
+            <span class="t-k">return</span>
+        <span class="t-k">for</span> j <span class="t-k">in</span> <span class="t-b">range</span>(n):
+            <span class="t-k">if</span> <span class="t-k">not</span> used[j]:
+                used[j] = <span class="t-k">True</span>
+                <span class="t-f">dfs</span>(person + <span class="t-n">1</span>, cur + cost[person][j])
+                used[j] = <span class="t-k">False</span>
+
+    <span class="t-f">dfs</span>(<span class="t-n">0</span>, <span class="t-n">0</span>)
+    <span class="t-k">return</span> best[<span class="t-n">0</span>]
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 小木棍</span>
+    <span class="t-k">assert</span> <span class="t-f">stick_break</span>([<span class="t-n">5</span>, <span class="t-n">5</span>, <span class="t-n">5</span>, <span class="t-n">5</span>], <span class="t-n">4</span>) == <span class="t-n">5</span>
+    <span class="t-k">assert</span> <span class="t-f">stick_break</span>([<span class="t-n">3</span>, <span class="t-n">5</span>, <span class="t-n">2</span>, <span class="t-n">8</span>, <span class="t-n">1</span>, <span class="t-n">4</span>], <span class="t-n">1</span>) == <span class="t-n">23</span>  <span class="t-c"># 一根全拼</span>
+    <span class="t-k">assert</span> <span class="t-f">stick_break</span>([<span class="t-n">7</span>, <span class="t-n">7</span>, <span class="t-n">3</span>, <span class="t-n">3</span>, <span class="t-n">10</span>, <span class="t-n">10</span>], <span class="t-n">2</span>) == <span class="t-n">20</span>
+    <span class="t-k">assert</span> <span class="t-f">stick_break</span>([<span class="t-n">1</span>, <span class="t-n">1</span>, <span class="t-n">1</span>], <span class="t-n">2</span>) == -<span class="t-n">1</span>
+
+    <span class="t-c"># 工作分配</span>
+    cost = [[<span class="t-n">9</span>, <span class="t-n">2</span>, <span class="t-n">7</span>, <span class="t-n">8</span>],
+            [<span class="t-n">6</span>, <span class="t-n">4</span>, <span class="t-n">3</span>, <span class="t-n">7</span>],
+            [<span class="t-n">5</span>, <span class="t-n">8</span>, <span class="t-n">1</span>, <span class="t-n">8</span>],
+            [<span class="t-n">7</span>, <span class="t-n">6</span>, <span class="t-n">9</span>, <span class="t-n">4</span>]]
+    <span class="t-k">assert</span> <span class="t-f">assignment_min_time</span>(cost, <span class="t-n">4</span>) == <span class="t-n">13</span>
+
+    <span class="t-c"># 随机对拍小木棍</span>
+    <span class="t-k">import</span> random
+    random.<span class="t-f">seed</span>(<span class="t-n">3</span>)
+    <span class="t-k">def</span> <span class="t-f">brute_ok</span>(lengths, k):
+        total = <span class="t-b">sum</span>(lengths)
+        <span class="t-k">if</span> total % k != <span class="t-n">0</span>:
+            <span class="t-k">return</span> <span class="t-k">False</span>
+        target = total // k
+        n = <span class="t-b">len</span>(lengths)
+        used = <span class="t-b">set</span>()
+        <span class="t-k">def</span> <span class="t-f">rec</span>(groups):
+            <span class="t-k">if</span> <span class="t-b">all</span>(g == target <span class="t-k">for</span> g <span class="t-k">in</span> groups):
+                <span class="t-k">return</span> <span class="t-k">True</span>
+            idx = <span class="t-b">min</span>(<span class="t-b">range</span>(k), key=<span class="t-k">lambda</span> i: groups[i])
+            <span class="t-k">for</span> i, x <span class="t-k">in</span> <span class="t-b">enumerate</span>(lengths):
+                <span class="t-k">if</span> i <span class="t-k">in</span> used:
+                    <span class="t-k">continue</span>
+                <span class="t-k">if</span> groups[idx] + x &lt;= target:
+                    used.<span class="t-f">add</span>(i)
+                    groups[idx] += x
+                    <span class="t-k">if</span> <span class="t-f">rec</span>(groups):
+                        <span class="t-k">return</span> <span class="t-k">True</span>
+                    groups[idx] -= x
+                    used.<span class="t-f">discard</span>(i)
+            <span class="t-k">return</span> <span class="t-k">False</span>
+        <span class="t-k">return</span> <span class="t-f">rec</span>([<span class="t-n">0</span>] * k)
+
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">300</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">8</span>)
+        lens = [random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">8</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        k = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">3</span>)
+        total = <span class="t-b">sum</span>(lens)
+        <span class="t-k">if</span> total % k == <span class="t-n">0</span> <span class="t-k">and</span> <span class="t-f">brute_ok</span>(lens, k):
+            <span class="t-k">assert</span> <span class="t-f">stick_break</span>(lens, k) == total // k, (lens, k)
+        <span class="t-k">else</span>:
+            <span class="t-k">assert</span> <span class="t-f">stick_break</span>(lens, k) == -<span class="t-n">1</span>, (lens, k)
+    <span class="t-b">print</span>(<span class="t-s">&quot;search-pruning all tests passed (300 random checks)&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">剪枝搜索常用递归+全局最优，PyPy 注意 setrecursionlimit。剪枝顺序影响巨大：可行性剪枝最廉价先做，最优性剪枝次之；排序预处理（从大到小/密度降序）能显著加速。相同长度候选用等效性剪枝避免指数浪费。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>最坏仍指数级；良好剪枝下可达实际多项式/近线性，但无法理论保证</td></tr><tr><th>空间复杂度</th><td>O(搜索深度 + 资源标记)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">剪枝本质是经验优化，无法保证 worst-case 提升；剪枝条件写错可能漏解；问题规模太大(深度/分支大)时即使剪枝仍超时；记忆化需状态可哈希且无后效性。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>最优性剪枝需保证乐观上界，否则误剪最优解</li><li>等效性剪枝(相同候选跳过)需配合排序才能正确去重</li><li>剪枝顺序应先廉价后昂贵(可行性→最优性→等效性)</li><li>边界条件(到达目标)要在剪枝之后判断，避免漏解</li><li>递归撤销遗漏会导致状态污染</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1120</strong></td><td>4</td><td>小木棍：可行性+最优性+等效性剪枝综合题，剪枝极致训练</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1120" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1120</a></td></tr><tr><td>OI Wiki</td><td><strong>opt-example</strong></td><td>3</td><td>工作分配问题：最优性剪枝入门（n≤15）</td><td class="u"><a href="https://oi-wiki.org/search/opt/" target="_blank" rel="noopener">https://oi-wiki.org/search/opt/</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-search-pruning" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "order", "label": "候选排序(搜索顺序优化)"}}, {"data": {"id": "feasible", "label": "可行性剪枝(约束检查)"}}, {"data": {"id": "bound", "label": "最优性剪枝(与ans比较)"}}, {"data": {"id": "equiv", "label": "等效性剪枝(去重对称分支)"}}, {"data": {"id": "rec", "label": "递归搜索+撤销"}}, {"data": {"id": "answer", "label": "收敛最优解"}}, {"data": {"id": "eorder->feasible", "source": "order", "target": "feasible"}}, {"data": {"id": "efeasible->bound", "source": "feasible", "target": "bound"}}, {"data": {"id": "ebound->equiv", "source": "bound", "target": "equiv"}}, {"data": {"id": "eequiv->rec", "source": "equiv", "target": "rec"}}, {"data": {"id": "erec->order", "source": "rec", "target": "order"}}, {"data": {"id": "erec->answer", "source": "rec", "target": "answer"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-search-pruning'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-combination" href="dfs.html" title="剪枝优化主要应用于DFS搜索过程">DFS深度优先搜索<span class="etype">组合</span></a><a class="chip e-combination" href="backtracking.html" title="回溯法结合剪枝大幅减少搜索量">回溯法<span class="etype">组合</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/search/opt/" target="_blank" rel="noopener">https://oi-wiki.org/search/opt/</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch5 p57-58 (backtracking/pruning)</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

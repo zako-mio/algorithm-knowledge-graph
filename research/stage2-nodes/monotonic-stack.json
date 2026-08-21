@@ -1,0 +1,116 @@
+{
+  "id": "monotonic-stack",
+  "name": "单调栈",
+  "group": "G-A-2",
+  "stage": "intermediate",
+  "priority": "P0",
+  "depth_tier": "deep",
+  "brief": "维护单调性的栈，O(n)求左右第一个大/小于当前值",
+  "what": "单调栈(Monotonic Stack)是在栈的基础上维护元素单调性(递增或递减)的数据结构。在元素入栈时，弹出所有破坏单调性的栈顶元素，使得栈内元素始终保持有序。可在 O(n) 时间内对每个元素找到其左侧/右侧第一个大于/小于它的元素。",
+  "why": {
+    "intuition": "对于序列中每个元素，我们常需找到'下一个更大元素'。暴力是 O(n^2)。关键观察：如果 i < j 且 a[i] <= a[j]，那么对于 j 之后的元素，a[i] 永远不可能是'下一个更大'——a[j] 更近且更大，挡住了 a[i]。所以 a[i] 可以被安全丢弃。单调栈就是高效维护这个'丢弃'过程：栈中保留递减的候选者，新元素入栈时弹出所有被它'挡住'的旧元素。",
+    "principle": "维护一个单调递减(或递增)的栈。遍历序列时，对每个新元素 x：①while 栈非空且栈顶满足弹出条件(如递减栈中栈顶 < x)，弹出栈顶并记录结果(此时 x 就是弹出元素的'下一个更大') ②将 x 入栈。每个元素最多入栈一次、出栈一次，故总 O(n)。变体：递增栈找'下一个更小'；逆向遍历找'左侧第一个更大'。",
+    "history": "单调栈是竞赛中的经典技巧。OI Wiki 将其与单调队列并列为栈/队列的进阶应用。经典例题 LeetCode 739(每日温度)和 POJ3250(Bad Hair Day)是其标准模板。"
+  },
+  "how": {
+    "pseudocode": "# 求每个元素右侧第一个更大的元素位置\n# 维护单调递减栈(栈存下标)\nfor i in range(n):\n  while not st.empty() and a[st.top()] < a[i]:\n    ans[st.pop()] = i  # i 是 st.top() 右侧第一个更大的位置\n  st.push(i)\n# 栈中剩余元素的 ans 为 -1(无更大元素)",
+    "python": "def daily_temperatures(temps):\n    \"\"\"LeetCode 739: 每日温度\n    对每天, 求下一个更暖和的日子在几天后。\n    单调递减栈(存下标), 弹出时记录距离。\n    \"\"\"\n    n = len(temps)\n    ans = [0] * n\n    st = []  # 栈存下标, 维护对应的温度递减\n    for i in range(n):\n        while st and temps[st[-1]] < temps[i]:\n            j = st.pop()\n            ans[j] = i - j  # 距离 = 天数差\n        st.append(i)\n    return ans\n\n\ndef next_greater_element(nums):\n    \"\"\"求每个元素右侧第一个更大的元素值(不存在则-1)。\n    单调递减栈。\n    \"\"\"\n    n = len(nums)\n    ans = [-1] * n\n    st = []\n    for i in range(n):\n        while st and nums[st[-1]] < nums[i]:\n            ans[st.pop()] = nums[i]\n        st.append(i)\n    return ans\n\n\ndef left_right_smaller(n, arr):\n    \"\"\"对每个元素, 求左侧第一个<它 和 右侧第一个<它 的下标。\n    左侧: 从左到右维护递增栈; 右侧: 从右到左维护递增栈。\n    \"\"\"\n    left = [-1] * n\n    st = []\n    for i in range(n):\n        while st and arr[st[-1]] >= arr[i]:\n            st.pop()\n        if st:\n            left[i] = st[-1]\n        st.append(i)\n\n    right = [-1] * n\n    st = []\n    for i in range(n - 1, -1, -1):\n        while st and arr[st[-1]] >= arr[i]:\n            st.pop()\n        if st:\n            right[i] = st[-1]\n        st.append(i)\n\n    return left, right\n\n\nif __name__ == '__main__':\n    # 测试每日温度\n    temps = [73, 74, 75, 71, 69, 72, 76, 73]\n    result = daily_temperatures(temps)\n    print(f'Daily temperatures: {result}')\n    assert result == [1, 1, 4, 2, 1, 1, 0, 0]\n\n    # 测试下一个更大元素\n    nums = [2, 1, 2, 4, 3]\n    nge = next_greater_element(nums)\n    print(f'Next greater: {nge}')\n    assert nge == [4, 2, 4, -1, -1]\n\n    # 测试左右更小\n    arr = [3, 1, 4, 1, 5, 9, 2, 6]\n    left, right = left_right_smaller(len(arr), arr)\n    print(f'Left smaller:  {left}')\n    print(f'Right smaller: {right}')\n\n    print('All monotonic stack tests passed!')\n",
+    "pypy_notes": "PyPy 对 list 的 append/pop JIT 极好；单调栈是纯列表操作，PyPy 性能接近 C；N=1e6 的单调栈在 PyPy 下约 0.1s。",
+    "complexity": {
+      "time": "O(N) — 每个元素最多入栈一次、出栈一次，均摊 O(1) per element",
+      "space": "O(N) — 栈最坏存全部元素(完全递减序列)"
+    },
+    "limitations": "只能处理'单调性可维护'的问题(如下一个更大/更小)；不适用于需要区间查询的问题(应用线段树)；栈中通常存下标而非值以便记录答案位置。"
+  },
+  "examples": [
+    {
+      "oj": "LeetCode",
+      "pid": "739",
+      "url": "https://leetcode.cn/problems/daily-temperatures/",
+      "difficulty": 2,
+      "key_point": "每日温度: 单调栈经典模板, 求下一个更大元素的距离"
+    },
+    {
+      "oj": "LeetCode",
+      "pid": "496",
+      "url": "https://leetcode.cn/problems/next-greater-element-i/",
+      "difficulty": 2,
+      "key_point": "下一个更大元素I: 单调栈+哈希映射"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P5788",
+      "url": "https://www.luogu.com.cn/problem/P5788",
+      "difficulty": 2,
+      "key_point": "单调栈模板题: 求每个数右侧第一个比它大的元素位置"
+    }
+  ],
+  "pitfalls": [
+    "栈中存值还是存下标: 需要答案位置时必须存下标，存值会丢失位置信息",
+    "递增还是递减搞反: 求下一个更大→递减栈(弹出比当前小的); 求下一个更小→递增栈",
+    "弹出条件用 <= 还是 <: 含等号时相等的元素也弹出(适用于'严格更大')，不含等号则保留(适用于'非严格更大')",
+    "忘记处理栈中剩余元素(它们的答案为 -1/0 表示无更大元素)"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "scan",
+        "label": "遍历序列每个元素"
+      },
+      {
+        "id": "check",
+        "label": "检查栈顶是否满足弹出条件"
+      },
+      {
+        "id": "pop",
+        "label": "弹出: 当前元素是弹出元素的答案"
+      },
+      {
+        "id": "push",
+        "label": "入栈: 当前元素成为新候选"
+      },
+      {
+        "id": "residual",
+        "label": "处理栈中剩余(无答案元素)"
+      }
+    ],
+    "edges": [
+      {
+        "from": "scan",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "to": "pop"
+      },
+      {
+        "from": "pop",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "to": "push"
+      },
+      {
+        "from": "push",
+        "to": "scan"
+      },
+      {
+        "from": "scan",
+        "to": "residual"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/monotonic-stack/",
+      "verified": true
+    },
+    {
+      "type": "cpalg",
+      "url": "https://cp-algorithms.com/data_structures/stack_queue_modification.html",
+      "verified": true
+    }
+  ]
+}

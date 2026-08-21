@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交互题兴起趋势 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-10.html">前沿趋势组</a> / <span>交互题兴起趋势</span></div>
+  <h1>交互题兴起趋势</h1>
+  <div class="badges"><span class="badge p" style="color:#6a707c;background:#23272f;border-color:#6a707c">P3</span><span class="badge st" style="color:#c0504d;background:#3a1717;border-color:#c0504d">frontier</span><span class="badge dp" style="color:#6a707c;background:#1c1f26;border-color:#6a707c">brief</span><span class="badge grp">G-E-10</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-node" href="ai-cp-trend.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">ai-cp-trend</span></a>
+    <a class="nav-index" href="../03-groups/G-E-10.html"><span class="dir">组内第 6 / 6</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-index" href="../03-groups/G-E-10.html"><span class="dir">下一个 / 组内</span><span class="v">返回组索引</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">ICPC 2024-2025南京连续出交互题，NOI/WC恢复交互题，交互题成为高频新题型</div><p>交互题（interactive problem）趋势：一类要求程序与评测器在线问答（query/answer 协议）的题型。2024-2025 年 ICPC 南京站连续两届出现交互题（2024 Problem K、2025 Problem A），NOI/WC 系列（如 P5208[WC2019]I 君的商店、P5473[NOI2019]I 君的探险）也恢复交互题，使其成为区域赛与国赛高频新题型。交互题考核『信息论式提问策略』（最小化询问次数）、随机化、二分/三分/倍增与构造，特别能测试选手对评测协议（flush、IO 格式、询问预算）的严谨把握。OI Wiki 专门设有《交互题》章节（contest/interaction）讲解特殊错误、调试与例题。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>普通题『读入-计算-输出』一次成型，交互题是『问一句-答一句』的在线博弈：你的算法必须聪明地在有限询问次数内逼近答案。出题人用交互题来考察『信息增益』思维——每次询问如何最大化排除的信息量——这与信息论、二分、随机化的思想高度契合，且天然防住『背模板/背题解』的 AI 与选手。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>三类经典交互范式：
+1) 二分/倍增型：值域内询问『是否 ≥x』类谓词，O(log V) 次逼近；
+2) 信息压缩型：设计一次性提出多个问题、一次性读回答案（batch query），如 CF679A 用 19 个质数问数是否整除，O(1) 常数轮；
+3) 随机化型：无法确定性定位时用随机撒点（CF843B 随机化链表定位）。
+评测协议要求：每次输出后必须 flush（否则 Idleness limit exceeded）；错误交互会得 Wrong Answer/Protocol Violation；要正确读入全部数据避免读入混乱。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>上个世纪 IOI 就已涉及交互题；2019 年 NOI 系列连续出现 WC2019 I 君的商店、NOI2019 I 君的探险两道交互题，OI Wiki 指出这可能代表交互题回归 NOI 系列。2024 ICPC 南京 Problem K、2025 ICPC 南京 Problem A（袋鼠交互题）连续两年在区域赛最高舞台出现，标志交互题在 ACM/ICPC 体系成为稳定高频题型。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 交互题一般范式（二分型）:</span>
+lo, hi = <span class="t-n">1</span>, V
+<span class="t-k">while</span> lo &lt; hi:
+    mid = (lo + hi) // <span class="t-n">2</span>
+    <span class="t-b">print</span>(<span class="t-f">ask</span>(mid)); <span class="t-f">flush</span>()
+    <span class="t-k">if</span> <span class="t-f">response</span>(): hi = mid
+    <span class="t-k">else</span>: lo = mid + <span class="t-n">1</span>
+<span class="t-b">print</span>(<span class="t-f">answer</span>(lo)); <span class="t-f">flush</span>()</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+
+<span class="t-k">def</span> <span class="t-f">interactive_guess_prime</span>():
+    <span class="t-s">&quot;&quot;&quot;CF679A Bear and Prime 100 交互模板：
+    每次输出一个数并 flush，读回 &#x27;yes&#x27;/&#x27;no&#x27;，问完 19 个数后判定质数/合数。
+    本函数封装标准交互协议的 I/O 约定。
+    &quot;&quot;&quot;</span>
+    primes = [<span class="t-n">2</span>, <span class="t-n">3</span>, <span class="t-n">4</span>, <span class="t-n">5</span>, <span class="t-n">7</span>, <span class="t-n">9</span>, <span class="t-n">11</span>, <span class="t-n">13</span>, <span class="t-n">17</span>, <span class="t-n">19</span>,
+              <span class="t-n">23</span>, <span class="t-n">25</span>, <span class="t-n">29</span>, <span class="t-n">31</span>, <span class="t-n">37</span>, <span class="t-n">41</span>, <span class="t-n">43</span>, <span class="t-n">47</span>, <span class="t-n">49</span>]
+    cnt = <span class="t-n">0</span>
+    <span class="t-k">for</span> q <span class="t-k">in</span> primes:
+        <span class="t-b">print</span>(q)
+        sys.stdout.<span class="t-f">flush</span>()          <span class="t-c"># 关键：必须 flush</span>
+        ans = <span class="t-b">input</span>().<span class="t-f">strip</span>()
+        <span class="t-k">if</span> ans == <span class="t-s">&#x27;yes&#x27;</span>:
+            cnt += <span class="t-n">1</span>
+            <span class="t-k">if</span> cnt == <span class="t-n">2</span>:
+                <span class="t-k">return</span> <span class="t-s">&#x27;composite&#x27;</span>
+    <span class="t-k">return</span> <span class="t-s">&#x27;prime&#x27;</span>
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-c"># 本地无评测器时仅验证 I/O 流程（不实际运行询问）</span>
+    <span class="t-b">print</span>(<span class="t-s">&quot;interactive-problem-trend: 交互题 I/O 协议模板（flush 必须，否则 Idleness limit exceeded）&quot;</span>)
+    <span class="t-b">print</span>(<span class="t-s">&quot;关键点: 每轮输出后 flush；batch 询问可一次问多个；多组数据需读全部输入&quot;</span>)
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 交互注意：print 后必须 sys.stdout.flush()；禁用输出缓冲；询问次数预算须精确计数。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>取决于询问轮数与每轮计算，通常 O(询问次数 × 单问处理)</td></tr><tr><th>空间复杂度</th><td>O(1) ~ O(n)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">本地无法直接调试，需写 checker/对拍器或模拟评测器；交互格式错误代价高（一次 WA/PV）；Python 用 input()/print() 需注意首尾空白与 flush。趋势节点为题型综述，复杂度无统一模板。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>每次输出后必须 sys.stdout.flush()，否则 ILE</li><li>多组数据时即使提前知道答案也要读完所有输入</li><li>不要用快读/缓冲读破坏交互时序</li><li>询问次数超限会 WA（CF）/ PLE（UVa）；格式错 PV</li><li>随机化交互需正确初始化随机种子，防 hack</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>ICPC</td><td><strong>2024 Nanjing K</strong></td><td>7</td><td>2024 ICPC 南京站交互题：连续两年区域赛交互题首例</td><td class="u"><a href="https://codeforces.com/gym/105484/attachments/download/28234/contest-en.pdf" target="_blank" rel="noopener">https://codeforces.com/gym/105484/attachments/download/28234/contest-en.pdf</a></td></tr><tr><td>ICPC</td><td><strong>2025 Nanjing A</strong></td><td>7</td><td>2025 ICPC 南京站 Problem A（袋鼠交互题）：query/answer 协议，可问 n+m+10 次</td><td class="u"><a href="https://sua.ac/wiki/2025-icpc-nanjing/contest-en.pdf" target="_blank" rel="noopener">https://sua.ac/wiki/2025-icpc-nanjing/contest-en.pdf</a></td></tr><tr><td>Codeforces</td><td><strong>679A</strong></td><td>3</td><td>Bear and Prime 100：19 次询问判定 100 内是否质数（OI Wiki 例题）</td><td class="u"><a href="https://codeforces.com/problemset/problem/679/A" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/679/A</a></td></tr><tr><td>Codeforces</td><td><strong>843B</strong></td><td>4</td><td>Interactive LowerBound：随机化交互定位链表（OI Wiki 例题）</td><td class="u"><a href="https://codeforces.com/problemset/problem/843/B" target="_blank" rel="noopener">https://codeforces.com/problemset/problem/843/B</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-interactive-problem-trend" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "protocol", "label": "明确 query/answer 格式与询问预算"}}, {"data": {"id": "strategy", "label": "设计信息增益最大化的提问策略（二分/批量/随机）"}}, {"data": {"id": "io", "label": "封装输入输出并 flush"}}, {"data": {"id": "verify", "label": "本地模拟评测器/对拍验证"}}, {"data": {"id": "eprotocol->strategy", "source": "protocol", "target": "strategy"}}, {"data": {"id": "estrategy->io", "source": "strategy", "target": "io"}}, {"data": {"id": "eio->verify", "source": "io", "target": "verify"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-interactive-problem-trend'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="interaction-strategy.html" title="交互题兴起趋势使得交互策略愈发重要">交互题策略<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/contest/interaction/" target="_blank" rel="noopener">https://oi-wiki.org/contest/interaction/</a></li><li><span class="srctype">web</span><span class="v-ok">&#10003;</span> <a href="https://sua.ac/wiki/2025-icpc-nanjing/contest-en.pdf" target="_blank" rel="noopener">https://sua.ac/wiki/2025-icpc-nanjing/contest-en.pdf</a></li><li><span class="srctype">web</span><span class="v-warn">&#9651;</span> <a href="https://codeforces.com/gym/105484/attachments/download/28234/contest-en.pdf" target="_blank" rel="noopener">https://codeforces.com/gym/105484/attachments/download/28234/contest-en.pdf</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

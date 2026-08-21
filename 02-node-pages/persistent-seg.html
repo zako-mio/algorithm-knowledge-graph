@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>可持久化线段树(主席树) · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-D-5.html">可持久化数据结构</a> / <span>可持久化线段树(主席树)</span></div>
+  <h1>可持久化线段树(主席树)</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#b48ae0;background:#2b2040;border-color:#b48ae0">advanced</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-D-5</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-D-5.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-D-5.html"><span class="dir">组内第 1 / 5</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="persistent-trie.html"><span class="dir">下一个 / 组内</span><span class="v">persistent-trie</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">函数式线段树按版本共享节点，支持历史版本查询与区间k小值</div><p>可持久化线段树（Persistent Segment Tree，中文俗称『主席树』）是保存每次修改后历史版本的线段树。核心思想是 path copying：每次点修改只新建 O(log n) 个『被改路径』上的新节点，未变子树直接复用旧节点指针，因此 m 次修改的总节点数 O(m log n)。权值线段树版（每个叶子代表一个值域桶，维护区间内该值出现的次数）配合前缀和差分，可在 O(log n) 回答区间第 k 小/第 k 大、区间 ≤x 的个数、静态/动态区间众数类查询。经典应用：POJ 2104 K-th Number（区间第 k 小）、Luogu P3834/P2633 等。是竞赛中最常考的可持久化结构。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>『保存历史版本』最笨的办法是每改一次就复制整棵树——空间爆掉。但线段树每次修改只碰一条从根到叶的路径（O(log n) 个节点），其余节点完全不动。于是每次只复制这条路径：新根 + 沿途新节点，指向未修改的旧子树。这样每版只花 O(log n) 空间，历史版本们像一棵『时间树』共享大量节点。区间第 k 小则靠值域计数 + 前缀差分：第 r 版减第 l-1 版得到 [l,r] 的值域计数。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>① 动态开点：节点存 ls/rs（左右儿子编号）与 cnt（该值域内出现次数），不用堆式存储；② 建空树（或直接只建根）O(n) 或懒惰；③ update(pos, root)：新建当前节点并拷贝 prev 的 ls/rs/cnt，cnt+1，递归到 pos 所在子区间建新链，O(log n)；④ 每个前缀 i 保存一个根 rt[i]（插入 a[i] 后）；⑤ query(l, r, k)：同时下钻 rt[r] 与 rt[l-1]，比较左子节点 cnt 之差，若 k ≤ 左差则去左否则去右并 k 减去左差，O(log n)；⑥ 空间：n 次修改至多 (n log n + n) 节点，开 2^5×n 保险。支持区间 ≤x 计数、历史版本查询、可持久化并查集等扩展。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>可持久化线段树因 2012 年国家集训队黄嘉泰（网名 HJT 谐音『主席』）的讲义而流行于 OI，故俗称主席树。其思想（函数式线段树、path copying）源于 1980 年代的函数式编程与可持久化数据结构研究（Driscoll 等）。区间第 k 小问题是静态数据结构领域的经典问题，主席树是目前 OI 中最常用的在线解法（还有整体二分/树套树/莫队离线替代）。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python">ls[], rs[], cnt[], tot=<span class="t-n">0</span>; rt[<span class="t-n">0</span>]=<span class="t-f">build</span>();
+<span class="t-f">update</span>(prev, l, r, pos):
+  cur = ++tot; ls[cur]=ls[prev]; rs[cur]=rs[prev]; cnt[cur]=cnt[prev]+<span class="t-n">1</span>
+  <span class="t-k">if</span> l&lt;r:
+    mid=(l+r)//<span class="t-n">2</span>
+    <span class="t-k">if</span> pos&lt;=mid: ls[cur]=<span class="t-f">update</span>(ls[prev], l, mid, pos)
+    <span class="t-k">else</span>:        rs[cur]=<span class="t-f">update</span>(rs[prev], mid+<span class="t-n">1</span>, r, pos)
+  <span class="t-k">return</span> cur
+<span class="t-f">query</span>(u, v, l, r, k):   <span class="t-c"># 用 [1,l-1] 与 [1,r] 两根差分</span>
+  <span class="t-k">if</span> l==r: <span class="t-k">return</span> l
+  left = cnt[ls[v]] - cnt[ls[u]]
+  <span class="t-k">if</span> k&lt;=left: <span class="t-k">return</span> <span class="t-f">query</span>(ls[u], ls[v], l, mid, k)
+  <span class="t-k">else</span>:       <span class="t-k">return</span> <span class="t-f">query</span>(rs[u], rs[v], mid+<span class="t-n">1</span>, r, k-left)</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">from</span> bisect <span class="t-k">import</span> bisect_left
+
+
+<span class="t-k">class</span> PersistentSegTree:
+    <span class="t-s">&quot;&quot;&quot;可持久化权值线段树（主席树）。构造 O(n log n)，查询第 k 小 O(log n)。
+    arr: 原序列。支持 kth(l, r, k) 返回区间 [l,r]（1 索引含端点）第 k 小值。&quot;&quot;&quot;</span>
+
+    <span class="t-k">def</span> <span class="t-f">__init__</span>(self, arr):
+        self.vals = <span class="t-b">sorted</span>(<span class="t-b">set</span>(arr))
+        self.ls = [<span class="t-n">0</span>]
+        self.rs = [<span class="t-n">0</span>]
+        self.cnt = [<span class="t-n">0</span>]
+        self.roots = [self.<span class="t-f">_build</span>(<span class="t-n">0</span>, <span class="t-b">len</span>(self.vals) - <span class="t-n">1</span>)]
+        <span class="t-k">for</span> x <span class="t-k">in</span> arr:
+            self.roots.<span class="t-f">append</span>(
+                self.<span class="t-f">_update</span>(self.roots[-<span class="t-n">1</span>], <span class="t-n">0</span>, <span class="t-b">len</span>(self.vals) - <span class="t-n">1</span>,
+                             <span class="t-f">bisect_left</span>(self.vals, x)))
+
+    <span class="t-k">def</span> <span class="t-f">_build</span>(self, l, r):
+        idx = <span class="t-b">len</span>(self.ls)
+        self.ls.<span class="t-f">append</span>(<span class="t-n">0</span>); self.rs.<span class="t-f">append</span>(<span class="t-n">0</span>); self.cnt.<span class="t-f">append</span>(<span class="t-n">0</span>)
+        <span class="t-k">if</span> l &lt; r:
+            mid = (l + r) // <span class="t-n">2</span>
+            self.ls[idx] = self.<span class="t-f">_build</span>(l, mid)
+            self.rs[idx] = self.<span class="t-f">_build</span>(mid + <span class="t-n">1</span>, r)
+        <span class="t-k">return</span> idx
+
+    <span class="t-k">def</span> <span class="t-f">_update</span>(self, prev, l, r, pos):
+        idx = <span class="t-b">len</span>(self.ls)
+        self.ls.<span class="t-f">append</span>(self.ls[prev])
+        self.rs.<span class="t-f">append</span>(self.rs[prev])
+        self.cnt.<span class="t-f">append</span>(self.cnt[prev] + <span class="t-n">1</span>)
+        <span class="t-k">if</span> l &lt; r:
+            mid = (l + r) // <span class="t-n">2</span>
+            <span class="t-k">if</span> pos &lt;= mid:
+                self.ls[idx] = self.<span class="t-f">_update</span>(self.ls[prev], l, mid, pos)
+            <span class="t-k">else</span>:
+                self.rs[idx] = self.<span class="t-f">_update</span>(self.rs[prev], mid + <span class="t-n">1</span>, r, pos)
+        <span class="t-k">return</span> idx
+
+    <span class="t-k">def</span> <span class="t-f">kth</span>(self, l, r, k):
+        <span class="t-s">&quot;&quot;&quot;区间 [l,r]（1 索引含端点）第 k 小值&quot;&quot;&quot;</span>
+        <span class="t-k">return</span> self.vals[self.<span class="t-f">_kth</span>(self.roots[l - <span class="t-n">1</span>], self.roots[r],
+                                  <span class="t-n">0</span>, <span class="t-b">len</span>(self.vals) - <span class="t-n">1</span>, k)]
+
+    <span class="t-k">def</span> <span class="t-f">_kth</span>(self, u, v, l, r, k):
+        <span class="t-k">if</span> l == r:
+            <span class="t-k">return</span> l
+        mid = (l + r) // <span class="t-n">2</span>
+        left = self.cnt[self.ls[v]] - self.cnt[self.ls[u]]
+        <span class="t-k">if</span> k &lt;= left:
+            <span class="t-k">return</span> self.<span class="t-f">_kth</span>(self.ls[u], self.ls[v], l, mid, k)
+        <span class="t-k">return</span> self.<span class="t-f">_kth</span>(self.rs[u], self.rs[v], mid + <span class="t-n">1</span>, r, k - left)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&#x27;__main__&#x27;</span>:
+    <span class="t-k">import</span> random
+
+    <span class="t-k">def</span> <span class="t-f">brute</span>(a, l, r, k):
+        <span class="t-k">return</span> <span class="t-b">sorted</span>(a[l - <span class="t-n">1</span>:r])[k - <span class="t-n">1</span>]
+
+    a = [<span class="t-n">1</span>, <span class="t-n">5</span>, <span class="t-n">2</span>, <span class="t-n">6</span>, <span class="t-n">3</span>, <span class="t-n">7</span>, <span class="t-n">4</span>]
+    pst = <span class="t-f">PersistentSegTree</span>(a)
+    <span class="t-k">assert</span> pst.<span class="t-f">kth</span>(<span class="t-n">2</span>, <span class="t-n">5</span>, <span class="t-n">2</span>) == <span class="t-n">3</span>      <span class="t-c"># [5,2,6,3] 排序 [2,3,5,6] 第2小=3</span>
+    <span class="t-k">assert</span> pst.<span class="t-f">kth</span>(<span class="t-n">1</span>, <span class="t-n">7</span>, <span class="t-n">4</span>) == <span class="t-n">4</span>
+    <span class="t-k">assert</span> pst.<span class="t-f">kth</span>(<span class="t-n">3</span>, <span class="t-n">7</span>, <span class="t-n">5</span>) == <span class="t-n">7</span>
+
+    random.<span class="t-f">seed</span>(<span class="t-n">21</span>)
+    <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">200</span>):
+        n = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, <span class="t-n">12</span>)
+        arr = [random.<span class="t-f">randint</span>(-<span class="t-n">20</span>, <span class="t-n">20</span>) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+        pt = <span class="t-f">PersistentSegTree</span>(arr)
+        <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(<span class="t-n">20</span>):
+            l = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, n)
+            r = random.<span class="t-f">randint</span>(l, n)
+            k = random.<span class="t-f">randint</span>(<span class="t-n">1</span>, r - l + <span class="t-n">1</span>)
+            <span class="t-k">assert</span> pt.<span class="t-f">kth</span>(l, r, k) == <span class="t-f">brute</span>(arr, l, r, k), (l, r, k, arr)
+    <span class="t-b">print</span>(<span class="t-s">&#x27;persistent-seg: All tests passed.&#x27;</span>)</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">竞赛模板多用数组模拟（ls/rs/cnt 三个 list + 全局 tot），比对象快 2-3 倍。节点上限开 (n&lt;&lt;5)+5 或 n*20。离散化用 bisect。递归查询深度 O(log n) 安全；若 n=1e6 或需频繁构建注意常数。注意 Python 递归每层两次 list 索引，PyPy 下 1e5 规模（约 2e6 节点）可行。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>构建 O(n log n)；单次更新/查询 O(log n)</td></tr><tr><th>空间复杂度</th><td>O(n log n) 节点（约 20n）；另有 O(n) 根数组与 O(n) 离散化数组</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">只支持『点修改 + 区间统计』类的可持久化：区间加等区间修改需打标记（标记也要可持久化，较复杂）。静态区间第 k 小的在线替代还有划分树/整体二分；动态修改需树套树（主席树套 BIT）。大常数 + O(n log n) 空间在 n≥1e6 时要小心。若查询只针对前缀（[1,r]）可退化为普通权值线段树。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>动态开点：不能像普通线段树用 x*2/x*2+1 堆式存储，必须显式存 ls/rs</li><li>update 必须先拷贝 prev 的全部字段（ls/rs/cnt）再改一个分支，漏拷贝导致历史被破坏</li><li>离散化后查询返回的是值域下标，输出前要映射回原值</li><li>空间：节点上限不足（&lt; n*log n）会 RE/内存溢出，OI 惯例开 n&lt;&lt;5</li><li>区间 [l,r] 用 rt[r] 与 rt[l-1] 两根差分，用成 rt[l] 会答案错误</li><li>第 k 大 = 第 (len-k+1) 小，转换易混；k 必须 ≤ r-l+1 否则越界</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P3834</strong></td><td>4</td><td>【模板】可持久化线段树 2（主席树）：静态区间第 k 小，最标准模板题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3834" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3834</a></td></tr><tr><td>Luogu</td><td><strong>P2633</strong></td><td>5</td><td>Count on a tree：树上路径第 k 小，按 DFS 序建主席树 + 树上差分（u+v-lca-fa[lca]）</td><td class="u"><a href="https://www.luogu.com.cn/problem/P2633" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P2633</a></td></tr><tr><td>Luogu</td><td><strong>P3919</strong></td><td>3</td><td>【模板】可持久化线段树 1（可持久化数组）：历史版本查询与修改，入门题</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3919" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3919</a></td></tr><tr><td>POJ</td><td><strong>2104</strong></td><td>4</td><td>K-th Number：区间第 k 小的经典鼻祖题，主席树标准解法</td><td class="u"><a href="https://vjudge.net/problem/POJ-2104" target="_blank" rel="noopener">https://vjudge.net/problem/POJ-2104</a></td></tr><tr><td>Luogu</td><td><strong>P3567</strong></td><td>5</td><td>【POI2014】KUR-Couriers：区间众数/过半元素，主席树二分值域查找出现次数&gt;一半的值</td><td class="u"><a href="https://www.luogu.com.cn/problem/P3567" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P3567</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-persistent-seg" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "dyn", "label": "动态开点 + ls/rs/cnt 数组存储"}}, {"data": {"id": "copy", "label": "path copying：每次修改复制 O(log n) 路径节点"}}, {"data": {"id": "roots", "label": "每前缀存根 rt[i]，形成版本数组"}}, {"data": {"id": "diff", "label": "区间查询 = 两版本计数差分（前缀和思想）"}}, {"data": {"id": "kth", "label": "二分值域求第 k 小 / 计数"}}, {"data": {"id": "ext", "label": "扩展：树上差分/可持久化并查集/历史版本"}}, {"data": {"id": "edyn->copy", "source": "dyn", "target": "copy"}}, {"data": {"id": "ecopy->roots", "source": "copy", "target": "roots"}}, {"data": {"id": "eroots->diff", "source": "roots", "target": "diff"}}, {"data": {"id": "ediff->kth", "source": "diff", "target": "kth"}}, {"data": {"id": "ekth->ext", "source": "kth", "target": "ext"}}, {"data": {"id": "ecopy->ext", "source": "copy", "target": "ext"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-persistent-seg'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="persistent-concept.html" title="可持久化线段树是可持久化概念在线段树上的应用">可持久化数据结构概念<span class="etype">前置依赖</span></a><a class="chip e-prerequisite" href="seg-dynamic.html" title="主席树基于动态开点线段树保存历史版本">动态开点线段树<span class="etype">前置依赖</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-combination" href="persistent-dsu.html" title="可持久化并查集基于可持久化线段树实现">可持久化并查集<span class="etype">组合</span></a><a class="chip e-variant" href="persistent-trie.html" title="可持久化思想从线段树推广到 Trie">可持久化 Trie<span class="etype">变体</span></a><a class="chip e-variant" href="persistent-balanced.html" title="可持久化平衡树共享函数式节点复用">可持久化平衡树<span class="etype">变体</span></a><a class="chip e-variant" href="persistent-heap.html" title="可持久化堆共享函数式节点复用">可持久化堆<span class="etype">变体</span></a><a class="chip e-variant" href="persistent-block-array.html" title="可持久化分块数组复用历史版本">可持久化分块数组<span class="etype">变体</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/ds/persistent-seg/" target="_blank" rel="noopener">https://oi-wiki.org/ds/persistent-seg/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-seg.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/persistent-seg.md</a></li><li><span class="srctype">书籍</span><span class="v-ok">&#10003;</span> <span class="ref">CPH ch28 pp271-273</span></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

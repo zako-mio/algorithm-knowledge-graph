@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>快速读入 · 算法知识图谱</title>
+<style>
+:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
+header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
+header .crumb a{color:var(--accent);text-decoration:none;}
+header .crumb a:hover{text-decoration:underline;}
+header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;margin-right:12px;}
+.badges{display:inline-flex;gap:6px;flex-wrap:wrap;vertical-align:middle;}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
+.badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
+main{padding:24px;max-width:1150px;margin:0 auto;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
+p,li{font-size:14px;}
+ul{padding-left:22px;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+.dim{color:var(--dim);}
+.section{scroll-margin-top:8px;}
+.brieflead{background:#0d1a14;border:1px solid #2f5a4a;border-left:4px solid var(--ok);border-radius:8px;padding:12px 16px;font-size:15px;color:#cfe8dd;margin:12px 0;}
+.whybox{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:8px;padding:14px 18px;margin:10px 0;}
+.whybox .tag{font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:6px;}
+.whybox p{font-size:14px;color:#d3d9e4;}
+pre{background:#0b0e14;border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:8px 0;}
+pre code{font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.6;color:#d4dbe6;display:block;}
+.t-k{color:#c586c0;font-weight:600;}
+.t-s{color:#ce9178;}
+.t-c{color:#6a9955;font-style:italic;}
+.t-n{color:#b5cea8;}
+.t-b{color:#4fc1ff;}
+.t-f{color:#dcdcaa;}
+.callout{display:flex;gap:12px;align-items:flex-start;border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px;}
+.callout .ctag{font-weight:700;flex-shrink:0;font-size:12px;letter-spacing:1px;padding-top:2px;}
+.callout .ctext{color:#d3d9e4;}
+.callout.tip{background:#0d1a14;border:1px solid #2f5a4a;}
+.callout.tip .ctag{color:var(--ok);}
+.callout.warn{background:#2a1713;border:1px solid #6a3229;}
+.callout.warn .ctag{color:#e08a7c;}
+.tblwrap{overflow-x:auto;margin:8px 0;}
+table{border-collapse:collapse;width:100%;}
+th,td{border:1px solid var(--border);padding:7px 11px;font-size:13px;text-align:left;vertical-align:top;}
+th{background:var(--panel);color:#b8c2d4;white-space:nowrap;}
+td.u{word-break:break-all;font-size:12px;color:var(--dim);}
+td.u a{color:#7fb0ff;}
+table.cmpl{width:auto;min-width:60%;}
+table.cmpl th{width:110px;}
+.pit li{margin:5px 0;font-size:14px;}
+.pit li::marker{color:var(--warn);}
+.srclist{list-style:none;padding-left:0;}
+.srclist li{font-size:13px;margin:6px 0;color:var(--dim);}
+.srclist .srctype{display:inline-block;min-width:110px;font-size:11px;background:#1d2a3f;color:#7fb0ff;border-radius:4px;padding:1px 8px;margin-right:8px;text-align:center;}
+.srclist a{color:#7fb0ff;word-break:break-all;}
+.srclist .ref{color:#9aa3b2;font-family:Consolas,monospace;}
+.v-ok{color:var(--ok);font-weight:700;}
+.v-warn{color:var(--warn);font-weight:700;}
+.legend{font-size:11px;color:var(--dim);margin-top:6px;}
+.navseq{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;}
+.navseq a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:14px;color:#b8c2d4;text-align:center;min-width:150px;}
+.navseq a .dir{display:block;font-size:11px;color:var(--dim);margin-bottom:2px;}
+.navseq a .v{font-weight:600;color:var(--accent);}
+.navseq a.nav-index .v{color:var(--ok);}
+.navseq .spacer{flex:1;min-width:60px;}
+.dagnav{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.edgegrp{margin:6px 0;}
+.edgegrp-label{font-size:12px;color:var(--dim);margin-bottom:6px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:12px;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:6px;padding:2px 8px;color:#7fb0ff;text-decoration:none;}
+.chip:hover{background:#2b3d5f;}
+.chip .etype{font-size:10px;opacity:.85;margin-left:4px;}
+.chip.e-prerequisite{background:#2a1f10;border-color:#4a3a20;color:#e8b06a;}
+.chip.e-variant{background:#0d1a14;border-color:#2f5a4a;color:#6fd3ae;}
+.chip.e-combination{background:#2b2040;border-color:#4a3560;color:#c9a8ef;}
+.chip.e-cooccurrence{background:#16273f;border-color:#2b3d5f;color:#9cc2ff;}
+.dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
+.daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
+.step-dag{width:100%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+@media (max-width:720px){
+  main{padding:14px;}
+  header{padding:12px 14px;}
+  header h1{font-size:17px;}
+  .navseq a{min-width:100%;}
+  .badges{display:flex;margin-top:6px;}
+}
+@media print{
+  body{background:#fff;color:#000;}
+  header,footer,.dagnav,.navseq,.dagbox{display:none;}
+  pre{background:#f4f4f4;border-color:#ccc;color:#222;}
+  pre code{color:#222;}
+  th,td{border-color:#999;color:#000;}
+  .whybox,.brieflead,.callout{background:#fff;border-color:#999;color:#000;}
+  .whybox p,.callout .ctext{color:#000;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/G-E-1.html">IO与常数优化族</a> / <span>快速读入</span></div>
+  <h1>快速读入</h1>
+  <div class="badges"><span class="badge p" style="color:#c0504d;background:#5a1f1f;border-color:#c0504d">P0</span><span class="badge st" style="color:#2fb98a;background:#122b22;border-color:#2fb98a">basic</span><span class="badge dp" style="color:#7fb0ff;background:#16273f;border-color:#7fb0ff">deep</span><span class="badge grp">G-E-1</span></div>
+</header>
+<main>
+  <div class="navseq">
+    <a class="nav-index" href="../03-groups/G-E-1.html"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../03-groups/G-E-1.html"><span class="dir">组内第 1 / 4</span><span class="v">返回组索引</span></a>
+    <a class="nav-index" href="../04-interactive/index.html"><span class="dir">全局</span><span class="v">返回总览</span></a>
+    <a class="nav-node" href="fast-output.html"><span class="dir">下一个 / 组内</span><span class="v">fast-output</span></a>
+  </div>
+
+  <div class="section"><h2>What · 是什么</h2><div class="brieflead">整数快速读入：C++ 用 getchar/fread；Python 用 sys.stdin.buffer.read().split() 批量读入 + map(int,...)，比逐行 input() 快 5-20 倍</div><p>快速读入是 IO 优化的核心。对 C++：scanf 已不慢，但 10^6 级整数用 getchar()/fread 手写解析可再快数倍。对 Python（CPython 尤甚）：input() 逐行读 10^5~10^6 行会直接 TLE，必须用 `sys.stdin.buffer.read().split()` 一次性读全部字节并切分，再用 map(int, tokens) 转换。这是 Python 竞赛的『保命』模板，几乎所有大规模输入题都应默认使用。进阶可手写字节级解析循环（快读函数）或配合内存映射。PyPy 的 input() 相对快，但 read() 批量读仍是上限解法。</p></div>
+
+  <div class="section"><h2>Why · 为什么</h2><div class="whybox" style="border-color:#2fb98a"><div class="tag" style="color:#2fb98a">直觉 · Intuition</div><p>每次 input() 都触发：系统调用 → 读一行 → 字节解码成 str → 剥离换行。10^6 次 input() 就是 10^6 次系统调用。而 read() 一次把整个文件读入内存（1 次系统调用），split() 在 C 层按空白切分，map(int) 在 C 层转换——整条链路都不经过 Python 层循环，所以数量级更快。</p></div><div class="whybox" style="border-color:#4f8cff"><div class="tag" style="color:#4f8cff">原理 · Principle</div><p>sys.stdin.buffer 是 BufferedIOBase，read() 返回 bytes；bytes.split() 无参按任意 ASCII 空白切分为 bytes 列表；int(b) 可直接解析 bytes（Python 3）。组合起来 `it = iter(sys.stdin.buffer.read().split()); n = int(next(it))` 逐 token 取用，或 `arr = list(map(int, data))` 全量转 int。手写快读：循环逐字节判断 48&lt;=c&lt;=57 累加 num=num*10+(c-48)，处理符号位与空白分隔，把『解码+切分+转换』压成一次 C 层遍历，进一步省掉 split 产生的临时对象。C++ 侧 fread 一次读入大缓冲区后自行解析是同样的思想。</p></div><div class="whybox" style="border-color:#e8933b"><div class="tag" style="color:#e8933b">历史 · History</div><p>OI Wiki 的 contest/io 页系统介绍了 C++ 的 ios::sync_with_stdio(false)、getchar/fread/mmap 三级快读；lang/python 页强调 Python 用 input().split() 与列表推导式。Python 快读模板（read().split() + map(int)）是社区长期验证的标准写法，对大数据输入是必选而非可选项。</p></div></div>
+
+  <div class="section"><h2>How · 实现</h2><h3>伪代码</h3><pre><code class="python"><span class="t-c"># 模板1：read().split() + 迭代器取 token（推荐）</span>
+<span class="t-k">import</span> sys
+data = sys.stdin.buffer.<span class="t-f">read</span>().<span class="t-f">split</span>()
+it = <span class="t-b">iter</span>(data)
+n = <span class="t-b">int</span>(<span class="t-b">next</span>(it))
+a = [<span class="t-b">int</span>(<span class="t-b">next</span>(it)) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+
+<span class="t-c"># 模板2：全量转 int</span>
+nums = <span class="t-b">list</span>(<span class="t-b">map</span>(<span class="t-b">int</span>, sys.stdin.buffer.<span class="t-f">read</span>().<span class="t-f">split</span>()))
+
+<span class="t-c"># 模板3：手写字节级快读（最大性能，可选）</span>
+<span class="t-k">def</span> <span class="t-f">fast_ints</span>():
+    data = sys.stdin.buffer.<span class="t-f">read</span>()
+    num = <span class="t-n">0</span>; sign = <span class="t-n">1</span>; innum = <span class="t-k">False</span>; out = []
+    <span class="t-k">for</span> c <span class="t-k">in</span> data:
+        <span class="t-k">if</span> <span class="t-n">48</span> &lt;= c &lt;= <span class="t-n">57</span>:
+            num = num * <span class="t-n">10</span> + (c - <span class="t-n">48</span>); innum = <span class="t-k">True</span>
+        <span class="t-k">else</span>:
+            <span class="t-k">if</span> innum:
+                out.<span class="t-f">append</span>(sign * num); num = <span class="t-n">0</span>; sign = <span class="t-n">1</span>; innum = <span class="t-k">False</span>
+            <span class="t-k">if</span> c == <span class="t-n">45</span>: sign = -<span class="t-n">1</span>
+    <span class="t-k">if</span> innum: out.<span class="t-f">append</span>(sign * num)
+    <span class="t-k">return</span> out</code></pre><h3>Python 实现</h3><pre><code class="python"><span class="t-k">import</span> sys
+
+
+<span class="t-k">def</span> <span class="t-f">solve</span>(data_lines):
+    <span class="t-k">import</span> io
+    sys.stdin = io.<span class="t-f">StringIO</span>(data_lines)
+    data = sys.stdin.buffer.<span class="t-f">read</span>().<span class="t-f">split</span>() <span class="t-k">if</span> <span class="t-b">hasattr</span>(sys.stdin, <span class="t-s">&#x27;buffer&#x27;</span>) <span class="t-k">else</span> sys.stdin.<span class="t-f">read</span>().<span class="t-f">split</span>()
+    it = <span class="t-b">iter</span>(data)
+    n = <span class="t-b">int</span>(<span class="t-b">next</span>(it))
+    a = [<span class="t-b">int</span>(<span class="t-b">next</span>(it)) <span class="t-k">for</span> _ <span class="t-k">in</span> <span class="t-b">range</span>(n)]
+    <span class="t-k">return</span> <span class="t-b">sum</span>(a)
+
+
+<span class="t-k">def</span> <span class="t-f">fast_ints</span>():
+    data = sys.stdin.buffer.<span class="t-f">read</span>()
+    num = <span class="t-n">0</span>
+    sign = <span class="t-n">1</span>
+    innum = <span class="t-k">False</span>
+    out = []
+    <span class="t-k">for</span> c <span class="t-k">in</span> data:
+        <span class="t-k">if</span> <span class="t-n">48</span> &lt;= c &lt;= <span class="t-n">57</span>:
+            num = num * <span class="t-n">10</span> + (c - <span class="t-n">48</span>)
+            innum = <span class="t-k">True</span>
+        <span class="t-k">else</span>:
+            <span class="t-k">if</span> innum:
+                out.<span class="t-f">append</span>(sign * num)
+                num = <span class="t-n">0</span>
+                sign = <span class="t-n">1</span>
+                innum = <span class="t-k">False</span>
+            <span class="t-k">if</span> c == <span class="t-n">45</span>:
+                sign = -<span class="t-n">1</span>
+    <span class="t-k">if</span> innum:
+        out.<span class="t-f">append</span>(sign * num)
+    <span class="t-k">return</span> out
+
+
+<span class="t-k">def</span> <span class="t-f">main</span>():
+    <span class="t-c"># 自测模板1（StringIO 注入）</span>
+    <span class="t-k">assert</span> <span class="t-f">solve</span>(<span class="t-s">&quot;5\n1 2 3 4 5\n&quot;</span>) == <span class="t-n">15</span>
+    <span class="t-k">assert</span> <span class="t-f">solve</span>(<span class="t-s">&quot;3\n10  20\n30&quot;</span>) == <span class="t-n">60</span>
+    <span class="t-c"># 手写快读：换行/空格/负数混排</span>
+    <span class="t-k">import</span> io
+    saved = sys.stdin
+    sys.stdin = io.<span class="t-f">TextIOWrapper</span>(io.<span class="t-f">BytesIO</span>(<span class="t-s">b&quot;4  -2 33 -100\n&quot;</span>))
+    got = <span class="t-f">fast_ints</span>()
+    sys.stdin = saved
+    <span class="t-k">assert</span> got == [<span class="t-n">4</span>, -<span class="t-n">2</span>, <span class="t-n">33</span>, -<span class="t-n">100</span>]
+    <span class="t-b">print</span>(<span class="t-s">&quot;fast-io OK&quot;</span>)
+
+
+<span class="t-k">if</span> __name__ == <span class="t-s">&quot;__main__&quot;</span>:
+    <span class="t-f">main</span>()
+</code></pre><div class="callout tip"><span class="ctag">PyPy 提示</span><span class="ctext">PyPy 的 input() 实现比 CPython 快很多（内建缓冲与行缓冲优化），但 read().split() 仍是 IO 瓶颈的最优解。PyPy 下 bytes.split() 与 int(bytes) 均可用。手写快读在 PyPy 下收益小于 CPython（PyPy 字节循环不算慢），且代码略长，普通题用模板1即可；只有 IO 量极大（10^7 级 token）才考虑手写。注意：PyPy 读 sys.stdin.buffer.read() 后 int(b) 支持 bytes 参数，无需先 decode。</span></div><div class="tblwrap"><table class="cmpl"><tr><th>时间复杂度</th><td>read()+split()+map 全程 C 层 O(总字节数)，常数极小；手写快读单遍 O(总字节数)</td></tr><tr><th>空间复杂度</th><td>O(总输入字节) 存全部 token；手写快读 O(输出 token 数)</td></tr></table></div><div class="callout warn"><span class="ctag">注意 · 局限</span><span class="ctext">一次性 read() 要求输入全部就绪——交互题不可用（须逐行交互+flush）。内存：10^7 级 token 的 split 会生成大量 bytes 对象，内存峰值高，可改用逐行 readline 或手写快读避免中间对象。读浮点不用此套路（float() 可解析 bytes，但大浮点输入建议逐行）。</span></div></div><div class="section"><h2>易错点</h2><ul class="pit"><li>交互题误用 read() 一次性读入会死等，必须逐行读+flush</li><li>input() 逐行读 10^6 行在 CPython 直接 TLE，必须换 read().split()</li><li>sys.stdin.buffer.read() 返回 bytes，int(b) 可直接用；若先 .decode() 再 split 会多一次拷贝</li><li>next(it) 超界抛 StopIteration，大量 token 时注意别多取</li><li>手写快读漏处理负数符号、或对非数字字符（如行末 CRLF 的 \r）判定错误</li><li>read() 空输入时 split() 返回空列表，直接 next 会崩，需判空</li></ul></div>
+
+  <div class="section"><h2>例题</h2><div class="tblwrap"><table><thead><tr><th>OJ</th><th>题号</th><th>难度</th><th>考点</th><th>链接</th></tr></thead><tbody><tr><td>Luogu</td><td><strong>P1001</strong></td><td>1</td><td>A+B Problem：快读模板的起点，验证 read().split() 基本用法</td><td class="u"><a href="https://www.luogu.com.cn/problem/P1001" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P1001</a></td></tr><tr><td>Luogu</td><td><strong>P4779</strong></td><td>4</td><td>单源最短路径(标准版)：n,m 达 1e5，Python 必须配快读+快出否则必 TLE</td><td class="u"><a href="https://www.luogu.com.cn/problem/P4779" target="_blank" rel="noopener">https://www.luogu.com.cn/problem/P4779</a></td></tr></tbody></table></div></div>
+
+  
+<div class="dagbox">
+  <div class="daglabel">步骤迷你图（节点 = 算法步骤 · 边 = 流程 · 绿色 = 起始步骤）</div>
+  <div id="step-dag-fast-io" class="step-dag"></div>
+</div>
+<script src="../04-interactive/vendor/cytoscape.min.js"></script>
+<script src="../04-interactive/vendor/cytoscape-dagre.min.js"></script>
+<script>
+(function(){
+  var raw = [{"data": {"id": "s1", "label": "import sys; data=sys.stdin.buffer.read().split()"}}, {"data": {"id": "s2", "label": "it=iter(data); n=int(next(it)) 逐 token 取"}}, {"data": {"id": "s3", "label": "或 nums=list(map(int,data)) 全量转换"}}, {"data": {"id": "s4", "label": "IO 量极大时用手写字节快读 fast_ints()"}}, {"data": {"id": "es1->s2", "source": "s1", "target": "s2"}}, {"data": {"id": "es2->s3", "source": "s2", "target": "s3"}}, {"data": {"id": "es3->s4", "source": "s3", "target": "s4"}}];
+  if (!raw.length) return;
+  var cy = cytoscape({
+    container: document.getElementById('step-dag-fast-io'),
+    elements: raw,
+    style: [
+      {selector: 'node', style: {
+        'label': 'data(label)', 'background-color': '#4f8cff', 'color': '#e6e8ee',
+        'font-size': 11, 'text-valign': 'bottom', 'text-margin-y': 4,
+        'width': 60, 'height': 40, 'shape': 'round-rectangle',
+        'border-width': 1, 'border-color': '#2a2f3a', 'text-wrap': 'ellipsis',
+        'text-max-width': 120
+      }},
+      {selector: 'edge', style: {
+        'width': 1.5, 'line-color': '#4a5263', 'target-arrow-color': '#4a5263',
+        'target-arrow-shape': 'triangle', 'curve-style': 'bezier'
+      }}
+    ],
+    layout: {name: 'dagre', rankDir: 'LR', nodeSep: 24, rankSep: 60, padding: 16},
+    wheelSensitivity: 0.2, minZoom: 0.2, maxZoom: 2.5
+  });
+  var hasIn = {};
+  cy.edges().forEach(function(e){ hasIn[e.target().id()] = true; });
+  cy.nodes().forEach(function(nd){ if (!hasIn[nd.id()]) nd.style('background-color', '#2fb98a'); });
+  cy.fit(undefined, 28);
+})();
+</script>
+
+  <div class="dagnav"><div class="edgegrp"><div class="edgegrp-label">上游 · 本知识点依赖（前置/变体/组合/共现）</div><div class="chips"><a class="chip e-prerequisite" href="io-optimization.html" title="I/O优化策略包含快速读入的具体实现">I/O优化策略<span class="etype">前置依赖</span></a><a class="chip e-variant" href="py-batch-io.html" title="Python版批量读入是快速读入的语言特化变体">Python批量读入<span class="etype">变体</span></a></div></div><div class="edgegrp"><div class="edgegrp-label">下游 · 依赖本知识点</div><div class="chips"><a class="chip e-cooccurrence" href="constant-opt.html" title="大输入题常共需快速读入和常数优化">常数优化<span class="etype">共现</span></a><a class="chip e-cooccurrence" href="fast-output.html" title="快读快写通常配套使用">快速输出<span class="etype">共现</span></a><a class="chip e-cooccurrence" href="flush-buffer.html" title="交互题中快速I/O需配合手动flush">缓冲区刷新<span class="etype">共现</span></a></div></div></div>
+
+  <div class="section"><h2>信源</h2><ul class="srclist"><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/contest/io/" target="_blank" rel="noopener">https://oi-wiki.org/contest/io/</a></li><li><span class="srctype">OI Wiki</span><span class="v-ok">&#10003;</span> <a href="https://oi-wiki.org/lang/python/" target="_blank" rel="noopener">https://oi-wiki.org/lang/python/</a></li></ul><div class="legend">&#10003; = 已核验 · &#9651; = 未核验</div></div>
+</main>
+<footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
+</body>
+</html>

@@ -1,0 +1,95 @@
+{
+  "id": "block-list",
+  "name": "块状链表",
+  "group": "G-D-6",
+  "stage": "advanced",
+  "priority": "P2",
+  "depth_tier": "standard",
+  "brief": "链表+分块混合，节点指向数组，支持插入/删除/区间访问的O(√n)操作",
+  "what": "块状链表把普通链表升级为「链式数组」：每个链表节点内嵌一个大小约 √n 的定长数组。它保留了链表的插入/删除特性（指针连接），同时通过块内连续存储支持近似随机访问。当一个节点满（超过 2√n）时执行分裂，保证每块规模保持在 √n 量级，使按位置查找、插入、删除的复杂度均为 O(√n)。适合维护需要高频中间插入删除的序列（如 POJ2887 Big String 多次在 pos 处插入字符）。",
+  "why": {
+    "intuition": "纯链表定位 O(n)、纯数组插入 O(n)。块状链表用『√n 个块，每块 √n 个元素』让定位只需遍历 O(√n) 个块、块内用 O(√n) 次拷贝完成插入；分裂保持块大小稳定，避免退化为长链表。",
+    "principle": "维护一个链表，每节点存一个长度 ≤2√n 的定长数组。查找第 k 个元素：沿链表累计 size 直到跨越，O(√n)。插入：定位后若块满则分裂该块（后 √n 个元素拷入新节点并拼接），再插入，O(√n)。删除：定位后块内删除元素，若块过小可与相邻合并（可选），O(√n)。块大小取固定常量（如 1000）即可，无需随 n 变化。",
+    "history": "块状链表是 OI 中的经典序列数据结构，OI Wiki《块状链表》章节详细介绍分裂/插入/查找三操作，并用 POJ2887 Big String 作为例题。libstdc++ 的 rope（基于可持久化平衡树）实现同类功能且为 O(log n)，在 C++ OI 中可代替手写块状链表（2021 CCF 补充说明允许使用下划线开头库函数）。"
+  },
+  "how": {
+    "pseudocode": "# 每节点: size + 定长数组 d[] + nxt 指针\nclass Node: nxt=None; size=0; d=[0]*MAXB\n\ndef find(k):          # 返回第 k 个元素 (0-index)\n  p = head\n  while k >= p.size:\n    k -= p.size; p = p.nxt\n  return p.d[k]\n\ndef split(x):         # 把节点 x 分裂为两个 ~B 大小的节点\n  if x.size < 2*B: return\n  y = Node()\n  copy x.d[B..size-1] -> y.d\n  y.size = x.size - B; x.size = B\n  y.nxt = x.nxt; x.nxt = y\n\ndef insert(pos, val): # 在 pos 处插入 val\n  p = locate(pos); shift; insert; split(p)\n\ndef erase(pos):       # 删除 pos 处元素\n  p = locate(pos); remove; (可选)合并相邻小节点",
+    "python": "B = 1000\n\n\nclass Node:\n    __slots__ = (\"size\", \"nxt\", \"d\")\n\n    def __init__(self):\n        self.size = 0\n        self.nxt = None\n        self.d = []\n\n\nclass BlockList:\n    \"\"\"块状链表：支持按位置 find/insert/delete，均摊 O(√n)。\n    B 为块大小常量。实现定位 + 满块分裂。\n    \"\"\"\n\n    def __init__(self, init=\"\"):\n        self.head = Node()\n        for ch in init:\n            self.push_back(ch)\n\n    def push_back(self, ch):\n        if self.head is None:\n            self.head = Node()\n        p = self.head\n        while p.nxt is not None:\n            p = p.nxt\n        p.d.append(ch)\n        p.size += 1\n        if p.size >= 2 * B:\n            self.split(p)\n\n    def _locate(self, pos):\n        \"\"\"返回 (节点, 块内下标)，定位第 pos 个元素(0-index)。\"\"\"\n        p = self.head\n        while p is not None and pos >= p.size:\n            pos -= p.size\n            p = p.nxt\n        return p, pos\n\n    def split(self, x):\n        if x.size < 2 * B:\n            return\n        y = Node()\n        y.d = x.d[B:]\n        y.size = len(y.d)\n        del x.d[B:]\n        x.size = len(x.d)\n        y.nxt = x.nxt\n        x.nxt = y\n\n    def find(self, pos):\n        p, i = self._locate(pos)\n        return p.d[i]\n\n    def insert(self, pos, ch):\n        if self._size() == 0:\n            self.head = Node()\n            self.head.d.append(ch)\n            self.head.size = 1\n            return\n        if pos == self._size():\n            self.push_back(ch)\n            return\n        p, i = self._locate(pos)\n        p.d.insert(i, ch)\n        p.size += 1\n        self.split(p)\n\n    def erase(self, pos):\n        p, i = self._locate(pos)\n        del p.d[i]\n        p.size -= 1\n        if p.size == 0:\n            self._remove_node(p)\n\n    def _remove_node(self, x):\n        p = self.head\n        if p is x:\n            self.head = p.nxt\n            return\n        while p is not None and p.nxt is not x:\n            p = p.nxt\n        if p is not None:\n            p.nxt = x.nxt\n\n    def _size(self):\n        p = self.head\n        s = 0\n        while p is not None:\n            s += p.size\n            p = p.nxt\n        return s\n\n    def to_str(self):\n        p = self.head\n        out = []\n        while p is not None:\n            out.extend(p.d)\n            p = p.nxt\n        return \"\".join(out)\n\n\nif __name__ == \"__main__\":\n    import random\n\n    random.seed(7)\n    bl = BlockList(\"hello\")\n    brute = list(\"hello\")\n    for _ in range(2000):\n        op = random.random()\n        if op < 0.45 and len(brute) > 0:\n            pos = random.randrange(len(brute))\n            bl.erase(pos)\n            del brute[pos]\n        elif op < 0.85:\n            pos = random.randrange(len(brute) + 1)\n            ch = chr(random.randint(97, 122))\n            bl.insert(pos, ch)\n            brute.insert(pos, ch)\n        elif len(brute) > 0:\n            pos = random.randrange(len(brute))\n            assert bl.find(pos) == brute[pos], (pos, bl.find(pos), brute[pos])\n    assert bl.to_str() == \"\".join(brute)\n    # 大量插入使块分裂后依然正确\n    for i in range(5000):\n        bl.insert(i % (i + 1), \"x\")\n    assert bl._size() == 5000 + len(brute)\n    print(\"block-list 自测通过：2000+ 次随机 插入/删除/查找 与列表对拍一致\")\n",
+    "pypy_notes": "PyPy 下每块用 list 即可；split 时用切片赋值比逐元素拷贝快。块大小常量按题目规模调（如 n=1e6 取 B≈1e3）。不需要维护合并逻辑也能通过多数题目；Python 若追求 O(log n) 可用内置 list 模拟更慢，直接手写块状链表更可控。",
+    "complexity": {
+      "time": "查找/插入/删除均 O(√n)；分裂均摊 O(√n)（每插入 2√n 次触发一次）",
+      "space": "O(n)"
+    },
+    "limitations": "定位需沿链表走 O(√n) 个节点，若块数变多退化为 O(n)；需严格控制块大小上限（满则分裂）否则退化成单块数组或长链表。Python 端随机访问较慢，适合插入/删除主导的题。rope（C++）可实现 O(log n) 但 Python 无内置等价物。"
+  },
+  "examples": [
+    {
+      "oj": "POJ",
+      "pid": "2887",
+      "url": "http://poj.org/problem?id=2887",
+      "difficulty": 4,
+      "key_point": "Big String：块状链表模板题，多次在 pos 处插入字符+单点查询（OI Wiki 例题）"
+    },
+    {
+      "oj": "Luogu",
+      "pid": "P4008",
+      "url": "https://www.luogu.com.cn/problem/P4008",
+      "difficulty": 5,
+      "key_point": "NOI2003 文本编辑器：块状链表实现文本光标操作"
+    }
+  ],
+  "pitfalls": [
+    "块满未分裂会退化为单数组，插入 O(n)",
+    "定位时累计 size 的下标边界（0-index 与 1-index 混淆）",
+    "删除后节点变空需从链表中移除，否则 to_str 出空块",
+    "split 后 nxt 指针要正确拼接（y.nxt=x.nxt; x.nxt=y）",
+    "插入在末尾时 _locate 返回 None，需单独 push_back",
+    "多块拼接遍历时要处理 p 为 None（越界访问）"
+  ],
+  "step_dag": {
+    "nodes": [
+      {
+        "id": "structure",
+        "label": "定义节点：内嵌定长数组+size+nxt"
+      },
+      {
+        "id": "locate",
+        "label": "按位置定位（累计 size）"
+      },
+      {
+        "id": "insertdel",
+        "label": "块内插入/删除"
+      },
+      {
+        "id": "split",
+        "label": "满块分裂保持 √n 规模"
+      }
+    ],
+    "edges": [
+      {
+        "from": "structure",
+        "to": "locate"
+      },
+      {
+        "from": "locate",
+        "to": "insertdel"
+      },
+      {
+        "from": "insertdel",
+        "to": "split"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "type": "oiwiki",
+      "url": "https://oi-wiki.org/ds/block-list/",
+      "verified": true
+    },
+    {
+      "type": "oiwiki",
+      "url": "https://raw.githubusercontent.com/OI-wiki/OI-wiki/master/docs/ds/block-list.md",
+      "verified": true
+    }
+  ]
+}
