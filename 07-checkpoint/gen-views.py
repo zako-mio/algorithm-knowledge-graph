@@ -16,12 +16,32 @@
 import json
 import os
 import re
+import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DAG_PATH = os.path.join(ROOT, '01-dag-data', 'algorithm-dag.json')
 OUT_DIR = os.path.join(ROOT, '05-views')
 NODE_PAGES = os.path.join(ROOT, '02-node-pages')
+
+# ---------------------------------------------------------------- 令牌单源（值件展开）
+# ★ 本文件内**不得**持有任何令牌字面值：本族（default）的 3 个视图页**不内联**令牌块，
+#   改为外链 assets/tokens.css（由 gen-group-pages.py 与写入器同源产出）。
+sys.path.insert(0, os.path.join(ROOT, 'vendor', 'pipeline'))
+import derive_site_tokens as _tokens_mod  # noqa: E402
+
+VALUE_FILE = os.path.join(ROOT, 'vendor', 'pipeline', 'values', 'algorithm-knowledge-graph.json')
+PROFILE_FILE = os.path.join(ROOT, 'build', 'profile.json')
+
+
+def root_tokens(family='default'):
+    """运行期从**值件**展开 `:root` 令牌块（确定性：同输入两次结果逐字节相同）。"""
+    with open(VALUE_FILE, encoding='utf-8') as fh:
+        contract = json.load(fh)
+    with open(PROFILE_FILE, encoding='utf-8') as fh:
+        profile = json.load(fh)
+    _fid, toks = _tokens_mod.build_tokens(contract, profile, family)
+    return _tokens_mod.render(toks)
 
 STAGE_NAME = {'basic': '基础', 'intermediate': '中级', 'advanced': '高级', 'frontier': '前沿'}
 STAGE_CLASS = {'basic': 'b-basic', 'intermediate': 'b-intermediate', 'advanced': 'b-advanced', 'frontier': 'b-frontier'}
@@ -30,17 +50,19 @@ PRIORITY_CLASS = {'P0': 'p-p0', 'P1': 'p-p1', 'P2': 'p-p2', 'P3': 'p-p3'}
 PRIORITY_ORDER = ['P0', 'P1', 'P2', 'P3']
 
 CSS = """\
-:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;}
 *{box-sizing:border-box;margin:0;padding:0;}
+.skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--panel);color:var(--accent);border:1px solid var(--border);border-radius:0 0 8px 0;padding:8px 14px;font-size:13px;text-decoration:none;}
+.skip:focus{left:0;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
-header{background:var(--panel);border-bottom:1px solid var(--border);padding:24px 28px;}
+header{background:var(--panel);border-bottom:1px solid var(--border-subtle);padding:24px 28px;}
 header h1{font-size:23px;margin-bottom:6px;color:#f0f3f9;}
 header p{color:var(--dim);font-size:14px;max-width:980px;}
 main{padding:24px 28px;max-width:1200px;margin:0 auto;}
 .back{margin-bottom:14px;}
 .back a{color:var(--accent);text-decoration:none;font-size:14px;}
 .back a:hover{text-decoration:underline;}
-h2{font-size:19px;margin:30px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h2{font-size:19px;margin:30px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border-subtle);padding-bottom:8px;}
 h3{font-size:15px;margin:16px 0 8px;color:#b8c2d4;}
 a{color:var(--accent);text-decoration:none;}
 a:hover{text-decoration:underline;}
@@ -54,7 +76,7 @@ a:hover{text-decoration:underline;}
 .card p{font-size:13px;color:var(--dim);margin-bottom:12px;}
 .card .go{display:inline-block;background:#1d2a3f;border:1px solid #2b3d5f;border-radius:8px;padding:6px 14px;color:#fff;font-size:13px;}
 .card .go:hover{border-color:var(--accent);}
-.sec-head{display:flex;align-items:baseline;gap:10px;margin:34px 0 8px;border-bottom:1px solid var(--border);padding-bottom:8px;}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin:34px 0 8px;border-bottom:1px solid var(--border-subtle);padding-bottom:8px;}
 .sec-head h2{margin:0;border:none;padding:0;}
 .sec-head span{color:var(--dim);font-size:13px;}
 .sec-card{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:10px;padding:16px 18px;margin:12px 0;}
@@ -91,8 +113,11 @@ a:hover{text-decoration:underline;}
 .layer-nav{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px;}
 .layer-nav a{display:inline-block;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:4px 12px;font-size:13px;color:#b8c2d4;}
 .layer-nav a:hover{border-color:var(--accent);color:#fff;}
-footer{margin-top:48px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+footer{margin-top:48px;padding:16px 24px;border-top:1px solid var(--border-subtle);color:var(--dim);font-size:12px;text-align:center;}
 @media (max-width:760px){main,header{padding:14px 16px;}.row .nm{min-width:160px;}}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+}
 """
 
 
@@ -107,16 +132,18 @@ def page(title, subtitle, body, gen_note=None):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>%s — 算法知识图谱</title>
+<link rel="stylesheet" href="../assets/tokens.css">
 <style>
 %s
 </style>
 </head>
 <body>
+<a class="skip" href="#main">跳到主要内容</a>
 <header>
   <h1>%s</h1>
   <p>%s</p>
 </header>
-<main>
+<main id="main">
   <div class="back"><a href="index.html">&larr; 返回视图入口</a></div>
 %s
 </main>
@@ -265,6 +292,28 @@ def validate_links(path, root):
     return problems
 
 
+def run_site_gates():
+    """★ Q5-B：门控**随生成器收尾内联调用**（report 档，留痕 gate-report.json）。
+
+    ⛔ 这里**不阻断**：多生成器重建过程中，先跑完的生成器会看到尚未重建的兄弟族，
+    此时阻断会让**正确的重建**失败。阻断档由 `build/profile.json` 的 `gates.commands`
+    （enforce 一行命令）承担 —— 见 SH5 §4.2 第 3 点的 legacy 站路径。
+    """
+    rc = 0
+    for script in ('gate_tokens.py', 'gate_design.py'):
+        path = os.path.join(ROOT, script)
+        if not os.path.isfile(path):
+            print('[gate] 跳过：未找到 %s' % script)
+            continue
+        r = subprocess.run([sys.executable, path, '--site-root', ROOT, '--mode', 'report',
+                            '--report-out', os.path.join(ROOT, 'gate-report.json')],
+                           cwd=ROOT, capture_output=True, text=True)
+        tail = [ln for ln in (r.stdout or '').strip().splitlines() if ln.startswith('===')]
+        print('[gate] %s rc=%d %s' % (script, r.returncode, tail[-1] if tail else ''))
+        rc = rc or r.returncode
+    return rc
+
+
 def main():
     dag = json.load(open(DAG_PATH, encoding='utf-8'))
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -302,7 +351,7 @@ def main():
     missing = [n['id'] for n in dag['nodes'] if n['id'] not in node_pages_set]
     print('[coverage] 缺 HTML 节点页: %s' % (missing if missing else '无'))
 
-    return 1 if (fail or not coverage_ok or not layers_ok or missing) else 0
+    return 1 if (fail or not coverage_ok or not layers_ok or missing or run_site_gates()) else 0
 
 
 if __name__ == '__main__':

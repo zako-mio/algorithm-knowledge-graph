@@ -15,6 +15,7 @@ import html as html_mod
 import json
 import os
 import re
+import subprocess
 import sys
 from collections import Counter
 
@@ -23,7 +24,27 @@ DAG_PATH = os.path.join(ROOT, '01-dag-data', 'algorithm-dag.json')
 NODES_DIR = os.path.join(ROOT, 'research', 'stage2-nodes')
 INV_PATH = os.path.join(ROOT, 'research', 'stage1-inventory', 'inventory.json')
 OUT_DIR = os.path.join(ROOT, '03-groups')
+TOKENS_CSS = os.path.join(ROOT, 'assets', 'tokens.css')
 KNOWN_EXTERNAL = {os.path.normpath(os.path.join(ROOT, '04-interactive'))}
+
+# ---------------------------------------------------------------- 令牌单源（值件展开）
+# ★ 本文件内**不得**持有任何令牌字面值：令牌块在运行期由 `vendor/pipeline/` 的派生器
+#   从值件展开；本族（default）的 63 个外链页**不内联**令牌块，改为外链 assets/tokens.css。
+sys.path.insert(0, os.path.join(ROOT, 'vendor', 'pipeline'))
+import derive_site_tokens as _tokens_mod  # noqa: E402
+
+VALUE_FILE = os.path.join(ROOT, 'vendor', 'pipeline', 'values', 'algorithm-knowledge-graph.json')
+PROFILE_FILE = os.path.join(ROOT, 'build', 'profile.json')
+
+
+def root_tokens(family='default'):
+    """运行期从**值件**展开 `:root` 令牌块（确定性：同输入两次结果逐字节相同）。"""
+    with open(VALUE_FILE, encoding='utf-8') as fh:
+        contract = json.load(fh)
+    with open(PROFILE_FILE, encoding='utf-8') as fh:
+        profile = json.load(fh)
+    _fid, toks = _tokens_mod.build_tokens(contract, profile, family)
+    return _tokens_mod.render(toks)
 
 # 与 gen-node-pages.py 完全一致的徽章配色
 PRIORITY_STYLE = {
@@ -60,10 +81,12 @@ def priority_badge(pr):
 
 
 CSS = '''
-:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
 *{box-sizing:border-box;margin:0;padding:0;}
+.skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--panel);color:var(--accent);border:1px solid var(--border);border-radius:0 0 8px 0;padding:8px 14px;font-size:13px;text-decoration:none;}
+.skip:focus{left:0;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
-header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header{background:var(--panel);border-bottom:1px solid var(--border-subtle);padding:14px 24px;}
 header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
 header .crumb a{color:var(--accent);text-decoration:none;}
 header .crumb a:hover{text-decoration:underline;}
@@ -73,7 +96,7 @@ header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;marg
 .badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
 .badge.cnt{background:#23272f;color:#9aa0ab;border-color:#3a3f4a;}
 main{padding:24px;max-width:1150px;margin:0 auto;}
-h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border-subtle);padding-bottom:8px;}
 h2 .dim{font-size:13px;font-weight:400;}
 p,li{font-size:14px;}
 ul{padding-left:22px;}
@@ -122,7 +145,10 @@ td.ex{text-align:center;color:var(--dim);font-size:12px;}
 .domnav .box .lab{font-size:11px;color:var(--dim);margin-bottom:4px;}
 .domnav .box a{display:block;font-size:13px;color:#b8c2d4;}
 .domnav .box a .g{color:var(--accent);font-weight:600;}
-footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border-subtle);color:var(--dim);font-size:12px;text-align:center;}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+}
 @media (max-width:720px){
   main{padding:14px;}
   header{padding:12px 14px;}
@@ -298,15 +324,17 @@ def render_group_page(g, group_list, group_ids, group_index, nodes, name_of, inv
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>%(name)s · 组索引 · 算法知识图谱</title>
+<link rel="stylesheet" href="../assets/tokens.css">
 <style>%(css)s</style>
 </head>
 <body>
+<a class="skip" href="#main">跳到主要内容</a>
 <header>
   <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="../03-groups/%(gid)s.html">组目录</a> / <span>组索引</span></div>
   <h1>%(name)s</h1>
   <div class="badges">%(badges)s</div>
 </header>
-<main>
+<main id="main">
   <div class="treenav">%(treenav)s</div>
 
   <div class="navseq">
@@ -341,6 +369,44 @@ def render_group_page(g, group_list, group_ids, group_index, nodes, name_of, inv
     return page
 
 
+def write_tokens_css():
+    """★ 形态 2 的外链产物 `assets/tokens.css`：**只含令牌**，不承载布局规则。
+
+    与 `write_site_tokens.py --apply`（whole-file 模式）写出的字节**相同** —— 两者都来自
+    同一份派生（值件 → derive_site_tokens.build_tokens/render）。由 gate_tokens.py 的 T11 断言。
+    ⛔ 本产物**不手改**。
+    """
+    os.makedirs(os.path.dirname(TOKENS_CSS), exist_ok=True)
+    content = root_tokens('default') + '\n'
+    with open(TOKENS_CSS, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print('[tokens] 写出 %s（%d 字节，%d 枚令牌）'
+          % (os.path.relpath(TOKENS_CSS, ROOT), len(content.encode('utf-8')),
+             content.count('--')))
+
+
+def run_site_gates():
+    """★ Q5-B：门控**随生成器收尾内联调用**（report 档，留痕 gate-report.json）。
+
+    ⛔ 这里**不阻断**：多生成器重建过程中，先跑完的生成器会看到尚未重建的兄弟族，
+    此时阻断会让**正确的重建**失败。阻断档由 `build/profile.json` 的 `gates.commands`
+    （enforce 一行命令）承担 —— 见 SH5 §4.2 第 3 点的 legacy 站路径。
+    """
+    rc = 0
+    for script in ('gate_tokens.py', 'gate_design.py'):
+        path = os.path.join(ROOT, script)
+        if not os.path.isfile(path):
+            print('[gate] 跳过：未找到 %s' % script)
+            continue
+        r = subprocess.run([sys.executable, path, '--site-root', ROOT, '--mode', 'report',
+                            '--report-out', os.path.join(ROOT, 'gate-report.json')],
+                           cwd=ROOT, capture_output=True, text=True)
+        tail = [ln for ln in (r.stdout or '').strip().splitlines() if ln.startswith('===')]
+        print('[gate] %s rc=%d %s' % (script, r.returncode, tail[-1] if tail else ''))
+        rc = rc or r.returncode
+    return rc
+
+
 def main():
     dag = json.load(open(DAG_PATH, encoding='utf-8'))
     inv = json.load(open(INV_PATH, encoding='utf-8'))
@@ -369,6 +435,9 @@ def main():
         generated.append(g['id'])
 
     print('[gen] 生成 %d 组索引页 -> %s' % (len(generated), OUT_DIR))
+
+    # ★ 形态 2 的外链产物（63 页 <link> 的目标）——与页面的 :root 同源派生
+    write_tokens_css()
 
     # ---- 校验 ----
     fail = []
@@ -410,7 +479,7 @@ def main():
     for gid, e, a in link_mismatch[:30]:
         print('[nodes] MISMATCH %s expected=%d actual=%d' % (gid, e, a), file=sys.stderr)
 
-    return 1 if (fail or broken or link_mismatch) else 0
+    return 1 if (fail or broken or link_mismatch or run_site_gates()) else 0
 
 
 # ---------------------------------------------------------------- 校验

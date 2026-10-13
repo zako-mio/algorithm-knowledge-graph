@@ -5,10 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>算法知识图谱 · 交互式 DAG 总览</title>
 <style>
-  :root { --bg:#0f1117; --panel:#161a22; --border:#2a2f3a; --text:#e6e8ee; --dim:#9aa3b2; --accent:#4f8cff; --warn:#e0c35e; --danger:#e05563; }
+  :root{--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--border:#6b7280;--border-subtle:#2a2f3a;--bg:#0f1117;--panel:#161a22;--ok:#2fb98a;--warn:#e0c35e;--danger:#e05563;}
   * { box-sizing:border-box; margin:0; padding:0; }
+  .skip { position:absolute; left:-9999px; top:0; z-index:99; background:var(--panel); color:var(--accent); border:1px solid var(--border); border-radius:0 0 8px 0; padding:8px 14px; font-size:13px; text-decoration:none; }
+  .skip:focus { left:0; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .vh { position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
   body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; height:100vh; overflow:hidden; }
-  header { position:fixed; top:0; left:0; right:0; z-index:10; background:var(--panel); border-bottom:1px solid var(--border); padding:8px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  header { position:fixed; top:0; left:0; right:0; z-index:10; background:var(--panel); border-bottom:1px solid var(--border-subtle); padding:8px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   header h1 { font-size:15px; font-weight:600; white-space:nowrap; }
   header a { color:var(--accent); text-decoration:none; font-size:13px; }
   header a:hover { text-decoration:underline; }
@@ -70,9 +74,13 @@
     #searchbox { width:110px; }
     #detail { width:86vw; }
   }
+  @media (prefers-reduced-motion:reduce) {
+    * { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+  }
 </style>
 </head>
 <body>
+<a class="skip" href="#main">跳到主要内容</a>
 <header>
   <h1>算法知识图谱 <span class="badge">交互 DAG</span></h1>
   <a href="../index.html">← 任务目录</a>
@@ -81,20 +89,23 @@
   <button id="backbtn" class="btn" style="display:none;">← 返回组级</button>
   <div class="controls">
     <span class="hint" style="font-size:11px;">视图</span>
-    <div class="seg" id="viewSeg">
-      <button data-view="full" class="active">完整</button>
-      <button data-view="sprint">冲刺</button>
-      <button data-view="highlight">高亮</button>
+    <div class="seg" id="viewSeg" role="group" aria-label="图谱视图切换">
+      <button data-view="full" class="active" aria-pressed="true">完整</button>
+      <button data-view="sprint" aria-pressed="false">冲刺</button>
+      <button data-view="highlight" aria-pressed="false">高亮</button>
     </div>
     <span class="hint" style="font-size:11px;">视角</span>
-    <div class="seg" id="layerSeg" style="display:none;">
-      <button data-view="domain" class="active">按域</button>
-      <button data-view="stage">按学习阶段</button>
+    <div class="seg" id="layerSeg" style="display:none;" role="group" aria-label="学习路径视角切换">
+      <button data-view="domain" class="active" aria-pressed="true">按域</button>
+      <button data-view="stage" aria-pressed="false">按学习阶段</button>
     </div>
-    <input id="searchbox" type="text" placeholder="搜索节点…">
+    <label class="vh" for="searchbox">搜索知识点或组</label>
+    <input id="searchbox" type="text" placeholder="搜索节点…" aria-describedby="searchstatus">
+    <span id="searchstatus" class="vh" role="status" aria-live="polite"></span>
   </div>
   <button id="learnbtn" class="btn">学习路径</button>
 </header>
+<main id="main" tabindex="-1">
 <div id="empty"></div>
 <div id="graph"></div>
 <div id="crumb"></div>
@@ -107,6 +118,7 @@
 <div id="detail"></div>
 <div id="zoominfo">模式 <b id="zmode">组级</b> · 节点 <b id="zcount">0</b> · 视图 <b id="zview">完整</b></div>
 
+</main>
 <script src="vendor/cytoscape.min.js"></script>
 <script src="vendor/cytoscape-dagre.min.js"></script>
 <script>
@@ -326,9 +338,21 @@ function applyViewStyles(){
 function applySearchStyles(){ /* handled in applyViewStyles */ }
 
 // ===== 视图切换 =====
+// ★ a11y：分段控件是**切换按钮**，按下态必须同时落在 aria-pressed 上（⛔ 不只靠 .active 视觉类）。
+function announce(msg){
+  const el = $('searchstatus');
+  if (el) el.textContent = msg;
+}
+function syncPressed(segId, active){
+  document.querySelectorAll('#'+segId+' button').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.view === active));
+  });
+}
 function setView(v){
   currentView = v;
   document.querySelectorAll('#viewSeg button').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  syncPressed('viewSeg', v);
+  announce('视图已切换为「' + v + '」');
   render();
 }
 document.querySelectorAll('#viewSeg button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
@@ -337,6 +361,8 @@ function setLayerMode(m){
   layerMode = m;
   currentStage = null;
   document.querySelectorAll('#layerSeg button').forEach(b => b.classList.toggle('active', b.dataset.view === m));
+  syncPressed('layerSeg', m);
+  announce('视角已切换为「' + m + '」');
   render();
 }
 document.querySelectorAll('#layerSeg button').forEach(b => b.addEventListener('click', () => setLayerMode(b.dataset.view)));
@@ -451,6 +477,9 @@ $('searchbox').addEventListener('input', (e) => {
   // 搜索模式下不重建布局，仅高亮
   if (searchMode){
     $('zcount').textContent = cy.nodes(':visible').length;
+    announce('搜索「' + v + '」：命中 ' + cy.nodes(':visible').length + ' 个节点');
+  } else {
+    announce('已清空搜索');
   }
 });
 

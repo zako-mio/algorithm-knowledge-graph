@@ -1,0 +1,255 @@
+{
+  "site": "algorithm-knowledge-graph",
+  "schema": "site-gate-report/1",
+  "deterministic": true,
+  "determinism_note": "★ 确定性件：⛔ 无墙钟时间戳、⛔ 无作者机绝对路径；tree_digest 排除本报告自身与 build/gate-baseline.json。",
+  "gates": [
+    {
+      "gate": "gate_design.py",
+      "site": "algorithm-knowledge-graph",
+      "mode": "report",
+      "tree_digest": "b30d8343d511b2e145d370ed2f17a77cffa76a1b451832eed7fdcf455ad1e312",
+      "classes_covered": [
+        "contrast",
+        "token-consistency",
+        "dead-css",
+        "a11y",
+        "responsive",
+        "metadata"
+      ],
+      "class_table": [
+        {
+          "id": "contrast",
+          "name": "① 对比度",
+          "object": "令牌产物的真实色值",
+          "threshold": "WCAG 正文 4.5:1 / 非文本 3.0:1（usage_tiers）"
+        },
+        {
+          "id": "token-consistency",
+          "name": "② 令牌唯一值",
+          "object": "各页面族令牌产物的 sha256 ＋ 同名值一致性",
+          "threshold": "权威源（值件）展开结果"
+        },
+        {
+          "id": "dead-css",
+          "name": "③ 死 CSS",
+          "object": "产物的 class 集合 vs 样式表的选择器集合",
+          "threshold": "差集为空"
+        },
+        {
+          "id": "a11y",
+          "name": "④ 无障碍",
+          "object": "产物的 <main> / skip link / role=img / :focus-visible",
+          "threshold": "SH2 §4.2"
+        },
+        {
+          "id": "responsive",
+          "name": "⑤ 响应式",
+          "object": "四视口下 documentElement.scrollWidth（★ 本机未测，退化为静态判据）",
+          "threshold": "SH3 §4.2"
+        },
+        {
+          "id": "metadata",
+          "name": "⑥ 元数据",
+          "object": "产物的 description / og / canonical / favicon / sitemap",
+          "threshold": "SH4 §4.2"
+        }
+      ],
+      "counts": {
+        "judges": 9,
+        "pass": 7,
+        "fail": 0,
+        "report": 0,
+        "skip": 2
+      },
+      "judges": [
+        {
+          "id": "D1",
+          "name": "六类齐全 ＋ 判据对象非空（空集守卫）",
+          "class": "blind",
+          "status": "PASS",
+          "detail": "六类：contrast · token-consistency · dead-css · a11y · responsive · metadata；扫描 438 页"
+        },
+        {
+          "id": "D2",
+          "name": "类① 对比度（转发 gate_tokens.T6，⛔ 不造第二套）",
+          "class": "report",
+          "status": "PASS",
+          "detail": "T6=PASS — 硬阻断对全部达标；report-only 4 条"
+        },
+        {
+          "id": "D3",
+          "name": "类② 令牌唯一值（转发 gate_tokens.T2/T3/T4）",
+          "class": "report",
+          "status": "PASS",
+          "detail": "T2=PASS；T3=PASS；T4=PASS — 各族内同名令牌均为单值"
+        },
+        {
+          "id": "D4",
+          "name": "类③ 死 CSS（本步新增的 class 必须「用到即定义」；两向差集只作 report 观察）",
+          "class": "report",
+          "status": "PASS",
+          "detail": "本步新增 11 个 class 在全部使用页上均已定义；族级 report 观察 4 条（族 default：定义了但全族未用的 class 选择器 5 个（b-p0,b-p1,b-p2,b-p3,spacer）；族 default：用到但无同名 class 规则的 5 个（dp,nav-node,p,python,st）——⛔ 不判 FAIL（视觉可能由内联 style 或元素/后代选择器承担）；族 groups-index：定义了但全族未用的）"
+        },
+        {
+          "id": "D5",
+          "name": "类④ 无障碍（skip link / :focus-visible / <main> / 图形文本等价物）",
+          "class": "report",
+          "status": "PASS",
+          "detail": "全部 438 页：skip link 恰 1 · :focus-visible ≥1 · <main> 恰 1；静态图形的 role=img/aria-label/DOM 表齐备；report 观察 1 条：04-interactive/index.html 的 #graph（cytoscape 容器） 由 JS 在运行期注入（静态 HTML 无图形元素）⇒ 「节点/边 DOM 表格等价物」canvas 图谱由 cytosc"
+        },
+        {
+          "id": "D6",
+          "name": "类⑤ 响应式（★ 静态替代判据；渲染档未测）",
+          "class": "report",
+          "status": "PASS",
+          "detail": "全部 438 页有 viewport 声明；站点级断点页 437 个；声明的固定布局页 1 个均含断点；report 观察：无断点页 1 个（内在响应式布局，⛔ 不判 FAIL）：03-groups/index.html"
+        },
+        {
+          "id": "D7",
+          "name": "类⑥ 元数据（lang/title 为 hard；description/og/canonical/favicon/sitemap 为 report 观察）",
+          "class": "report",
+          "status": "PASS",
+          "detail": "全部 438 页有 <html lang> 且 <title> 非空并含站点名；report 观察 6 条（SH4 标准档改动面，⛔ 本批不实施）：缺 description 的页 438 / 438；缺 og:* 的页 438 / 438；缺 canonical 的页 438 / 438；缺 favicon 的页 438 / 438；仓内无 sitemap.xml；仓内无 robots.txt"
+        },
+        {
+          "id": "D8",
+          "name": "变更面增量档（变更集为空 ⇒ SKIP）",
+          "class": "skip",
+          "status": "SKIP",
+          "detail": "SKIP：变更集为空（tree_digest=b30d8343d511b2e1）⇒ 全量判据已由 D2–D7 承担；⛔ 不得读作 PASS"
+        },
+        {
+          "id": "D9",
+          "name": "渲染抽样档（12 页 × 4 视口；★ 本机无浏览器 ⇒ 渲染面未测）",
+          "class": "skip",
+          "status": "SKIP",
+          "detail": "SKIP：渲染档**未测**（★ 本机**无浏览器**（`agent-browser` 不在 PATH）⇒ 渲染档（四视口 `documentElement.scrollWidth` / 焦点可见性几何）**未测**；本表只承载这 12 页的**静态判据**。⛔ 不得把静态判据读作渲染实测。）；静态抽样 12/12 页已跑四类静态判据，FAIL 类：无"
+        }
+      ],
+      "not_covered": [
+        "★ 外链页的 **HTTP 可达性**未实测（`curl` 200 / `content-type: text/css`）：本机不联网、不起本地 HTTP 服务 ⇒ T12 只做到「相对路径 ＋ `.css` 扩展名 ＋ 目标文件在仓内存在 ＋ 该页无内联 :root」的**等价静态断言**。⛔ 不得读作「已验 HTTP 200」。",
+        "★ **像素层视觉回归未测**（本机 `agent-browser` 不在 PATH）⇒ 六类门控的渲染档（四视口 scrollWidth / 焦点可见几何）只做到静态判据层。",
+        "★ **四类非令牌门控的执行强度是 report_only**：`site-profile.schema.json` 的 `hard_blocking` 枚举只有四项 ⇒ 死 CSS / 无障碍 / 响应式 / 元数据只能进 report_only（扩枚举＝改 schema，须走独立决策）。",
+        "★ **JS 动态加的 class 与伪类语义未纳入死 CSS 判据**（只判静态 HTML 里出现的 class）。",
+        "★ **运行期由 JS 拼出的 var() 引用未形式化证明**（本站 JS 不拼 CSS 变量，但未证明）。",
+        "★ **`report.html` 未覆盖**（Q4-A）：其生成器 `gen-report-html.py` 的输出目标是仓外绝对路径 ⇒ 仓内那份无生成器可复现。"
+      ]
+    },
+    {
+      "gate": "gate_tokens.py",
+      "site": "algorithm-knowledge-graph",
+      "mode": "report",
+      "tree_digest": "b30d8343d511b2e145d370ed2f17a77cffa76a1b451832eed7fdcf455ad1e312",
+      "classes_covered": [
+        "① 对比度",
+        "② 令牌唯一值"
+      ],
+      "counts": {
+        "pages": 438,
+        "inline": 375,
+        "external": 63,
+        "judges": 12,
+        "pass": 12,
+        "fail": 0,
+        "report": 0,
+        "skip": 0,
+        "blocking_fail": 0
+      },
+      "judges": [
+        {
+          "id": "T1",
+          "name": "空集守卫（扫描面/族/令牌名/内联 :root 均非空）",
+          "class": "blind",
+          "status": "PASS",
+          "detail": "族 4 个 · 页 438 个（内联 375 / 外链 63）· 令牌名 12 枚 · 有 :root 的内联页 375 个"
+        },
+        {
+          "id": "T2",
+          "name": "族内唯一值（同族同名同值；⛔ 不判全站唯一值）",
+          "class": "hard",
+          "status": "PASS",
+          "detail": "各族内同名令牌均为单值"
+        },
+        {
+          "id": "T3",
+          "name": "派生一致性（内联页 :root / 外链页 link 目标 == 值件派生）",
+          "class": "hard",
+          "status": "PASS",
+          "detail": "核对 438 个对象，全部与值件派生一致"
+        },
+        {
+          "id": "T4",
+          "name": "跨族差异逐族登记（多值的每一处都能被某族派生解释）",
+          "class": "hard",
+          "status": "PASS",
+          "detail": "多值令牌 1 枚（--warn），全部逐族登记"
+        },
+        {
+          "id": "T5",
+          "name": "border 分档极性（强分隔对比度 > 弱分隔，判盘上取值）",
+          "class": "hard",
+          "status": "PASS",
+          "detail": "族 default --border=#6b7280(3.90) > --border-subtle=#2a2f3a(1.41)；族 groups-index --border=#6b7280(3.90) > --border-subtle=#2a2f3a(1.41)；族 index --border=#6b7280(3.90) > --border-subtle=#2a2f3a(1.41)；族 interactive --border=#6b7280(3.90) > --border-subtle=#2a2f3a(1.41)"
+        },
+        {
+          "id": "T6",
+          "name": "成对对比度（按 usage_tiers / override_tiers 的 min_contrast 与 gate 逐档）",
+          "class": "report",
+          "status": "PASS",
+          "detail": "硬阻断对全部达标；report-only 4 条"
+        },
+        {
+          "id": "T7",
+          "name": "零引用令牌登记（站点级 hard / 内联页页级 report；登记不得过期）",
+          "class": "report",
+          "status": "PASS",
+          "detail": "站点级零引用 3 枚（--danger,--err,--ext）全部登记；页级未用 3 条全部登记"
+        },
+        {
+          "id": "T8",
+          "name": "生成器单源不变量（无字面值 ＋ 真跑展开 == 值件派生）",
+          "class": "hard",
+          "status": "PASS",
+          "detail": "三个生成器均无令牌字面值，且真跑展开与值件派生一致"
+        },
+        {
+          "id": "T9",
+          "name": "未声明令牌（盘上令牌名 ⊆ 值件声明面）",
+          "class": "hard",
+          "status": "PASS",
+          "detail": "值件声明 12 枚，盘上无未声明令牌"
+        },
+        {
+          "id": "T10",
+          "name": "目标存在性（profile.targets 全在）",
+          "class": "hard",
+          "status": "PASS",
+          "detail": "目标 4 个全部存在"
+        },
+        {
+          "id": "T11",
+          "name": "覆盖完备性（全仓 HTML = 扫描面 ∪ 已声明未覆盖，且不交）",
+          "class": "blind",
+          "status": "PASS",
+          "detail": "全仓 HTML 439 个 = 扫描面 438 ＋ 已声明未覆盖 1（report.html）"
+        },
+        {
+          "id": "T12",
+          "name": "形态分别断言（外链页 1 个 link ＋ 目标可达；内联页零外链）",
+          "class": "hard",
+          "status": "PASS",
+          "detail": "外链页 63 个全部有且仅有 1 个指向 assets/tokens.css 的 <link> 且目标在仓内；内联页 375 个零外链样式"
+        }
+      ],
+      "not_covered": [
+        "★ 外链页的 **HTTP 可达性**未实测（`curl` 200 / `content-type: text/css`）：本机不联网、不起本地 HTTP 服务 ⇒ T12 只做到「相对路径 ＋ `.css` 扩展名 ＋ 目标文件在仓内存在 ＋ 该页无内联 :root」的**等价静态断言**。⛔ 不得读作「已验 HTTP 200」。",
+        "★ **像素层视觉回归未测**（本机 `agent-browser` 不在 PATH）⇒ 六类门控的渲染档（四视口 scrollWidth / 焦点可见几何）只做到静态判据层。",
+        "★ **四类非令牌门控的执行强度是 report_only**：`site-profile.schema.json` 的 `hard_blocking` 枚举只有四项 ⇒ 死 CSS / 无障碍 / 响应式 / 元数据只能进 report_only（扩枚举＝改 schema，须走独立决策）。",
+        "★ **JS 动态加的 class 与伪类语义未纳入死 CSS 判据**（只判静态 HTML 里出现的 class）。",
+        "★ **运行期由 JS 拼出的 var() 引用未形式化证明**（本站 JS 不拼 CSS 变量，但未证明）。",
+        "★ **`report.html` 未覆盖**（Q4-A）：其生成器 `gen-report-html.py` 的输出目标是仓外绝对路径 ⇒ 仓内那份无生成器可复现。"
+      ]
+    }
+  ]
+}

@@ -12,6 +12,7 @@ import html as html_mod
 import json
 import os
 import re
+import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,6 +20,25 @@ NODES_DIR = os.path.join(ROOT, 'research', 'stage2-nodes')
 DAG_PATH = os.path.join(ROOT, '01-dag-data', 'algorithm-dag.json')
 INV_PATH = os.path.join(ROOT, 'research', 'stage1-inventory', 'inventory.json')
 OUT_DIR = os.path.join(ROOT, '02-node-pages')
+
+# ---------------------------------------------------------------- 令牌单源（值件展开）
+# ★ 本文件内**不得**持有任何令牌字面值：令牌块在运行期由 `vendor/pipeline/` 的派生器
+#   从值件展开（三级覆盖：族默认 → 站点覆盖 → 页面族覆盖）。判据见仓根 gate_tokens.py 的 T8。
+sys.path.insert(0, os.path.join(ROOT, 'vendor', 'pipeline'))
+import derive_site_tokens as _tokens_mod  # noqa: E402
+
+VALUE_FILE = os.path.join(ROOT, 'vendor', 'pipeline', 'values', 'algorithm-knowledge-graph.json')
+PROFILE_FILE = os.path.join(ROOT, 'build', 'profile.json')
+
+
+def root_tokens(family='default'):
+    """运行期从**值件**展开 `:root` 令牌块（确定性：同输入两次结果逐字节相同）。"""
+    with open(VALUE_FILE, encoding='utf-8') as fh:
+        contract = json.load(fh)
+    with open(PROFILE_FILE, encoding='utf-8') as fh:
+        profile = json.load(fh)
+    _fid, toks = _tokens_mod.build_tokens(contract, profile, family)
+    return _tokens_mod.render(toks)
 
 # 已知目标（其他步骤生成的页面/资源，视为合法 href 目标）
 KNOWN_EXTERNAL = {
@@ -431,10 +451,13 @@ def build_page(nd, dag_node, group, group_nodes, in_edges, out_edges, name_of):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>%(name)s · 算法知识图谱</title>
 <style>
-:root{--bg:#0f1117;--panel:#161a22;--border:#2a2f3a;--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--ok:#2fb98a;--warn:#e8933b;--err:#c0504d;}
+%(roottokens)s
 *{box-sizing:border-box;margin:0;padding:0;}
+.skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--panel);color:var(--accent);border:1px solid var(--border);border-radius:0 0 8px 0;padding:8px 14px;font-size:13px;text-decoration:none;}
+.skip:focus{left:0;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
-header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 24px;}
+header{background:var(--panel);border-bottom:1px solid var(--border-subtle);padding:14px 24px;}
 header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
 header .crumb a{color:var(--accent);text-decoration:none;}
 header .crumb a:hover{text-decoration:underline;}
@@ -443,7 +466,7 @@ header h1{font-size:20px;font-weight:650;color:#f0f3f9;display:inline-block;marg
 .badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid transparent;letter-spacing:.3px;}
 .badge.grp{background:#1d2a3f;color:#7fb0ff;border-color:#2b3d5f;}
 main{padding:24px;max-width:1150px;margin:0 auto;}
-h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h2{font-size:18px;margin:34px 0 12px;color:#cfd6e4;border-bottom:1px solid var(--border-subtle);padding-bottom:8px;}
 h3{font-size:15px;margin:20px 0 8px;color:#b8c2d4;}
 p,li{font-size:14px;}
 ul{padding-left:22px;}
@@ -508,7 +531,10 @@ table.cmpl th{width:110px;}
 .dagbox{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:14px 0;}
 .daglabel{font-size:12px;color:var(--dim);margin-bottom:8px;}
 .step-dag{width:100%%;height:420px;background:#0b0e14;border:1px solid var(--border);border-radius:8px;}
-footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);color:var(--dim);font-size:12px;text-align:center;}
+footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border-subtle);color:var(--dim);font-size:12px;text-align:center;}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important;scroll-behavior:auto !important;}
+}
 @media (max-width:720px){
   main{padding:14px;}
   header{padding:12px 14px;}
@@ -528,12 +554,13 @@ footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);colo
 </style>
 </head>
 <body>
+<a class="skip" href="#main">跳到主要内容</a>
 <header>
   <div class="crumb"><a href="../04-interactive/index.html">算法知识图谱总览</a> / <a href="%(gurl)s">%(gname)s</a> / <span>%(name)s</span></div>
   <h1>%(name)s</h1>
   <div class="badges">%(badges)s</div>
 </header>
-<main>
+<main id="main">
   <div class="navseq">
     <a class="%(prev_class)s" href="%(prev_link)s"><span class="dir">&#8592; 上一个 / 组内</span><span class="v">%(prev_label)s</span></a>
     <a class="nav-index" href="%(gurl)s"><span class="dir">组内第 %(idx)d / %(total)d</span><span class="v">返回组索引</span></a>
@@ -558,6 +585,7 @@ footer{margin-top:44px;padding:16px 24px;border-top:1px solid var(--border);colo
 <footer>算法知识图谱 · 372 个知识点 · 60 组 · 4 层 · 由 stage2-nodes 内容库生成（what / why / how / 例题 / 易错点 / 步骤图 / 信源）</footer>
 </body>
 </html>''' % {
+        'roottokens': root_tokens('default'),
         'name': name_title,
         'gurl': gurl,
         'gname': esc(gname),
@@ -618,6 +646,28 @@ def validate_page(path):
         pos = cleaned.find('<')
         return False, '存在未转义 < (位置约 %d)' % pos
     return True, 'OK'
+
+
+def run_site_gates():
+    """★ Q5-B：门控**随生成器收尾内联调用**（report 档，留痕 gate-report.json）。
+
+    ⛔ 这里**不阻断**：多生成器重建过程中，先跑完的生成器会看到尚未重建的兄弟族，
+    此时阻断会让**正确的重建**失败。阻断档由 `build/profile.json` 的 `gates.commands`
+    （enforce 一行命令）承担 —— 见 SH5 §4.2 第 3 点的 legacy 站路径。
+    """
+    rc = 0
+    for script in ('gate_tokens.py', 'gate_design.py'):
+        path = os.path.join(ROOT, script)
+        if not os.path.isfile(path):
+            print('[gate] 跳过：未找到 %s' % script)
+            continue
+        r = subprocess.run([sys.executable, path, '--site-root', ROOT, '--mode', 'report',
+                            '--report-out', os.path.join(ROOT, 'gate-report.json')],
+                           cwd=ROOT, capture_output=True, text=True)
+        tail = [ln for ln in (r.stdout or '').strip().splitlines() if ln.startswith('===')]
+        print('[gate] %s rc=%d %s' % (script, r.returncode, tail[-1] if tail else ''))
+        rc = rc or r.returncode
+    return rc
 
 
 def main():
@@ -682,7 +732,7 @@ def main():
     for nid, href in broken[:30]:
         print('[links] BROKEN %s -> %s' % (nid, href), file=sys.stderr)
 
-    return 1 if (fail or broken or missing_nodes) else 0
+    return 1 if (fail or broken or missing_nodes or run_site_gates()) else 0
 
 
 if __name__ == '__main__':

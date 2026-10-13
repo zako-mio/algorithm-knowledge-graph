@@ -1,0 +1,363 @@
+{
+  "meta": {
+    "id": "value-contract.algorithm-knowledge-graph",
+    "contract_version": "1.0.0-round2h",
+    "frozen_at": "2026-10-13",
+    "round": "批 H · ROLLOUT-PLAN 第 2 轮（本站**标准档**：令牌接上用途 ＋ 四族差异逐族登记 ＋ 外链 tokens.css ＋ 六类设计门控；本站**从零建**门控基础设施，形状照批 E 在 12-factor 立的先例）",
+    "title": "algorithm-knowledge-graph 站点值件（形态 2「一站两形态」：372 节点页内联 / 63 页外链 tokens.css）",
+    "nature": "站点侧独立机读值件 —— 单一真相源；⛔ 不直接改站点模板文件",
+    "authority": "角色口径沿用 fe-starter-kit/tokens/contract.json 与 solutions/_shared/SH0-tokens-draft.json 的 content-kg dark 档；取值逐条取自本站实测与用户裁定（见 meta.decisions）",
+    "adr_ref": "ADR-002（令牌集选型）· ADR-003（统一构建管线，本站消费不重开）",
+    "decisions": {
+      "note": "★ 本步开工前由用户裁定的七问（⛔ 不得由实施者默认）；本表即裁定留痕，逐条对应本步任务书的 Q1–Q7 与 decisions.json 的 stations['algorithm-knowledge-graph'].q_rulings。",
+      "Q1_home_nav": {
+        "ruling": "A",
+        "source": "★ 用户（A/B 互斥）",
+        "text": "首屏改为**关系结构入口**：内联 SVG 呈现 60 组 × 4 阶段的分布，并给出「按阶段 / 按域 / 按优先级」三个真实入口；现有 4 个纯文本 <a> 全部保留；★ 新图形必须有 **DOM 文本等价物**（role=\"img\" + aria-label ＋ 一张可折叠的节点/边表）",
+        "effect": "index.html 的 :47-:69 导航与卡片区重排；⛔ 不删任何现有链接与文案（R7 的缓解措施）"
+      },
+      "Q2_form": {
+        "ruling": "A",
+        "source": "★ 用户",
+        "text": "形态 2「内联单源」的**混合变体**：372 个节点页保持内联；由生成器产出的非节点页外链 `assets/tokens.css`",
+        "effect": "★ 集合已按**实测**重定义（见 B8）：外链面 = `03-groups/G-*.html`（60 页，`gen-group-pages.py` 产出）＋ `05-views/*.html`（3 页，`gen-views.py` 产出）= **63 页**；⛔ 方案里的「47 个区块页」无法从树内复算，**不得再写**。手写页（`03-groups/index.html` · `04-interactive/index.html` · 根 `index.html` · `report.html`）保持内联。"
+      },
+      "Q3_border_tiers": {
+        "ruling": "A",
+        "source": "★ 用户",
+        "text": "`border.line` 取 **`#6b7280`**（对 `--bg` 3.90 / 对 `--panel` 3.60，过 3:1）；`border.subtle` **保留现值 `#2a2f3a`**",
+        "effect": "roles['border.line'] → --border #6b7280（known_value_changes 登记 #2a2f3a → #6b7280）；roles['border.subtle'] → --border-subtle #2a2f3a（新名承接弱分隔语义）。★ 现值 #2a2f3a 的 1.41/1.30 两条**仍在线上**，⛔ 不得读作已修。"
+      },
+      "Q4_no_generator_pages": {
+        "ruling": "A",
+        "source": "★ 用户",
+        "text": "C5-N1 的「无生成器页面」**只手工改**（按实测是 **3 页**，见 B9），**并登记为未覆盖**；⛔ 不补生成器",
+        "effect": "手工改 `index.html` · `04-interactive/index.html` · `03-groups/index.html`；`report.html`（生成器输出仓外，仓内那份无生成器可复现）登记为未覆盖。"
+      },
+      "Q5_gate_timing": {
+        "ruling": "B",
+        "source": "★ 主 Agent 按 OPEN-TASKS.md §八 常设排除项裁定（方案建议 A 与之冲突）",
+        "text": "门控**随生成器收尾内联调用**，⛔ 不补 `pages.yml` / 不起三 job",
+        "effect": "三个 HTML 生成器收尾处内联调用 `gate_tokens.py` / `gate_design.py`（report 档，留痕 gate-report.json）；阻断档由 profile.gates.commands 的 enforce 一行命令承担。★ 理由＝ADR-003 发布形态收敛是常设排除项。"
+      },
+      "Q6_narrow_viewport": {
+        "ruling": "A",
+        "source": "★ 用户",
+        "text": "窄视口（`#side` 盖住 41% 画布 ＋ `body{overflow:hidden}` 禁横向滚动）**只登记、不修**",
+        "effect": "两条写入 known_site_defects_registered（C5-N4 / C5-N5），响应式门控以**静态判据**承担，渲染档如实声明未测。"
+      },
+      "Q7_four_families": {
+        "ruling": "A",
+        "source": "★ 用户（作者确认）",
+        "text": "四族**有意的差异**按「差异已登记」推进，⛔ **不抹掉** `--warn` 的三态与 `--danger:#e05563`",
+        "effect": "`--warn` 三态：`index` 族**无** `--warn` / `default` 族 `#e8933b` / `interactive` 族 `#e0c35e`；`--danger:#e05563` 逐族保留在 `interactive`。★ 门控按「**族内**同名同值 ＋ 跨族差异**逐族登记**」判，⛔ 不按「全站唯一值数 = 1」判。"
+      },
+      "B10_token_values": {
+        "ruling": "★ 用户裁定「取优者」，授权主 Agent 按可判据的「优」逐令牌定值（见 decisions.json 的 B10_token_values_resolved）",
+        "rule": [
+          "规则 1（合规优先）：站点现值不达门槛 ⇒ 取草案值",
+          "规则 2（避险）：站点现值达标且该令牌在站内被 var() 引用 ⇒ 保留站点现值",
+          "规则 3（免费升级）：站点现值达标但零引用（死令牌）⇒ 取草案值"
+        ],
+        "per_token": {
+          "--err": {"from": "#c0504d", "to": "#ff6b6b", "rule": 1, "why": "现值对 --panel 仅 3.73 / 对 --bg 4.04，**正文 4.5 不达标**；草案 #ff6b6b 为 6.80 / 6.28"},
+          "--ext": {"from": "#b48a3c", "to": "#c9a227", "rule": 3, "why": "现值达标（5.97）但**零 var() 引用**（死令牌）⇒ 取草案 #c9a227（7.80 / 7.20），无观感代价"},
+          "--ok": {"from": "#2fb98a", "to": "#2fb98a", "rule": 2, "why": "现值达标（7.57）**且被引用** ⇒ **保留**（改色＝无合规收益的观感变更）"},
+          "--border": {"from": "#2a2f3a", "to": "#6b7280", "rule": 1, "why": "现值对 --bg 1.41 / 对 --panel 1.30，不达非文本 3:1"},
+          "--border-subtle": {"from": "（无）", "to": "#2a2f3a", "rule": "n/a", "why": "新名承接原 --border 的弱分隔语义，按定义不适用 3:1 门槛"},
+          "--warn": {"from": "三态", "to": "三态", "rule": "Q7-A", "why": "有意的族差异，⛔ 不收敛"},
+          "--danger": {"from": "#e05563", "to": "#e05563", "rule": "Q7-A", "why": "interactive 族的有意语义区分，⛔ 不抹掉"}
+        },
+        "measured_by": "tools/contrast.py（项目唯一对比度实现，⛔ 不造第二套）"
+      },
+      "B8_external_link_set": {
+        "text": "★ 判据 4 的对象集合**由本步定死**：外链集合 = **由生成器产出的非节点页** = `03-groups/G-*.html`（60 页）＋ `05-views/*.html`（3 页）= **63 页**",
+        "why": "方案里「47 个区块页」无法从树内复算（§4.2 ② 写 8、§4.4/§5.2 写 47，实测 `04-interactive` 只有 1 个 HTML）⇒ 集合未定的判据不是判据（H-A5）。⛔ 全树不得再出现「47 个区块页」这一口径。",
+        "handwritten_kept_inline": ["03-groups/index.html", "04-interactive/index.html", "index.html", "report.html"],
+        "why_handwritten_inline": "形态 2 的红利是「不手改生成物」；手写页改外链要手改且**无生成器兜底** ⇒ 保持内联。"
+      },
+      "B9_a11y_coverage_landing": {
+        "text": "★ §5.1 与 §7 判据 3 不自洽（H-A4）⇒ 覆盖落点按**实测**改述为 **3 组生成器 ＋ 3 个手写页**",
+        "generators": ["07-checkpoint/gen-node-pages.py", "07-checkpoint/gen-group-pages.py", "07-checkpoint/gen-views.py"],
+        "handwritten": ["index.html", "04-interactive/index.html", "03-groups/index.html"],
+        "registered_uncovered": ["report.html"],
+        "why": "`gen-md.py` 不产 HTML（不算）；`report.html` 由 `gen-report-html.py` 产出，但其 `src`/`dst` 是**仓外绝对路径**（`gen-report-html.py:86-87`）⇒ 仓内那份**无生成器可复现**，改它没有兜底。⇒ 覆盖面 = 372 + 60 + 3 + 3 = **438 页**；`report.html` 登记为未覆盖。"
+      }
+    }
+  },
+  "scope": {
+    "site": "algorithm-knowledge-graph",
+    "site_number": "09",
+    "upstream_repo_head": "a5d24fc7741bed0a1f6ae29a4c51d73e25532a64",
+    "upstream_repo_head_note": "★ 本批改动**前**的线上 HEAD（= decisions.json 的 clone_basis `a5d24fc774`）。站点工作副本不是 git 仓（无 .git）⇒ 本字段只作冻结基线留痕，⛔ 站点侧 gate 不读它。",
+    "declared_forms": ["dark"],
+    "declared_forms_reason": "本站实测为**深色单档**（全站 439 个 HTML 的 :root 只有一套深色令牌；无 prefers-color-scheme / data-theme 切换）⇒ ADR-002 的 D3 双档契约在本站登记为「不适用」而非「未做」。",
+    "declared_forms_evidence": "evidence/h/tools/measure_station_baseline.py 的实测（439 页 / 有 :root 439 页 / 令牌名 11 枚）＋ 本步 scratch_akg_inventory.py 的四族令牌实测",
+    "family": "content-kg（深色内容站）",
+    "family_note": "★ 本站是 SH1 §4.5.3「页面族覆盖」这一级的**多值成因实例**：同一站内 --warn 有两个值（default=#e8933b / interactive=#e0c35e），且首页族**无** --warn（三态）。"
+  },
+  "coverage_levels": {
+    "order": ["family-default", "site-override", "page-family"],
+    "note": "三级全部用到：① 族默认＝roles→palettes 的基值；② 站点覆盖＝本值件相对上游族默认的取值修正（known_value_changes）；③ 页面族覆盖＝families[*].overrides（default 的 --warn/--err、interactive 的 --warn/--danger、index 的 --ext）。"
+  },
+  "usage_tiers": {
+    "body": {
+      "allowed_use": "正文类（p/li/dd/dt/blockquote 内文本）",
+      "min_contrast": {"dark": 4.5},
+      "gate": "hard",
+      "provenance": "fe-starter-kit/tokens/contract.json usage_tiers.body"
+    },
+    "non-body": {
+      "allowed_use": "× 仅非正文类（表头/标签/图标/停用态）",
+      "min_contrast": {"dark": 4.5},
+      "gate": "report-only",
+      "provenance": "fe-starter-kit/tokens/contract.json usage_tiers.non-body"
+    },
+    "non-text": {
+      "allowed_use": "非文本元素（边框/分隔线/图形）",
+      "min_contrast": {"dark": 3.0},
+      "gate": "hard",
+      "provenance": "fe-starter-kit/tokens/contract.json usage_tiers.non-text；3:1 已在 hub scripts/gate_contrast.py 在用"
+    },
+    "non-text-decorative": {
+      "allowed_use": "弱分隔：按定义应不可见，只报告不硬判",
+      "min_contrast": {"dark": 3.0},
+      "gate": "report-only",
+      "provenance": "SH5 §4.0 第 1 条（判据对象必须与断言对象一致）＋ SH0-tokens-draft.json usage_tiers['border.line'] 的档位变更"
+    }
+  },
+  "roles": {
+    "text.primary": {"tier": "body", "kind": "text", "purpose": "主文字：标题与正文默认档", "site_source": "--text（本站既有，逐字节沿用 #e6e8ee）"},
+    "text.secondary": {"tier": "body", "kind": "text", "purpose": "次要文字：辅助说明", "site_source": "--dim（本站既有，逐字节沿用 #9aa3b2）"},
+    "brand.primary": {"tier": "non-text", "kind": "brand", "purpose": "品牌主色（强调/链接底）", "site_source": "--accent（本站既有，逐字节沿用 #4f8cff）"},
+    "border.line": {"tier": "non-text", "kind": "border", "purpose": "强分隔：容器描边与表格线（.whybox pre .navseq a .dagnav .dagbox table th td）", "site_source": "★ 本站原只有单一 --border:#2a2f3a（对 --bg 1.41 / 对 --panel 1.30，不达 3:1）⇒ 按 Q3-A 取 #6b7280（实测 3.90 / 3.60）。门控驱动，非审美选择。"},
+    "border.subtle": {"tier": "non-text-decorative", "kind": "border", "purpose": "弱分隔：结构分隔线（header 底线 · h2 下边线 · footer 顶线）", "site_source": "新名 --border-subtle 承接原 --border:#2a2f3a 的弱分隔语义（按定义不适用 3:1 门槛）"},
+    "surface.page": {"tier": "non-text", "kind": "surface", "purpose": "页面底色（对比度参考背景）", "site_source": "--bg（本站既有 #0f1117）"},
+    "surface.raised": {"tier": "non-text", "kind": "surface", "purpose": "容器/卡片底色", "site_source": "--panel（本站既有 #161a22）"},
+    "ok": {"tier": "body", "kind": "semantic-text", "purpose": "成功态", "site_source": "--ok（本站既有 #2fb98a，按 B10 规则 2 **保留**）"}
+  },
+  "palettes": {
+    "content-kg-dark": {
+      "family": "内容知识库族 · 深色（10 站）",
+      "provenance": "evidence/g/clones/algorithm-knowledge-graph 实测（as_of=2026-10-13，HEAD a5d24fc774）；角色基值逐字节取自 SH0-tokens-draft.json 的 content-kg dark 档，取值修正逐条登记在 roles[*].site_source 与 known_value_changes",
+      "values": {
+        "text.primary": {"dark": "#e6e8ee"},
+        "text.secondary": {"dark": "#9aa3b2"},
+        "brand.primary": {"dark": "#4f8cff"},
+        "border.line": {"dark": "#6b7280"},
+        "border.subtle": {"dark": "#2a2f3a"},
+        "surface.page": {"dark": "#0f1117"},
+        "surface.raised": {"dark": "#161a22"},
+        "ok": {"dark": "#2fb98a"}
+      }
+    }
+  },
+  "binding": {
+    "site_token_names": {
+      "text.primary": "--text",
+      "text.secondary": "--dim",
+      "brand.primary": "--accent",
+      "border.line": "--border",
+      "border.subtle": "--border-subtle",
+      "surface.page": "--bg",
+      "surface.raised": "--panel",
+      "ok": "--ok"
+    },
+    "note": "本站角色集是**子集绑定**（8 角色）：只绑定**每个页面族都需要**的档位。★ 其余四枚语义令牌（--warn / --err / --danger / --ext）**不是全局角色**，而是**页面族覆盖**（见 families[*].overrides）——理由是它们按 Q7-A 只在部分族出现（`index` 族**无** --warn），若绑成全局角色会向 437 个不需要它的页面各写一枚死令牌。",
+    "override_tiers": {
+      "--warn": "body",
+      "--err": "body",
+      "--danger": "body",
+      "--ext": "body",
+      "note": "★ 覆盖令牌的用途档显式声明：对比度门控据此逐枚判（⛔ 不硬编码在门控脚本里）。"
+    },
+    "aliases": {
+      "--danger": {"canonical_role": "err", "retained": true, "note": "interactive 族的**语义区分名**（Q7-A 裁定保留，⛔ 不抹掉）。它与 --err 同族不同页：--err 只在 default 族（节点页/组页），--danger 只在 interactive 族。⇒ 两枚都登记，⛔ 不做「收敛为一个名」。"}
+    },
+    "passthrough_tokens": {},
+    "passthrough_tokens_reason": "本站 :root 块内的全部令牌都已被角色绑定或页面族覆盖覆盖，无遗留非角色令牌（实测四族令牌名 8/9/8/7 枚，逐条见 families 与 dead_tokens）。"
+  },
+  "families": {
+    "default": {
+      "targets": ["assets/tokens.css"],
+      "generator": "07-checkpoint/gen-node-pages.py · gen-group-pages.py · gen-views.py（三者同源展开）",
+      "overrides": {"--warn": "#e8933b", "--err": "#ff6b6b"},
+      "note": "★ 本族是**两形态共用**的一族：① 372 个节点页把派生结果**内联**进 <style>；② 60 个组页 ＋ 3 个视图页**外链** assets/tokens.css（本族唯一的写入目标，whole-file）。两者取值必须逐字节一致——由 gate_tokens.py 的 T3/T11 判。"
+    },
+    "groups-index": {
+      "targets": ["03-groups/index.html"],
+      "generator": "（无生成器，手写页 —— Q4-A 只手工改令牌块与 a11y 两处）",
+      "overrides": {},
+      "note": "★ 实测：`03-groups/` 的 61 个 HTML 里**唯一**的非生成物（其余 60 页由 gen-group-pages.py 产出）。本族取值＝默认族去掉 --warn/--err（该页无告警/错误态元素）。"
+    },
+    "interactive": {
+      "targets": ["04-interactive/index.html"],
+      "generator": "（无生成器，手写页 —— Q4-A）",
+      "overrides": {"--warn": "#e0c35e", "--danger": "#e05563"},
+      "note": "★ 页面族覆盖的成因实例：本族 --warn 与默认族**不同值**（Q7-A 有意保留），且独有 --danger（语义＝错误态，实测全站 0 处 var() 引用）。必须逐族登记，⛔ 不得按「全站唯一值」判据把它判成 FAIL。"
+    },
+    "index": {
+      "targets": ["index.html"],
+      "generator": "（无生成器，手写页 —— Q4-A）",
+      "overrides": {"--ext": "#c9a227"},
+      "note": "★ 根首页。实测它是全站**唯一**声明 --ext 的页面（且零引用）⇒ 按 Q7-A 的「--warn 三态：首页无」本族**不含** --warn；--ext 按 B10 规则 3 取草案值 #c9a227（免费升级）。"
+    }
+  },
+  "derivation": {
+    "state": "round2h-single-source-runtime-expand",
+    "direction": "单向：本值件 → ① 生成器运行期展开（内联族）／② 派生器＋写入器（手写页 root-block ＋ assets/tokens.css whole-file）",
+    "generator_ref": "pipeline/derive_site_tokens.py（站点侧薄副本 vendor/pipeline/derive_site_tokens.py）",
+    "derived_fields": ["palettes.*.values", "roles[*].tier", "families[*].overrides"],
+    "mirror_fields": ["usage_tiers"],
+    "rule": "① 三个 HTML 生成器在运行期调 `derive_site_tokens.build_tokens(值件, profile, 族)` 得到令牌表并 `render()` 展开进模板（⛔ 生成器源码内**不得**再持有任何令牌字面值）；② 三个手写页的首个 `:root{...}` 块由 `write_site_tokens.py --apply`（root-block 模式）写入，**其余字节逐字节保留**（B4 非目标段 sha256 判据）；③ `assets/tokens.css` 由同一派生结果以 whole-file 模式写出（生成器与写入器写出的字节相同，由门控断言）。",
+    "write_surface_guard": "root-block 模式：非目标段 sha256 前后必须相等（手写页）；whole-file 模式：该产物只含令牌，不承载布局规则（assets/tokens.css）。",
+    "write_mode": "root-block",
+    "write_mode_note": "★ 本站**四种目标、两种模式**（3 个手写页 root-block ＋ 1 个外链产物 whole-file）。权威声明在 profile.targets[*].mode（流水线只读 profile，⛔ 不读本字段）；本字段填**占多数**的那一种，避免把 mixed 写成不存在的枚举值。",
+    "write_modes_by_family": {"default": "whole-file", "groups-index": "root-block", "interactive": "root-block", "index": "root-block"},
+    "single_source": {
+      "state": "本步新建（本站此前**四族各一份字面值**，无任何单源）",
+      "declaration_sites_before": [
+        "07-checkpoint/gen-node-pages.py:434（覆盖 372 节点页）",
+        "07-checkpoint/gen-group-pages.py:63（覆盖 60 组页）",
+        "07-checkpoint/gen-views.py:33（覆盖 3 视图页）",
+        "index.html:8（手写，8 令牌，含 --ext 无 --warn/--err）",
+        "04-interactive/index.html:8（手写，8 令牌，含 --warn/--danger）",
+        "03-groups/index.html:8（手写，7 令牌）",
+        "report.html（手写，7 令牌）——登记为未覆盖"
+      ],
+      "declaration_sites_after": [
+        "vendor/pipeline/values/algorithm-knowledge-graph.json（**唯一**字面值落点）",
+        "三个生成器：运行期从值件展开（源码内 0 处令牌字面值，由 gate_tokens.py 的 T8 判）",
+        "三个手写页：`assets/tokens.css` 与 `:root` 块由派生器/写入器写出（⛔ 不手写）"
+      ],
+      "invariant": "① 三个生成器在剥掉 Python 行注释后**不得**含 `:root{…}` 字面值块，也**不得**含 `--token:#hex` 赋值字面值；② 三者必须引用同一份值件（文件名出现在源码里）。两条由 gate_tokens.py 的 T8 实测（含对生成器的真实 import）。",
+      "residual": "`report.html` 仍持有 7 枚令牌字面值且**无生成器可复现**（gen-report-html.py 的输出目标是仓外绝对路径）⇒ 按 Q4-A 登记为**已声明未覆盖**，⛔ 本轮不改。"
+    }
+  },
+  "dead_tokens": {
+    "metric": "★ 分两级计量（避免把合法的族声明判成死令牌）：**站点级**＝该令牌在**全站任何页**内都无 `var()` 引用；**页级**＝该令牌在某**内联页**的**自有 `:root`** 里声明、但在**同一页**内无 `var()` 引用（同站他处仍有用）。站点级才是真死。",
+    "page_level_object_note": "★ 页级判据的对象**只限内联页**：63 个外链页没有自有 `:root`（令牌来自共享的 `assets/tokens.css`），对**共享样式表**做「页级未用」分析是判据对象与断言对象不一致（SH5 §4.0 第 1 条）⇒ 外链页不参与页级判据，只参与「外链可达 ＋ 与派生一致」判据。",
+    "measured_at": "2026-10-13",
+    "measurement_tool": "evidence/h/tools/scratch_akg_varrefs.py（本步只读实测，格式＝声明页数/引用页数）＋ 仓内 gate_tokens.py 的 T7 在**改后盘面**复测（同一口径）",
+    "measurement_artifacts": [
+      "evidence/h/tools/scratch_akg_varrefs.py 的改前实测：--err 372/0 · --danger 1/0 · --ext 1/0 · --ok 视图页 3/0 · --warn interactive 1/0",
+      "★ 改后：仓内 `python3 gate_tokens.py --site-root . --manifest gate-manifest.json` 的 T7 实跑（判据对象＝438 个覆盖页）"
+    ],
+    "ruling": "Qe 先例（12-factor 批 E 裁定 A）：零引用令牌**逐枚登记保留**，⛔ 不删除。删除会被「防静默丢令牌」硬判据打红，而删该判据＝放宽判据（ADR-003 回退条款明禁）。",
+    "site_level_zero_ref": [
+      {
+        "token": "--err",
+        "value": "#ff6b6b",
+        "declared_in_pages_before": 432,
+        "declared_in_pages_after": 433,
+        "var_uses_pages_site_wide": 0,
+        "disposition": "登记保留（★ 本轮**改了值**：#c0504d → #ff6b6b，B10 规则 1）",
+        "reason": "语义角色「错误态」是 SH0 角色集的规范成员；本站四种页型（节点页/组页/视图页/首页）均无错误态元素，故全站无 var() 引用。⇒ 属「声明了但当前页型用不到」，不是「写错了」。★ 它同时是 B10 规则 1 的落点：原值对 --panel 仅 3.73，正文 4.5 不达标。",
+        "gate_handling": "gate_tokens.py 的 T7：站点级零引用**必须出现在本表**，未登记即 FAIL（hard）"
+      },
+      {
+        "token": "--danger",
+        "value": "#e05563",
+        "declared_in_pages_before": 1,
+        "declared_in_pages_after": 1,
+        "var_uses_pages_site_wide": 0,
+        "disposition": "登记保留（Q7-A：有意的族差异，⛔ 不抹掉）",
+        "reason": "interactive 族独有的「错误态」名。★ 用户 Q7-A 明确要求**不抹掉** --danger:#e05563 ⇒ 与 12-factor 的 Q5-A（收敛为一个名）**方向相反**，两站不可互相套用。实测该页全文 0 处 var(--danger)（语义落在内联色上）。",
+        "gate_handling": "同上（T7 站点级登记）"
+      },
+      {
+        "token": "--ext",
+        "value": "#c9a227",
+        "declared_in_pages_before": 1,
+        "declared_in_pages_after": 1,
+        "var_uses_pages_site_wide": 0,
+        "disposition": "登记保留（★ 本轮**改了值**：#b48a3c → #c9a227，B10 规则 3「免费升级」）",
+        "reason": "「外部链态」是 SH0 归因为**有意例外**的语义区分（不是碎片化）。本站仅根首页声明它（首页有指向仓外信源的入口语义），实测 0 处 var() 引用。★ 取草案值的理由：现值达标但零引用 ⇒ 改色无观感代价，且与 ADR-002 一致、减少跨站漂移。",
+        "gate_handling": "同上（T7 站点级登记）"
+      }
+    ],
+    "page_level_unused": [
+      {
+        "token": "--warn",
+        "page": "04-interactive/index.html",
+        "var_uses_in_page": 0,
+        "var_uses_pages_site_wide": 432,
+        "disposition": "登记保留（按定义不算零引用）",
+        "reason": "交互页把告警语义落在 `.hint`/`.badge` 的内联色上，未走 var(--warn)；同一令牌在 default 族的 432 页真实使用 ⇒ 族声明。★ 注意它与默认族**不同值**（#e0c35e）——族覆盖已登记，⛔ 不得按全站唯一值判。"
+      },
+      {
+        "token": "--ok",
+        "page": "index.html",
+        "var_uses_in_page": 0,
+        "var_uses_pages_site_wide": 432,
+        "disposition": "登记保留（按定义不算零引用）",
+        "reason": "根首页无成功态元素；同一令牌在 default 族 432 页真实使用 ⇒ 族声明。★ Q1-A 给首页接上的是**关系结构入口**（图形与三个入口），不是成功态标，故本枚仍是页级未用。"
+      },
+      {
+        "token": "--ok",
+        "page": "04-interactive/index.html",
+        "var_uses_in_page": 0,
+        "var_uses_pages_site_wide": 432,
+        "disposition": "登记保留（按定义不算零引用）",
+        "reason": "交互页无成功态元素；同一令牌在 default 族 432 页真实使用 ⇒ 族声明。"
+      }
+    ],
+    "retired_registrations": [],
+    "not_measured": [
+      "CSS 规则级的「死选择器」（★ 本步已补：gate_design.py 的 D4 判「产物用到的 class ⊆ 样式表定义的选择器」；⛔ 但**不含** JS 动态加的 class 与伪类语义）",
+      "运行期由 JS 动态拼出的 var() 引用（本站 JS 不拼 CSS 变量，但未形式化证明）",
+      "★ 像素层视觉回归未测（本机 agent-browser 不在 PATH）⇒ 六类门控的渲染档只做到「静态判据」层",
+      "★ 响应式门控的**像素层**（documentElement.scrollWidth 四视口）未测 ⇒ 实现为「读 @media 与 viewport 声明的静态判据」，已在 gate-manifest.json 的 not_covered 如实声明"
+    ]
+  },
+  "known_value_changes": {
+    "--border": {"from": "#2a2f3a", "to": "#6b7280", "reason": "对 --bg 1.41 / 对 --panel 1.30，不达 non-text 的 3:1；取 ADR-002 的深色达标值（实测 3.90 / 3.60）。Q3-A。"},
+    "--err": {"from": "#c0504d", "to": "#ff6b6b", "reason": "对 --panel 仅 3.73 / 对 --bg 4.04，不达 body 的 4.5；取 SH0 content-kg dark 的 err（实测 6.80 / 6.28）。B10 规则 1。"},
+    "--ext": {"from": "#b48a3c", "to": "#c9a227", "reason": "现值达标（5.97）但零 var() 引用 ⇒ 按 B10 规则 3「免费升级」取 SH0 content-kg dark 的 ext（7.80 / 7.20），无观感代价。"}
+  },
+  "intended_additions": {
+    "tokens": ["--border-subtle"],
+    "note": "① 新增 --border-subtle 承接原 --border 的**弱分隔**语义（结构分隔线：header 底线 · h2 下边线 · footer 顶线；强分隔＝容器描边与表格线仍走 --border）。② 派生会为各族补齐角色令牌（groups-index 补 --border-subtle；interactive 补 --border-subtle/--ok；index 补 --border-subtle）——属令牌集收敛的**有意产物**，不是漂移。③ 63 个外链页新增 1 个 `<link>` 依赖（assets/tokens.css）。"
+  },
+  "bootstrap": {
+    "seeded_by": "批 H（本站**从零建**：批 E 只做了 12-factor 一站）",
+    "seeded_from": "evidence/g/clones/algorithm-knowledge-graph（只读）→ evidence/h/work/algorithm-knowledge-graph（工作副本）",
+    "seeded_at": "2026-10-13",
+    "purpose": "建立「站点现状 → 值件 → 派生产物」的可复现基线"
+  },
+  "transition": {
+    "state": "site-change-applied-standard-tier",
+    "guard_expiry": "本步未解除任何护栏",
+    "done_in_round2h": [
+      "★ 单源建立：三个生成器改为运行期从值件展开（源码内 0 处令牌字面值）",
+      "★ --border 分档：--border #6b7280（强）/ --border-subtle #2a2f3a（弱），弱分隔规则改指后者（Q3-A）",
+      "★ --err 改值 #ff6b6b（B10 规则 1）；--ext 改值 #c9a227（B10 规则 3）；--ok 保留 #2fb98a（B10 规则 2）",
+      "★ 四族差异逐族登记：--warn 三态（index 无 / default #e8933b / interactive #e0c35e）＋ --danger（interactive）",
+      "★ 形态 2 混合：63 页外链 assets/tokens.css（由生成器产出，⛔ 不手改）；372 节点页保持内联",
+      "★ a11y 基线：438 页补 skip link ＋ `:focus-visible` ＋ `<main id=\"main\">`；首页新图形补 DOM 文本等价物（role=img + aria-label ＋ 可折叠节点/边表）；交互页 5 个切换按钮补 aria-pressed、搜索框补 label 与 aria-live 播报",
+      "★ 六类设计门控落地（gate_tokens.py T1–T11 ＋ gate_design.py D1–D9，全部 report/enforce 双档 ＋ 各自 --selftest ＋ 空集守卫）",
+      "★ 门控随生成器收尾内联调用（Q5-B）＋ gate-report.json 入库（确定性件）"
+    ],
+    "not_yet_done": [
+      "发布形态收敛到 ADR-003 三 job 未做（Q5-B；常设排除项）",
+      "★ 像素层视觉回归未测（本机 agent-browser 不在 PATH）⇒ 六类门控都只做到「静态/代数」层",
+      "★ 四类非令牌门控（死 CSS / 无障碍 / 响应式 / 元数据）的**执行强度**是 report_only（site-profile.schema.json 的 hard_blocking 枚举只有四项，扩枚举＝改 schema）",
+      "★ report.html 未覆盖（Q4-A）：其生成器输出仓外绝对路径 ⇒ 仓内那份无生成器可复现",
+      "★ C5-N4/C5-N5 窄视口缺陷只登记不修（Q6-A）"
+    ]
+  },
+  "known_site_defects_registered": [
+    {"id": "C5-N1", "defect": "首页与交互页**没有生成器**（实测 3 页：+ 03-groups/index.html）", "handling": "Q4-A：只手工改这 3 页并登记；⛔ 不补生成器（两个从未被生成过的页面内容正确性无兜底）"},
+    {"id": "C5-N2", "defect": "令牌不是一个源，而是**四个页面族各一份**字面值", "handling": "本步建单源（derivation.single_source）；四族差异按 Q7-A 逐族登记，⛔ 不强行合并"},
+    {"id": "C5-N4", "defect": "交互页窄视口下 `#side`（300px→220px）盖住画布约 41%", "handling": "Q6-A：**只登记、不修**（改抽屉/隐藏会改交互与布局契约，属 SH3 独立范围）"},
+    {"id": "C5-N5", "defect": "`body{height:100vh;overflow:hidden}` 禁横向滚动，窄视口下内容不可达", "handling": "Q6-A：**只登记、不修**（同上）"},
+    {"id": "C5-N6", "defect": "无障碍落点被方案记为「节点页生成器 3 处」，实际需 3 组生成器 ＋ 3 个手写页", "handling": "本步按实测 6 个落点实施（B9）"},
+    {"id": "H-A9", "defect": "`--border` 的字面落点实为 6 处（方案记 5 处；另加 gen-group-pages.py:63 与 gen-report-html.py:97）", "handling": "本步把前 5 处收敛进值件；gen-report-html.py 的第 6 处随 report.html 一并登记为**未覆盖**（其输出目标是仓外绝对路径）"},
+    {"id": "H-A2", "defect": "方案 §1.2 的族分解算术不自洽（372+61+8=441≠439）", "handling": "本步按实测分解 372 ＋ 60 ＋ 3 ＋ 3(手写) ＋ 1(report) = 439，并把「47 个区块页」口径**作废**（B8）"}
+  ],
+  "not_provided": [
+    "像素层视觉回归（本机 agent-browser 不在 PATH）",
+    "多方法用户研究（项目全局缺口）",
+    "真实 GitHub Actions 上的运行验证（本站无 CI，且 Q5-B 明确不补）"
+  ]
+}
