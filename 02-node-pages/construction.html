@@ -3,13 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="构造满足条件的解，需洞察问题结构。构造题（Construction）要求你构造出一个满足若干给定条件的解——可能是一个排列、一个图、一组数或一个操作序列。与「求解」类问题不同，构造题通常保证解一定存在，难点在于找到一个简洁、可证明正确、可编码实现的构造方案。构造题无通用套路，常依赖对问题结构的洞察与数学归纳。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="构造题 · 算法知识图谱">
+<meta property="og:description" content="构造满足条件的解，需洞察问题结构。构造题（Construction）要求你构造出一个满足若干给定条件的解——可能是一个排列、一个图、一组数或一个操作序列。与「求解」类问题不同，构造题通常保证解一定存在，难点在于找到一个简洁、可证明正确、可编码实现的构造方案。构造题无通用套路，常依赖对问题结构的洞察与数学归纳。">
+<meta property="og:url" content="https://zako-mio.github.io/algorithm-knowledge-graph/02-node-pages/construction.html">
+<meta property="og:image" content="https://zako-mio.github.io/algorithm-knowledge-graph/og.png">
+<link rel="canonical" href="https://zako-mio.github.io/algorithm-knowledge-graph/02-node-pages/construction.html">
+<link rel="icon" type="image/svg+xml" href="/algorithm-knowledge-graph/favicon.svg">
 <title>构造题 · 算法知识图谱</title>
 <style>
 :root{--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--border:#6b7280;--border-subtle:#2a2f3a;--bg:#0f1117;--panel:#161a22;--ok:#2fb98a;--warn:#e8933b;--err:#ff6b6b;}
 *{box-sizing:border-box;margin:0;padding:0;}
 .skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--panel);color:var(--accent);border:1px solid var(--border);border-radius:0 0 8px 0;padding:8px 14px;font-size:13px;text-decoration:none;}
 .skip:focus{left:0;}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+:focus-visible{outline:0.125rem solid var(--accent,#4f8cff);outline-offset:0.125rem}
+.skip-link{position:absolute;left:-9999px;top:0;background:var(--accent,#4f8cff);color:#fff;padding:0.5rem 1rem;z-index:100}
+.skip-link:focus{left:0}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
 header{background:var(--panel);border-bottom:1px solid var(--border-subtle);padding:14px 24px;}
 header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}

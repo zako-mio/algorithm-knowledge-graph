@@ -1,91 +1,299 @@
 {
-  "site": "algorithm-knowledge-graph",
-  "schema_note": "范式沿用 hub 的 scripts/check_ci_manifest.py（见 AUD 侧 pipeline/check_gate_manifest.py 的 M1–M6）。★ 本文件由**站点仓内**版本化，⛔ 不含任何豁免/白名单字段（M4 会主动拒绝 waivers/exempt/allow/skip/ignore 一类键）。",
-  "generated_by": "批 H · ROLLOUT-PLAN 第 2 轮（本站标准档**从零建**门控基础设施；形状照批 E 在 12-factor 立的先例）。判据实现见仓根 gate_tokens.py 的 T1–T12 与 gate_design.py 的 D1–D9。",
-  "coverage_modes": {
-    "full_static": "全量静态档：438 个覆盖页全跑（T1–T12 ＋ D1–D7）",
-    "changed_incremental": "变更面增量档（D8）：只对与 build/gate-baseline.json 的 sha256 不同的页跑全量判据；★ **变更集为空 ⇒ SKIP**（⛔ 不是 PASS）",
-    "sampled_render": "渲染抽样档（D9）：12 页 × 4 视口 —— ★ 本机**无浏览器** ⇒ **未测**，如实输出 SKIP；12 页的**静态**判据照跑"
-  },
-  "gates": [
+ "site": "algorithm-knowledge-graph",
+ "schema_note": "范式沿用 hub 的 scripts/check_ci_manifest.py（见 AUD 侧 pipeline/check_gate_manifest.py 的 M1–M6）。★ 本文件由**站点仓内**版本化，⛔ 不含任何豁免/白名单字段（M4 会主动拒绝 waivers/exempt/allow/skip/ignore 一类键）。",
+ "generated_by": "批 H · ROLLOUT-PLAN 第 2 轮（本站标准档**从零建**门控基础设施；形状照批 E 在 12-factor 立的先例）。判据实现见仓根 gate_tokens.py 的 T1–T12 与 gate_design.py 的 D1–D9。；★ 批 J：a11y / metadata 由 report_only **转硬档**（mode=hard），判据与阈值未改；★ 批 J：**T12 口径重述**（判据对象从「全部 `<link>`」收窄为「`rel=\"stylesheet\"` 的 `<link>`」，理由见 gates[0].judges[T12].criterion_restatement —— 原口径与 SH4 的 S6/S7 互斥，属实现与意图错位，⛔ 非放宽阈值）",
+ "coverage_modes": {
+  "full_static": "全量静态档：438 个覆盖页全跑（T1–T12 ＋ D1–D7）",
+  "changed_incremental": "变更面增量档（D8）：只对与 build/gate-baseline.json 的 sha256 不同的页跑全量判据；★ **变更集为空 ⇒ SKIP**（⛔ 不是 PASS）",
+  "sampled_render": "渲染抽样档（D9）：12 页 × 4 视口 —— ★ 本机**无浏览器** ⇒ **未测**，如实输出 SKIP；12 页的**静态**判据照跑"
+ },
+ "gates": [
+  {
+   "id": "token-consistency",
+   "script": "gate_tokens.py",
+   "reads": [
+    "各页面族的内联 <style> 里的首个 :root{...} 令牌块（扫描面由 build/profile.json 的 page_families 决定）",
+    "63 个外链页的 <link> 目标 assets/tokens.css 的内容",
+    "生成器源码：07-checkpoint/gen-node-pages.py · gen-group-pages.py · gen-views.py（单源不变量，含真跑展开）",
+    "值件：vendor/pipeline/values/algorithm-knowledge-graph.json（含 dead_tokens 登记表与 binding.override_tiers）",
+    "profile：build/profile.json（targets / page_families / uncovered_pages / link_surface / inline_surface / single_source_invariants）"
+   ],
+   "selftest": true,
+   "mode": "report",
+   "mode_note": "★ 本站接入前**从未跑过任何设计判据**（无 CI、0 个门控脚本）⇒ 首轮报告模式记基线。转硬条件见 build/profile.json 的 gates.mode_now_transition。空集守卫（T1/T11）与覆盖完备性不随此模式放宽。",
+   "judges": [
     {
-      "id": "token-consistency",
-      "script": "gate_tokens.py",
-      "reads": [
-        "各页面族的内联 <style> 里的首个 :root{...} 令牌块（扫描面由 build/profile.json 的 page_families 决定）",
-        "63 个外链页的 <link> 目标 assets/tokens.css 的内容",
-        "生成器源码：07-checkpoint/gen-node-pages.py · gen-group-pages.py · gen-views.py（单源不变量，含真跑展开）",
-        "值件：vendor/pipeline/values/algorithm-knowledge-graph.json（含 dead_tokens 登记表与 binding.override_tiers）",
-        "profile：build/profile.json（targets / page_families / uncovered_pages / link_surface / inline_surface / single_source_invariants）"
-      ],
-      "selftest": true,
-      "mode": "report",
-      "mode_note": "★ 本站接入前**从未跑过任何设计判据**（无 CI、0 个门控脚本）⇒ 首轮报告模式记基线。转硬条件见 build/profile.json 的 gates.mode_now_transition。空集守卫（T1/T11）与覆盖完备性不随此模式放宽。",
-      "judges": [
-        {"id": "T1", "name": "空集守卫（扫描面/族/令牌名/内联 :root 均非空）", "class": "blind"},
-        {"id": "T2", "name": "族内唯一值（同族同名同值；⛔ 不判全站唯一值）", "class": "hard"},
-        {"id": "T3", "name": "派生一致性（内联 :root ／ 外链 link 目标 == 值件派生）", "class": "hard"},
-        {"id": "T4", "name": "跨族差异逐族登记", "class": "hard"},
-        {"id": "T5", "name": "border 分档极性（强 > 弱）", "class": "hard"},
-        {"id": "T6", "name": "成对对比度（按 usage_tiers / override_tiers 逐档）", "class": "hard/report"},
-        {"id": "T7", "name": "零引用令牌登记（站点级 hard / 内联页页级 report；登记不得过期）", "class": "hard/report"},
-        {"id": "T8", "name": "生成器单源不变量（无字面值 ＋ 真跑展开 == 值件派生）", "class": "hard"},
-        {"id": "T9", "name": "未声明令牌（盘上 ⊆ 值件声明面）", "class": "hard"},
-        {"id": "T10", "name": "目标存在性（profile.targets 全在）", "class": "hard"},
-        {"id": "T11", "name": "覆盖完备性（全仓 HTML = 扫描面 ∪ 已声明未覆盖，且不交）", "class": "blind"},
-        {"id": "T12", "name": "形态分别断言（63 外链页 1 个 link 且目标可达；375 内联页零外链）", "class": "hard"}
-      ],
-      "not_enforced_here": [
-        "外链页的 **HTTP 可达性**（curl 200 / content-type: text/css）——本机不联网、不起本地 HTTP 服务；T12 只做「相对路径 ＋ .css 扩展名 ＋ 目标在仓内存在 ＋ 该页无内联 :root」的等价静态断言",
-        "C1–C12 骨架级契约门控（值件 schema / 幂等 / 改动前令牌集覆盖 / 克隆零改动）——在 AUD 侧跑，⛔ 不复制到站点侧：C12 依赖仓外的本地克隆与 fe-starter-kit，在站点环境必然 FAIL（判据成立但环境不成立）",
-        "三 job 发布形态（ADR-003）——本站发布形态未收敛（Q5-B：⛔ 不补 pages.yml）"
-      ]
+     "id": "T1",
+     "name": "空集守卫（扫描面/族/令牌名/内联 :root 均非空）",
+     "class": "blind"
     },
     {
-      "id": "design-six-classes",
-      "script": "gate_design.py",
-      "reads": [
-        "六类判据对象（SH5 §4.2）：① 对比度 ② 令牌唯一值 ③ 死 CSS ④ 无障碍 ⑤ 响应式 ⑥ 元数据",
-        "① ② 由 `import gate_tokens` 转发（同一实现，⛔ 不复制）；③–⑥ 在本件实现",
-        "profile 的 a11y / responsive / metadata / render_sample / gate_report 段（阈值与对象集合的来源）",
-        "build/gate-baseline.json（变更面增量档的基线）"
-      ],
-      "selftest": true,
-      "mode": "report",
-      "mode_note": "★ 四类非令牌门控（③④⑤⑥）只能进 report_only：`pipeline/site-profile.schema.json` 的 hard_blocking 枚举**只有四项**（token-consistency / contrast / empty-set-guard / artifact-existence），扩枚举＝改 schema（硬约束明禁）。★ 但每道门控的「0 个对象被扫」仍 exit 1（空集守卫不放宽）。",
-      "judges": [
-        {"id": "D1", "name": "六类齐全 ＋ 判据对象非空（空集守卫）", "class": "blind"},
-        {"id": "D2", "name": "类① 对比度（转发 gate_tokens.T6）", "class": "hard/report"},
-        {"id": "D3", "name": "类② 令牌唯一值（转发 gate_tokens.T2/T3/T4）", "class": "hard"},
-        {"id": "D4", "name": "类③ 死 CSS（本步新增的 class 必须「用到即定义」；两向差集只作 report 观察）", "class": "hard/report"},
-        {"id": "D5", "name": "类④ 无障碍（skip link / :focus-visible / <main> / 图形文本等价物）", "class": "hard/report"},
-        {"id": "D6", "name": "类⑤ 响应式（★ 静态替代判据；渲染档未测）", "class": "hard/report"},
-        {"id": "D7", "name": "类⑥ 元数据（lang/title 为 hard；description/og/canonical/favicon/sitemap 为 report 观察）", "class": "hard/report"},
-        {"id": "D8", "name": "变更面增量档（变更集为空 ⇒ SKIP）", "class": "hard-or-skip"},
-        {"id": "D9", "name": "渲染抽样档（12 页 × 4 视口；★ 本机无浏览器 ⇒ 渲染面未测）", "class": "skip"}
-      ]
+     "id": "T2",
+     "name": "族内唯一值（同族同名同值；⛔ 不判全站唯一值）",
+     "class": "hard"
     },
     {
-      "id": "manifest-check",
-      "script": "check_gate_manifest.py",
-      "reads": [
-        "本清单与 build/profile.json 的 gates.commands 的**双向**一致性（登记⇒被调用 / 被调用⇒登记）",
-        "清单项数、命令数、每项的 reads 与 selftest 声明、未覆盖面声明"
-      ],
-      "selftest": true,
-      "mode": "hard",
-      "note": "本项是清单自身的守门人（vendored 薄副本；AUD 侧 pipeline/check_gate_manifest.py 为唯一真相源，逐文件 sha256 登记在 vendor/pipeline/VENDOR-MANIFEST.json）。"
+     "id": "T3",
+     "name": "派生一致性（内联 :root ／ 外链 link 目标 == 值件派生）",
+     "class": "hard"
+    },
+    {
+     "id": "T4",
+     "name": "跨族差异逐族登记",
+     "class": "hard"
+    },
+    {
+     "id": "T5",
+     "name": "border 分档极性（强 > 弱）",
+     "class": "hard"
+    },
+    {
+     "id": "T6",
+     "name": "成对对比度（按 usage_tiers / override_tiers 逐档）",
+     "class": "hard/report"
+    },
+    {
+     "id": "T7",
+     "name": "零引用令牌登记（站点级 hard / 内联页页级 report；登记不得过期）",
+     "class": "hard/report"
+    },
+    {
+     "id": "T8",
+     "name": "生成器单源不变量（无字面值 ＋ 真跑展开 == 值件派生）",
+     "class": "hard"
+    },
+    {
+     "id": "T9",
+     "name": "未声明令牌（盘上 ⊆ 值件声明面）",
+     "class": "hard"
+    },
+    {
+     "id": "T10",
+     "name": "目标存在性（profile.targets 全在）",
+     "class": "hard"
+    },
+    {
+     "id": "T11",
+     "name": "覆盖完备性（全仓 HTML = 扫描面 ∪ 已声明未覆盖，且不交）",
+     "class": "blind"
+    },
+    {
+     "id": "T12",
+     "name": "形态分别断言（63 外链页恰 1 个 rel=\"stylesheet\" 的 <link> 且目标可达；375 内联页零外链样式）",
+     "class": "hard",
+     "criterion_restatement": "★ **批 J 口径重述**（判据**意图未变**，只把判据对象收窄到它本来要管的那个对象）：原口径 `len(LINK_RE.findall(raw)) != 1` 把页面里**全部** `<link>` 计入 ⇒ 一旦页面按 SH4 标准档（S6 canonical / S7 favicon ＋ COMMON.md §2.1）多出 `<link rel=\"canonical\">` 与 `<link rel=\"icon\">`，本判据就在**自己不该管的对象**上 FAIL（实测：外链页 `<link>` 数 1→2→3，T12 由 PASS 转 FAIL）。重述后判据对象 = **`rel=\"stylesheet\"` 的 `<link>`**；内联页一侧同样收窄为「零**外链样式**」。★ 依据：① 判据对象 == 断言对象（SH5 §4.0 第 1 条）；② 姊妹站 `control-theory-agent-kb` 的同类判据按 **basename 匹配**写，天然不受 canonical/icon 影响 ⇒ 本次是把两站的同一意图收敛到同一口径。⛔ 不是新造判据、⛔ 不是放宽阈值。★ 非恒真由 `--selftest` 的两条成对夹具守住：两个 stylesheet 的 `<link>` ⇒ 照旧 FAIL；1 stylesheet ＋ 1 canonical ＋ 1 icon ⇒ PASS。"
     }
-  ],
-  "not_covered": [
-    "★ **外链页的 HTTP 可达性未实测**（curl 200 / content-type: text/css）：本机不联网、不起本地 HTTP 服务 ⇒ 只做等价静态断言，⛔ 不得读作「已验 HTTP 200」。",
-    "★ **像素层视觉回归未测**（本机 `agent-browser` 不在 PATH）⇒ 六类门控的渲染档（四视口 scrollWidth / 焦点可见几何）只做到静态判据层；D9 如实输出 SKIP。",
-    "★ **四类非令牌门控的执行强度是 report_only**（schema 的 hard_blocking 枚举只有四项，扩枚举＝改 schema）。",
-    "★ **`report.html` 未覆盖**（Q4-A）：其生成器 `gen-report-html.py` 的输出目标是**仓外绝对路径** ⇒ 仓内那份无生成器可复现。其 :root（7 枚令牌、旧 --border:#2a2f3a）与 a11y 三件均保持现值。",
-    "★ **JS 动态加的 class 与伪类语义未纳入死 CSS 判据**（只判静态 HTML 里出现的 class）。",
-    "★ **运行期由 JS 拼出的 var() 引用未形式化证明**（本站 JS 不拼 CSS 变量，但未证明）。",
-    "★ **`C5-N4`/`C5-N5` 窄视口缺陷只登记不修**（Q6-A）：`#side` 在窄视口盖住约 41% 画布；`body{height:100vh;overflow:hidden}` 禁横向滚动。",
-    "★ **元数据的 6 项（description/og/canonical/favicon/sitemap/robots）全缺**：属 SH4 标准档改动面，本批任务书未含 ⇒ 只作 report 观察，⛔ 不假称已达标。",
-    "★ **`evidence/e/tools/vendor_into_site.py` 不适用于本站**（站点名硬编码为 12-factor，且 `--site` 期望的是站点仓根路径）⇒ 本次 vendoring 按 AUD 侧 `pipeline/README.md` §四 三步**手工复制**，逐文件 sha256 登记在 `vendor/pipeline/VENDOR-MANIFEST.json`。"
-  ]
+   ],
+   "not_enforced_here": [
+    "外链页的 **HTTP 可达性**（curl 200 / content-type: text/css）——本机不联网、不起本地 HTTP 服务；T12 只做「相对路径 ＋ .css 扩展名 ＋ 目标在仓内存在 ＋ 该页无内联 :root」的等价静态断言",
+    "★ T12 **不判**外链页里的 `<link rel=\"canonical\">` 与 `<link rel=\"icon\">`：它们是 SH4 的 S6/S7 与 COMMON.md §2.1 的**必需项**，与「外链样式表唯一性」无关（批 J 口径重述，见 gates[0].judges[T12].criterion_restatement）。⇒ 63 个外链页各含 2 个 `<link>`（1 stylesheet ＋ 1 canonical）＋ favicon 由**发布根** `favicon.svg` 满足 S7 的析取后半条；`gate_design.py` 的 D7 会把这 63 页列为「缺 `<link rel=icon>`」的 **report 观察**（⛔ 不判 FAIL —— S7 已由发布根 favicon 成立）",
+    "C1–C12 骨架级契约门控（值件 schema / 幂等 / 改动前令牌集覆盖 / 克隆零改动）——在 AUD 侧跑，⛔ 不复制到站点侧：C12 依赖仓外的本地克隆与 fe-starter-kit，在站点环境必然 FAIL（判据成立但环境不成立）",
+    "三 job 发布形态（ADR-003）——本站发布形态未收敛（Q5-B：⛔ 不补 pages.yml）"
+   ]
+  },
+  {
+   "id": "design-six-classes",
+   "script": "gate_design.py",
+   "reads": [
+    "六类判据对象（SH5 §4.2）：① 对比度 ② 令牌唯一值 ③ 死 CSS ④ 无障碍 ⑤ 响应式 ⑥ 元数据",
+    "① ② 由 `import gate_tokens` 转发（同一实现，⛔ 不复制）；③–⑥ 在本件实现",
+    "profile 的 a11y / responsive / metadata / render_sample / gate_report 段（阈值与对象集合的来源）",
+    "build/gate-baseline.json（变更面增量档的基线）"
+   ],
+   "selftest": true,
+   "mode": "report",
+   "mode_note": "★ 四类非令牌门控（③④⑤⑥）只能进 report_only：`pipeline/site-profile.schema.json` 的 hard_blocking 枚举**只有四项**（token-consistency / contrast / empty-set-guard / artifact-existence），扩枚举＝改 schema（硬约束明禁）。★ 但每道门控的「0 个对象被扫」仍 exit 1（空集守卫不放宽）。",
+   "judges": [
+    {
+     "id": "D1",
+     "name": "六类齐全 ＋ 判据对象非空（空集守卫）",
+     "class": "blind"
+    },
+    {
+     "id": "D2",
+     "name": "类① 对比度（转发 gate_tokens.T6）",
+     "class": "hard/report"
+    },
+    {
+     "id": "D3",
+     "name": "类② 令牌唯一值（转发 gate_tokens.T2/T3/T4）",
+     "class": "hard"
+    },
+    {
+     "id": "D4",
+     "name": "类③ 死 CSS（本步新增的 class 必须「用到即定义」；两向差集只作 report 观察）",
+     "class": "hard/report"
+    },
+    {
+     "id": "D5",
+     "name": "类④ 无障碍（skip link / :focus-visible / <main> / 图形文本等价物）",
+     "class": "hard/report"
+    },
+    {
+     "id": "D6",
+     "name": "类⑤ 响应式（★ 静态替代判据；渲染档未测）",
+     "class": "hard/report"
+    },
+    {
+     "id": "D7",
+     "name": "类⑥ 元数据（lang/title 为 hard；description/og/canonical/favicon/sitemap 为 report 观察）",
+     "class": "hard/report"
+    },
+    {
+     "id": "D8",
+     "name": "变更面增量档（变更集为空 ⇒ SKIP）",
+     "class": "hard-or-skip"
+    },
+    {
+     "id": "D9",
+     "name": "渲染抽样档（12 页 × 4 视口；★ 本机无浏览器 ⇒ 渲染面未测）",
+     "class": "skip"
+    }
+   ]
+  },
+  {
+   "id": "manifest-check",
+   "script": "check_gate_manifest.py",
+   "reads": [
+    "本清单与 build/profile.json 的 gates.commands 的**双向**一致性（登记⇒被调用 / 被调用⇒登记）",
+    "清单项数、命令数、每项的 reads 与 selftest 声明、未覆盖面声明"
+   ],
+   "selftest": true,
+   "mode": "hard",
+   "note": "本项是清单自身的守门人（vendored 薄副本；AUD 侧 pipeline/check_gate_manifest.py 为唯一真相源，逐文件 sha256 登记在 vendor/pipeline/VENDOR-MANIFEST.json）。"
+  },
+  {
+   "id": "a11y",
+   "script": "gate_a11y.py",
+   "reads": [
+    "发布根全树 *.html（去 vendor/ 与 profile.a11y.not_products）的 <main> 计数",
+    "产物的 skip link（href=\"#main|#content|#skip…\" ＋ 目标 #id 同页存在 ＋ 锚文本/类名 skip 信号）",
+    "产物 CSS 语料（内联 <style> ∪ 页内 <link rel=stylesheet> 指向的**本地** CSS，剥注释）里的 :focus-visible",
+    "产物的 <img alt> 与 <svg role=\"img\"/aria-label/<title>（图件文本等价）",
+    "build/profile.json 的 a11y.not_products / main_landmark_exempt / skiplink_exempt（逐页登记，含 why）"
+   ],
+   "selftest": true,
+   "mode": "hard",
+   "judges": [
+    {
+     "id": "A1",
+     "name": "空集守卫（页数 > 0 且 <main> 与图件载体均非空）",
+     "class": "blind"
+    },
+    {
+     "id": "A2",
+     "name": "每页有且仅有 1 个 <main>（豁免项逐页登记）",
+     "class": "hard"
+    },
+    {
+     "id": "A3",
+     "name": "每页有 skip link（href 前缀命中 #main/#content/#skip ＋ 目标 #id 存在 ＋ skip 信号）",
+     "class": "hard"
+    },
+    {
+     "id": "A4",
+     "name": "每页 CSS 语料（内联 ∪ 本地外链）声明 :focus-visible",
+     "class": "hard"
+    },
+    {
+     "id": "A5",
+     "name": "图件文本等价（img 必有 alt；svg 必有 role=img ＋ 文本）",
+     "class": "hard"
+    },
+    {
+     "id": "A6",
+     "name": "豁免登记不得过期",
+     "class": "hard"
+    },
+    {
+     "id": "A7",
+     "name": "解析口径自检（每页 CSS 语料可解析；全站 CSS 源集合非空）",
+     "class": "blind"
+    }
+   ],
+   "mode_note": "★ 批 J 转硬档（批 H 为 report_only）：判据 A1–A7 与阈值一字未改，仅执行强度提到 hard；★ 三处判据硬化（形态感知 / 去注释 / skip link 目标须存在），均带负向夹具。空集守卫（A1/A7）不随模式放宽：致盲即 exit 1。"
+  },
+  {
+   "id": "metadata",
+   "script": "gate_seo_meta.py",
+   "reads": [
+    "发布根全树 *.html（去 vendor/ 与 profile.seo_meta.not_products）的 <head> 块",
+    "产物的 <title> / <html lang> / meta[name=description] / og:* / link[rel=canonical] / link[rel=icon]",
+    "profile.seo_meta.pages_base_url（canonical 自指判据的基准）",
+    "发布根的 sitemap.xml / robots.txt(含 Sitemap:) / favicon.{ico,png,svg}",
+    "build/profile.json 的 seo_meta.og_url_image_exempt / favicon_exempt（★ 批 J 目标＝为空）"
+   ],
+   "selftest": true,
+   "mode": "hard",
+   "judges": [
+    {
+     "id": "S1",
+     "name": "空集守卫（页数 / <title> / <html lang> 覆盖均非空）",
+     "class": "blind"
+    },
+    {
+     "id": "S2",
+     "name": "每页有 <title>",
+     "class": "hard"
+    },
+    {
+     "id": "S3",
+     "name": "每页有 <html lang>",
+     "class": "hard"
+    },
+    {
+     "id": "S4",
+     "name": "每页有非空 <meta name=description>",
+     "class": "hard"
+    },
+    {
+     "id": "S5",
+     "name": "每页有 og:title/description/type/url/image",
+     "class": "hard"
+    },
+    {
+     "id": "S6",
+     "name": "每页 canonical 绝对且自指",
+     "class": "hard"
+    },
+    {
+     "id": "S7",
+     "name": "favicon（每页 link[rel=icon] 或发布根有 favicon 文件）",
+     "class": "hard"
+    },
+    {
+     "id": "S8",
+     "name": "sitemap.xml ＋ robots.txt(含 Sitemap:)",
+     "class": "hard"
+    },
+    {
+     "id": "S9",
+     "name": "解析口径自检（每页解析出 ≥1 个 <head> 块）",
+     "class": "blind"
+    },
+    {
+     "id": "S10",
+     "name": "description 长度分布（仅报告）",
+     "class": "report"
+    },
+    {
+     "id": "S11",
+     "name": "canonical 自指偏差明细（仅报告）",
+     "class": "report"
+    }
+   ],
+   "mode_note": "★ 批 J 转硬档（批 H 为 report_only）：判据 S1–S11 与阈值一字未改；★ 四处判据硬化（去注释 / canonical 自指 / 发布根感知 / og 5 项全判），均带负向夹具。空集守卫（S1/S9）不随模式放宽：致盲即 exit 1。"
+  }
+ ],
+ "not_covered": [
+  "★ **外链页的 HTTP 可达性未实测**（curl 200 / content-type: text/css）：本机不联网、不起本地 HTTP 服务 ⇒ 只做等价静态断言，⛔ 不得读作「已验 HTTP 200」。",
+  "★ **像素层视觉回归未测**（本机 `agent-browser` 不在 PATH）⇒ 六类门控的渲染档（四视口 scrollWidth / 焦点可见几何）只做到静态判据层；D9 如实输出 SKIP。",
+  "★ **四类非令牌门控的执行强度是 report_only**（schema 的 hard_blocking 枚举只有四项，扩枚举＝改 schema）。",
+  "★ **`report.html` 未覆盖**（Q4-A）：其生成器 `gen-report-html.py` 的输出目标是**仓外绝对路径** ⇒ 仓内那份无生成器可复现。其 :root（7 枚令牌、旧 --border:#2a2f3a）与 a11y 三件均保持现值。",
+  "★ **JS 动态加的 class 与伪类语义未纳入死 CSS 判据**（只判静态 HTML 里出现的 class）。",
+  "★ **运行期由 JS 拼出的 var() 引用未形式化证明**（本站 JS 不拼 CSS 变量，但未证明）。",
+  "★ **`C5-N4`/`C5-N5` 窄视口缺陷只登记不修**（Q6-A）：`#side` 在窄视口盖住约 41% 画布；`body{height:100vh;overflow:hidden}` 禁横向滚动。",
+  "★ **元数据的 6 项（description/og/canonical/favicon/sitemap/robots）全缺**：属 SH4 标准档改动面，本批任务书未含 ⇒ 只作 report 观察，⛔ 不假称已达标。",
+  "★ **`evidence/e/tools/vendor_into_site.py` 不适用于本站**（站点名硬编码为 12-factor，且 `--site` 期望的是站点仓根路径）⇒ 本次 vendoring 按 AUD 侧 `pipeline/README.md` §四 三步**手工复制**，逐文件 sha256 登记在 `vendor/pipeline/VENDOR-MANIFEST.json`。"
+ ]
 }

@@ -36,6 +36,11 @@ import derive_site_tokens as _tokens_mod  # noqa: E402
 VALUE_FILE = os.path.join(ROOT, 'vendor', 'pipeline', 'values', 'algorithm-knowledge-graph.json')
 PROFILE_FILE = os.path.join(ROOT, 'build', 'profile.json')
 
+# ---------------------------------------------------------------- 批 J · head 元数据共用件
+# ★ 本件只写 `<head>` 元数据与站点级 SEO 资产，⛔ 不持有任何令牌字面值（T8 不受影响）。
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import site_meta  # noqa: E402
+
 
 def root_tokens(family='default'):
     """运行期从**值件**展开 `:root` 令牌块（确定性：同输入两次结果逐字节相同）。"""
@@ -84,7 +89,9 @@ CSS = '''
 *{box-sizing:border-box;margin:0;padding:0;}
 .skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--panel);color:var(--accent);border:1px solid var(--border);border-radius:0 0 8px 0;padding:8px 14px;font-size:13px;text-decoration:none;}
 .skip:focus{left:0;}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+:focus-visible{outline:0.125rem solid var(--accent,#4f8cff);outline-offset:0.125rem}
+.skip-link{position:absolute;left:-9999px;top:0;background:var(--accent,#4f8cff);color:#fff;padding:0.5rem 1rem;z-index:100}
+.skip-link:focus{left:0}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
 header{background:var(--panel);border-bottom:1px solid var(--border-subtle);padding:14px 24px;}
 header .crumb{color:var(--dim);font-size:13px;margin-bottom:6px;}
@@ -366,7 +373,17 @@ def render_group_page(g, group_list, group_ids, group_index, nodes, name_of, inv
         'path': path_html,
         'domnav': domnav_html,
     }
-    return page
+    # ★ 批 J：逐页 description（取该页已有的组名/域/阶段分布/前几个节点 brief，截 160 字以内）
+    desc = site_meta.make_description([
+        '%s：%s 域知识组，含 %d 个知识点，覆盖阶段 %s'
+        % (g['name'], g['domain'], total, ' / '.join(g['stage_range'])),
+        '；'.join('%s %s' % (r['name'], r['brief']) for r in rows[:3] if r['brief']),
+        '优先级分布 %s' % ' · '.join('%s ×%d' % (k, v) for k, v in sorted(pr_counter.items()) if v),
+        '%s · %s' % (site_meta.SITE_NAME, site_meta.SITE_SUBTITLE),
+    ])
+    return site_meta.inject_head_meta(page, '03-groups/%s.html' % gid,
+                                      desc, '%s · 组索引 · 算法知识图谱' % g['name'],
+                                      with_icon=False)
 
 
 def write_tokens_css():
@@ -386,25 +403,14 @@ def write_tokens_css():
 
 
 def run_site_gates():
-    """★ Q5-B：门控**随生成器收尾内联调用**（report 档，留痕 gate-report.json）。
+    """★ Q5-B ＋ 批 J：门控**随生成器收尾内联调用**（留痕 gate-report.json）。
 
-    ⛔ 这里**不阻断**：多生成器重建过程中，先跑完的生成器会看到尚未重建的兄弟族，
-    此时阻断会让**正确的重建**失败。阻断档由 `build/profile.json` 的 `gates.commands`
-    （enforce 一行命令）承担 —— 见 SH5 §4.2 第 3 点的 legacy 站路径。
+    实现统一在共用件 `site_meta.run_site_gates()`（⛔ 不在三个生成器里各写一份）：
+      · `gate_tokens.py` / `gate_design.py` —— report 档留痕（批 H 口径，判据与阈值未改）；
+      · `gate_a11y.py` / `gate_seo_meta.py` —— **hard 档实跑**（批 J：a11y / metadata 转硬）。
+    ★ **fail-closed**：任一门控 exit 非 0 ⇒ 本函数非 0 ⇒ 生成器非 0 退出（⛔ 不静默跳过）。
     """
-    rc = 0
-    for script in ('gate_tokens.py', 'gate_design.py'):
-        path = os.path.join(ROOT, script)
-        if not os.path.isfile(path):
-            print('[gate] 跳过：未找到 %s' % script)
-            continue
-        r = subprocess.run([sys.executable, path, '--site-root', ROOT, '--mode', 'report',
-                            '--report-out', os.path.join(ROOT, 'gate-report.json')],
-                           cwd=ROOT, capture_output=True, text=True)
-        tail = [ln for ln in (r.stdout or '').strip().splitlines() if ln.startswith('===')]
-        print('[gate] %s rc=%d %s' % (script, r.returncode, tail[-1] if tail else ''))
-        rc = rc or r.returncode
-    return rc
+    return site_meta.run_site_gates(ROOT)
 
 
 def main():
@@ -478,6 +484,9 @@ def main():
     print('[nodes] 组内节点链接数全部匹配: %s' % ('YES' if not link_mismatch else 'NO'))
     for gid, e, a in link_mismatch[:30]:
         print('[nodes] MISMATCH %s expected=%d actual=%d' % (gid, e, a), file=sys.stderr)
+
+    # ★ 批 J：站点级 SEO 资产（sitemap.xml 覆盖发布根下**全部** .html ＋ robots.txt）
+    site_meta.write_site_files(ROOT)
 
     return 1 if (fail or broken or link_mismatch or run_site_gates()) else 0
 

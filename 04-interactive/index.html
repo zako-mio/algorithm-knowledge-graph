@@ -3,13 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="算法知识图谱交互式 DAG 总览：组级视图呈现 60 个知识组与四类关系边，点击组节点可下钻组内知识点 DAG。。支持按阶段 / 域 / 优先级切换视图与节点搜索，是本站三级下钻（总览 → 组页 → 知识点页）的入口。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="算法知识图谱 · 交互式 DAG 总览">
+<meta property="og:description" content="算法知识图谱交互式 DAG 总览：组级视图呈现 60 个知识组与四类关系边，点击组节点可下钻组内知识点 DAG。。支持按阶段 / 域 / 优先级切换视图与节点搜索，是本站三级下钻（总览 → 组页 → 知识点页）的入口。">
+<meta property="og:url" content="https://zako-mio.github.io/algorithm-knowledge-graph/04-interactive/">
+<meta property="og:image" content="https://zako-mio.github.io/algorithm-knowledge-graph/og.png">
+<link rel="canonical" href="https://zako-mio.github.io/algorithm-knowledge-graph/04-interactive/">
+<link rel="icon" type="image/svg+xml" href="/algorithm-knowledge-graph/favicon.svg">
 <title>算法知识图谱 · 交互式 DAG 总览</title>
 <style>
   :root{--text:#e6e8ee;--dim:#9aa3b2;--accent:#4f8cff;--border:#6b7280;--border-subtle:#2a2f3a;--bg:#0f1117;--panel:#161a22;--ok:#2fb98a;--warn:#e0c35e;--danger:#e05563;}
   * { box-sizing:border-box; margin:0; padding:0; }
   .skip { position:absolute; left:-9999px; top:0; z-index:99; background:var(--panel); color:var(--accent); border:1px solid var(--border); border-radius:0 0 8px 0; padding:8px 14px; font-size:13px; text-decoration:none; }
   .skip:focus { left:0; }
-  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  :focus-visible{outline:0.125rem solid var(--accent,#4f8cff);outline-offset:0.125rem}
+.skip-link{position:absolute;left:-9999px;top:0;background:var(--accent,#4f8cff);color:#fff;padding:0.5rem 1rem;z-index:100}
+.skip-link:focus{left:0}
   .vh { position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0; }
   body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; height:100vh; overflow:hidden; }
   header { position:fixed; top:0; left:0; right:0; z-index:10; background:var(--panel); border-bottom:1px solid var(--border-subtle); padding:8px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }

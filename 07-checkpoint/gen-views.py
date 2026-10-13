@@ -33,6 +33,11 @@ import derive_site_tokens as _tokens_mod  # noqa: E402
 VALUE_FILE = os.path.join(ROOT, 'vendor', 'pipeline', 'values', 'algorithm-knowledge-graph.json')
 PROFILE_FILE = os.path.join(ROOT, 'build', 'profile.json')
 
+# ---------------------------------------------------------------- 批 J · head 元数据共用件
+# ★ 本件只写 `<head>` 元数据与站点级 SEO 资产，⛔ 不持有任何令牌字面值（T8 不受影响）。
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import site_meta  # noqa: E402
+
 
 def root_tokens(family='default'):
     """运行期从**值件**展开 `:root` 令牌块（确定性：同输入两次结果逐字节相同）。"""
@@ -53,7 +58,9 @@ CSS = """\
 *{box-sizing:border-box;margin:0;padding:0;}
 .skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--panel);color:var(--accent);border:1px solid var(--border);border-radius:0 0 8px 0;padding:8px 14px;font-size:13px;text-decoration:none;}
 .skip:focus{left:0;}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+:focus-visible{outline:0.125rem solid var(--accent,#4f8cff);outline-offset:0.125rem}
+.skip-link{position:absolute;left:-9999px;top:0;background:var(--accent,#4f8cff);color:#fff;padding:0.5rem 1rem;z-index:100}
+.skip-link:focus{left:0}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;line-height:1.7;}
 header{background:var(--panel);border-bottom:1px solid var(--border-subtle);padding:24px 28px;}
 header h1{font-size:23px;margin-bottom:6px;color:#f0f3f9;}
@@ -125,8 +132,8 @@ def esc(s):
     return str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
 
 
-def page(title, subtitle, body, gen_note=None):
-    return ("""<!DOCTYPE html>
+def page(title, subtitle, body, gen_note=None, rel=None):
+    html = ("""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -150,6 +157,12 @@ def page(title, subtitle, body, gen_note=None):
 <footer>由 07-checkpoint/gen-views.py 生成 · 数据源 01-dag-data/algorithm-dag.json%s</footer>
 </body>
 </html>""" % (esc(title), CSS, esc(title), esc(subtitle), body, (' · ' + gen_note) if gen_note else ''))
+    # ★ 批 J：把 COMMON.md §2.1 的元数据注入 <head>（幂等）；
+    #   ★ 视图页是**外链页** ⇒ with_icon=False（T12 判「外链页有且仅有 1 个 <link>」，
+    #     favicon 由发布根的 favicon.svg 满足 S7 的析取后半条）。
+    desc = site_meta.make_description([subtitle, '%s · %s' % (site_meta.SITE_NAME, site_meta.SITE_SUBTITLE)])
+    return site_meta.inject_head_meta(html, rel or '05-views/index.html',
+                                      desc, '%s — 算法知识图谱' % title, with_icon=False)
 
 
 def badge(text, cls):
@@ -205,7 +218,8 @@ def render_index():
                 '<div class="card"><h3>双轨交付</h3><p>本目录（05-views/）与 03-groups/ 04-interactive/ 同为人类入口；06-md/ 为 AI 镜像（供检索与二次加工，非浏览入口）。</p></div>'
                 '<div class="card"><h3>徽章语义</h3><p>优先级 P0 红 / P1 橙 / P2 蓝 / P3 灰；阶段 basic 绿 / intermediate 蓝 / advanced 橙 / frontier 玫红；组徽章灰蓝。</p></div>'
                 '</div>')
-    return page('视图入口', '优先级视图 · 学习路径 · 交互 DAG · 分组目录 4 个人类入口。', '\n'.join(body))
+    return page('视图入口', '优先级视图 · 学习路径 · 交互 DAG · 分组目录 4 个人类入口。', '\n'.join(body),
+                rel='05-views/index.html')
 
 
 def render_priority(dag_nodes, node_pages_set):
@@ -238,7 +252,8 @@ def render_priority(dag_nodes, node_pages_set):
             rows.append(row_html(n, node_pages_set))
         body.append('\n'.join(rows))
         body.append('</div>')
-    return page('优先级视图 P0-P3', '按 P0 必会 / P1 高频 / P2 选学 / P3 冷门四档列出全部 %d 个知识点。' % total, '\n'.join(body))
+    return page('优先级视图 P0-P3', '按 P0 必会 / P1 高频 / P2 选学 / P3 冷门四档列出全部 %d 个知识点。' % total, '\n'.join(body),
+                rel='05-views/02-priority.html')
 
 
 def render_learning_path(dag, node_pages_set):
@@ -262,7 +277,8 @@ def render_learning_path(dag, node_pages_set):
         body.append('<div class="sec-card">')
         body.append('\n'.join(row_html(n, node_pages_set) for n in nodes))
         body.append('</div>')
-    return page('学习路径', '按 basic → intermediate → advanced → frontier 四层列出全部 %d 个知识点，层内 P0 优先。' % total, '\n'.join(body))
+    return page('学习路径', '按 basic → intermediate → advanced → frontier 四层列出全部 %d 个知识点，层内 P0 优先。' % total, '\n'.join(body),
+                rel='05-views/03-learning-path.html')
 
 
 def validate_html(path):
@@ -280,38 +296,38 @@ def validate_html(path):
 
 
 def validate_links(path, root):
+    """页内 href 的静态可达性（`root` ＝ 该页所在目录）。
+
+    ★ 批 J：`/algorithm-knowledge-graph/favicon.svg` 是**站点根绝对路径** ⇒ 对应仓内
+      `<仓根>/favicon.svg`（`ROOT` 本身即仓根：`os.path.dirname(dirname(__file__))`）。
+      ⛔ 不能按「相对该页目录」判（那会对 05-views/ 的 3 页报假断链）。
+    """
     with open(path, encoding='utf-8') as f:
         content = f.read()
+    repo_root = ROOT
     problems = []
     for href in re.findall(r'href="([^"]+)"', content):
         if href.startswith('#') or href.startswith('http'):
             continue
-        target = os.path.normpath(os.path.join(root, href))
+        if href.startswith('/'):
+            # `/REPO/<rest>` → 仓内 `<仓根>/<rest>`（GitHub Pages 项目站的根前缀）
+            target = os.path.join(repo_root, href.lstrip('/').split('/', 1)[-1])
+        else:
+            target = os.path.normpath(os.path.join(root, href))
         if not os.path.exists(target):
             problems.append(href)
     return problems
 
 
 def run_site_gates():
-    """★ Q5-B：门控**随生成器收尾内联调用**（report 档，留痕 gate-report.json）。
+    """★ Q5-B ＋ 批 J：门控**随生成器收尾内联调用**（留痕 gate-report.json）。
 
-    ⛔ 这里**不阻断**：多生成器重建过程中，先跑完的生成器会看到尚未重建的兄弟族，
-    此时阻断会让**正确的重建**失败。阻断档由 `build/profile.json` 的 `gates.commands`
-    （enforce 一行命令）承担 —— 见 SH5 §4.2 第 3 点的 legacy 站路径。
+    实现统一在共用件 `site_meta.run_site_gates()`（⛔ 不在三个生成器里各写一份）：
+      · `gate_tokens.py` / `gate_design.py` —— report 档留痕（批 H 口径，判据与阈值未改）；
+      · `gate_a11y.py` / `gate_seo_meta.py` —— **hard 档实跑**（批 J：a11y / metadata 转硬）。
+    ★ **fail-closed**：任一门控 exit 非 0 ⇒ 本函数非 0 ⇒ 生成器非 0 退出（⛔ 不静默跳过）。
     """
-    rc = 0
-    for script in ('gate_tokens.py', 'gate_design.py'):
-        path = os.path.join(ROOT, script)
-        if not os.path.isfile(path):
-            print('[gate] 跳过：未找到 %s' % script)
-            continue
-        r = subprocess.run([sys.executable, path, '--site-root', ROOT, '--mode', 'report',
-                            '--report-out', os.path.join(ROOT, 'gate-report.json')],
-                           cwd=ROOT, capture_output=True, text=True)
-        tail = [ln for ln in (r.stdout or '').strip().splitlines() if ln.startswith('===')]
-        print('[gate] %s rc=%d %s' % (script, r.returncode, tail[-1] if tail else ''))
-        rc = rc or r.returncode
-    return rc
+    return site_meta.run_site_gates(ROOT)
 
 
 def main():
@@ -350,6 +366,9 @@ def main():
              sum(len(l['node_ids']) for l in dag['layers']), ' OK' if layers_ok else ' FAIL'))
     missing = [n['id'] for n in dag['nodes'] if n['id'] not in node_pages_set]
     print('[coverage] 缺 HTML 节点页: %s' % (missing if missing else '无'))
+
+    # ★ 批 J：站点级 SEO 资产（sitemap.xml 覆盖发布根下**全部** .html ＋ robots.txt）
+    site_meta.write_site_files(ROOT)
 
     return 1 if (fail or not coverage_ok or not layers_ok or missing or run_site_gates()) else 0
 

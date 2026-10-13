@@ -39,7 +39,8 @@
   T9  [hard]   未声明令牌：盘上出现值件未声明的令牌名 ⇒ FAIL（防「悄悄加令牌」）
   T10 [hard]   目标存在性：profile 声明的每个写入目标必须存在
   T11 [blind]  覆盖完备性：**全仓 HTML = 扫描面 ∪ 已声明未覆盖**，且两集不交、未覆盖项存在
-  T12 [hard]   形态分别断言：63 个外链页**有且仅有** 1 个 `<link>` 指向 `assets/tokens.css` 且目标可达、无内联 `:root`；
+  T12 [hard]   形态分别断言：63 个外链页**有且仅有 1 个 `rel="stylesheet"` 的 `<link>`**（指向
+               `assets/tokens.css`、相对路径、`.css` 扩展名、目标可达）、无内联 `:root`；
                375 个内联页**零外链样式**、且自有 `:root` 与派生一致（T3 的另一侧）
 
 退出码：0 全过（或报告模式且有 hard/report 类 FAIL 但无 blind FAIL）/ 1 有阻断级 FAIL / 2 输入错误 / 3 护栏拒读
@@ -66,6 +67,8 @@ import contrast as C            # noqa: E402  ★ 复用对比度实现（经 ve
 VAR_RE = re.compile(r"var\(\s*(--[A-Za-z0-9_-]+)")
 LITERAL_RE = re.compile(r"--[A-Za-z0-9_-]+\s*:\s*#[0-9a-fA-F]{3,8}")
 LINK_RE = re.compile(r"<link\b[^>]*>", re.I)
+# ★ 批 J 新增：只匹配 **stylesheet** 类的 <link>（T12 口径重述的落点，见下方 T12 注释）。
+STYLESHEET_LINK_RE = re.compile(r"<link\b[^>]*\brel\s*=\s*[\"']stylesheet[\"'][^>]*>", re.I)
 MAIN_RE = re.compile(r"<main(?:\s[^<>]*?)?>", re.I)
 SKIP_LINK_RE = re.compile(r'class="skip"', re.I)
 FOCUS_RE = re.compile(r":focus-visible")
@@ -478,6 +481,17 @@ def judge(ctx):
         % (len(universe), len(covered), len(uncovered), ",".join(sorted(uncovered))), BLIND)
 
     # ---- T12 形态分别断言（hard）
+    # ★★ 批 J 口径重述（判据**意图未变**，只把判据对象收窄到它本来要管的那个对象）：
+    #   原口径 `len(LINK_RE.findall(raw)) != 1` 把页面里**全部** `<link>` 都当判据对象
+    #   ⇒ 一旦页面按 SEO 标准（SH4 §4.2 的 S6/S7 ＋ COMMON.md §2.1）多出
+    #   `<link rel="canonical">` 与 `<link rel="icon">`，本判据就在**自己不该管的对象**上 FAIL
+    #   （实测：外链页 `<link>` 数 1→2→3，T12 由 PASS 转 FAIL）。
+    #   ⇒ 判据对象收窄为 **`rel="stylesheet"` 的 `<link>`**（这正是「外链样式表唯一性」的意图面）。
+    #   ★ 依据：① 判据对象 == 断言对象（SH5 §4.0 第 1 条）；② 姊妹站
+    #   `control-theory-agent-kb` 的同类判据按 **basename 匹配**写，天然不受 canonical/icon 影响
+    #   ⇒ 本次是把两站的同一意图收敛到同一口径，⛔ 不是新造判据、⛔ 不是放宽阈值。
+    #   ★ 非恒真已由 `--selftest` 的两条新夹具守住：两个 stylesheet 的 `<link>` ⇒ 照旧 FAIL；
+    #     1 stylesheet ＋ 1 canonical ＋ 1 icon ⇒ PASS。
     ls = profile.get("link_surface") or {}
     isurf = profile.get("inline_surface") or {}
     art = ls.get("artifact") or ""
@@ -493,9 +507,9 @@ def judge(ctx):
     if not art:
         f12.append("profile 未声明 link_surface.artifact（空集守卫）")
     for rel, v in sorted(ext_pages.items()):
-        links = LINK_RE.findall(v["raw"])
+        links = STYLESHEET_LINK_RE.findall(v["raw"])
         if len(links) != 1:
-            f12.append("%s 的 <link> 数 = %d（应为 1）" % (rel, len(links)))
+            f12.append("%s 的 rel=\"stylesheet\" <link> 数 = %d（应为 1）" % (rel, len(links)))
             continue
         if "stylesheet" not in links[0].lower():
             f12.append("%s 的 <link> 不是 stylesheet：%s" % (rel, links[0][:60]))
@@ -513,12 +527,16 @@ def judge(ctx):
         if v["block"]:
             f12.append("%s 是外链页却仍内联 :root（令牌有两个来源）" % rel)
     for rel, v in sorted(inl_pages.items()):
-        if LINK_RE.search(v["raw"]):
-            f12.append("%s 是内联页却含 <link>（形态 1/2 必须分别成立）" % rel)
-    add("T12", "形态分别断言（外链页 1 个 link ＋ 目标可达；内联页零外链）", not f12,
+        # ★ 批 J 口径重述的另一侧：内联页断言的是「**零外链样式**」（形态 1/2 的分野），
+        #   故判据对象同样是 `rel="stylesheet"` 的 <link>；canonical / icon 不是外链样式，
+        #   按 COMMON.md §2.1 它们在内联页上是**必需**的（S6/S7 硬判）。
+        if STYLESHEET_LINK_RE.search(v["raw"]):
+            f12.append("%s 是内联页却含外链样式 <link rel=\"stylesheet\">（形态 1/2 必须分别成立）" % rel)
+    add("T12", "形态分别断言（外链页恰 1 个 rel=\"stylesheet\" 的 <link> ＋ 目标可达；内联页零外链样式）",
+        not f12,
         "；".join(f12[:4]) if f12 else
-        "外链页 %d 个全部有且仅有 1 个指向 %s 的 <link> 且目标在仓内；内联页 %d 个零外链样式"
-        % (len(ext_pages), art, len(inl_pages)), HARD)
+        "外链页 %d 个全部有且仅有 1 个指向 %s 的 rel=\"stylesheet\" <link> 且目标在仓内；"
+        "内联页 %d 个零外链样式" % (len(ext_pages), art, len(inl_pages)), HARD)
 
     return R
 
@@ -844,7 +862,10 @@ def selftest():
         def _m(tmp, cp, pp):
             fp = os.path.join(tmp, name)
             s = open(fp, encoding="utf-8").read()
-            open(fp, "w", encoding="utf-8").write(fn(s))
+            out = fn(s)
+            # ★ 批 J：夹具自检——替换必须真的命中（防「夹具没改到 ⇒ 负例其实没被触发」的假绿）
+            assert out != s, "夹具自检：%s 的替换未命中" % name
+            open(fp, "w", encoding="utf-8").write(out)
         return _m
 
     def add_page(name, text):
@@ -914,6 +935,20 @@ def selftest():
     case("T12 负例：内联页出现外链样式",
          "T12", edit_page("index.html", lambda s: s.replace(
              "</head>", '<link rel="stylesheet" href="assets/tokens.css"></head>')))
+    # ---- ★ 批 J 口径重述的成对夹具（证明重述后**不是恒真**）
+    case("T12 负例（重述后仍必须 FAIL）：外链页出现**两个** rel=\"stylesheet\" 的 <link>",
+         "T12", edit_page("g/a.html", lambda s: s.replace(
+             '<link rel="stylesheet" href="../assets/tokens.css">',
+             '<link rel="stylesheet" href="../assets/tokens.css">'
+             '<link rel="stylesheet" href="../assets/tokens.css">')))
+    case("★ T12 正向（重述的核心）：1 个 stylesheet ＋ 1 个 canonical ＋ 1 个 icon ⇒ **必须 PASS**"
+         "（原口径在此假 FAIL）",
+         "T12", edit_page("g/a.html", lambda s: s.replace(
+             '<link rel="stylesheet" href="../assets/tokens.css">',
+             '<link rel="canonical" href="https://example.github.io/site/g/a.html">'
+             '<link rel="icon" type="image/svg+xml" href="/site/favicon.svg">'
+             '<link rel="stylesheet" href="../assets/tokens.css">')),
+         expect_fail=False)
 
     # ---- ★ 假阳样本（这些改动**不应**触发对应判据）
     def fp_family_override(tmp, cp, pp):

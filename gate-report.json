@@ -5,10 +5,17 @@
   "determinism_note": "★ 确定性件：⛔ 无墙钟时间戳、⛔ 无作者机绝对路径；tree_digest 排除本报告自身与 build/gate-baseline.json。",
   "gates": [
     {
+      "gate": "gate_a11y.py",
+      "mode": "hard",
+      "exit_code": 0,
+      "summary": "无障碍门控（mode=hard）：7 项判据，0 FAIL（blind 0 / hard 0）",
+      "determinism_note": "★ 本节的判据与阈值未改；批 J 起执行强度为 hard。"
+    },
+    {
       "gate": "gate_design.py",
       "site": "algorithm-knowledge-graph",
       "mode": "report",
-      "tree_digest": "b30d8343d511b2e145d370ed2f17a77cffa76a1b451832eed7fdcf455ad1e312",
+      "tree_digest": "af4c8c8a2097fbda0c465b75825a2e8bb9bea483e321a26fdb7aab34d7092e35",
       "classes_covered": [
         "contrast",
         "token-consistency",
@@ -57,10 +64,10 @@
       ],
       "counts": {
         "judges": 9,
-        "pass": 7,
+        "pass": 8,
         "fail": 0,
         "report": 0,
-        "skip": 2
+        "skip": 1
       },
       "judges": [
         {
@@ -89,7 +96,7 @@
           "name": "类③ 死 CSS（本步新增的 class 必须「用到即定义」；两向差集只作 report 观察）",
           "class": "report",
           "status": "PASS",
-          "detail": "本步新增 11 个 class 在全部使用页上均已定义；族级 report 观察 4 条（族 default：定义了但全族未用的 class 选择器 5 个（b-p0,b-p1,b-p2,b-p3,spacer）；族 default：用到但无同名 class 规则的 5 个（dp,nav-node,p,python,st）——⛔ 不判 FAIL（视觉可能由内联 style 或元素/后代选择器承担）；族 groups-index：定义了但全族未用的）"
+          "detail": "本步新增 11 个 class 在全部使用页上均已定义；族级 report 观察 5 条（族 default：定义了但全族未用的 class 选择器 6 个（b-p0,b-p1,b-p2,b-p3,skip-link,spacer）；族 default：用到但无同名 class 规则的 5 个（dp,nav-node,p,python,st）——⛔ 不判 FAIL（视觉可能由内联 style 或元素/后代选择器承担）；族 groups-index）"
         },
         {
           "id": "D5",
@@ -110,14 +117,14 @@
           "name": "类⑥ 元数据（lang/title 为 hard；description/og/canonical/favicon/sitemap 为 report 观察）",
           "class": "report",
           "status": "PASS",
-          "detail": "全部 438 页有 <html lang> 且 <title> 非空并含站点名；report 观察 6 条（SH4 标准档改动面，⛔ 本批不实施）：缺 description 的页 438 / 438；缺 og:* 的页 438 / 438；缺 canonical 的页 438 / 438；缺 favicon 的页 438 / 438；仓内无 sitemap.xml；仓内无 robots.txt"
+          "detail": "全部 438 页有 <html lang> 且 <title> 非空并含站点名；report 观察 1 条（SH4 标准档改动面，⛔ 本批不实施）：缺 favicon 的页 63 / 438"
         },
         {
           "id": "D8",
           "name": "变更面增量档（变更集为空 ⇒ SKIP）",
           "class": "skip",
-          "status": "SKIP",
-          "detail": "SKIP：变更集为空（tree_digest=b30d8343d511b2e1）⇒ 全量判据已由 D2–D7 承担；⛔ 不得读作 PASS"
+          "status": "PASS",
+          "detail": "变更 453 个文件（02-node-pages/15-puzzle.html, 02-node-pages/2d-geometry.html, 02-node-pages/3d-geometry.html …）；对变更页跑 8 条判据，0 FAIL"
         },
         {
           "id": "D9",
@@ -137,10 +144,17 @@
       ]
     },
     {
+      "gate": "gate_seo_meta.py",
+      "mode": "hard",
+      "exit_code": 0,
+      "summary": "元数据门控（mode=hard）：11 项判据，0 FAIL（blind 0 / hard 0）",
+      "determinism_note": "★ 本节的判据与阈值未改；批 J 起执行强度为 hard。"
+    },
+    {
       "gate": "gate_tokens.py",
       "site": "algorithm-knowledge-graph",
       "mode": "report",
-      "tree_digest": "b30d8343d511b2e145d370ed2f17a77cffa76a1b451832eed7fdcf455ad1e312",
+      "tree_digest": "af4c8c8a2097fbda0c465b75825a2e8bb9bea483e321a26fdb7aab34d7092e35",
       "classes_covered": [
         "① 对比度",
         "② 令牌唯一值"
@@ -236,10 +250,10 @@
         },
         {
           "id": "T12",
-          "name": "形态分别断言（外链页 1 个 link ＋ 目标可达；内联页零外链）",
+          "name": "形态分别断言（外链页恰 1 个 rel=\"stylesheet\" 的 <link> ＋ 目标可达；内联页零外链样式）",
           "class": "hard",
           "status": "PASS",
-          "detail": "外链页 63 个全部有且仅有 1 个指向 assets/tokens.css 的 <link> 且目标在仓内；内联页 375 个零外链样式"
+          "detail": "外链页 63 个全部有且仅有 1 个指向 assets/tokens.css 的 rel=\"stylesheet\" <link> 且目标在仓内；内联页 375 个零外链样式"
         }
       ],
       "not_covered": [

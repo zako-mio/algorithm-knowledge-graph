@@ -1,299 +1,315 @@
 {
-  "site": "algorithm-knowledge-graph",
-  "site_number": "09",
-  "repo": "zako-mio/algorithm-knowledge-graph",
-  "default_branch": "main",
-  "form": "mixed",
-  "form_enum_note": "★ `pipeline/site-profile.schema.json` 的 `form` 枚举只有 `external-link` / `inline-single-source` 两项，而本站按用户 Q2-A 是**一站两形态**（372 节点页内联 ＋ 63 页外链）⇒ 本字段写 `mixed`。⛔ **未改** `site-profile.schema.json`（硬约束：schema 不得改）。`form_enum_fallback` 给出只认枚举的工具可用的兜底值。",
-  "form_enum_fallback": "inline-single-source",
-  "form_reason": "★ Q2-A：372 个节点页是**可离线/可归档的单篇内容交付物**（what/why/how/例题/易错点五区块），样式必须自带 ⇒ 内联；由生成器产出的 63 个非节点页（60 组页 ＋ 3 视图页）是**导航骨架**，外链一份 `assets/tokens.css`。手写页（3 个 ＋ report.html）保持内联——形态 2 的红利是「不手改生成物」，手写页改外链要手改且无生成器兜底。★ 集合已按实测定死（B8）：⛔ 全树不得再出现「47 个区块页」。",
-  "publish_dir": ".",
-  "publish_dir_shape": "root",
-  "value_file": "pipeline/values/algorithm-knowledge-graph.json",
-  "local_clone": "",
-  "local_clone_note": "★ 站点仓内不设本地克隆：AUD 侧的 C12（克隆 HEAD 与工作树对账）依赖仓外路径，在站点环境上不成立 ⇒ 站点侧改由 gate_tokens.py 判，骨架契约门控留在 AUD 侧跑。⛔ 不改判据、不改 targets、不改 commands。",
-  "generator_dirs": [
-    "07-checkpoint"
-  ],
-  "generator_commands": [
-    "python3 gen-node-pages.py",
-    "python3 gen-group-pages.py",
-    "python3 gen-views.py",
-    "python3 gen-md.py"
-  ],
-  "generator_commands_note": "★ **实测 4 条**（H-A1 更正：方案记「生成器脚本 7 个」系误引 `evidence/SUMMARY.md:101` 的 `code_file_count`，实测 `07-checkpoint` 有 **5 个 `.py`**）。第 5 个 `gen-report-html.py` ⛔ **不在本表**：它的 `src`/`dst` 是**仓外绝对路径**（`gen-report-html.py:86-87`）⇒ 跑它会在仓外写文件，且仓内那份 `report.html` 无法由它复现（Q4-A 登记为未覆盖）。",
-  "build_cwd": "07-checkpoint",
-  "python_version": "3.11",
-  "targets": [
-    {
-      "path": "assets/tokens.css",
-      "mode": "whole-file",
-      "family": "default",
-      "frozen_sha256": null,
-      "note": "★ 形态 2 的外链产物：**只含令牌**，不承载布局规则。由 `gen-group-pages.py` 与派生器/写入器从**同一份派生**写出（字节相同，由 gate_tokens.py 的 T11 断言）。供 63 页 `<link>`。⛔ 不手改。"
-    },
-    {
-      "path": "03-groups/index.html",
-      "mode": "root-block",
-      "family": "groups-index",
-      "frozen_sha256": null,
-      "note": "手写页（Q4-A）。root-block 模式：只重写首个 `:root{...}`，**其余字节逐字节保留**（B4 非目标段 sha256 判据）。★ 硬约束：⛔ 不改本页**内容**，只改令牌块与 a11y 两处。"
-    },
-    {
-      "path": "04-interactive/index.html",
-      "mode": "root-block",
-      "family": "interactive",
-      "frozen_sha256": null,
-      "note": "手写页（Q4-A）。页面族覆盖的产物面：--warn=#e0c35e 与 --danger=#e05563 在本族独立于默认族（Q7-A 有意保留）。"
-    },
-    {
-      "path": "index.html",
-      "mode": "root-block",
-      "family": "index",
-      "frozen_sha256": null,
-      "note": "手写页（Q4-A）。本族独有 --ext=#c9a227；按 Q7-A「--warn 三态：首页无」，本族**不含** --warn。"
-    }
-  ],
-  "page_families": [
-    {
-      "glob": "02-node-pages/*.html",
-      "family": "default",
-      "delivery": "inline",
-      "note": "**372 页**，由 gen-node-pages.py 运行期从值件展开产出。形态 2 的内联面。"
-    },
-    {
-      "glob": "03-groups/G-*.html",
-      "family": "default",
-      "delivery": "external",
-      "stylesheet": "../assets/tokens.css",
-      "note": "**60 页**，由 gen-group-pages.py 产出。形态 2 的外链面之一（B8）。★ glob 用 `G-*.html` 而**不是** `*.html`：目录页 `03-groups/index.html` 是手写页、属另一族。"
-    },
-    {
-      "glob": "05-views/*.html",
-      "family": "default",
-      "delivery": "external",
-      "stylesheet": "../assets/tokens.css",
-      "note": "**3 页**，由 gen-views.py 产出。形态 2 的外链面之二（B8）。"
-    },
-    {
-      "glob": "03-groups/index.html",
-      "family": "groups-index",
-      "delivery": "inline",
-      "note": "1 页，手写（`03-groups/` 的 61 个 HTML 里唯一的非生成物）。"
-    },
-    {
-      "glob": "04-interactive/index.html",
-      "family": "interactive",
-      "delivery": "inline",
-      "note": "1 页，手写（含 canvas 图谱，本步补 DOM 文本等价物与 aria-live 播报）。"
-    },
-    {
-      "glob": "index.html",
-      "family": "index",
-      "delivery": "inline",
-      "note": "1 页，手写（Q1-A：首屏改为关系结构入口）。"
-    }
-  ],
-  "page_families_note": "★ 站点侧门控的扫描面**只由本表决定**：本表覆盖 **438 个 HTML**（372 ＋ 60 ＋ 3 ＋ 3）。⛔ 表外页面不会「默认通过」——T11（覆盖完备性）要求**全仓 HTML = 扫描面 ∪ 已声明未覆盖**且两集不交。",
-  "uncovered_pages": [
-    {
-      "path": "report.html",
-      "reason": "★ 由 `07-checkpoint/gen-report-html.py` 产出，但其 `src`/`dst` 是**仓外绝对路径**（`gen-report-html.py:86-87`）⇒ 仓内这份**无生成器可复现**（H-A3 的「第 4 类缺口」）。Q4-A 裁定「只手工改 3 页 ＋ 登记为未覆盖，⛔ 不补生成器」⇒ 本轮**不改**它：其 `:root`（7 枚令牌：--bg/--panel/--border/--text/--dim/--accent/--ok，无 --warn/--err/--border-subtle/--ext）保持现值，a11y 三件（skip link / :focus-visible / main）亦未补。",
-      "measured_tokens": [
-        "--bg",
-        "--panel",
-        "--border",
-        "--text",
-        "--dim",
-        "--accent",
-        "--ok"
-      ],
-      "declared_in": [
-        "gate-manifest.json#/not_covered",
-        "pipeline/values/algorithm-knowledge-graph.json#/meta/decisions/B9_a11y_coverage_landing"
-      ],
-      "closure_condition": "若哪天 `gen-report-html.py` 的输出目标改回仓内，则本页应移出本表并纳入扫描面（⛔ 在此之前不得静默忽略）"
-    }
-  ],
-  "uncovered_pages_note": "★ 本表**不是豁免白名单**：它是「覆盖完备性」判据的另一半。T11 会把「全仓 HTML 集合」与「扫描面 ∪ 本表」对账——**差集非空即 FAIL**，且本表与扫描面**相交即 FAIL**（防同一页被两边同时声明）。⛔ 无 waivers/exempt/allow/skip/ignore 一类字段（check_gate_manifest.py 的 M4 主动拒绝）。",
-  "link_surface": {
-    "artifact": "assets/tokens.css",
-    "expected_pages": 63,
-    "families": [
-      "03-groups/G-*.html",
-      "05-views/*.html"
-    ],
-    "content_type": "text/css",
-    "note": "★ 判据 4 的对象集合（B8 定死）。门控须**分别**断言：① 63 页有外链且目标可达（本机无 HTTP 服务 ⇒ 以「文件存在 ＋ 引用为相对路径 ＋ 扩展名 .css」等价替代，**如实声明未做 HTTP 探测**）；② 372 个节点页**无任何外链样式**。"
+ "site": "algorithm-knowledge-graph",
+ "site_number": "09",
+ "repo": "zako-mio/algorithm-knowledge-graph",
+ "default_branch": "main",
+ "form": "mixed",
+ "form_enum_note": "★ `pipeline/site-profile.schema.json` 的 `form` 枚举只有 `external-link` / `inline-single-source` 两项，而本站按用户 Q2-A 是**一站两形态**（372 节点页内联 ＋ 63 页外链）⇒ 本字段写 `mixed`。⛔ **未改** `site-profile.schema.json`（硬约束：schema 不得改）。`form_enum_fallback` 给出只认枚举的工具可用的兜底值。",
+ "form_enum_fallback": "inline-single-source",
+ "form_reason": "★ Q2-A：372 个节点页是**可离线/可归档的单篇内容交付物**（what/why/how/例题/易错点五区块），样式必须自带 ⇒ 内联；由生成器产出的 63 个非节点页（60 组页 ＋ 3 视图页）是**导航骨架**，外链一份 `assets/tokens.css`。手写页（3 个 ＋ report.html）保持内联——形态 2 的红利是「不手改生成物」，手写页改外链要手改且无生成器兜底。★ 集合已按实测定死（B8）：⛔ 全树不得再出现「47 个区块页」。",
+ "publish_dir": ".",
+ "publish_dir_shape": "root",
+ "value_file": "pipeline/values/algorithm-knowledge-graph.json",
+ "local_clone": "",
+ "local_clone_note": "★ 站点仓内不设本地克隆：AUD 侧的 C12（克隆 HEAD 与工作树对账）依赖仓外路径，在站点环境上不成立 ⇒ 站点侧改由 gate_tokens.py 判，骨架契约门控留在 AUD 侧跑。⛔ 不改判据、不改 targets、不改 commands。",
+ "generator_dirs": [
+  "07-checkpoint"
+ ],
+ "generator_commands": [
+  "python3 gen-node-pages.py",
+  "python3 gen-group-pages.py",
+  "python3 gen-views.py",
+  "python3 gen-md.py"
+ ],
+ "generator_commands_note": "★ **实测 4 条**（H-A1 更正：方案记「生成器脚本 7 个」系误引 `evidence/SUMMARY.md:101` 的 `code_file_count`，实测 `07-checkpoint` 有 **5 个 `.py`**）。第 5 个 `gen-report-html.py` ⛔ **不在本表**：它的 `src`/`dst` 是**仓外绝对路径**（`gen-report-html.py:86-87`）⇒ 跑它会在仓外写文件，且仓内那份 `report.html` 无法由它复现（Q4-A 登记为未覆盖）。",
+ "build_cwd": "07-checkpoint",
+ "python_version": "3.11",
+ "targets": [
+  {
+   "path": "assets/tokens.css",
+   "mode": "whole-file",
+   "family": "default",
+   "frozen_sha256": null,
+   "note": "★ 形态 2 的外链产物：**只含令牌**，不承载布局规则。由 `gen-group-pages.py` 与派生器/写入器从**同一份派生**写出（字节相同，由 gate_tokens.py 的 T11 断言）。供 63 页 `<link>`。⛔ 不手改。"
   },
-  "inline_surface": {
-    "families": [
-      "02-node-pages/*.html",
-      "03-groups/index.html",
-      "04-interactive/index.html",
-      "index.html"
-    ],
-    "expected_pages": 375,
-    "note": "375 = 372 节点页 ＋ 3 个手写页。门控断言：这 375 页**零外链样式**，且其自有 `:root` 与值件派生逐字节一致（归一化后）。"
+  {
+   "path": "03-groups/index.html",
+   "mode": "root-block",
+   "family": "groups-index",
+   "frozen_sha256": null,
+   "note": "手写页（Q4-A）。root-block 模式：只重写首个 `:root{...}`，**其余字节逐字节保留**（B4 非目标段 sha256 判据）。★ 硬约束：⛔ 不改本页**内容**，只改令牌块与 a11y 两处。"
   },
-  "render_sample": {
-    "size": 12,
-    "pages": [
-      "index.html",
-      "04-interactive/index.html",
-      "03-groups/index.html",
-      "05-views/index.html",
-      "05-views/02-priority.html",
-      "05-views/03-learning-path.html",
-      "02-node-pages/bfs.html",
-      "02-node-pages/astar.html",
-      "02-node-pages/ac-automaton.html",
-      "02-node-pages/ai-cp-trend.html",
-      "03-groups/G-A-1.html",
-      "03-groups/G-E-10.html"
-    ],
-    "selection": "首页 ＋ 交互页 ＋ 组目录页 ＋ 全部 3 个视图页 ＋ 每阶段抽 1 个节点页（basic=bfs / intermediate=astar / advanced=ac-automaton / frontier=ai-cp-trend）＋ 2 个组页（首组 G-A-1 / 末组 G-E-10）",
-    "viewports": [
-      [
-        1440,
-        900
-      ],
-      [
-        1024,
-        768
-      ],
-      [
-        768,
-        1024
-      ],
-      [
-        375,
-        812
-      ]
-    ],
-    "mode": "static-only",
-    "mode_reason": "★ 本机**无浏览器**（`agent-browser` 不在 PATH）⇒ 渲染档（四视口 `documentElement.scrollWidth` / 焦点可见性几何）**未测**；本表只承载这 12 页的**静态判据**。⛔ 不得把静态判据读作渲染实测。"
+  {
+   "path": "04-interactive/index.html",
+   "mode": "root-block",
+   "family": "interactive",
+   "frozen_sha256": null,
+   "note": "手写页（Q4-A）。页面族覆盖的产物面：--warn=#e0c35e 与 --danger=#e05563 在本族独立于默认族（Q7-A 有意保留）。"
   },
-  "single_source_invariants": {
-    "value_file": "vendor/pipeline/values/algorithm-knowledge-graph.json",
-    "derive_module": "vendor/pipeline/derive_site_tokens.py",
-    "literal_free_generators": [
-      "07-checkpoint/gen-node-pages.py",
-      "07-checkpoint/gen-group-pages.py",
-      "07-checkpoint/gen-views.py"
-    ],
-    "note": "★ 本步「建单源」的可机检形态：① 三个生成器在**剥掉 Python 行注释后**不得含 `:root{…}` 字面值块，也不得含 `--token:#hex` 赋值字面值；② 三者必须引用同一份值件（值件文件名出现在源码里）。两条由 gate_tokens.py 的 T8 实测（含对生成器的真实 import 与真跑一次 `build_tokens`）。"
-  },
-  "gate_entry": "gate_tokens.py",
-  "gates": {
-    "manifest": "gate-manifest.json",
-    "hard_blocking": [
-      "token-consistency",
-      "contrast",
-      "empty-set-guard",
-      "artifact-existence"
-    ],
-    "report_only": [
-      "dead-css",
-      "a11y",
-      "responsive",
-      "metadata"
-    ],
-    "mode_now": "report",
-    "mode_now_reason": "★ 本站**从未跑过任何设计判据**（无 CI、0 个门控脚本，见 survey-findings 的 not_covered），首轮以报告模式记基线。⛔ 这不是「放宽阈值换绿灯」——判据与阈值一字未改，只是执行强度分阶段；空集守卫（T1/T11 的 blind 类）**不随报告模式放宽**。",
-    "mode_now_transition": "转硬触发条件：连续两轮重生成的 gate_tokens 报告无新增 FAIL 类，则由本轮结论件逐类转 hard 并更新 gate-manifest.json 的 mode 字段。★ `site-profile.schema.json` 的 hard_blocking 枚举只有四项 ⇒ 四类非令牌门控只能进 report_only（扩枚举＝改 schema，须走独立决策）。",
-    "commands": [
-      "python3 gate_tokens.py --site-root . --manifest gate-manifest.json --mode enforce",
-      "python3 gate_design.py --site-root . --manifest gate-manifest.json --mode enforce",
-      "python3 vendor/pipeline/check_gate_manifest.py --manifest gate-manifest.json --profile build/profile.json"
-    ],
-    "commands_note": "★ 前两条是**阻断档**（enforce）；生成器收尾处的内联调用用 **report 档**（Q5-B）——理由：多生成器重建过程中，先跑完的生成器会看到尚未重建的兄弟族，此时阻断会让**正确的重建**失败。⇒ 内联调用留痕（gate-report.json），阻断由本表的一行命令承担（SH5 §4.2 第 3 点的 legacy 站路径）。★ 站点侧**不跑** `check_site_tokens.py`：它的 C12 要读仓外的本地克隆与 `fe-starter-kit`，在站点环境必然 FAIL（判据成立但环境不成立）。"
-  },
-  "a11y": {
-    "required": {
-      "skip_link": 1,
-      "focus_visible_min": 1,
-      "main": 1
-    },
-    "require_dom_table_for_static_svg": true,
-    "note": "★ SH2 §4.2 口径。硬断言的对象＝**静态 HTML**：skip link 恰 1 · `:focus-visible` ≥1 · `<main>` 恰 1 · 每个静态 `<svg>`/`<canvas>` 必须有 `role=\"img\"` ＋ 非空 `aria-label` ＋ 页内存在 DOM 文本等价物（`<table>`）。",
-    "js_rendered_graphics": [
-      {
-        "page": "04-interactive/index.html",
-        "container": "#graph（cytoscape 容器）",
-        "status": "registered-uncovered",
-        "note": "canvas 图谱由 cytoscape 在**运行期**注入 ⇒ 静态 HTML 里没有图形元素；「节点/边 DOM 表格等价物」属方案 §4.3 理想档、未被本轮 Q 裁定采纳 ⇒ **登记为未覆盖**，⛔ 不假称已修。"
-      }
-    ]
-  },
-  "responsive": {
-    "fixed_layout_pages": [
-      "04-interactive/index.html"
-    ],
-    "fixed_layout_reason": "交互页是本站唯一的**固定布局页**（header / #side / #detail / #graph / #zoominfo 全为 `position:fixed`；`#side` 固定 300px、窄视口 220px）⇒ 它必须有自己的窄视口断点。其余页面用 `grid-template-columns:repeat(auto-fill,minmax(...))` 的**内在响应式**布局，无断点**不判 FAIL**（判据对象＝「是否有断点」，断言对象＝「窄视口是否溢出」，两者不一致，SH5 §4.0 第 1 条）⇒ 只作 report 观察。",
-    "known_defects_registered": [
-      "C5-N4",
-      "C5-N5"
-    ],
-    "known_defects_note": "Q6-A：窄视口下 `#side` 盖住约 41% 画布 ＋ `body{height:100vh;overflow:hidden}` 禁横向滚动 ⇒ **只登记、不修**。"
-  },
-  "metadata": {
-    "title_must_contain": "算法知识图谱",
-    "hard_assertions": [
-      "<html lang> 非空",
-      "<title> 非空且含站点名"
-    ],
-    "report_only_observations": [
-      "description",
-      "og:*",
-      "canonical",
-      "favicon",
-      "sitemap.xml",
-      "robots.txt"
-    ],
-    "report_only_reason": "这 6 项属 SH4 标准档的改动面（每页 `<head>` 补 4 项 ＋ 生成器收尾写 sitemap/robots）；⛔ 本批任务书的改动面清单**未含**它 ⇒ 只报告不实施，⛔ 不判 FAIL、⛔ 也不假称已达标。"
-  },
-  "dead_css": {
-    "new_classes_this_round": [
-      "skip",
-      "vh",
-      "graphbox",
-      "stagegrid",
-      "sglab",
-      "sgcnt",
-      "sgleg",
-      "equiv",
-      "stagetbl",
-      "entries",
-      "entry"
-    ],
-    "note": "★ 本步新增的 class 清单（hard 断言的对象集合）：判据＝「用到即定义」。⛔ 反向（族级 `定义 − 使用`）与「用到但无同名 class 规则」两向都只作 report 观察——本步**实测**证明朴素的「用到 ⊆ 定义」会产生 **5 个假 FAIL**（`dp` `p` `st` 由内联 style 承担视觉；`nav-node` 被 `.navseq a` 覆盖；`python` 被 `pre code` 覆盖）。详见 gate_design.py 的 cls_dead_css 文档串。",
-    "measured_false_positives": {
-      "classes": [
-        "dp",
-        "p",
-        "st",
-        "nav-node",
-        "python"
-      ],
-      "pages": {
-        "st": 432,
-        "p": 432,
-        "nav-node": 431,
-        "python": 372,
-        "dp": 372
-      },
-      "why_not_a_defect": "视觉分别由「内联 style（badge 的三色）」「元素/后代选择器（.navseq a / pre code）」承担 ⇒ 静态正则无法判覆盖关系，判 FAIL 即判据对象与断言对象不一致。"
-    }
-  },
-  "gate_report": {
-    "path": "gate-report.json",
-    "baseline": "build/gate-baseline.json",
-    "note": "★ 两件都是**确定性件**：⛔ 无墙钟时间戳、⛔ 无作者机绝对路径；`tree_digest` 排除报告自身与基线自身。"
-  },
-  "non_target_guard": {
-    "kind": "rules-segment",
-    "regex": ":root\\s*\\{[^{}]*\\}",
-    "note": "三个手写页的目标模式是 root-block ⇒ 必须用非目标段 sha256 判据（write_site_tokens.py 的 B4）证明只动了令牌块。"
+  {
+   "path": "index.html",
+   "mode": "root-block",
+   "family": "index",
+   "frozen_sha256": null,
+   "note": "手写页（Q4-A）。本族独有 --ext=#c9a227；按 Q7-A「--warn 三态：首页无」，本族**不含** --warn。"
   }
+ ],
+ "page_families": [
+  {
+   "glob": "02-node-pages/*.html",
+   "family": "default",
+   "delivery": "inline",
+   "note": "**372 页**，由 gen-node-pages.py 运行期从值件展开产出。形态 2 的内联面。"
+  },
+  {
+   "glob": "03-groups/G-*.html",
+   "family": "default",
+   "delivery": "external",
+   "stylesheet": "../assets/tokens.css",
+   "note": "**60 页**，由 gen-group-pages.py 产出。形态 2 的外链面之一（B8）。★ glob 用 `G-*.html` 而**不是** `*.html`：目录页 `03-groups/index.html` 是手写页、属另一族。"
+  },
+  {
+   "glob": "05-views/*.html",
+   "family": "default",
+   "delivery": "external",
+   "stylesheet": "../assets/tokens.css",
+   "note": "**3 页**，由 gen-views.py 产出。形态 2 的外链面之二（B8）。"
+  },
+  {
+   "glob": "03-groups/index.html",
+   "family": "groups-index",
+   "delivery": "inline",
+   "note": "1 页，手写（`03-groups/` 的 61 个 HTML 里唯一的非生成物）。"
+  },
+  {
+   "glob": "04-interactive/index.html",
+   "family": "interactive",
+   "delivery": "inline",
+   "note": "1 页，手写（含 canvas 图谱，本步补 DOM 文本等价物与 aria-live 播报）。"
+  },
+  {
+   "glob": "index.html",
+   "family": "index",
+   "delivery": "inline",
+   "note": "1 页，手写（Q1-A：首屏改为关系结构入口）。"
+  }
+ ],
+ "page_families_note": "★ 站点侧门控的扫描面**只由本表决定**：本表覆盖 **438 个 HTML**（372 ＋ 60 ＋ 3 ＋ 3）。⛔ 表外页面不会「默认通过」——T11（覆盖完备性）要求**全仓 HTML = 扫描面 ∪ 已声明未覆盖**且两集不交。",
+ "uncovered_pages": [
+  {
+   "path": "report.html",
+   "reason": "★ 由 `07-checkpoint/gen-report-html.py` 产出，但其 `src`/`dst` 是**仓外绝对路径**（`gen-report-html.py:86-87`）⇒ 仓内这份**无生成器可复现**（H-A3 的「第 4 类缺口」）。Q4-A 裁定「只手工改 3 页 ＋ 登记为未覆盖，⛔ 不补生成器」⇒ 本轮**不改**它：其 `:root`（7 枚令牌：--bg/--panel/--border/--text/--dim/--accent/--ok，无 --warn/--err/--border-subtle/--ext）保持现值，a11y 三件（skip link / :focus-visible / main）亦未补。",
+   "measured_tokens": [
+    "--bg",
+    "--panel",
+    "--border",
+    "--text",
+    "--dim",
+    "--accent",
+    "--ok"
+   ],
+   "declared_in": [
+    "gate-manifest.json#/not_covered",
+    "pipeline/values/algorithm-knowledge-graph.json#/meta/decisions/B9_a11y_coverage_landing"
+   ],
+   "closure_condition": "若哪天 `gen-report-html.py` 的输出目标改回仓内，则本页应移出本表并纳入扫描面（⛔ 在此之前不得静默忽略）"
+  }
+ ],
+ "uncovered_pages_note": "★ 本表**不是豁免白名单**：它是「覆盖完备性」判据的另一半。T11 会把「全仓 HTML 集合」与「扫描面 ∪ 本表」对账——**差集非空即 FAIL**，且本表与扫描面**相交即 FAIL**（防同一页被两边同时声明）。⛔ 无 waivers/exempt/allow/skip/ignore 一类字段（check_gate_manifest.py 的 M4 主动拒绝）。",
+ "link_surface": {
+  "artifact": "assets/tokens.css",
+  "expected_pages": 63,
+  "families": [
+   "03-groups/G-*.html",
+   "05-views/*.html"
+  ],
+  "content_type": "text/css",
+  "note": "★ 判据 4 的对象集合（B8 定死）。门控须**分别**断言：① 63 页有外链且目标可达（本机无 HTTP 服务 ⇒ 以「文件存在 ＋ 引用为相对路径 ＋ 扩展名 .css」等价替代，**如实声明未做 HTTP 探测**）；② 372 个节点页**无任何外链样式**。"
+ },
+ "inline_surface": {
+  "families": [
+   "02-node-pages/*.html",
+   "03-groups/index.html",
+   "04-interactive/index.html",
+   "index.html"
+  ],
+  "expected_pages": 375,
+  "note": "375 = 372 节点页 ＋ 3 个手写页。门控断言：这 375 页**零外链样式**，且其自有 `:root` 与值件派生逐字节一致（归一化后）。"
+ },
+ "render_sample": {
+  "size": 12,
+  "pages": [
+   "index.html",
+   "04-interactive/index.html",
+   "03-groups/index.html",
+   "05-views/index.html",
+   "05-views/02-priority.html",
+   "05-views/03-learning-path.html",
+   "02-node-pages/bfs.html",
+   "02-node-pages/astar.html",
+   "02-node-pages/ac-automaton.html",
+   "02-node-pages/ai-cp-trend.html",
+   "03-groups/G-A-1.html",
+   "03-groups/G-E-10.html"
+  ],
+  "selection": "首页 ＋ 交互页 ＋ 组目录页 ＋ 全部 3 个视图页 ＋ 每阶段抽 1 个节点页（basic=bfs / intermediate=astar / advanced=ac-automaton / frontier=ai-cp-trend）＋ 2 个组页（首组 G-A-1 / 末组 G-E-10）",
+  "viewports": [
+   [
+    1440,
+    900
+   ],
+   [
+    1024,
+    768
+   ],
+   [
+    768,
+    1024
+   ],
+   [
+    375,
+    812
+   ]
+  ],
+  "mode": "static-only",
+  "mode_reason": "★ 本机**无浏览器**（`agent-browser` 不在 PATH）⇒ 渲染档（四视口 `documentElement.scrollWidth` / 焦点可见性几何）**未测**；本表只承载这 12 页的**静态判据**。⛔ 不得把静态判据读作渲染实测。"
+ },
+ "single_source_invariants": {
+  "value_file": "vendor/pipeline/values/algorithm-knowledge-graph.json",
+  "derive_module": "vendor/pipeline/derive_site_tokens.py",
+  "literal_free_generators": [
+   "07-checkpoint/gen-node-pages.py",
+   "07-checkpoint/gen-group-pages.py",
+   "07-checkpoint/gen-views.py"
+  ],
+  "note": "★ 本步「建单源」的可机检形态：① 三个生成器在**剥掉 Python 行注释后**不得含 `:root{…}` 字面值块，也不得含 `--token:#hex` 赋值字面值；② 三者必须引用同一份值件（值件文件名出现在源码里）。两条由 gate_tokens.py 的 T8 实测（含对生成器的真实 import 与真跑一次 `build_tokens`）。"
+ },
+ "gate_entry": "gate_tokens.py",
+ "gates": {
+  "manifest": "gate-manifest.json",
+  "hard_blocking": [
+   "token-consistency",
+   "contrast",
+   "empty-set-guard",
+   "artifact-existence"
+  ],
+  "report_only": [
+   "dead-css",
+   "responsive"
+  ],
+  "mode_now": "report",
+  "mode_now_reason": "★ 本站**从未跑过任何设计判据**（无 CI、0 个门控脚本，见 survey-findings 的 not_covered），首轮以报告模式记基线。⛔ 这不是「放宽阈值换绿灯」——判据与阈值一字未改，只是执行强度分阶段；空集守卫（T1/T11 的 blind 类）**不随报告模式放宽**。",
+  "mode_now_transition": "转硬触发条件：连续两轮重生成的 gate_tokens 报告无新增 FAIL 类，则由本轮结论件逐类转 hard 并更新 gate-manifest.json 的 mode 字段。★ `site-profile.schema.json` 的 hard_blocking 枚举只有四项 ⇒ 四类非令牌门控只能进 report_only（扩枚举＝改 schema，须走独立决策）。",
+  "commands": [
+   "python3 gate_tokens.py --site-root . --manifest gate-manifest.json --mode enforce",
+   "python3 gate_design.py --site-root . --manifest gate-manifest.json --mode enforce",
+   "python3 vendor/pipeline/check_gate_manifest.py --manifest gate-manifest.json --profile build/profile.json",
+   "python3 gate_a11y.py --site-root . --profile build/profile.json",
+   "python3 gate_seo_meta.py --site-root . --profile build/profile.json"
+  ],
+  "commands_note": "★ 前两条是**阻断档**（enforce）；生成器收尾处的内联调用用 **report 档**（Q5-B）——理由：多生成器重建过程中，先跑完的生成器会看到尚未重建的兄弟族，此时阻断会让**正确的重建**失败。⇒ 内联调用留痕（gate-report.json），阻断由本表的一行命令承担（SH5 §4.2 第 3 点的 legacy 站路径）。★ 站点侧**不跑** `check_site_tokens.py`：它的 C12 要读仓外的本地克隆与 `fe-starter-kit`，在站点环境必然 FAIL（判据成立但环境不成立）。",
+  "enforced_hard_by_manifest": [
+   "a11y",
+   "metadata"
+  ],
+  "enforced_hard_by_manifest_note": "★ 批 J 转硬档的**唯一实现口径**：`gate-manifest.json` 里 `a11y` / `metadata` 两项的 `mode` 改为 `hard`，门控脚本在 hard 类 FAIL 时 **exit 1**。⛔ **未扩** `site-profile.schema.json` 的 `hard_blocking` 枚举（该枚举只有 token-consistency / contrast / empty-set-guard / artifact-existence 四项）⇒ `a11y` / `metadata` **不能**进 `hard_blocking`，只能经 manifest 的 `mode` 表达。★ 这不是「放宽阈值」：判据与阈值一字未改，只是执行强度从 report_only 提到 hard。"
+ },
+ "a11y": {
+  "required": {
+   "skip_link": 1,
+   "focus_visible_min": 1,
+   "main": 1
+  },
+  "require_dom_table_for_static_svg": true,
+  "note": "★ SH2 §4.2 口径。硬断言的对象＝**静态 HTML**：skip link 恰 1 · `:focus-visible` ≥1 · `<main>` 恰 1 · 每个静态 `<svg>`/`<canvas>` 必须有 `role=\"img\"` ＋ 非空 `aria-label` ＋ 页内存在 DOM 文本等价物（`<table>`）。",
+  "js_rendered_graphics": [
+   {
+    "page": "04-interactive/index.html",
+    "container": "#graph（cytoscape 容器）",
+    "status": "registered-uncovered",
+    "note": "canvas 图谱由 cytoscape 在**运行期**注入 ⇒ 静态 HTML 里没有图形元素；「节点/边 DOM 表格等价物」属方案 §4.3 理想档、未被本轮 Q 裁定采纳 ⇒ **登记为未覆盖**，⛔ 不假称已修。"
+   }
+  ],
+  "not_products": [],
+  "main_landmark_exempt": [],
+  "skiplink_exempt": [],
+  "hard_mode_note": "★ 批 J：本门控的执行强度为 **hard**（`gate-manifest.json` 的 `mode` 字段 ＋ 门控脚本退出码）。`main_landmark_exempt` / `skiplink_exempt` **必须为空**——修实缺口，⛔ 不以登记豁免换绿灯。"
+ },
+ "responsive": {
+  "fixed_layout_pages": [
+   "04-interactive/index.html"
+  ],
+  "fixed_layout_reason": "交互页是本站唯一的**固定布局页**（header / #side / #detail / #graph / #zoominfo 全为 `position:fixed`；`#side` 固定 300px、窄视口 220px）⇒ 它必须有自己的窄视口断点。其余页面用 `grid-template-columns:repeat(auto-fill,minmax(...))` 的**内在响应式**布局，无断点**不判 FAIL**（判据对象＝「是否有断点」，断言对象＝「窄视口是否溢出」，两者不一致，SH5 §4.0 第 1 条）⇒ 只作 report 观察。",
+  "known_defects_registered": [
+   "C5-N4",
+   "C5-N5"
+  ],
+  "known_defects_note": "Q6-A：窄视口下 `#side` 盖住约 41% 画布 ＋ `body{height:100vh;overflow:hidden}` 禁横向滚动 ⇒ **只登记、不修**。"
+ },
+ "metadata": {
+  "title_must_contain": "算法知识图谱",
+  "hard_assertions": [
+   "<html lang> 非空",
+   "<title> 非空且含站点名"
+  ],
+  "report_only_observations": [
+   "description",
+   "og:*",
+   "canonical",
+   "favicon",
+   "sitemap.xml",
+   "robots.txt"
+  ],
+  "report_only_reason": "这 6 项属 SH4 标准档的改动面（每页 `<head>` 补 4 项 ＋ 生成器收尾写 sitemap/robots）；⛔ 本批任务书的改动面清单**未含**它 ⇒ 只报告不实施，⛔ 不判 FAIL、⛔ 也不假称已达标。"
+ },
+ "dead_css": {
+  "new_classes_this_round": [
+   "skip",
+   "vh",
+   "graphbox",
+   "stagegrid",
+   "sglab",
+   "sgcnt",
+   "sgleg",
+   "equiv",
+   "stagetbl",
+   "entries",
+   "entry"
+  ],
+  "note": "★ 本步新增的 class 清单（hard 断言的对象集合）：判据＝「用到即定义」。⛔ 反向（族级 `定义 − 使用`）与「用到但无同名 class 规则」两向都只作 report 观察——本步**实测**证明朴素的「用到 ⊆ 定义」会产生 **5 个假 FAIL**（`dp` `p` `st` 由内联 style 承担视觉；`nav-node` 被 `.navseq a` 覆盖；`python` 被 `pre code` 覆盖）。详见 gate_design.py 的 cls_dead_css 文档串。",
+  "measured_false_positives": {
+   "classes": [
+    "dp",
+    "p",
+    "st",
+    "nav-node",
+    "python"
+   ],
+   "pages": {
+    "st": 432,
+    "p": 432,
+    "nav-node": 431,
+    "python": 372,
+    "dp": 372
+   },
+   "why_not_a_defect": "视觉分别由「内联 style（badge 的三色）」「元素/后代选择器（.navseq a / pre code）」承担 ⇒ 静态正则无法判覆盖关系，判 FAIL 即判据对象与断言对象不一致。"
+  }
+ },
+ "gate_report": {
+  "path": "gate-report.json",
+  "baseline": "build/gate-baseline.json",
+  "note": "★ 两件都是**确定性件**：⛔ 无墙钟时间戳、⛔ 无作者机绝对路径；`tree_digest` 排除报告自身与基线自身。"
+ },
+ "non_target_guard": {
+  "kind": "rules-segment",
+  "regex": ":root\\s*\\{[^{}]*\\}",
+  "note": "三个手写页的目标模式是 root-block ⇒ 必须用非目标段 sha256 判据（write_site_tokens.py 的 B4）证明只动了令牌块。"
+ },
+ "seo_meta": {
+  "not_products": [],
+  "og_url_image_exempt": [],
+  "favicon_exempt": [],
+  "pages_base_url": "https://zako-mio.github.io/algorithm-knowledge-graph/",
+  "hard_mode_note": "★ 批 J：本门控的执行强度为 **hard**；og:url / og:image 由生成器逐页产出，`og_url_image_exempt` / `favicon_exempt` **必须为空**；sitemap.xml 与 robots.txt 由生成器真产出，⛔ 不再用 `sitemap_optional_reason` 声明「不适用」。"
+ }
 }
